@@ -75,24 +75,51 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
     [products]
   );
 
+  const kitOptionPool = availableKitProducts.length > 0 ? availableKitProducts : products;
+
   const [kitSlotIds, setKitSlotIds] = useState<[string, string, string]>(() => [
-    availableKitProducts[0]?.id || products[0]?.id || 'FAB-H001',
-    availableKitProducts[1]?.id || products[1]?.id || 'FAB-H002',
-    availableKitProducts[2]?.id || products[2]?.id || 'FAB-H003',
+    kitOptionPool[0]?.id || 'FAB-H001',
+    kitOptionPool[1]?.id || kitOptionPool[0]?.id || 'FAB-H002',
+    kitOptionPool[2]?.id || kitOptionPool[0]?.id || 'FAB-H003',
+  ]);
+  const [kitSlotVariantSkus, setKitSlotVariantSkus] = useState<[string, string, string]>([
+    '',
+    '',
+    '',
   ]);
   const [kitSize, setKitSize] = useState<StarKiTSize>('L');
   const [kitAdded, setKitAdded] = useState<boolean>(false);
+  const [brokenKitImages, setBrokenKitImages] = useState<Record<string, boolean>>({});
 
-  const kitItems = kitSlotIds
-    .map((id) => products.find((p) => p.id === id) || products[0])
-    .filter(Boolean);
-  const kitRawTotal = kitItems.reduce((sum, p) => sum + (p?.variants[0]?.priceBdt || p.basePrice), 0);
+  const resolvedKitEntries = useMemo(() => {
+    return ([0, 1, 2] as const).map((slotIdx) => {
+      const requestedId = kitSlotIds[slotIdx];
+      const matched =
+        kitOptionPool.find((p) => p.id === requestedId) ||
+        kitOptionPool[slotIdx] ||
+        kitOptionPool[0];
+      if (!matched) return null;
+      const requestedSku = kitSlotVariantSkus[slotIdx];
+      const variant =
+        matched.variants.find((v) => v.sku === requestedSku) || matched.variants[0];
+      if (!variant) return null;
+      return { product: matched, variant };
+    });
+  }, [kitOptionPool, kitSlotIds, kitSlotVariantSkus]);
+
+  const kitItems = resolvedKitEntries.filter(
+    (entry): entry is NonNullable<typeof entry> => entry !== null
+  );
+  const kitHasStock = availableKitProducts.length > 0 && kitItems.length > 0;
+  const kitRawTotal = kitItems.reduce((sum, entry) => sum + entry.variant.priceBdt, 0);
   const kitNetTotal = Math.max(0, kitRawTotal - storeSettings.bundle3DiscountBDT);
 
   const addFullKit = (instantCheckout: boolean) => {
-    kitItems.forEach((p) => {
-      const v = p.variants[0];
-      if (!v) return;
+    if (!kitHasStock) return;
+    trackStarKiTCustomizeProduct(
+      `3-Piece Smart Kit (${kitItems.map((i) => i.variant.sku).join('+')}) Size ${kitSize}`
+    );
+    kitItems.forEach(({ product: p, variant: v }) => {
       const payload: Omit<CartItem, 'id'> = {
         productId: p.id,
         nameEn: `StarkiT ${p.name} Hoodie (${p.stkCode || v.sku})`,
@@ -236,7 +263,7 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
             </div>
 
             {/* Result Card */}
-            <div className="p-5 rounded-2xl bg-white text-[#170000] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-8 border-[#C7C1BF]">
+            <div className="p-5 rounded-2xl bg-white text-[#170000] flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-2 border-[#170000] shadow-[4px_4px_0px_#C7C1BF]">
               <div>
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#524B4B] font-bold">
                   {language === 'en' ? 'Calculated StarkiT Fit' : 'আপনার উপযুক্ত সাইজ'}
@@ -370,9 +397,11 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
           {([0, 1, 2] as const).map((slotIdx) => {
-            const currentId = kitSlotIds[slotIdx];
-            const selected = products.find((p) => p.id === currentId) || products[0];
-            const variant = selected?.variants[0];
+            const resolved = resolvedKitEntries[slotIdx];
+            const selected = resolved?.product;
+            const variant = resolved?.variant;
+            const imgKey = `${slotIdx}-${variant?.sku || selected?.id || slotIdx}`;
+            const isBroken = Boolean(brokenKitImages[imgKey]);
             return (
               <div
                 key={slotIdx}
@@ -384,34 +413,86 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                     ৳{(variant?.priceBdt || selected?.basePrice || 0).toLocaleString()}
                   </span>
                 </div>
-                {variant && (
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={variant.previewImage}
-                      alt={selected.name}
-                      className="w-16 h-20 object-cover rounded-xl border border-[#170000]/15 shrink-0"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <select
-                        value={currentId}
-                        aria-label={`Select hoodie for kit slot ${slotIdx + 1}`}
-                        onChange={(e) => {
-                          const next = [...kitSlotIds] as [string, string, string];
-                          next[slotIdx] = e.target.value;
-                          setKitSlotIds(next);
-                        }}
-                        className="w-full bg-white border border-[#170000]/25 rounded-lg px-2.5 py-2 text-xs font-bold text-[#170000] focus:outline-none focus:border-[#170000] cursor-pointer"
-                      >
-                        {(availableKitProducts.length ? availableKitProducts : products).map((opt) => (
-                          <option key={opt.id} value={opt.id}>
-                            {opt.stkCode || opt.id} — {opt.name} (৳{opt.basePrice})
-                          </option>
-                        ))}
-                      </select>
-                      <div className="text-[11px] font-mono text-[#524B4B] mt-1.5">
-                        {variant.color} · {variant.gsm}
+                {selected && variant ? (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-3">
+                      {!isBroken ? (
+                        <img
+                          src={variant.previewImage}
+                          alt={selected.name}
+                          referrerPolicy="no-referrer"
+                          onError={() =>
+                            setBrokenKitImages((prev) => ({ ...prev, [imgKey]: true }))
+                          }
+                          className="w-16 h-20 object-cover rounded-xl border border-[#170000]/15 shrink-0 bg-[#170000]"
+                        />
+                      ) : (
+                        <div className="w-16 h-20 rounded-xl border border-[#170000]/25 bg-[#170000] text-white flex flex-col items-center justify-center p-1 text-center shrink-0">
+                          <span className="font-starkit text-[10px] font-bold uppercase leading-tight">
+                            {selected.stkCode || variant.sku}
+                          </span>
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <select
+                          value={selected.id}
+                          aria-label={`Select hoodie for kit slot ${slotIdx + 1}`}
+                          onChange={(e) => {
+                            const nextIds = [...kitSlotIds] as [string, string, string];
+                            nextIds[slotIdx] = e.target.value;
+                            setKitSlotIds(nextIds);
+                            const nextProd = kitOptionPool.find((p) => p.id === e.target.value);
+                            const nextSkus = [...kitSlotVariantSkus] as [string, string, string];
+                            nextSkus[slotIdx] = nextProd?.variants[0]?.sku || '';
+                            setKitSlotVariantSkus(nextSkus);
+                          }}
+                          className="w-full bg-white border border-[#170000]/25 rounded-lg px-2.5 py-2 text-xs font-bold text-[#170000] focus:outline-none focus:border-[#170000] cursor-pointer"
+                        >
+                          {kitOptionPool.map((opt) => (
+                            <option key={opt.id} value={opt.id}>
+                              {opt.stkCode || opt.id} — {opt.name} (৳{opt.basePrice})
+                            </option>
+                          ))}
+                        </select>
+                        <div className="text-[11px] font-mono text-[#524B4B] mt-1.5">
+                          {variant.color} · {variant.gsm}
+                        </div>
                       </div>
                     </div>
+
+                    {selected.variants.length > 1 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        {selected.variants.map((v) => {
+                          const isActiveVar = v.sku === variant.sku;
+                          return (
+                            <button
+                              key={v.sku}
+                              type="button"
+                              onClick={() => {
+                                const nextSkus = [...kitSlotVariantSkus] as [string, string, string];
+                                nextSkus[slotIdx] = v.sku;
+                                setKitSlotVariantSkus(nextSkus);
+                              }}
+                              className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[10px] font-mono cursor-pointer transition-colors ${
+                                isActiveVar
+                                  ? 'bg-[#170000] text-white border-[#170000] font-bold'
+                                  : 'bg-white text-[#170000] border-[#170000]/20 hover:border-[#170000]'
+                              }`}
+                            >
+                              <span
+                                className="w-2.5 h-2.5 rounded-full border border-current/30 shrink-0"
+                                style={{ backgroundColor: v.colorHex }}
+                              />
+                              <span>{v.color}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-xs font-mono text-[#524B4B] py-4">
+                    {language === 'en' ? 'No hoodies available' : 'কোনো হুডি পাওয়া যায়নি'}
                   </div>
                 )}
               </div>
@@ -428,7 +509,7 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
               <span className="font-mono text-sm text-[#524B4B] line-through tabular-nums">
                 ৳{kitRawTotal.toLocaleString()}
               </span>
-              <span className="px-2.5 py-0.5 rounded bg-[#170000] text-white text-[11px] font-mono font-bold">
+              <span className="px-2.5 py-0.5 rounded bg-[#170000] text-white text-[11px] font-mono font-bold tabular-nums">
                 -৳{storeSettings.bundle3DiscountBDT} + Free Delivery
               </span>
             </div>
@@ -442,17 +523,27 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
           <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
+              disabled={!kitHasStock}
               onClick={() => addFullKit(false)}
-              className="px-5 py-3 rounded-xl border-2 border-[#170000] bg-white hover:bg-[#ECEAEA] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors"
+              className="px-5 py-3 rounded-xl border-2 border-[#170000] bg-white hover:bg-[#ECEAEA] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shrink-0"
             >
               {kitAdded ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
-              <span>{language === 'en' ? 'Add Full 3-Piece Kit' : '৩টি হুডি ব্যাগে যোগ করুন'}</span>
+              <span>
+                {kitAdded
+                  ? language === 'en'
+                    ? 'Added 3-Piece Kit'
+                    : 'কিট ব্যাগে যোগ হয়েছে'
+                  : language === 'en'
+                  ? 'Add Full 3-Piece Kit'
+                  : '৩টি হুডি ব্যাগে যোগ করুন'}
+              </span>
             </button>
             {onBuyNow && (
               <button
                 type="button"
+                disabled={!kitHasStock}
                 onClick={() => addFullKit(true)}
-                className="px-5 py-3 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors"
+                className="px-5 py-3 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shrink-0"
               >
                 <Zap className="w-4 h-4" />
                 <span>{language === 'en' ? 'Express Checkout Kit' : 'সরাসরি কিট অর্ডার করুন'}</span>
@@ -596,7 +687,7 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
         <div className="lg:col-span-6 space-y-6">
           {/* Direct WhatsApp Desk */}
           <div className="rounded-3xl bg-white text-[#170000] border-2 border-[#170000] p-6 sm:p-7 shadow-[8px_8px_0px_#170000]">
-            <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#524B4B] font-bold">
                   StarkiT Direct WhatsApp Desk
@@ -605,17 +696,27 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                   {language === 'en' ? 'Ask or Order via WhatsApp' : 'হোয়াটসঅ্যাপে সরাসরি যোগাযোগ'}
                 </h3>
               </div>
-              <span className="px-3 py-1 rounded-full bg-[#170000] text-white font-mono text-xs font-bold">
+              <a
+                href={customWaLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackStarKiTContact('WhatsApp', `${waTopic} · ${waSku}`)}
+                className="px-3 py-1 rounded-lg border border-[#170000] text-[#170000] hover:bg-[#170000] hover:text-white font-mono text-xs font-bold transition-colors whitespace-nowrap shrink-0"
+              >
                 {STARKIT_WHATSAPP_DISPLAY}
-              </span>
+              </a>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <div>
-                <label className="block text-[10px] font-mono uppercase text-[#524B4B] mb-1">
+                <label
+                  htmlFor="starkit-wa-topic"
+                  className="block text-[10px] font-mono uppercase text-[#524B4B] mb-1"
+                >
                   Topic
                 </label>
                 <select
+                  id="starkit-wa-topic"
                   value={waTopic}
                   onChange={(e) => setWaTopic(e.target.value)}
                   className="w-full bg-[#ECEAEA]/60 border border-[#170000]/20 rounded-lg px-3 py-2 text-xs text-[#170000] focus:outline-none focus:border-[#170000]"
@@ -627,10 +728,14 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                 </select>
               </div>
               <div>
-                <label className="block text-[10px] font-mono uppercase text-[#524B4B] mb-1">
+                <label
+                  htmlFor="starkit-wa-sku"
+                  className="block text-[10px] font-mono uppercase text-[#524B4B] mb-1"
+                >
                   Design Reference
                 </label>
                 <select
+                  id="starkit-wa-sku"
                   value={waSku}
                   onChange={(e) => setWaSku(e.target.value)}
                   className="w-full bg-[#ECEAEA]/60 border border-[#170000]/20 rounded-lg px-3 py-2 text-xs text-[#170000] focus:outline-none focus:border-[#170000]"
@@ -684,6 +789,7 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                   <div key={faq.qEn} className="py-3 first:pt-0 last:pb-0">
                     <button
                       type="button"
+                      aria-expanded={isOpen}
                       onClick={() => setOpenFaqIdx(isOpen ? null : idx)}
                       className="w-full flex items-center justify-between gap-3 text-left text-xs sm:text-sm font-semibold text-white hover:text-[#C7C1BF] transition-colors cursor-pointer"
                     >

@@ -69,7 +69,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Readex+Pro:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Meta Pixel Code (StarKiT /starkit) -->
+    <!-- Meta Pixel Code -->
     <script>
       !function(f,b,e,v,n,t,s)
       {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -80,16 +80,13 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       (function(){
-        var p = (window.location.pathname || '').replace(/\/+$/, '').toLowerCase();
-        var h = (window.location.hash || '').toLowerCase();
-        if (p === '/starkit' || h === '#starkit') {
-          var pvId = 'pv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-          window.__STARKIT_PIXEL_INITIALIZED__ = true;
-          window.__STARKIT_INITIAL_PAGEVIEW__ = true;
-          window.__STARKIT_INITIAL_PAGEVIEW_ID__ = pvId;
-          fbq('init', '1390081606323661');
-          fbq('track', 'PageView', {}, { eventID: pvId });
-        }
+        var pvId = 'pv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        window.__STARKIT_PIXEL_INITIALIZED__ = true;
+        window.__STARKIT_INITIAL_PAGEVIEW__ = true;
+        window.__STARKIT_INITIAL_PAGEVIEW_ID__ = pvId;
+        window.__STARKIT_INITIAL_URL__ = window.location.pathname + window.location.search + window.location.hash;
+        fbq('init', '1390081606323661');
+        fbq('track', 'PageView', {}, { eventID: pvId });
       })();
     </script>
     <!-- End Meta Pixel Code -->

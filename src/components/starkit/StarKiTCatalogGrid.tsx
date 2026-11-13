@@ -207,6 +207,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
   });
 
   const [sheetPreviewIds, setSheetPreviewIds] = useState<Record<string, boolean>>({});
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const [addedSku, setAddedSku] = useState<string | null>(null);
   const [activeSheetModal, setActiveSheetModal] = useState<{
     product: GraphicArchiveProduct;
@@ -331,7 +332,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-starkit-tech uppercase tracking-wider whitespace-nowrap transition-colors cursor-pointer ${
+                className={`px-3.5 py-2 rounded-lg text-xs font-starkit-tech uppercase tracking-wider whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                   active
                     ? isLight
                       ? 'bg-[#170000] text-white font-bold border border-[#170000]'
@@ -402,15 +403,32 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
       {/* Product Grid */}
       {filtered.length === 0 ? (
         <div
-          className={`py-14 rounded-2xl border text-center text-sm font-mono ${
+          className={`py-14 px-6 rounded-2xl border text-center space-y-3 ${
             isLight
               ? 'bg-white border-[#170000]/15 text-[#524B4B]'
               : 'bg-[#170000] border-white/15 text-white/70'
           }`}
         >
-          {language === 'en'
-            ? 'No StarkiT Drop 01 hoodie matches this filter.'
-            : 'কোনো স্টারকিট হুডি খুঁজে পাওয়া যায়নি।'}
+          <p className="text-sm font-mono">
+            {language === 'en'
+              ? 'No StarkiT Drop 01 hoodie matches this filter.'
+              : 'কোনো স্টারকিট হুডি খুঁজে পাওয়া যায়নি।'}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCategory('all');
+              setSearchQuery('');
+              setSortBy('featured');
+            }}
+            className={`px-4 py-2 rounded-lg text-xs font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors ${
+              isLight
+                ? 'bg-[#170000] text-white hover:bg-neutral-800'
+                : 'bg-white text-[#170000] hover:bg-[#C7C1BF]'
+            }`}
+          >
+            {language === 'en' ? 'Reset Filters' : 'ফিল্টার রিসেট করুন'}
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
@@ -444,17 +462,50 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
               >
                 {/* Visual Aspect 4:5 */}
                 <div className="relative aspect-[4/5] bg-[#170000] overflow-hidden">
-                  <img
-                    src={showSheet ? currentVariant.catalogPageImage : currentVariant.previewImage}
-                    alt={`${product.name} (${currentVariant.color})`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    className={`w-full h-full ${
-                      showSheet ? 'object-contain bg-[#170000] p-2' : 'object-cover object-center'
-                    } transition-transform duration-700 group-hover:scale-105 ${
-                      isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
-                    }`}
-                  />
+                  {(() => {
+                    const imgSrc = showSheet
+                      ? currentVariant.catalogPageImage
+                      : currentVariant.previewImage;
+                    const imgKey = `${product.id}-${showSheet ? 'sheet' : currentVariant.sku}`;
+                    if (brokenImages[imgKey]) {
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => onOpenQuickView?.(mappedProduct)}
+                          className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#170000] via-[#261111] to-[#09090B] text-white cursor-pointer"
+                        >
+                          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#C7C1BF] mb-2">
+                            {product.stkCode || product.id} · {currentVariant.color}
+                          </span>
+                          <span className="font-starkit text-2xl font-bold uppercase tracking-tight">
+                            {product.name}
+                          </span>
+                          <span className="font-mono text-[11px] text-white/60 mt-1">
+                            {currentVariant.gsm} Brushed Fleece
+                          </span>
+                        </button>
+                      );
+                    }
+                    return (
+                      <img
+                        src={imgSrc}
+                        alt={`${product.name} (${currentVariant.color})`}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onClick={() => onOpenQuickView?.(mappedProduct)}
+                        onError={() =>
+                          setBrokenImages((prev) => ({ ...prev, [imgKey]: true }))
+                        }
+                        className={`w-full h-full ${
+                          onOpenQuickView ? 'cursor-pointer' : ''
+                        } ${
+                          showSheet ? 'object-contain bg-[#170000] p-2' : 'object-cover object-center'
+                        } transition-transform duration-700 group-hover:scale-105 ${
+                          isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
+                        }`}
+                      />
+                    );
+                  })()}
 
                   {/* Top Badges & Action Icons */}
                   <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
@@ -568,9 +619,10 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
 
                     <div className="flex items-baseline justify-between gap-2 mb-2">
                       <h3
+                        onClick={() => onOpenQuickView?.(mappedProduct)}
                         className={`font-starkit text-2xl font-bold tracking-tight ${
-                          isLight ? 'text-[#170000]' : 'text-white'
-                        }`}
+                          onOpenQuickView ? 'cursor-pointer hover:underline underline-offset-4' : ''
+                        } ${isLight ? 'text-[#170000]' : 'text-white'}`}
                       >
                         {product.name}
                       </h3>
@@ -694,7 +746,11 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                   </div>
 
                   {/* High-Conversion Monochrome Actions */}
-                  <div className="pt-3 border-t border-current/10 space-y-2">
+                  <div
+                    className={`pt-3 border-t space-y-2 ${
+                      isLight ? 'border-[#170000]/10' : 'border-white/10'
+                    }`}
+                  >
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"

@@ -70,7 +70,9 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
   const [studioProduct, setStudioProduct] = useState<GraphicArchiveProduct | undefined>(undefined);
   const [recommendedSize, setRecommendedSize] = useState<StarKiTSize | null>(null);
   const [addedKey, setAddedKey] = useState<string | null>(null);
+  const [addedLookId, setAddedLookId] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     trackStarKiTPageView();
@@ -139,7 +141,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
   const totalDropsCount = starKiTHoodies.length + starKiTEssentials.length;
 
   return (
-    <div className="pt-20 bg-[#ECEAEA] text-[#170000]">
+    <div className="pt-[64px] sm:pt-[68px] bg-[#ECEAEA] text-[#170000]">
       {/* Partner Navigation Sub-Bar */}
       <div className="border-b-2 border-[#170000] bg-[#170000] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -147,25 +149,25 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             <button
               type="button"
               onClick={onBackHome}
-              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors cursor-pointer font-mono uppercase tracking-wider"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white transition-colors cursor-pointer font-mono uppercase tracking-wider whitespace-nowrap shrink-0"
             >
               <ArrowLeft className="w-3.5 h-3.5 text-white" />
               <span>{language === 'en' ? 'FABRICIAN House' : 'মূল স্টোর'}</span>
             </button>
             <span className="text-white/25">/</span>
-            <span className="font-starkit font-bold tracking-widest uppercase text-white">
+            <span className="font-starkit font-bold tracking-widest uppercase text-white whitespace-nowrap">
               StarkiT (ستاركيت)
             </span>
             <a
               href="/starkit"
-              className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] font-mono text-white/85 hover:bg-white/20 transition-colors"
+              className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] font-mono text-white/85 hover:bg-white/20 transition-colors whitespace-nowrap shrink-0"
             >
               /starkit
             </a>
             <button
               type="button"
               onClick={handleCopyStarKiTLink}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white hover:text-[#170000] border border-white/20 text-[10px] font-mono text-white transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white hover:text-[#170000] border border-white/20 text-[10px] font-mono text-white transition-colors cursor-pointer whitespace-nowrap shrink-0"
               title="Copy direct StarKiT link"
             >
               {copiedLink ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -179,7 +181,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
               onClick={() =>
                 document.getElementById('starkit-fit-lab')?.scrollIntoView({ behavior: 'smooth' })
               }
-              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white font-mono text-[11px] cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white font-mono text-[11px] cursor-pointer whitespace-nowrap shrink-0"
             >
               <Ruler className="w-3.5 h-3.5 text-[#C7C1BF]" />
               <span>{language === 'en' ? 'Fit Calculator' : 'ফিট ক্যালকুলেটর'}</span>
@@ -187,14 +189,14 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             <button
               type="button"
               onClick={onOpenSizeGuide}
-              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white font-mono text-[11px] cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white font-mono text-[11px] cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>{language === 'en' ? 'Size Guide' : 'সাইজ গাইড'}</span>
             </button>
             <button
               type="button"
               onClick={() => onSwitchBrand('farizas-territory')}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-white/25 hover:border-white text-white font-mono text-[11px] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded border border-white/25 hover:border-white text-white font-mono text-[11px] transition-colors cursor-pointer whitespace-nowrap shrink-0"
             >
               <span>{language === 'en' ? "Fariza's Territory" : 'ফারিজাস টেরিটরি'}</span>
               <ArrowUpRight className="w-3 h-3" />
@@ -208,13 +210,13 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
         <div className="absolute inset-0 bg-starkit-grid-dark opacity-50 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded bg-white text-[#170000] text-[11px] font-mono font-bold uppercase tracking-[0.2em]">
-              <span>Drop 01 · Official Brand Flagship · Dhaka</span>
+            <div className="text-[11px] font-mono font-semibold uppercase tracking-[0.24em] text-[#C7C1BF]">
+              Drop 01 · Official Brand Flagship · Dhaka
             </div>
 
             <StarKiTLogo variant="light-on-dark" size="lg" showTagline />
 
-            <h1 className="font-starkit text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.0]">
+            <h1 className="font-starkit text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.0] text-balance">
               {language === 'en' ? (
                 <>
                   {STARKIT_BRAND_BOOK.tagline} <br />
@@ -301,11 +303,21 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
           {/* Dual Campaign Photography */}
           <div className="lg:col-span-6 grid grid-cols-2 gap-4">
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/25 bg-[#170000]">
-              <img
-                src={AMBASSADOR_PORTRAIT}
-                alt="StarkiT Official Brand Ambassador"
-                className="w-full h-full object-cover object-top"
-              />
+              {!brokenImages['hero-ambassador'] ? (
+                <img
+                  src={AMBASSADOR_PORTRAIT}
+                  alt="StarkiT Official Brand Ambassador"
+                  referrerPolicy="no-referrer"
+                  onError={() =>
+                    setBrokenImages((prev) => ({ ...prev, 'hero-ambassador': true }))
+                  }
+                  className="w-full h-full object-cover object-top"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-6 text-center font-starkit text-2xl font-bold uppercase text-white/80">
+                  STΛRKIT 2026
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#170000] via-transparent to-transparent opacity-85" />
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#C7C1BF] font-bold">
@@ -318,11 +330,21 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             </div>
 
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/45 bg-[#170000] translate-y-4">
-              <img
-                src="/assets/aistudio/hoodie_preview_FAB-H003-BLK.png"
-                alt="StarkiT Folk Art Bus Heavyweight Hoodie"
-                className="w-full h-full object-cover object-center"
-              />
+              {!brokenImages['hero-flagship'] ? (
+                <img
+                  src="/assets/aistudio/hoodie_preview_FAB-H003-BLK.png"
+                  alt="StarkiT Folk Art Bus Heavyweight Hoodie"
+                  referrerPolicy="no-referrer"
+                  onError={() =>
+                    setBrokenImages((prev) => ({ ...prev, 'hero-flagship': true }))
+                  }
+                  className="w-full h-full object-cover object-center"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center p-6 text-center font-starkit text-2xl font-bold uppercase text-white/80">
+                  STK-H003
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#170000] via-transparent to-transparent opacity-85" />
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#C7C1BF] font-bold">
@@ -379,13 +401,37 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                 href={STARKIT_BRAND_BOOK_PDF}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 underline font-bold text-[#170000] hover:opacity-70"
+                className="inline-flex items-center gap-1 underline font-bold text-[#170000] hover:opacity-70 whitespace-nowrap"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>Brand Book</span>
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Brand Pillars Editorial Strip: Community · Style · Authenticity */}
+      <section className="border-b-2 border-[#170000] bg-[#ECEAEA] text-[#170000]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#170000]/15">
+          {STARKIT_BRAND_BOOK.pillars.map((pillar) => (
+            <div
+              key={pillar.code}
+              className="py-3 md:py-0 md:px-6 first:pl-0 last:pr-0 flex items-start gap-3"
+            >
+              <span className="font-mono text-xs font-black text-[#524B4B] tabular-nums pt-0.5">
+                {pillar.code}.
+              </span>
+              <div>
+                <h2 className="font-starkit text-lg font-bold uppercase tracking-wide text-[#170000]">
+                  {language === 'en' ? pillar.titleEn : pillar.titleBn}
+                </h2>
+                <p className="text-xs text-[#3F3A3A] leading-relaxed mt-0.5">
+                  {language === 'en' ? pillar.descEn : pillar.descBn}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -443,10 +489,10 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                 <div className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#524B4B] font-bold">
                   StarkiT · Official Drop 01 Lineup
                 </div>
-                <h2 className="font-starkit text-3xl sm:text-4xl font-bold uppercase tracking-tight text-[#170000]">
+                <h2 className="font-starkit text-3xl sm:text-4xl font-bold uppercase tracking-tight text-[#170000] text-balance">
                   {language === 'en'
-                    ? 'All 11 Graphic Archive Hoodies'
-                    : 'সকল ১১টি গ্রাফিক আর্কাইভ হুডি'}
+                    ? `All ${starKiTHoodies.length} Graphic Archive Hoodies`
+                    : `সকল ${starKiTHoodies.length}টি গ্রাফিক আর্কাইভ হুডি`}
                 </h2>
               </div>
               {recommendedSize && (
@@ -490,8 +536,10 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {starKiTEssentials.map((product) => {
                   const isOutOfStock = product.status === 'out_of_stock' || product.stockCount <= 0;
+                  const isLowStock = !isOutOfStock && product.stockCount <= 4;
                   const isAdded = addedKey === product.id;
                   const wish = isWishlisted(product.id);
+                  const isBroken = Boolean(brokenImages[`essential-${product.id}`]);
                   return (
                     <div
                       key={product.id}
@@ -499,14 +547,49 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                       className="group bg-white border-2 border-[#170000]/15 hover:border-[#170000] hover:shadow-[6px_6px_0px_#170000] rounded-2xl overflow-hidden flex flex-col justify-between cursor-pointer transition-all"
                     >
                       <div className="relative aspect-[4/5] bg-neutral-100 overflow-hidden">
-                        <img
-                          src={product.image}
-                          alt={product.nameEn}
-                          loading="lazy"
-                          className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ${
-                            isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
-                          }`}
-                        />
+                        {!isBroken ? (
+                          <img
+                            src={product.image}
+                            alt={product.nameEn}
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            onError={() =>
+                              setBrokenImages((prev) => ({
+                                ...prev,
+                                [`essential-${product.id}`]: true,
+                              }))
+                            }
+                            className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ${
+                              isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
+                            }`}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-[#170000] text-white flex flex-col items-center justify-center p-6 text-center">
+                            <span className="font-starkit text-xl font-bold uppercase">
+                              {product.nameEn}
+                            </span>
+                            <span className="text-[10px] font-mono uppercase tracking-widest text-[#C7C1BF] mt-1">
+                              StarkiT Edition
+                            </span>
+                          </div>
+                        )}
+                        {(isOutOfStock || isLowStock) && (
+                          <span
+                            className={`absolute top-3 left-3 px-2.5 py-1 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+                              isOutOfStock
+                                ? 'bg-[#170000] text-white'
+                                : 'bg-white text-[#170000] border border-[#170000]'
+                            }`}
+                          >
+                            {isOutOfStock
+                              ? language === 'en'
+                                ? 'Sold Out'
+                                : 'স্টক শেষ'
+                              : language === 'en'
+                              ? `Only ${product.stockCount} Left`
+                              : `মাত্র ${product.stockCount}টি বাকি`}
+                          </span>
+                        )}
                         <button
                           type="button"
                           onClick={(e) => {
@@ -535,25 +618,33 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                         </div>
 
                         <div className="pt-3 border-t border-[#170000]/10 space-y-2">
-                          <div className="font-mono text-base font-black text-[#170000] tabular-nums">
-                            ৳{product.priceBDT.toLocaleString()}
+                          <div className="flex items-baseline gap-2 font-mono tabular-nums">
+                            <span className="text-base font-black text-[#170000]">
+                              ৳{product.priceBDT.toLocaleString()}
+                            </span>
+                            {product.compareAtPriceBDT &&
+                              product.compareAtPriceBDT > product.priceBDT && (
+                                <span className="text-xs text-[#777] line-through">
+                                  ৳{product.compareAtPriceBDT.toLocaleString()}
+                                </span>
+                              )}
                           </div>
                           <div className="grid grid-cols-2 gap-2">
                             <button
                               type="button"
                               disabled={isOutOfStock}
                               onClick={(e) => handleQuickAddEssential(product, false, e)}
-                              className="py-1.5 rounded-lg border-2 border-[#170000] bg-white hover:bg-[#ECEAEA] text-[#170000] text-[11px] font-mono font-bold flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40"
+                              className="py-1.5 rounded-lg border-2 border-[#170000] bg-white hover:bg-[#ECEAEA] text-[#170000] text-[11px] font-mono font-bold flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               {isAdded ? <Check className="w-3 h-3" /> : <ShoppingBag className="w-3 h-3" />}
-                              <span>{language === 'en' ? 'Add' : 'যোগ'}</span>
+                              <span>{isAdded ? (language === 'en' ? 'Added' : 'হয়েছে') : language === 'en' ? 'Add' : 'যোগ'}</span>
                             </button>
                             {onBuyNow && (
                               <button
                                 type="button"
                                 disabled={isOutOfStock}
                                 onClick={(e) => handleQuickAddEssential(product, true, e)}
-                                className="py-1.5 rounded-lg bg-[#170000] hover:bg-neutral-800 text-white text-[11px] font-mono font-bold flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40"
+                                className="py-1.5 rounded-lg bg-[#170000] hover:bg-neutral-800 text-white text-[11px] font-mono font-bold flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <Zap className="w-3 h-3" />
                                 <span>{language === 'en' ? 'Buy' : 'কিনুন'}</span>
@@ -594,55 +685,101 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {starKiTLooks.map((look) => (
-                  <div
-                    key={look.id}
-                    className="p-5 rounded-2xl bg-white border-2 border-[#170000]/15 hover:border-[#170000] flex flex-col sm:flex-row gap-5 items-center shadow-sm transition-colors"
-                  >
-                    <img
-                      src={look.modelImage}
-                      alt={look.titleEn}
-                      loading="lazy"
-                      className="w-full sm:w-40 aspect-[3/4] object-cover object-top rounded-xl shrink-0"
-                    />
-                    <div className="flex-1 space-y-2.5">
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-[#524B4B] font-bold">
-                        StarkiT · {look.collectionEn}
-                      </div>
-                      <h3 className="font-starkit text-xl font-bold text-[#170000]">
-                        {language === 'en' ? look.titleEn : look.titleBn}
-                      </h3>
-                      <p className="text-xs text-[#474040] leading-relaxed">
-                        {language === 'en' ? look.storyEn : look.storyBn}
-                      </p>
-                      <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
-                        <span className="font-mono text-base font-black text-[#170000] tabular-nums">
-                          ৳{look.totalPriceBDT.toLocaleString()}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            look.garments.forEach((g) =>
-                              onAddToCart({
-                                productId: g.id,
-                                nameEn: g.nameEn,
-                                nameBn: g.nameBn,
-                                priceBDT: g.priceBDT,
-                                image: g.image || look.modelImage,
-                                color: look.colorway,
-                                size: g.sizes[1] || g.sizes[0] || 'L',
-                                quantity: 1,
-                              })
-                            );
-                          }}
-                          className="px-4 py-2 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors"
-                        >
-                          {language === 'en' ? 'Add Full Duo (-৳150)' : 'সম্পূর্ণ সেট নিন (-৳১৫০)'}
-                        </button>
+                {starKiTLooks.map((look) => {
+                  const isLookBroken = Boolean(brokenImages[`look-${look.id}`]);
+                  const isLookAdded = addedLookId === look.id;
+                  const netLookPrice = Math.max(
+                    0,
+                    look.totalPriceBDT - storeSettings.bundle2DiscountBDT
+                  );
+                  return (
+                    <div
+                      key={look.id}
+                      className="p-5 rounded-2xl bg-white border-2 border-[#170000]/15 hover:border-[#170000] flex flex-col sm:flex-row gap-5 items-center shadow-sm transition-colors"
+                    >
+                      {!isLookBroken ? (
+                        <img
+                          src={look.modelImage}
+                          alt={look.titleEn}
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                          onError={() =>
+                            setBrokenImages((prev) => ({
+                              ...prev,
+                              [`look-${look.id}`]: true,
+                            }))
+                          }
+                          className="w-full sm:w-40 aspect-[3/4] object-cover object-top rounded-xl shrink-0 bg-[#170000]"
+                        />
+                      ) : (
+                        <div className="w-full sm:w-40 aspect-[3/4] rounded-xl shrink-0 bg-[#170000] text-white flex flex-col items-center justify-center p-4 text-center">
+                          <span className="font-starkit text-lg font-bold uppercase">
+                            STΛRKIT DUO
+                          </span>
+                          <span className="text-[10px] font-mono text-[#C7C1BF] mt-1">
+                            {look.colorway}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex-1 space-y-2.5">
+                        <div className="text-[10px] font-mono uppercase tracking-wider text-[#524B4B] font-bold">
+                          StarkiT · {look.collectionEn}
+                        </div>
+                        <h3 className="font-starkit text-xl font-bold text-[#170000]">
+                          {language === 'en' ? look.titleEn : look.titleBn}
+                        </h3>
+                        <p className="text-xs text-[#474040] leading-relaxed">
+                          {language === 'en' ? look.storyEn : look.storyBn}
+                        </p>
+                        <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-baseline gap-2 font-mono tabular-nums">
+                            <span className="text-base font-black text-[#170000]">
+                              ৳{netLookPrice.toLocaleString()}
+                            </span>
+                            <span className="text-xs text-[#777] line-through">
+                              ৳{look.totalPriceBDT.toLocaleString()}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              look.garments.forEach((g) => {
+                                const liveMatch = starKiTHoodies.find((h) => h.id === g.id);
+                                const liveVar = liveMatch?.variants[0];
+                                onAddToCart({
+                                  productId: g.id,
+                                  nameEn: liveMatch
+                                    ? `StarkiT ${liveMatch.name} Hoodie (${liveMatch.stkCode || liveVar?.sku || g.id})`
+                                    : g.nameEn,
+                                  nameBn: g.nameBn,
+                                  priceBDT: liveVar?.priceBdt || g.priceBDT,
+                                  image: liveVar?.previewImage || g.image || look.modelImage,
+                                  color: liveVar?.color || g.color || look.colorway,
+                                  size: recommendedSize || g.sizes[1] || g.sizes[0] || 'L',
+                                  quantity: 1,
+                                });
+                              });
+                              setAddedLookId(look.id);
+                              setTimeout(() => setAddedLookId(null), 1800);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                          >
+                            {isLookAdded && <Check className="w-3.5 h-3.5" />}
+                            <span>
+                              {isLookAdded
+                                ? language === 'en'
+                                  ? 'Added Duo'
+                                  : 'সেট যোগ হয়েছে'
+                                : language === 'en'
+                                ? `Add Full Duo (-৳${storeSettings.bundle2DiscountBDT})`
+                                : `সম্পূর্ণ সেট নিন (-৳${storeSettings.bundle2DiscountBDT})`}
+                            </span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

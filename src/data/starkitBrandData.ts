@@ -6,7 +6,7 @@
 export const STARKIT_WHATSAPP_NUMBER = '8801931803462';
 export const STARKIT_WHATSAPP_DISPLAY = '+880 1931-803462';
 export const STARKIT_PROMO_CODE = 'STARKIT10';
-export const STARKIT_LOOKBOOK_PDF = '/assets/aistudio/StarkiT_Premium_Product_Catalog_2026_46a43cbd.pdf';
+export const STARKIT_LOOKBOOK_PDF = '/assets/aistudio/Fabrician_Premium_Master_Catalog_2026_57366f45.pdf';
 export const STARKIT_BRAND_BOOK_PDF = '/assets/aistudio/starkit_brand_book_by_pomelli_f114d27f.pdf';
 
 export function buildStarKiTWhatsAppHref(message: string): string {

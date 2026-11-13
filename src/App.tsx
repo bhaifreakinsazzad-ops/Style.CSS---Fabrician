@@ -28,6 +28,7 @@ import { FarizasTerritoryBrandPage } from './components/brands/FarizasTerritoryB
 import {
   isStarKiTItem,
   isStarKiTProduct,
+  syncInitialPageViewCapi,
   trackStarKiTAddToCart,
   trackStarKiTAddToWishlist,
 } from './services/metaPixel';
@@ -102,6 +103,7 @@ export default function App() {
   const [external3DItem, setExternal3DItem] = useState<ThreePieceItem | null>(null);
 
   useEffect(() => {
+    syncInitialPageViewCapi();
     const syncFromLocation = () => {
       setViewMode(getViewModeFromLocation());
     };

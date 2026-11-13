@@ -18,6 +18,7 @@ declare global {
     __STARKIT_PIXEL_INITIALIZED__?: boolean;
     __STARKIT_INITIAL_PAGEVIEW__?: boolean;
     __STARKIT_INITIAL_PAGEVIEW_ID__?: string;
+    __STARKIT_INITIAL_URL__?: string;
   }
 }
 
@@ -188,18 +189,41 @@ export function ensureStarKiTMetaPixel(): FbqFn | null {
   return fbq;
 }
 
+let lastTrackedRoute: string | null = null;
+
+function getCurrentRouteKey(): string {
+  if (typeof window === 'undefined') return '';
+  return window.location.pathname + window.location.search + window.location.hash;
+}
+
+export function syncInitialPageViewCapi(): void {
+  if (typeof window === 'undefined') return;
+  if (!window.__STARKIT_INITIAL_PAGEVIEW__) return;
+
+  window.__STARKIT_INITIAL_PAGEVIEW__ = false;
+  const initialId = window.__STARKIT_INITIAL_PAGEVIEW_ID__ || generateEventId('pv');
+  window.__STARKIT_INITIAL_PAGEVIEW_ID__ = undefined;
+  lastTrackedRoute = window.__STARKIT_INITIAL_URL__ || getCurrentRouteKey();
+  dispatchCapiEvent({ eventName: 'PageView', eventId: initialId });
+}
+
 export function trackStarKiTPageView(): void {
   const fbq = ensureStarKiTMetaPixel();
   if (!fbq) return;
 
+  const currentRoute = getCurrentRouteKey();
+
   if (window.__STARKIT_INITIAL_PAGEVIEW__) {
-    window.__STARKIT_INITIAL_PAGEVIEW__ = false;
-    const initialId = window.__STARKIT_INITIAL_PAGEVIEW_ID__ || generateEventId('pv');
-    window.__STARKIT_INITIAL_PAGEVIEW_ID__ = undefined;
-    dispatchCapiEvent({ eventName: 'PageView', eventId: initialId });
+    syncInitialPageViewCapi();
     return;
   }
 
+  if (lastTrackedRoute === currentRoute) {
+    lastTrackedRoute = null;
+    return;
+  }
+
+  lastTrackedRoute = currentRoute;
   const eventId = generateEventId('pv');
   fbq('track', 'PageView', {}, { eventID: eventId });
   dispatchCapiEvent({ eventName: 'PageView', eventId });

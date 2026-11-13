@@ -41,6 +41,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   const [copiedStarKiTLink, setCopiedStarKiTLink] = useState(false);
 
   const starKiTProducts = liveGraphicArchiveProducts.filter((p) => p.brand === 'StarKiT');
+  const totalVariantsCount = starKiTProducts.reduce((sum, p) => sum + p.variants.length, 0);
 
   const handleCopyLink = () => {
     const url = typeof window !== 'undefined' ? `${window.location.origin}/starkit` : '/starkit';
@@ -78,10 +79,11 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
             <div className="max-w-2xl space-y-5">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="px-3 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
-                  Drop 01 · 11 Designs · 15 Colorways
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#C7C1BF] tabular-nums">
+                  Drop 01 · {starKiTProducts.length} Designs · {totalVariantsCount} Colorways
                 </span>
+                <span aria-hidden="true" className="text-white/25">/</span>
                 <a
                   href="/starkit"
                   onClick={(e) => {
@@ -90,14 +92,14 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                       onOpenBrandPage();
                     }
                   }}
-                  className="px-3 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-mono uppercase tracking-wider text-white/90 transition-colors"
+                  className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-mono uppercase tracking-wider text-white/90 transition-colors whitespace-nowrap shrink-0"
                 >
                   /starkit
                 </a>
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-2.5 py-1 rounded bg-white/10 hover:bg-white hover:text-[#170000] border border-white/20 text-[10px] font-mono text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                  className="px-2.5 py-1 rounded bg-white/10 hover:bg-white hover:text-[#170000] border border-white/20 text-[10px] font-mono text-white inline-flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap shrink-0"
                   title="Copy direct StarKiT storefront URL"
                 >
                   {copiedStarKiTLink ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -107,7 +109,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
 
               <StarKiTLogo variant="light-on-dark" size="lg" showTagline />
 
-              <h2 className="font-starkit text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.0] pt-1">
+              <h2 className="font-starkit text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.0] pt-1 text-balance">
                 {language === 'en' ? (
                   <>
                     Community, Style, Authenticity —{' '}
@@ -148,7 +150,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
               <button
                 type="button"
                 onClick={() => handleLaunch3D(starKiTProducts[0])}
-                className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white text-white hover:text-[#170000] border border-white/30 text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer"
+                className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white text-white hover:text-[#170000] border border-white/30 text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Box className="w-4 h-4" />
                 <span>{language === 'en' ? '3D Hoodie Studio' : '৩ডি হুডি স্টুডিও'}</span>
@@ -163,7 +165,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                       onOpenBrandPage();
                     }
                   }}
-                  className="px-5 py-3 rounded-xl bg-white hover:bg-[#C7C1BF] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-lg"
+                  className="px-5 py-3 rounded-xl bg-white hover:bg-[#C7C1BF] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-lg whitespace-nowrap shrink-0"
                 >
                   <span>
                     {language === 'en'
@@ -198,8 +200,8 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
       {showStudioModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90">
           <div className="fixed inset-0" onClick={() => setShowStudioModal(false)} />
-          <div className="relative z-10 w-full max-w-4xl bg-[#170000] border-2 border-white/25 rounded-3xl overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-white/15 flex items-center justify-between text-white">
+          <div className="relative z-10 w-full max-w-4xl max-h-[92vh] overflow-y-auto bg-[#170000] border-2 border-white/25 rounded-3xl shadow-2xl">
+            <div className="sticky top-0 z-30 bg-[#170000] p-4 border-b border-white/15 flex items-center justify-between text-white">
               <div className="flex items-center gap-3">
                 <Box className="w-4 h-4 text-white" />
                 <span className="font-starkit text-lg font-bold uppercase tracking-wider">

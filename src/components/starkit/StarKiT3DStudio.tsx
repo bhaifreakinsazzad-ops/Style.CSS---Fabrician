@@ -2,8 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import {
+  Check,
   ChevronDown,
   ChevronUp,
+  Image as ImageIcon,
   Pause,
   Play,
   RotateCcw,
@@ -132,7 +134,7 @@ function createBackArtworkTexture(
   ctx.fillStyle = cardBg;
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`STΛRKIT ARCHIVE // ${product.stkCode || product.id}`, 78, 84);
+  ctx.fillText(`STΛRKIT ARCHIVE · ${product.stkCode || product.id}`, 78, 84);
   ctx.textAlign = 'right';
   ctx.fillText(`${variant.gsm}`, 690, 84);
 
@@ -274,8 +276,8 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     () => (initialProduct || products[0])?.variants[0]?.sku || ''
   );
   const activeVariant =
-    activeProduct.variants.find((v) => v.sku === selectedVariantSku) ||
-    activeProduct.variants[0];
+    activeProduct?.variants.find((v) => v.sku === selectedVariantSku) ||
+    activeProduct?.variants[0];
 
   const [gsmValue, setGsmValue] = useState<number>(350);
   const [selectedSize, setSelectedSize] = useState<'M' | 'L' | 'XL' | 'XXL'>('L');
@@ -283,6 +285,9 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
   const [autoOrbit, setAutoOrbit] = useState<boolean>(true);
   const [hudExpanded, setHudExpanded] = useState<boolean>(true);
   const [contextLost, setContextLost] = useState<boolean>(false);
+  const [webglUnavailable, setWebglUnavailable] = useState<boolean>(false);
+  const [showPhotoRef, setShowPhotoRef] = useState<boolean>(false);
+  const [addedToBag, setAddedToBag] = useState<boolean>(false);
 
   // Sync external initialProduct if parent selects one
   useEffect(() => {
@@ -294,6 +299,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
 
   // Keep variant valid when product switches
   useEffect(() => {
+    if (!activeProduct) return;
     if (!activeProduct.variants.some((v) => v.sku === selectedVariantSku)) {
       setSelectedVariantSku(activeProduct.variants[0]?.sku || '');
     }
@@ -329,17 +335,34 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
   // Initialize Three.js Studio Scene once
   useEffect(() => {
     const container = mountRef.current;
-    if (!container) return;
+    if (!container || !activeProduct || !activeVariant) return;
 
-    const isSoftwareGl = (() => {
-      const gl = document.createElement('canvas').getContext('webgl2');
-      if (!gl) return true;
+    let renderer: THREE.WebGLRenderer;
+    let isSoftwareGl = false;
+
+    try {
+      const probeCanvas = document.createElement('canvas');
+      const gl =
+        probeCanvas.getContext('webgl2') ||
+        (probeCanvas.getContext('webgl') as WebGLRenderingContext | null);
+      if (!gl) {
+        setWebglUnavailable(true);
+        return;
+      }
       const ext = gl.getExtension('WEBGL_debug_renderer_info');
       const param = ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER;
-      const gpu = String(gl.getParameter(param));
+      const gpu = String(gl.getParameter(param) || '');
       gl.getExtension('WEBGL_lose_context')?.loseContext();
-      return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
-    })();
+      isSoftwareGl = /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: !isSoftwareGl,
+        powerPreference: 'high-performance',
+      });
+    } catch {
+      setWebglUnavailable(true);
+      return;
+    }
 
     const width = Math.max(container.clientWidth, 1);
     const height = Math.max(container.clientHeight, 1);
@@ -351,10 +374,6 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 24);
     camera.position.set(0, 0.25, 2.75);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: !isSoftwareGl,
-      powerPreference: 'high-performance',
-    });
     renderer.setSize(width, height);
     renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -737,6 +756,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
 
   // Swap colors & artwork textures dynamically without recreating the WebGL context
   useEffect(() => {
+    if (!activeProduct || !activeVariant) return;
     const nextColor = new THREE.Color(activeVariant.colorHex);
     if (fabricMaterialRef.current) {
       fabricMaterialRef.current.color.copy(nextColor);
@@ -785,9 +805,19 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     }
   };
 
+  if (!activeProduct || !activeVariant) {
+    return (
+      <div className="relative w-full h-[560px] lg:h-[640px] rounded-2xl bg-[#170000] border border-white/15 flex items-center justify-center text-xs font-mono text-white/70">
+        {language === 'en'
+          ? 'No active StarkiT Drop 01 hoodies available for preview.'
+          : 'প্রদর্শনের জন্য কোনো স্টারকিট হুডি পাওয়া যায়নি।'}
+      </div>
+    );
+  }
+
   const buildCartPayload = (): Omit<CartItem, 'id'> => ({
     productId: activeProduct.id,
-    nameEn: `StarKiT ${activeProduct.name} Hoodie (${activeProduct.stkCode || activeVariant.sku})`,
+    nameEn: `StarkiT ${activeProduct.name} Hoodie (${activeProduct.stkCode || activeVariant.sku})`,
     nameBn: `স্টারকিট ${activeProduct.name} হুডি (${activeProduct.stkCode || activeVariant.sku})`,
     priceBDT: activeVariant.priceBdt,
     image: activeVariant.previewImage,
@@ -796,33 +826,76 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     quantity: 1,
   });
 
+  const handleStudioAddToCart = () => {
+    onAddToCart(buildCartPayload());
+    setAddedToBag(true);
+    setTimeout(() => setAddedToBag(false), 1800);
+  };
+
   return (
     <div className="relative w-full h-[560px] lg:h-[640px] rounded-2xl overflow-hidden bg-[#170000] border-2 border-white/15 shadow-2xl">
       {/* Isolated WebGL Viewport Container */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {contextLost && (
-        <div className="absolute inset-0 bg-[#170000] flex flex-col items-center justify-center text-center p-6 z-30">
-          <p className="font-starkit text-xl font-bold text-white uppercase tracking-wider mb-1">
-            Restoring StarKiT 3D Studio
-          </p>
-          <p className="text-xs font-mono text-white/70">
-            Graphics context interrupted — reinitializing garment viewport...
-          </p>
+      {/* Graceful 2D Garment Studio Fallback / Photo Reference View */}
+      {(webglUnavailable || contextLost || showPhotoRef) && (
+        <div className="absolute inset-0 bg-[#170000] flex items-center justify-center p-6 pb-36 z-10">
+          <div className="flex flex-col sm:flex-row items-center gap-6 max-w-2xl">
+            <img
+              src={activeVariant.previewImage}
+              alt={`${activeProduct.name} (${activeVariant.color})`}
+              referrerPolicy="no-referrer"
+              className="w-52 sm:w-64 aspect-[4/5] object-cover rounded-xl border border-white/20 shadow-2xl"
+            />
+            <div className="text-center sm:text-left space-y-2 max-w-xs">
+              <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#C7C1BF]">
+                {webglUnavailable
+                  ? '2D Studio Garment View'
+                  : contextLost
+                  ? 'Restoring 3D Viewport'
+                  : 'Garment Studio Reference'}
+              </div>
+              <h4 className="font-starkit text-2xl font-bold text-white uppercase">
+                {activeProduct.name}
+              </h4>
+              <p className="text-xs font-mono text-white/75">
+                {activeVariant.color} · {gsmValue} GSM Brushed Fleece · ৳{activeVariant.priceBdt.toLocaleString()}
+              </p>
+              <p className="text-xs text-white/65 leading-relaxed">
+                {language === 'en' ? activeProduct.descriptionEn : activeProduct.descriptionBn}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 
       {/* Top Minimal Corner Telemetry (High-Contrast Solid Surface, No Backdrop-Blur over WebGL) */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
         <div className="px-3 py-1.5 rounded-lg bg-[#170000] border border-white/25 text-[11px] font-mono text-white flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-white" />
           <span className="font-bold">{activeProduct.stkCode || activeProduct.id}</span>
           <span className="text-white/30">·</span>
           <span>{activeProduct.name}</span>
-          <span className="hidden sm:inline text-white/60">· {gsmValue} GSM</span>
+          <span className="hidden sm:inline text-white/60 tabular-nums">· {gsmValue} GSM</span>
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">
+          {!webglUnavailable && (
+            <button
+              type="button"
+              onClick={() => setShowPhotoRef((v) => !v)}
+              className={`px-2.5 py-1.5 rounded-lg border text-[10px] font-mono uppercase tracking-wider inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+                showPhotoRef
+                  ? 'bg-white text-[#170000] border-white font-bold'
+                  : 'bg-[#170000] border-white/25 hover:border-white text-white'
+              }`}
+              title={showPhotoRef ? 'Return to 3D Model' : 'Compare Studio Photo'}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">
+                {showPhotoRef ? '3D View' : 'Photo Ref'}
+              </span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setAutoOrbit((v) => !v)}
@@ -834,7 +907,10 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => handleSelectPreset('full')}
+            onClick={() => {
+              setShowPhotoRef(false);
+              handleSelectPreset('full');
+            }}
             className="p-2 rounded-lg bg-[#170000] border border-white/25 hover:border-white text-white transition-colors cursor-pointer"
             title="Reset 3D View"
             aria-label="Reset 3D View"
@@ -988,13 +1064,26 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
               <div className="flex items-center gap-2 ml-auto">
                 <button
                   type="button"
-                  onClick={() => onAddToCart(buildCartPayload())}
-                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/30 text-white text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  onClick={handleStudioAddToCart}
+                  className={`px-3 py-1.5 rounded-lg border text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer transition-colors ${
+                    addedToBag
+                      ? 'bg-white text-[#170000] border-white'
+                      : 'bg-white/10 hover:bg-white/20 border-white/30 text-white'
+                  }`}
                 >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>
-                    {language === 'en' ? 'Add' : 'যোগ'} · ৳{activeVariant.priceBdt.toLocaleString()}
-                  </span>
+                  {addedToBag ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{language === 'en' ? 'Added' : 'যুক্ত'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span className="tabular-nums">
+                        {language === 'en' ? 'Add' : 'যোগ'} · ৳{activeVariant.priceBdt.toLocaleString()}
+                      </span>
+                    </>
+                  )}
                 </button>
                 {onBuyNow && (
                   <button
