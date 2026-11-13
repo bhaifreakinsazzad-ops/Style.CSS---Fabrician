@@ -207,6 +207,7 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
 
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-[#B69A60] block truncate">
+                    {product.brand ? `${product.brand} · ` : ''}
                     {product.collection}
                   </span>
                   <h4

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { animate, stagger } from 'animejs';
-import { Sparkles, Box, ShoppingBag, Heart, Check, Eye, Search } from 'lucide-react';
+import { Sparkles, Box, ShoppingBag, Heart, Check, Eye, Search, ArrowUpRight } from 'lucide-react';
 import { ThreePieceItem } from '../../data/threePieceCatalog';
 import { LiveThreePieceItem } from '../../types/store';
 import { useStoreData } from '../../context/StoreDataContext';
@@ -18,14 +18,16 @@ interface ThreePieceSectionProps {
   onQuickView?: (product: Product) => void;
   external3DItem?: ThreePieceItem | null;
   onClearExternal3D?: () => void;
+  onOpenBrandPage?: () => void;
 }
 
 const toProduct = (item: ThreePieceItem): Product => ({
   id: item.id,
   slug: item.code.toLowerCase(),
+  brand: item.brand || "Fariza's Territory",
   nameEn: `${item.code} — ${item.nameEn}`,
   nameBn: `${item.code} — ${item.nameBn}`,
-  category: 'Traditional',
+  category: 'Women',
   collection: item.subCollection,
   priceBDT: item.priceBDT,
   image: item.flatLayImage,
@@ -46,6 +48,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
   onQuickView,
   external3DItem = null,
   onClearExternal3D,
+  onOpenBrandPage,
 }) => {
   const { liveThreePieceItems } = useStoreData();
   const [activeSubEdit, setActiveSubEdit] = useState<string>('All');
@@ -176,7 +179,9 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#B69A60]/10 border border-[#B69A60]/30 rounded-full text-xs font-mono tracking-widest text-[#D5BA80] uppercase mb-3">
               <Sparkles className="w-3.5 h-3.5 text-[#B69A60]" />
               <span>
-                {language === 'en' ? 'Collection Edit 2026 · 18 Curated Designs' : 'সংকলন এডিট ২০২৬ · ১৮টি ডিজাইন'}
+                {language === 'en'
+                  ? "Fariza's Territory · 18 Curated Designs"
+                  : 'ফারিজাস টেরিটরি · ১৮টি ডিজাইন'}
               </span>
             </div>
 
@@ -196,7 +201,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
           </div>
 
           {/* Quick Stats & View Mode Segmented Controls */}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="p-1 bg-[#171719] border border-white/10 rounded-lg flex items-center gap-1 text-xs">
               <button
                 onClick={() => setViewMode('flatlay')}
@@ -216,7 +221,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     : 'text-[#D8D3C9] hover:text-white'
                 }`}
               >
-                {language === 'en' ? 'Model Concept' : 'মডেল প্রিভিউ'}
+                {language === 'en' ? 'Model / Detail' : 'মডেল / ডিটেইল'}
               </button>
             </div>
 
@@ -228,6 +233,18 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
               >
                 <Box className="w-4 h-4 text-[#B69A60] group-hover:rotate-12 transition-transform" />
                 <span>{language === 'en' ? '3D Fabric Studio' : '৩ডি ফ্যাব্রিক স্টুডিও'}</span>
+              </button>
+            )}
+
+            {onOpenBrandPage && (
+              <button
+                onClick={onOpenBrandPage}
+                className="px-4 py-2 rounded-lg bg-[#171719] border border-[#B69A60]/50 hover:bg-[#B69A60] text-[#D5BA80] hover:text-[#09090B] text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <span>
+                  {language === 'en' ? "Fariza's Territory Page" : 'ফারিজাস টেরিটরি পেজ'}
+                </span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -323,6 +340,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     <img
                       src={displayImage}
                       alt={item.nameEn}
+                      loading="lazy"
                       className={`w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out ${
                         isOutOfStock ? 'opacity-65 grayscale-[30%]' : ''
                       }`}
@@ -387,8 +405,16 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     <div className="absolute bottom-3 left-3">
                       <span className="text-[10px] font-mono text-[#D8D3C9] bg-black/70 backdrop-blur-md px-2 py-0.5 rounded border border-white/10">
                         {viewMode === 'flatlay'
-                          ? language === 'en' ? 'Original Fabric' : 'আসল ফ্যাব্রিক'
-                          : language === 'en' ? 'Model Concept' : 'মডেল প্রিভিউ'}
+                          ? language === 'en'
+                            ? 'Original Fabric'
+                            : 'আসল ফ্যাব্রিক'
+                          : item.hasModelConcept === false
+                          ? language === 'en'
+                            ? 'Fabric Close-up'
+                            : 'ফ্যাব্রিক ক্লোজ-আপ'
+                          : language === 'en'
+                          ? 'Model Concept'
+                          : 'মডেল প্রিভিউ'}
                       </span>
                     </div>
                   </div>
@@ -397,7 +423,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                   <div className="p-5 flex flex-col justify-between flex-1">
                     <div>
                       <div className="text-[11px] font-mono uppercase tracking-wider text-[#B69A60] mb-1">
-                        {item.subCollection}
+                        {item.brand || "Fariza's Territory"} · {item.subCollection}
                       </div>
 
                       <h3 className="font-serif-luxury text-xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-1">

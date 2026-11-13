@@ -1,19 +1,17 @@
-import { FashionLook, Product } from '../types';
+import { FashionLook, Product, BrandPartner } from '../types';
 import {
   craftsmanshipTextileMacro,
   heroModelCampaign,
   lookbookModelPanjabi,
   lookbookModelSaree,
   lookbookModelStreetwear,
-  threepieceMagentaPlum,
-  threepieceSwissLawn,
-  threepieceTealBatik,
 } from '../assets/images';
 
 export const FASHION_LOOKS: FashionLook[] = [
   {
     id: 'look-panjabi-02',
     slug: 'sovereign-panjabi-silhouette',
+    brand: 'StarKiT',
     titleEn: 'The Sovereign Panjabi Silhouette',
     titleBn: 'দ্য সভরেন পাঞ্জাবি সিলুয়েট',
     collectionEn: 'Nocturnal Atelier',
@@ -61,6 +59,7 @@ export const FASHION_LOOKS: FashionLook[] = [
   {
     id: 'look-street-03',
     slug: 'brutalist-archive-hoodie',
+    brand: 'StarKiT',
     titleEn: 'Brutalist 480GSM Archive Hoodie',
     titleBn: 'ব্রুটালিস্ট ৪৮০ জিএসএম আর্কাইভ হুডি',
     collectionEn: 'Monolith Streetwear',
@@ -108,6 +107,7 @@ export const FASHION_LOOKS: FashionLook[] = [
   {
     id: 'look-saree-01',
     slug: 'avant-jamdani-drape',
+    brand: "Fariza's Territory",
     titleEn: 'The Avant Jamdani Drape',
     titleBn: 'অ্যাভান্ট জামদানি ড্র্যাপ',
     collectionEn: 'Heritage Reimagined',
@@ -155,6 +155,7 @@ export const FASHION_LOOKS: FashionLook[] = [
   {
     id: 'look-tux-04',
     slug: 'architectural-obsidian-suit',
+    brand: "Fariza's Territory",
     titleEn: 'The Architectural Obsidian Suit',
     titleBn: 'দ্য আর্কিটেকচারাল অবসিডিয়ান স্যুট',
     collectionEn: 'Couture Experimental',
@@ -194,7 +195,7 @@ export const FASHION_LOOKS: FashionLook[] = [
         color: '#09090b',
         fabric: 'High-Twist Wool Crepe',
         sizes: ['36', '38', '40'],
-        image: lookbookModelPanjabi,
+        image: heroModelCampaign,
         hotspot: { x: 50, y: 75 },
       },
     ],
@@ -202,12 +203,13 @@ export const FASHION_LOOKS: FashionLook[] = [
   {
     id: 'look-lawn-05',
     slug: 'regal-swiss-lawn-three-piece',
+    brand: "Fariza's Territory",
     titleEn: 'The Regal Swiss Lawn Three-Piece',
     titleBn: 'দ্য রিগ্যাল সুইস লন থ্রি-পিস',
     collectionEn: 'The Three-Piece Edit',
     collectionBn: 'দ্য থ্রি-পিস এডিট',
     category: 'Women',
-    modelImage: threepieceSwissLawn,
+    modelImage: '/assets/fariza/ZSL-01_model.jpg',
     featuredGarmentEn: 'Luxury Printed Lawn Kurti with Chiffon Dupatta & Trouser',
     featuredGarmentBn: 'ডিজিটাল প্রিন্টেড সুইস লন কামিজ ও শিফন ওড়না',
     totalPriceBDT: 5800,
@@ -229,19 +231,19 @@ export const FASHION_LOOKS: FashionLook[] = [
         color: '#16223B',
         fabric: '100% Swiss Combed Lawn',
         sizes: ['Unstitched Set', 'S', 'M', 'L'],
-        image: threepieceSwissLawn,
+        image: '/assets/fariza/ZSL-01_flat.jpg',
         hotspot: { x: 50, y: 40 },
       },
       {
         id: 'g-lawn-dupatta',
-        nameEn: 'Featherweight Chiffon Dupatta',
-        nameBn: 'হালকা শিফন ওড়না',
+        nameEn: 'Featherweight Floral Contrast Dupatta',
+        nameBn: 'হালকা ফ্লোরাল কনট্রাস্ট ওড়না',
         type: 'Luxury Dupatta',
         priceBDT: 1500,
         color: '#E5A93B',
         fabric: 'Pure Silk-Touch Chiffon',
         sizes: ['2.5 Metres'],
-        image: threepieceMagentaPlum,
+        image: '/assets/fariza/FS-D01_flat.jpg',
         hotspot: { x: 35, y: 32 },
       },
       {
@@ -253,7 +255,7 @@ export const FASHION_LOOKS: FashionLook[] = [
         color: '#FFFFFF',
         fabric: '100% Cambric Weave Cotton',
         sizes: ['Free Size'],
-        image: threepieceTealBatik,
+        image: '/assets/fariza/ZSL-04_flat.jpg',
         hotspot: { x: 50, y: 78 },
       },
     ],
@@ -264,6 +266,7 @@ export const FEATURED_PRODUCTS: Product[] = [
   {
     id: 'prod-01',
     slug: 'obsidian-tailored-panjabi',
+    brand: 'StarKiT',
     nameEn: 'Obsidian Tailored Panjabi',
     nameBn: 'অবসিডিয়ান টেইলর্ড পাঞ্জাবি',
     category: 'Traditional',
@@ -288,6 +291,7 @@ export const FEATURED_PRODUCTS: Product[] = [
   {
     id: 'prod-02',
     slug: 'avant-jamdani-structured-saree',
+    brand: "Fariza's Territory",
     nameEn: 'Avant Jamdani Structured Saree',
     nameBn: 'অ্যাভান্ট জামদানি স্ট্রাকচার্ড শাড়ি',
     category: 'Women',
@@ -309,6 +313,7 @@ export const FEATURED_PRODUCTS: Product[] = [
   {
     id: 'prod-03',
     slug: 'brutalist-archive-fleece-hoodie',
+    brand: 'StarKiT',
     nameEn: '480GSM Brutalist Archive Hoodie',
     nameBn: '৪৮০ জিএসএম ব্রুটালিস্ট আর্কাইভ হুডি',
     category: 'Streetwear',
@@ -332,6 +337,7 @@ export const FEATURED_PRODUCTS: Product[] = [
   {
     id: 'prod-04',
     slug: 'couture-hourglass-tuxedo-blazer',
+    brand: "Fariza's Territory",
     nameEn: 'Couture Hourglass Blazer',
     nameBn: 'কুট্যুর আওয়ারগ্লাস ব্লেজার',
     category: 'Women',
@@ -352,6 +358,7 @@ export const FEATURED_PRODUCTS: Product[] = [
   {
     id: 'prod-05',
     slug: 'essential-oversized-heavy-tee',
+    brand: 'StarKiT',
     nameEn: 'Essential 280GSM Heavyweight Tee',
     nameBn: 'এসেনশিয়াল ২৮০ জিএসএম হেভিওয়েট টি-শার্ট',
     category: 'Unisex',
@@ -374,6 +381,7 @@ export const FEATURED_PRODUCTS: Product[] = [
   {
     id: 'prod-06',
     slug: 'jamdani-thread-relaxed-shirt',
+    brand: 'StarKiT',
     nameEn: 'Jamdani Thread Inset Relaxed Shirt',
     nameBn: 'জামদানি সুতোর কাজযুক্ত রিল্যাক্সড শার্ট',
     category: 'Men',
@@ -394,46 +402,65 @@ export const FEATURED_PRODUCTS: Product[] = [
   },
 ];
 
-export const COLLECTIONS = [
+export const COLLECTIONS: {
+  id: string;
+  nameEn: string;
+  nameBn: string;
+  subtitleEn: string;
+  subtitleBn: string;
+  image: string;
+  count: number;
+  category: string;
+  brand: BrandPartner;
+  brandRoute: 'starkit' | 'farizas-territory';
+}[] = [
   {
     id: 'col-men',
-    nameEn: "Men's Sartorial",
-    nameBn: 'পুরুষদের সার্টোরিয়াল',
-    subtitleEn: 'Minimalist panjabis, tailored shirts & modern trousers',
-    subtitleBn: 'আধুনিক পাঞ্জাবি, শার্ট ও টেইলর্ড ট্রাউজার',
+    nameEn: "StarKiT Menswear",
+    nameBn: 'স্টারকিট মেনসওয়্যার',
+    subtitleEn: 'Minimalist panjabis, relaxed linen shirts & sartorial staples',
+    subtitleBn: 'আধুনিক পাঞ্জাবি, রিল্যাক্সড শার্ট ও টেইলর্ড কালেকশন',
     image: lookbookModelPanjabi,
-    count: 18,
+    count: 15,
     category: 'Men',
+    brand: 'StarKiT',
+    brandRoute: 'starkit',
   },
   {
     id: 'col-women',
-    nameEn: "Women's Couture",
-    nameBn: 'নারীদের সমসাময়িক ফ্যাশন',
-    subtitleEn: 'Deconstructed sarees, structural blazers & fine dresses',
-    subtitleBn: 'আধুনিক জামদানি শাড়ি, ব্লেজার ও বিশেষ পোশাক',
+    nameEn: "Fariza's Territory Couture",
+    nameBn: 'ফারিজাস টেরিটরি কুট্যুর',
+    subtitleEn: 'Deconstructed sarees, hourglass blazers & sculpted silhouettes',
+    subtitleBn: 'আধুনিক জামদানি শাড়ি, ব্লেজার ও কুট্যুর কালেকশন',
     image: lookbookModelSaree,
-    count: 24,
+    count: 20,
     category: 'Women',
+    brand: "Fariza's Territory",
+    brandRoute: 'farizas-territory',
   },
   {
     id: 'col-street',
-    nameEn: 'Monolith Streetwear',
-    nameBn: 'মনোলিথ স্ট্রিটওয়্যার',
-    subtitleEn: 'Heavyweight hoodies, sculptural tees & relaxed denim',
-    subtitleBn: '৪৮০ জিএসএম হুডি, বক্সি টি-শার্ট ও রিল্যাক্সড ডেনিম',
-    image: lookbookModelStreetwear,
-    count: 14,
+    nameEn: 'StarKiT Monolith Drop',
+    nameBn: 'স্টারকিট মনোলিথ ড্রপ',
+    subtitleEn: 'Graphic Archive 350GSM fleece hoodies & 480GSM monoliths',
+    subtitleBn: 'গ্রাফিক আর্কাইভ ফ্লিস হুডি ও ৪৮০ জিএসএম স্ট্রিটওয়্যার',
+    image: '/assets/aistudio/hoodie_preview_FAB-H001-CRM.png',
+    count: 13,
     category: 'Streetwear',
+    brand: 'StarKiT',
+    brandRoute: 'starkit',
   },
   {
     id: 'col-heritage',
-    nameEn: 'Heritage Reimagined',
-    nameBn: 'ঐতিহ্যের নবায়ন',
-    subtitleEn: 'Geometric Jamdani weaving translated for modern silhouettes',
-    subtitleBn: 'শতবর্ষী জামদানি বুননের আধুনিক ফ্যাশন রূপরেখা',
-    image: craftsmanshipTextileMacro,
-    count: 12,
+    nameEn: "Fariza's Three-Piece Edit",
+    nameBn: 'ফারিজাস থ্রি-পিস এডিট',
+    subtitleEn: '18 Swiss lawn, wax-resist batik & mirror-embroidered ensembles',
+    subtitleBn: '১৮টি সুইস লন, বাটিক ও মিরর এমব্রয়ডারি থ্রি-পিস',
+    image: '/assets/fariza/CAT-001_model.jpg',
+    count: 18,
     category: 'Traditional',
+    brand: "Fariza's Territory",
+    brandRoute: 'farizas-territory',
   },
 ];
 

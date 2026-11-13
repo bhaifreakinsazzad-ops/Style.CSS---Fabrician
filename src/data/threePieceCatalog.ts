@@ -1,16 +1,9 @@
-import {
-  heroModelCampaign,
-  lookbookModelPanjabi,
-  lookbookModelSaree,
-  threepieceMagentaPlum,
-  threepieceMirrorEmbroidery,
-  threepieceSwissLawn,
-  threepieceTealBatik,
-} from '../assets/images';
+import { BrandPartner } from '../types';
 
 export interface ThreePieceItem {
   id: string;
   code: string;
+  brand: BrandPartner;
   nameEn: string;
   nameBn: string;
   subCollection: 'Magenta & Plum' | 'Alfi Boutique' | 'Mome Boutique' | 'Zam Zam Swiss Lawn' | 'Embroidery & Mirror';
@@ -18,6 +11,7 @@ export interface ThreePieceItem {
   priceNote?: string;
   flatLayImage: string;
   modelImage: string;
+  hasModelConcept: boolean;
   colors: { name: string; hex: string }[];
   kameezEn: string;
   kameezBn: string;
@@ -35,12 +29,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-cat-001',
     code: 'CAT-001',
+    brand: "Fariza's Territory",
     nameEn: 'Magenta & Plum Printed Three-Piece',
     nameBn: 'ম্যাজেন্টা ও প্লাম প্রিন্টেড থ্রি-পিস',
     subCollection: 'Magenta & Plum',
     priceBDT: 2350,
-    flatLayImage: threepieceMagentaPlum,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/CAT-001_flat.jpg',
+    modelImage: '/assets/fariza/CAT-001_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Plum Purple', hex: '#4A154B' },
       { name: 'Fuchsia Pink', hex: '#D81B60' },
@@ -61,12 +57,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-cat-002',
     code: 'CAT-002',
+    brand: "Fariza's Territory",
     nameEn: 'Emerald Teal Batik',
     nameBn: 'এমারেল্ড টিল বাটিক থ্রি-পিস',
     subCollection: 'Alfi Boutique',
     priceBDT: 2150,
-    flatLayImage: threepieceTealBatik,
-    modelImage: lookbookModelPanjabi,
+    flatLayImage: '/assets/fariza/CAT-002_flat.jpg',
+    modelImage: '/assets/fariza/CAT-002_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Emerald Teal', hex: '#006D77' },
       { name: 'Charcoal Black', hex: '#1C1C1F' },
@@ -85,12 +83,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-cat-003',
     code: 'CAT-003',
+    brand: "Fariza's Territory",
     nameEn: 'Dusty Mauve Floral Batik',
     nameBn: 'ডাস্টি মভ ফ্লোরাল বাটিক থ্রি-পিস',
     subCollection: 'Alfi Boutique',
     priceBDT: 2050,
-    flatLayImage: threepieceMagentaPlum,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/CAT-003_flat.jpg',
+    modelImage: '/assets/fariza/CAT-003_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Dusty Mauve', hex: '#8E6E7E' },
       { name: 'Off-White', hex: '#F3EFE6' },
@@ -110,12 +110,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-mb-01',
     code: 'MB-BT-01',
+    brand: "Fariza's Territory",
     nameEn: 'Forest Elegance',
     nameBn: 'ফরেস্ট এলিগ্যান্স',
     subCollection: 'Mome Boutique',
     priceBDT: 1850,
-    flatLayImage: threepieceTealBatik,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/MB-BT-01_flat.jpg',
+    modelImage: '/assets/fariza/MB-BT-01_model.jpg',
+    hasModelConcept: false,
     colors: [
       { name: 'Forest Green', hex: '#1E4620' },
       { name: 'Earthy Brown', hex: '#583D28' },
@@ -134,12 +136,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-mb-02',
     code: 'MB-BT-02',
+    brand: "Fariza's Territory",
     nameEn: 'Fuchsia Noir',
     nameBn: 'ফুশিয়া নোয়ার',
     subCollection: 'Mome Boutique',
     priceBDT: 1700,
-    flatLayImage: threepieceMagentaPlum,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/MB-BT-02_flat.jpg',
+    modelImage: '/assets/fariza/MB-BT-02_model.jpg',
+    hasModelConcept: false,
     colors: [
       { name: 'Pitch Charcoal', hex: '#1C1C1F' },
       { name: 'Vivid Fuchsia', hex: '#D81B60' },
@@ -158,12 +162,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-mb-03',
     code: 'MB-BT-03',
+    brand: "Fariza's Territory",
     nameEn: 'Mustard Noir',
     nameBn: 'মাস্টার্ড নোয়ার',
     subCollection: 'Mome Boutique',
     priceBDT: 1650,
-    flatLayImage: threepieceMirrorEmbroidery,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/MB-BT-03_flat.jpg',
+    modelImage: '/assets/fariza/MB-BT-03_model.jpg',
+    hasModelConcept: false,
     colors: [
       { name: 'Charcoal Black', hex: '#171719' },
       { name: 'Sunny Mustard', hex: '#E5A93B' },
@@ -181,12 +187,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-mb-04',
     code: 'MB-BT-04',
+    brand: "Fariza's Territory",
     nameEn: 'Burgundy Sunset',
     nameBn: 'বার্গান্ডি সানসেট',
     subCollection: 'Mome Boutique',
     priceBDT: 1750,
-    flatLayImage: threepieceMirrorEmbroidery,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/MB-BT-04_flat.jpg',
+    modelImage: '/assets/fariza/MB-BT-04_model.jpg',
+    hasModelConcept: false,
     colors: [
       { name: 'Deep Maroon', hex: '#631D24' },
       { name: 'Sunset Mustard', hex: '#D88D2D' },
@@ -206,13 +214,15 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-zsl-01',
     code: 'ZSL-01',
+    brand: "Fariza's Territory",
     nameEn: 'Navy Royal Bloom',
     nameBn: 'নেভি রয়্যাল ব্লুম',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1750,
     priceNote: 'Color verified on request',
-    flatLayImage: threepieceSwissLawn,
-    modelImage: heroModelCampaign,
+    flatLayImage: '/assets/fariza/ZSL-01_flat.jpg',
+    modelImage: '/assets/fariza/ZSL-01_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Royal Navy', hex: '#16223B' },
       { name: 'Gold Ochre', hex: '#C69214' },
@@ -231,12 +241,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-zsl-02',
     code: 'ZSL-02',
+    brand: "Fariza's Territory",
     nameEn: 'Autumn Floral Elegance',
     nameBn: 'অটাম ফ্লোরাল এলিগ্যান্স',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1700,
-    flatLayImage: threepieceSwissLawn,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/ZSL-02_flat.jpg',
+    modelImage: '/assets/fariza/ZSL-02_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Stone Beige', hex: '#D6C7B2' },
       { name: 'Rust Orange', hex: '#BC5D34' },
@@ -255,12 +267,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-zsl-03',
     code: 'ZSL-03',
+    brand: "Fariza's Territory",
     nameEn: 'Midnight Teal Heritage',
     nameBn: 'মিডনাইট টিল হেরিটেজ',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1650,
-    flatLayImage: threepieceTealBatik,
-    modelImage: lookbookModelPanjabi,
+    flatLayImage: '/assets/fariza/ZSL-03_flat.jpg',
+    modelImage: '/assets/fariza/ZSL-03_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Deep Plum Charcoal', hex: '#2A1F2D' },
       { name: 'Aqua Teal', hex: '#3FA7A0' },
@@ -278,12 +292,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-zsl-04',
     code: 'ZSL-04',
+    brand: "Fariza's Territory",
     nameEn: 'Olive Garden Bloom',
     nameBn: 'অলিভ গার্ডেন ব্লুম',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1850,
-    flatLayImage: threepieceSwissLawn,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/ZSL-04_flat.jpg',
+    modelImage: '/assets/fariza/ZSL-04_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Olive Green', hex: '#4A5B36' },
       { name: 'Pastel Rose', hex: '#D9899C' },
@@ -302,12 +318,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-zsl-05',
     code: 'ZSL-05',
+    brand: "Fariza's Territory",
     nameEn: 'Coral Geometric Bloom',
     nameBn: 'কোরাল জিওমেট্রিক ব্লুম',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1800,
-    flatLayImage: threepieceMagentaPlum,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/ZSL-05_flat.jpg',
+    modelImage: '/assets/fariza/ZSL-05_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Coral Rose', hex: '#E06D76' },
       { name: 'Blush Pink', hex: '#F2A9B2' },
@@ -325,12 +343,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-zsl-06',
     code: 'ZSL-06',
+    brand: "Fariza's Territory",
     nameEn: 'Crimson Floral Mosaic',
     nameBn: 'ক্রিমসন ফ্লোরাল মোজাইক',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1650,
-    flatLayImage: threepieceSwissLawn,
-    modelImage: heroModelCampaign,
+    flatLayImage: '/assets/fariza/ZSL-06_flat.jpg',
+    modelImage: '/assets/fariza/ZSL-06_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Charcoal Grey', hex: '#26262B' },
       { name: 'Crimson Red', hex: '#A81C28' },
@@ -351,12 +371,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-fs-01',
     code: 'FS-D01',
+    brand: "Fariza's Territory",
     nameEn: 'Golden Mustard Mirror Elegance',
     nameBn: 'গোল্ডেন মাস্টার্ড মিরর এলিগ্যান্স',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2050,
-    flatLayImage: threepieceMirrorEmbroidery,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/FS-D01_flat.jpg',
+    modelImage: '/assets/fariza/FS-D01_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Mustard Gold', hex: '#D69E2E' },
       { name: 'Magenta Pink', hex: '#97266D' },
@@ -375,12 +397,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-fs-02',
     code: 'FS-D02',
+    brand: "Fariza's Territory",
     nameEn: 'Midnight Black Ethnic Charm',
     nameBn: 'মিডনাইট ব্ল্যাক এথনিক চার্ম',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2150,
-    flatLayImage: threepieceMirrorEmbroidery,
-    modelImage: heroModelCampaign,
+    flatLayImage: '/assets/fariza/FS-D02_flat.jpg',
+    modelImage: '/assets/fariza/FS-D02_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Midnight Black', hex: '#09090B' },
       { name: 'Burnt Orange', hex: '#DD6B20' },
@@ -399,12 +423,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-fs-03',
     code: 'FS-D03',
+    brand: "Fariza's Territory",
     nameEn: 'Fuchsia Bloom Aqua Delight',
     nameBn: 'ফুশিয়া ব্লুম অ্যাকোয়া ডিলাইট',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 1950,
-    flatLayImage: threepieceMagentaPlum,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/FS-D03_flat.jpg',
+    modelImage: '/assets/fariza/FS-D03_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Fuchsia Bloom', hex: '#C53030' },
       { name: 'Aqua Blue', hex: '#319795' },
@@ -422,12 +448,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-fs-04',
     code: 'FS-D04',
+    brand: "Fariza's Territory",
     nameEn: 'Electric Blue Mirror Blossom',
     nameBn: 'ইলেকট্রিক ব্লু মিরর ব্লসম',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2250,
-    flatLayImage: threepieceTealBatik,
-    modelImage: heroModelCampaign,
+    flatLayImage: '/assets/fariza/FS-D04_flat.jpg',
+    modelImage: '/assets/fariza/FS-D04_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Electric Blue', hex: '#2B6CB0' },
       { name: 'Sun Yellow', hex: '#ECC94B' },
@@ -446,12 +474,14 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
   {
     id: 'tp-fs-05',
     code: 'FS-D05',
+    brand: "Fariza's Territory",
     nameEn: 'Sand Beige Floral Grace',
     nameBn: 'স্যান্ড বেইজ ফ্লোরাল গ্রেস',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2450,
-    flatLayImage: threepieceSwissLawn,
-    modelImage: lookbookModelSaree,
+    flatLayImage: '/assets/fariza/FS-D05_flat.jpg',
+    modelImage: '/assets/fariza/FS-D05_model.jpg',
+    hasModelConcept: true,
     colors: [
       { name: 'Sand Beige', hex: '#DBCFB0' },
       { name: 'Royal Purple', hex: '#553C9A' },

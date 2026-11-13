@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, ShoppingBag, Check, Eye } from 'lucide-react';
-import { Product, Language, CartItem } from '../../types';
+import { Heart, ShoppingBag, Check, Eye, ArrowUpRight } from 'lucide-react';
+import { Product, Language, CartItem, BrandPartner } from '../../types';
 import { useStoreData } from '../../context/StoreDataContext';
 import { translations } from '../../data/translations';
 
@@ -11,6 +11,7 @@ interface FeaturedEssentialsProps {
   isWishlisted: (productId: string) => boolean;
   onQuickView: (product: Product) => void;
   selectedFilterCategory?: string | null;
+  onOpenBrandPage?: (brandRoute: 'starkit' | 'farizas-territory') => void;
 }
 
 export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
@@ -20,9 +21,11 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   isWishlisted,
   onQuickView,
   selectedFilterCategory = null,
+  onOpenBrandPage,
 }) => {
   const { liveEssentialsProducts } = useStoreData();
   const [activeCategory, setActiveCategory] = useState<string>(selectedFilterCategory || 'All');
+  const [activeBrand, setActiveBrand] = useState<'All' | BrandPartner>('All');
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const t = translations[language];
 
@@ -34,9 +37,11 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
 
   const categories = ['All', 'Men', 'Women', 'Unisex', 'Traditional', 'Streetwear'];
 
-  const filteredProducts = activeCategory === 'All'
-    ? liveEssentialsProducts
-    : liveEssentialsProducts.filter((p) => p.category === activeCategory);
+  const filteredProducts = liveEssentialsProducts.filter((p) => {
+    const matchCategory = activeCategory === 'All' || p.category === activeCategory;
+    const matchBrand = activeBrand === 'All' || (p.brand || 'FABRICIAN') === activeBrand;
+    return matchCategory && matchBrand;
+  });
 
   const handleQuickAdd = (product: Product, isOutOfStock: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -59,7 +64,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
     <section id="essentials" className="scroll-mt-20 py-20 lg:py-28 bg-[#09090B] border-t border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
           <div>
             <div className="text-xs uppercase tracking-[0.25em] text-[#B69A60] mb-2 font-medium">
               {t.essentials.kicker}
@@ -69,23 +74,71 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
             </h2>
           </div>
 
-          {/* Functional Category Filter Buttons */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#171719] border border-white/10 rounded-lg">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                  activeCategory === cat
-                    ? 'bg-[#F5F2EB] text-[#09090B] shadow-sm font-semibold'
-                    : 'text-[#D8D3C9] hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {cat === 'All' ? t.essentials.all : cat}
-              </button>
-            ))}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Brand Partner Filter */}
+            <div className="flex flex-wrap items-center gap-1 p-1 bg-[#171719] border border-[#B69A60]/30 rounded-lg">
+              {(['All', 'StarKiT', "Fariza's Territory"] as const).map((brandOpt) => (
+                <button
+                  key={brandOpt}
+                  onClick={() => setActiveBrand(brandOpt)}
+                  className={`px-3 py-1.5 text-xs font-mono rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    activeBrand === brandOpt
+                      ? 'bg-[#B69A60] text-[#09090B] font-semibold'
+                      : 'text-[#D8D3C9] hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {brandOpt === 'All' ? (language === 'en' ? 'All Brands' : 'সব ব্র্যান্ড') : brandOpt}
+                </button>
+              ))}
+            </div>
+
+            {/* Category Filter Buttons */}
+            <div className="flex flex-wrap items-center gap-1 p-1 bg-[#171719] border border-white/10 rounded-lg">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                    activeCategory === cat
+                      ? 'bg-[#F5F2EB] text-[#09090B] shadow-sm font-semibold'
+                      : 'text-[#D8D3C9] hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {cat === 'All' ? t.essentials.all : cat}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Dedicated Brand Pages Bar */}
+        {onOpenBrandPage && (
+          <div className="mb-10 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#121216] border border-white/10 text-xs">
+            <span className="font-mono text-[#9A9892]">
+              {language === 'en'
+                ? 'Explore dedicated partner brand houses:'
+                : 'পার্টনার ব্র্যান্ড শোরুম ভিজিট করুন:'}
+            </span>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => onOpenBrandPage('starkit')}
+                className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-[#B69A60] text-[#F5F2EB] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>StarKiT Menswear &amp; Hoodies</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onOpenBrandPage('farizas-territory')}
+                className="px-3.5 py-1.5 rounded-lg bg-[#B69A60]/15 border border-[#B69A60]/40 hover:bg-[#B69A60] text-[#D5BA80] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Fariza&apos;s Territory Women&apos;s Edit</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -105,6 +158,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                   <img
                     src={product.image}
                     alt={product.nameEn}
+                    loading="lazy"
                     className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out ${
                       isOutOfStock ? 'opacity-65 grayscale-[30%]' : ''
                     }`}
@@ -198,8 +252,10 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                 <div className="p-5 flex flex-col justify-between flex-1">
                   <div>
                     <div className="flex items-center justify-between text-[11px] text-[#77777D] uppercase tracking-wider mb-1.5">
-                      <span>{product.category}</span>
-                      <span>{product.collection}</span>
+                      <span className="text-[#D5BA80] font-mono">
+                        {product.brand || 'FABRICIAN'} · {product.category}
+                      </span>
+                      <span className="truncate ml-2">{product.collection}</span>
                     </div>
 
                     <h3 className="font-serif-luxury text-xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-2">

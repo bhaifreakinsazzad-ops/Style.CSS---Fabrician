@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { BrandPartner } from '../types';
+
 export interface GraphicArchiveVariant {
   sku: string;
   color: 'Cream' | 'Black' | 'Maroon' | 'Chocolate Brown';
@@ -21,6 +23,7 @@ export interface GraphicArchiveVariant {
 
 export interface GraphicArchiveProduct {
   id: string;
+  brand: BrandPartner;
   name: string;
   editorial: string;
   category: 'Anime Archive' | 'Playful Street' | 'Bangla Heritage' | 'Moto Culture' | 'City Stories' | 'Statement Graphics';
@@ -51,6 +54,7 @@ export const BUNDLE_PROMOTIONS = {
 export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   {
     id: 'FAB-H001',
+    brand: 'StarKiT',
     name: 'Naruto Legacy',
     editorial: 'THE SHINOBI LEGACY',
     category: 'Anime Archive',
@@ -99,6 +103,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H002',
+    brand: 'StarKiT',
     name: 'Peace Bro Cat',
     editorial: 'GOOD VIBES. NO NOISE.',
     category: 'Playful Street',
@@ -132,6 +137,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H003',
+    brand: 'StarKiT',
     name: 'Folk Art Bus',
     editorial: 'THE ROAD IS CULTURE.',
     category: 'Bangla Heritage',
@@ -165,6 +171,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H004',
+    brand: 'StarKiT',
     name: 'Royal Enfield Rider',
     editorial: 'BUILT FOR THE LONG RIDE.',
     category: 'Moto Culture',
@@ -198,6 +205,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H005',
+    brand: 'StarKiT',
     name: 'One Punch Moon',
     editorial: 'ONE HERO. ONE MOON.',
     category: 'Anime Archive',
@@ -231,6 +239,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H006',
+    brand: 'StarKiT',
     name: 'Bangla Cinema',
     editorial: 'THE SILVER SCREEN CHRONICLES',
     category: 'Bangla Heritage',
@@ -264,6 +273,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H007',
+    brand: 'StarKiT',
     name: 'Aesthetic Dhaka',
     editorial: 'OLD LANES. NEW STORIES.',
     category: 'City Stories',
@@ -297,6 +307,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H008',
+    brand: 'StarKiT',
     name: 'Student Movement Emblem',
     editorial: 'VOICE OF THE GENERATION',
     category: 'Statement Graphics',
@@ -375,6 +386,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H009',
+    brand: 'StarKiT',
     name: 'Rickshaw Bloom',
     editorial: 'FLORAL HERITAGE AT FULL SPEED',
     category: 'Bangla Heritage',
@@ -408,6 +420,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H010',
+    brand: 'StarKiT',
     name: 'Tom & Jerry Cheese Club',
     editorial: 'CHASE NEVER ENDS',
     category: 'Playful Street',
@@ -441,6 +454,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H011',
+    brand: 'StarKiT',
     name: 'Hot Wheels Night Circuit',
     editorial: 'ACCELERATE INTO THE DARK',
     category: 'Moto Culture',

@@ -214,6 +214,9 @@ export async function upsertCatalogOverride(item: CatalogOverride): Promise<void
     updatedAt: serverTimestamp(),
   };
 
+  if (item.brand) {
+    payload.brand = item.brand;
+  }
   if (typeof item.compareAtPriceBDT === 'number' && item.compareAtPriceBDT > 0) {
     payload.compareAtPriceBDT = Math.round(item.compareAtPriceBDT);
   }

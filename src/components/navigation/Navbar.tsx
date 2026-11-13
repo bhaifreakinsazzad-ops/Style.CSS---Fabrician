@@ -13,6 +13,8 @@ interface NavbarProps {
   onOpenSearch: () => void;
   onNavigateSection: (sectionId: string) => void;
   onOpenTrackOrder: () => void;
+  viewMode?: 'store' | 'starkit' | 'farizas-territory';
+  onSelectBrand?: (brand: 'store' | 'starkit' | 'farizas-territory') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -25,6 +27,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSearch,
   onNavigateSection,
   onOpenTrackOrder,
+  viewMode = 'store',
+  onSelectBrand,
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -50,19 +54,24 @@ export const Navbar: React.FC<NavbarProps> = ({
     setMobileMenuOpen(false);
   };
 
+  const handleBrandClick = (brand: 'store' | 'starkit' | 'farizas-territory') => {
+    onSelectBrand?.(brand);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-[#09090B]/90 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/40 py-3.5'
+          isScrolled || viewMode !== 'store'
+            ? 'bg-[#09090B]/92 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/40 py-3.5'
             : 'bg-gradient-to-b from-[#09090B]/80 via-[#09090B]/30 to-transparent py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
           {/* Zone 1: Brand Wordmark & Woven Gold Emblem */}
           <button
-            onClick={() => handleLinkClick('hero')}
+            onClick={() => (onSelectBrand ? handleBrandClick('store') : handleLinkClick('hero'))}
             className="text-left group cursor-pointer focus:outline-none flex items-center gap-3 shrink-0"
             aria-label="Fabrician Home"
           >
@@ -82,7 +91,28 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Zone 2: Navigation Links (Clean Single-Line Text Links) */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-xs uppercase tracking-[0.18em] font-medium text-[#D8D3C9]">
+          <nav className="hidden lg:flex items-center gap-4 xl:gap-5 text-[11px] xl:text-xs uppercase tracking-[0.16em] font-medium text-[#D8D3C9]">
+            <button
+              onClick={() => handleBrandClick('starkit')}
+              className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] ${
+                viewMode === 'starkit'
+                  ? 'text-[#D5BA80] font-semibold border-b border-[#B69A60] pb-0.5'
+                  : 'text-[#F5F2EB] hover:text-[#D5BA80]'
+              }`}
+            >
+              {language === 'en' ? 'StarKiT' : 'স্টারকিট'}
+            </button>
+            <button
+              onClick={() => handleBrandClick('farizas-territory')}
+              className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] ${
+                viewMode === 'farizas-territory'
+                  ? 'text-[#D5BA80] font-semibold border-b border-[#B69A60] pb-0.5'
+                  : 'text-[#D5BA80] hover:text-[#F5F2EB] font-semibold'
+              }`}
+            >
+              {language === 'en' ? "Fariza's Territory" : 'ফারিজাস টেরিটরি'}
+            </button>
+            <span className="text-white/15 select-none">|</span>
             <button
               onClick={() => handleLinkClick('lookbook')}
               className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
@@ -91,13 +121,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={() => handleLinkClick('three-piece-edit')}
-              className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] font-semibold"
+              className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
             >
               {t.nav.threePiece}
             </button>
             <button
               onClick={() => handleLinkClick('graphic-archive')}
-              className="text-[#F5F2EB] hover:text-[#D5BA80] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] font-medium"
+              className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
             >
               {t.nav.graphicArchive}
             </button>
@@ -106,12 +136,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
             >
               {t.nav.collections}
-            </button>
-            <button
-              onClick={() => handleLinkClick('essentials')}
-              className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
-            >
-              {t.nav.men} &amp; {t.nav.women}
             </button>
             <button
               onClick={() => handleLinkClick('style-intelligence')}
@@ -194,6 +218,39 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-30 lg:hidden bg-[#09090B]/98 backdrop-blur-xl flex flex-col pt-24 px-6 pb-8 overflow-y-auto transition-all">
+          {/* Collab Brand Showcases */}
+          <div className="mb-6 pb-6 border-b border-white/10 space-y-3">
+            <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#B69A60]">
+              {language === 'en' ? 'Partner Brand Houses' : 'পার্টনার ব্র্যান্ড শোরুম'}
+            </div>
+            <button
+              onClick={() => handleBrandClick('starkit')}
+              className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
+                viewMode === 'starkit'
+                  ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
+                  : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
+              }`}
+            >
+              <div className="font-serif-luxury text-lg tracking-wider">StarKiT × FABRICIAN</div>
+              <div className="text-[11px] font-mono text-[#D5BA80]">
+                {language === 'en' ? 'Menswear, Panjabis & 11 Graphic Hoodies' : 'মেন্সওয়্যার, পাঞ্জাবি ও ১১টি হুডি'}
+              </div>
+            </button>
+            <button
+              onClick={() => handleBrandClick('farizas-territory')}
+              className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
+                viewMode === 'farizas-territory'
+                  ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
+                  : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
+              }`}
+            >
+              <div className="font-serif-luxury text-lg tracking-wider">Fariza&apos;s Territory × FABRICIAN</div>
+              <div className="text-[11px] font-mono text-[#D5BA80]">
+                {language === 'en' ? "Women's Couture & 18 Three-Piece Sets" : 'উইমেনস কুট্যুর ও ১৮টি থ্রি-পিস'}
+              </div>
+            </button>
+          </div>
+
           <div className="flex flex-col gap-5 text-lg font-serif-luxury tracking-widest text-[#F5F2EB] border-b border-white/10 pb-8">
             <button
               onClick={() => handleLinkClick('lookbook')}

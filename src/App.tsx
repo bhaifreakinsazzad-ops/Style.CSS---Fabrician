@@ -21,6 +21,8 @@ import { QuickViewModal } from './components/modals/QuickViewModal';
 import { SizeGuideModal } from './components/modals/SizeGuideModal';
 import { StyleQuizModal } from './components/style-intelligence/StyleQuizModal';
 import { TrackOrderModal } from './components/modals/TrackOrderModal';
+import { StarKiTBrandPage } from './components/brands/StarKiTBrandPage';
+import { FarizasTerritoryBrandPage } from './components/brands/FarizasTerritoryBrandPage';
 
 const AdminDashboard = React.lazy(() =>
   import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
@@ -29,6 +31,17 @@ const AdminDashboard = React.lazy(() =>
 const STORAGE_LANG_KEY = 'fabrician_lang_v1';
 const STORAGE_CART_KEY = 'fabrician_cart_v1';
 const STORAGE_WISHLIST_KEY = 'fabrician_wishlist_v1';
+
+type AppViewMode = 'store' | 'starkit' | 'farizas-territory' | 'admin';
+
+function getViewModeFromHash(): AppViewMode {
+  if (typeof window === 'undefined') return 'store';
+  const hash = window.location.hash;
+  if (hash === '#admin') return 'admin';
+  if (hash === '#starkit') return 'starkit';
+  if (hash === '#farizas-territory') return 'farizas-territory';
+  return 'store';
+}
 
 function readStoredJson<T>(key: string, fallback: T): T {
   try {
@@ -41,9 +54,7 @@ function readStoredJson<T>(key: string, fallback: T): T {
 
 export default function App() {
   const { storeSettings } = useStoreData();
-  const [viewMode, setViewMode] = useState<'store' | 'admin'>(() =>
-    typeof window !== 'undefined' && window.location.hash === '#admin' ? 'admin' : 'store'
-  );
+  const [viewMode, setViewMode] = useState<AppViewMode>(() => getViewModeFromHash());
   const [language, setLanguage] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_LANG_KEY);
@@ -72,7 +83,7 @@ export default function App() {
 
   useEffect(() => {
     const syncFromHash = () => {
-      setViewMode(window.location.hash === '#admin' ? 'admin' : 'store');
+      setViewMode(getViewModeFromHash());
     };
     window.addEventListener('hashchange', syncFromHash);
     return () => window.removeEventListener('hashchange', syncFromHash);
@@ -84,12 +95,25 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   };
 
-  const navigateToStore = () => {
-    if (window.location.hash === '#admin') {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  const navigateToBrand = (brand: 'store' | 'starkit' | 'farizas-territory') => {
+    if (brand === 'store') {
+      if (
+        window.location.hash === '#admin' ||
+        window.location.hash === '#starkit' ||
+        window.location.hash === '#farizas-territory'
+      ) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      setViewMode('store');
+    } else {
+      window.location.hash = brand;
+      setViewMode(brand);
     }
-    setViewMode('store');
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
+
+  const navigateToStore = () => {
+    navigateToBrand('store');
   };
 
   useEffect(() => {
@@ -174,8 +198,18 @@ export default function App() {
     return wishlist.some((p) => p.id === productId);
   };
 
-  // Navigation Smooth Scroll Handler
+  // Navigation Smooth Scroll Handler (returns to main store if currently on a brand showcase page)
   const handleNavigateSection = (sectionId: string) => {
+    if (viewMode !== 'store') {
+      navigateToBrand('store');
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 90);
+      return;
+    }
     const el = document.getElementById(sectionId);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -231,76 +265,109 @@ export default function App() {
         onOpenSearch={() => setIsSearchOpen(true)}
         onNavigateSection={handleNavigateSection}
         onOpenTrackOrder={() => handleOpenTrackOrder()}
+        viewMode={viewMode}
+        onSelectBrand={navigateToBrand}
       />
 
-      {/* Cinematic Hero */}
-      <CinematicHero
-        language={language}
-        onExploreCollections={() => handleNavigateSection('collections')}
-        onEnterLookbook={() => handleNavigateSection('lookbook')}
-      />
+      {viewMode === 'starkit' ? (
+        <StarKiTBrandPage
+          language={language}
+          onBackHome={navigateToStore}
+          onSwitchBrand={(b) => navigateToBrand(b)}
+          onAddToCart={handleAddToCart}
+          onToggleWishlist={handleToggleWishlist}
+          isWishlisted={isWishlisted}
+          onQuickView={(p) => setQuickViewProduct(p)}
+          onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
+        />
+      ) : viewMode === 'farizas-territory' ? (
+        <FarizasTerritoryBrandPage
+          language={language}
+          onBackHome={navigateToStore}
+          onSwitchBrand={(b) => navigateToBrand(b)}
+          onAddToCart={handleAddToCart}
+          onToggleWishlist={handleToggleWishlist}
+          isWishlisted={isWishlisted}
+          onQuickView={(p) => setQuickViewProduct(p)}
+          onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
+        />
+      ) : (
+        <>
+          {/* Cinematic Hero */}
+          <CinematicHero
+            language={language}
+            onExploreCollections={() => handleNavigateSection('collections')}
+            onEnterLookbook={() => handleNavigateSection('lookbook')}
+          />
 
-      {/* Interactive Lookbook */}
-      <InteractiveLookbook
-        looks={FASHION_LOOKS}
-        language={language}
-        onAddToCart={handleAddToCart}
-      />
+          {/* Interactive Lookbook */}
+          <InteractiveLookbook
+            looks={FASHION_LOOKS}
+            language={language}
+            onAddToCart={handleAddToCart}
+          />
 
-      {/* The Three-Piece Edit: 18 Curated Designs with 3D Studio */}
-      <ThreePieceSection
-        language={language}
-        onAddToCart={handleAddToCart}
-        onToggleWishlist={handleToggleWishlist}
-        isWishlisted={isWishlisted}
-        onQuickView={(p) => setQuickViewProduct(p)}
-        external3DItem={external3DItem}
-        onClearExternal3D={() => setExternal3DItem(null)}
-      />
+          {/* The Three-Piece Edit: 18 Curated Designs with 3D Studio (Fariza's Territory) */}
+          <ThreePieceSection
+            language={language}
+            onAddToCart={handleAddToCart}
+            onToggleWishlist={handleToggleWishlist}
+            isWishlisted={isWishlisted}
+            onQuickView={(p) => setQuickViewProduct(p)}
+            external3DItem={external3DItem}
+            onClearExternal3D={() => setExternal3DItem(null)}
+            onOpenBrandPage={() => navigateToBrand('farizas-territory')}
+          />
 
-      {/* The Graphic Archive: Heavyweight Fleece Edit */}
-      <GraphicArchiveSection
-        language={language}
-        onAddToCart={handleAddToCart}
-        onToggleWishlist={handleToggleWishlist}
-        isWishlisted={isWishlisted}
-        onOpenQuickView={(p) => setQuickViewProduct(p)}
-      />
+          {/* The Graphic Archive: Heavyweight Fleece Edit (StarKiT) */}
+          <GraphicArchiveSection
+            language={language}
+            onAddToCart={handleAddToCart}
+            onToggleWishlist={handleToggleWishlist}
+            isWishlisted={isWishlisted}
+            onOpenQuickView={(p) => setQuickViewProduct(p)}
+            onOpenBrandPage={() => navigateToBrand('starkit')}
+          />
 
-      {/* Collection Discovery */}
-      <CollectionDiscovery
-        language={language}
-        onSelectCategory={handleSelectCollection}
-      />
+          {/* Collection Discovery */}
+          <CollectionDiscovery
+            language={language}
+            onSelectCategory={handleSelectCollection}
+            onSelectBrand={(route) => navigateToBrand(route)}
+          />
 
-      {/* Featured Essentials */}
-      <FeaturedEssentials
-        language={language}
-        onAddToCart={handleAddToCart}
-        onToggleWishlist={handleToggleWishlist}
-        isWishlisted={isWishlisted}
-        onQuickView={(p) => setQuickViewProduct(p)}
-        selectedFilterCategory={selectedFilterCategory}
-      />
+          {/* Featured Essentials */}
+          <FeaturedEssentials
+            language={language}
+            onAddToCart={handleAddToCart}
+            onToggleWishlist={handleToggleWishlist}
+            isWishlisted={isWishlisted}
+            onQuickView={(p) => setQuickViewProduct(p)}
+            selectedFilterCategory={selectedFilterCategory}
+            onOpenBrandPage={(route) => navigateToBrand(route)}
+          />
 
-      {/* Bangladeshi Craftsmanship & Heritage */}
-      <CraftsmanshipSection language={language} />
+          {/* Bangladeshi Craftsmanship & Heritage */}
+          <CraftsmanshipSection language={language} />
 
-      {/* Style Intelligence Engine */}
-      <StyleIntelligence
-        language={language}
-        onAddToCart={handleAddToCart}
-        onQuickView={(p) => setQuickViewProduct(p)}
-        onOpenQuiz={() => setIsStyleQuizOpen(true)}
-      />
+          {/* Style Intelligence Engine */}
+          <StyleIntelligence
+            language={language}
+            onAddToCart={handleAddToCart}
+            onQuickView={(p) => setQuickViewProduct(p)}
+            onOpenQuiz={() => setIsStyleQuizOpen(true)}
+          />
 
-      {/* Editorial Magazine */}
-      <EditorialStories language={language} />
+          {/* Editorial Magazine */}
+          <EditorialStories language={language} />
+        </>
+      )}
 
       {/* Brand Footer */}
       <Footer
         language={language}
         onNavigate={handleNavigateSection}
+        onSelectBrand={navigateToBrand}
         onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
         onOpenTrackOrder={() => handleOpenTrackOrder()}
         onOpenAdmin={navigateToAdmin}

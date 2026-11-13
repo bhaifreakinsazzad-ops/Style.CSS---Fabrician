@@ -193,6 +193,10 @@
           "type": "string",
           "enum": ["essentials", "three-piece", "graphic-archive", "custom"]
         },
+        "brand": {
+          "type": "string",
+          "enum": ["StarKiT", "Fariza's Territory", "FABRICIAN"]
+        },
         "nameEn": {
           "type": "string",
           "maxLength": 160

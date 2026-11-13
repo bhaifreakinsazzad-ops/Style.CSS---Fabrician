@@ -1,5 +1,7 @@
 export type Language = 'en' | 'bn';
 
+export type BrandPartner = 'StarKiT' | "Fariza's Territory" | 'FABRICIAN';
+
 export interface LookGarment {
   id: string;
   nameEn: string;
@@ -16,6 +18,7 @@ export interface LookGarment {
 export interface FashionLook {
   id: string;
   slug: string;
+  brand?: BrandPartner;
   titleEn: string;
   titleBn: string;
   collectionEn: string;
@@ -39,6 +42,7 @@ export interface FashionLook {
 export interface Product {
   id: string;
   slug: string;
+  brand?: BrandPartner;
   nameEn: string;
   nameBn: string;
   category: 'Men' | 'Women' | 'Unisex' | 'Traditional' | 'Streetwear';

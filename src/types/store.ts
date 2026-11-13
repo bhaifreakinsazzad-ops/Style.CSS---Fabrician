@@ -1,4 +1,4 @@
-import { Language, Product } from './index';
+import { BrandPartner, Language, Product } from './index';
 import { ThreePieceItem } from '../data/threePieceCatalog';
 import { GraphicArchiveProduct } from '../data/graphicArchiveCatalog';
 
@@ -54,6 +54,7 @@ export type CatalogStatus = 'active' | 'out_of_stock' | 'hidden';
 export interface CatalogOverride {
   id: string;
   sourceCatalog: CatalogSource;
+  brand?: BrandPartner;
   nameEn: string;
   nameBn: string;
   category: Product['category'];
@@ -123,6 +124,7 @@ export interface StoreReview {
 }
 
 export interface LiveProduct extends Product {
+  brand: BrandPartner;
   stockCount: number;
   status: CatalogStatus;
   sourceCatalog: CatalogSource;
@@ -130,11 +132,13 @@ export interface LiveProduct extends Product {
 }
 
 export interface LiveThreePieceItem extends ThreePieceItem {
+  brand: BrandPartner;
   stockCount: number;
   status: CatalogStatus;
 }
 
 export interface LiveGraphicArchiveProduct extends GraphicArchiveProduct {
+  brand: BrandPartner;
   stockCount: number;
   catalogStatus: CatalogStatus;
 }

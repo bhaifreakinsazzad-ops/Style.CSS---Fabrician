@@ -46,6 +46,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       p.id.toLowerCase().includes(q) ||
       p.nameEn.toLowerCase().includes(q) ||
       p.nameBn.includes(query) ||
+      (p.brand && p.brand.toLowerCase().includes(q)) ||
       p.category.toLowerCase().includes(q) ||
       p.collection.toLowerCase().includes(q) ||
       p.fabricEn.toLowerCase().includes(q)
@@ -113,6 +114,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
                   />
                   <div className="flex-1 min-w-0">
                     <span className="text-[10px] font-mono uppercase text-[#B69A60]">
+                      {product.brand ? `${product.brand} · ` : ''}
                       {product.category} · {product.collection}
                     </span>
                     <h4 className="font-serif-luxury text-base text-[#F5F2EB] group-hover:text-[#D5BA80] transition-colors truncate">

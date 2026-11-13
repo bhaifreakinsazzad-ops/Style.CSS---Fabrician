@@ -7,11 +7,13 @@ import { translations } from '../../data/translations';
 interface CollectionDiscoveryProps {
   language: Language;
   onSelectCategory: (category: string) => void;
+  onSelectBrand?: (brandRoute: 'starkit' | 'farizas-territory') => void;
 }
 
 export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
   language,
   onSelectCategory,
+  onSelectBrand,
 }) => {
   const t = translations[language];
 
@@ -35,13 +37,16 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
           {COLLECTIONS.map((col, idx) => (
             <div
               key={col.id}
-              onClick={() => onSelectCategory(col.category)}
+              onClick={() =>
+                onSelectBrand ? onSelectBrand(col.brandRoute) : onSelectCategory(col.category)
+              }
               className="group relative rounded-xl overflow-hidden bg-[#171719] border border-white/10 hover:border-[#B69A60]/50 transition-all duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl"
             >
               {/* Image with subtle zoom on hover */}
               <img
                 src={col.image}
                 alt={col.nameEn}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"
               />
@@ -61,14 +66,22 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                 </div>
 
                 <div>
+                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#D5BA80] mb-1">
+                    {col.brand}
+                  </div>
                   <h3 className="font-serif-luxury text-2xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-1">
                     {language === 'en' ? col.nameEn : col.nameBn}
                   </h3>
                   <p className="text-xs text-[#D8D3C9] font-light leading-relaxed mb-3">
                     {language === 'en' ? col.subtitleEn : col.subtitleBn}
                   </p>
-                  <div className="text-[11px] font-mono text-[#77777D] tracking-wider uppercase">
-                    {col.count} {t.collections.itemsCount}
+                  <div className="text-[11px] font-mono text-[#B69A60] tracking-wider uppercase flex items-center justify-between">
+                    <span>
+                      {col.count} {t.collections.itemsCount}
+                    </span>
+                    <span className="text-[#D8D3C9] group-hover:text-[#D5BA80]">
+                      {language === 'en' ? 'Showcase →' : 'শোরুম →'}
+                    </span>
                   </div>
                 </div>
               </div>

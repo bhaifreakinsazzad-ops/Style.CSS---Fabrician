@@ -111,6 +111,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           next[docSnap.id] = {
             id: docSnap.id,
             sourceCatalog: d.sourceCatalog || 'essentials',
+            brand: d.brand,
             nameEn: d.nameEn || '',
             nameBn: d.nameBn || '',
             category: d.category || 'Men',
@@ -196,11 +197,16 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const unifiedCatalog = useMemo<LiveProduct[]>(() => {
     const essentialsRows: LiveProduct[] = FEATURED_PRODUCTS.map((p) => {
       const ov = catalogOverrides[p.id];
+      const resolvedCategory = ov?.category || p.category;
+      const defaultBrand =
+        p.brand ||
+        (resolvedCategory === 'Women' ? "Fariza's Territory" : 'StarKiT');
       return {
         ...p,
+        brand: ov?.brand || defaultBrand,
         nameEn: ov?.nameEn || p.nameEn,
         nameBn: ov?.nameBn || p.nameBn,
-        category: ov?.category || p.category,
+        category: resolvedCategory,
         collection: ov?.collection || p.collection,
         priceBDT: ov ? ov.priceBDT : p.priceBDT,
         compareAtPriceBDT:
@@ -224,9 +230,10 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return {
         id: tp.id,
         slug: tp.code.toLowerCase(),
+        brand: ov?.brand || tp.brand || "Fariza's Territory",
         nameEn: ov?.nameEn || `${tp.code} — ${tp.nameEn}`,
         nameBn: ov?.nameBn || `${tp.code} — ${tp.nameBn}`,
-        category: ov?.category || 'Traditional',
+        category: ov?.category || 'Women',
         collection: ov?.collection || tp.subCollection,
         priceBDT: ov ? ov.priceBDT : tp.priceBDT,
         compareAtPriceBDT: ov?.compareAtPriceBDT,
@@ -237,6 +244,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         fabricBn: ov?.fabricBn || tp.fabric,
         fitEn: ov?.fitEn || 'Tailorable 3-Piece Ensemble',
         fitBn: ov?.fitBn || 'কাস্টম টেইলরেবল থ্রি-পিস',
+        isNew: ov?.isNew,
+        isBestseller: ov?.isBestseller,
         styleTag: 'heritage',
         stockCount: ov ? ov.stockCount : 14,
         status: ov ? ov.status : 'active',
@@ -250,6 +259,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return {
         id: ga.id,
         slug: ga.id.toLowerCase(),
+        brand: ov?.brand || ga.brand || 'StarKiT',
         nameEn: ov?.nameEn || `${ga.name} Hoodie`,
         nameBn: ov?.nameBn || `${ga.name} হুডি`,
         category: ov?.category || 'Streetwear',
@@ -263,6 +273,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         fabricBn: ov?.fabricBn || `${ga.variants[0].gsm} ব্রাশড ফ্লিস`,
         fitEn: ov?.fitEn || ga.variants[0].fit,
         fitBn: ov?.fitBn || 'রিল্যাক্সড ড্রপ-শোল্ডার ফিট',
+        isNew: ov?.isNew,
+        isBestseller: ov?.isBestseller,
         styleTag: 'urban',
         stockCount: ov ? ov.stockCount : 24,
         status: ov ? ov.status : 'active',
@@ -276,6 +288,13 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       .map((ov) => ({
         id: ov.id,
         slug: ov.id.toLowerCase(),
+        brand:
+          ov.brand ||
+          (ov.category === 'Women'
+            ? "Fariza's Territory"
+            : ov.category === 'Men' || ov.category === 'Streetwear'
+            ? 'StarKiT'
+            : 'FABRICIAN'),
         nameEn: ov.nameEn,
         nameBn: ov.nameBn,
         category: ov.category,
@@ -317,6 +336,11 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const ov = catalogOverrides[tp.id];
         return {
           ...tp,
+          brand: ov?.brand || tp.brand || "Fariza's Territory",
+          nameEn: ov?.nameEn || tp.nameEn,
+          nameBn: ov?.nameBn || tp.nameBn,
+          flatLayImage: ov?.image || tp.flatLayImage,
+          fabric: ov?.fabricEn || tp.fabric,
           priceBDT: ov ? ov.priceBDT : tp.priceBDT,
           stockCount: ov ? ov.stockCount : 14,
           status: ov ? ov.status : 'active',
@@ -331,10 +355,13 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const ov = catalogOverrides[ga.id];
         return {
           ...ga,
+          brand: ov?.brand || ga.brand || 'StarKiT',
+          name: ov?.nameEn ? ov.nameEn.replace(/\s+Hoodie$/i, '') : ga.name,
           basePrice: ov ? ov.priceBDT : ga.basePrice,
-          variants: ga.variants.map((v) => ({
+          variants: ga.variants.map((v, idx) => ({
             ...v,
             priceBdt: ov ? ov.priceBDT : v.priceBdt,
+            previewImage: idx === 0 && ov?.image ? ov.image : v.previewImage,
           })),
           stockCount: ov ? ov.stockCount : 24,
           catalogStatus: ov ? ov.status : 'active',

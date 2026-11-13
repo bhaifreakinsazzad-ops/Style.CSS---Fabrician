@@ -53,7 +53,7 @@ import {
   StoreSettings,
   StoreSubscriber,
 } from '../../types/store';
-import { Product } from '../../types';
+import { BrandPartner, Product } from '../../types';
 import { FEATURED_PRODUCTS } from '../../data/mockData';
 
 interface AdminDashboardProps {
@@ -77,6 +77,8 @@ const ORDER_STATUSES: StoreOrderStatus[] = [
   'Returned',
 ];
 
+const BRAND_PARTNERS: BrandPartner[] = ['StarKiT', "Fariza's Territory", 'FABRICIAN'];
+
 const CATEGORIES: Product['category'][] = [
   'Men',
   'Women',
@@ -87,20 +89,24 @@ const CATEGORIES: Product['category'][] = [
 
 const PRESET_ATELIER_IMAGES = [
   {
-    label: 'Panjabi Noir Silhouette',
+    label: 'StarKiT Panjabi Noir',
     url: FEATURED_PRODUCTS[0]?.image || '/assets/aistudio/Gemini_Generated_Image_2s41172s41172s41_1f02e931.jpg',
   },
   {
-    label: 'Jamdani Editorial Drape',
-    url: FEATURED_PRODUCTS[1]?.image || '/assets/aistudio/Gemini_Generated_Image_acmbawacmbawacmb_0f991f5f.jpg',
+    label: 'StarKiT Cream Hoodie',
+    url: '/assets/aistudio/hoodie_preview_FAB-H001-CRM.png',
   },
   {
-    label: 'Dhaka Heavyweight Fleece',
-    url: FEATURED_PRODUCTS[2]?.image || '/assets/aistudio/hoodie_preview_FAB-H001-BLK.png',
+    label: "Fariza's 3-Piece (CAT-001)",
+    url: '/assets/fariza/CAT-001_flat.jpg',
   },
   {
-    label: 'Crimson Silk Kameez',
-    url: '/assets/aistudio/Gemini_Generated_Image_fx8jbqfx8jbqfx8j_de41846f.jpg',
+    label: "Fariza's Swiss Lawn (ZSL-01)",
+    url: '/assets/fariza/ZSL-01_flat.jpg',
+  },
+  {
+    label: "Fariza's Mirror Set (FS-D01)",
+    url: '/assets/fariza/FS-D01_model.jpg',
   },
 ];
 
@@ -363,11 +369,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
 
   // Catalog filter & modals state
   const [catalogSearch, setCatalogSearch] = useState('');
+  const [catalogBrandFilter, setCatalogBrandFilter] = useState<'all' | BrandPartner>('all');
   const [catalogSourceFilter, setCatalogSourceFilter] = useState<
     'all' | 'essentials' | 'three-piece' | 'graphic-archive' | 'custom'
   >('all');
   const [editingProduct, setEditingProduct] = useState<LiveProduct | null>(null);
   const [catalogForm, setCatalogForm] = useState({
+    brand: 'StarKiT' as BrandPartner,
     nameEn: '',
     nameBn: '',
     category: 'Men' as Product['category'],
@@ -388,6 +396,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
 
   const [isAddCustomOpen, setIsAddCustomOpen] = useState(false);
   const [customForm, setCustomForm] = useState({
+    brand: 'StarKiT' as BrandPartner,
     nameEn: '',
     nameBn: '',
     category: 'Men' as Product['category'],
@@ -408,6 +417,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
   const openCatalogEditor = (product: LiveProduct) => {
     setEditingProduct(product);
     setCatalogForm({
+      brand: product.brand || 'FABRICIAN',
       nameEn: product.nameEn,
       nameBn: product.nameBn,
       category: product.category,
@@ -435,6 +445,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       const override: CatalogOverride = {
         id: editingProduct.id,
         sourceCatalog: editingProduct.sourceCatalog,
+        brand: catalogForm.brand,
         nameEn: catalogForm.nameEn.trim() || editingProduct.nameEn,
         nameBn: catalogForm.nameBn.trim() || catalogForm.nameEn.trim() || editingProduct.nameEn,
         category: catalogForm.category,
@@ -452,7 +463,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
         isBestseller: catalogForm.isBestseller,
       };
       await upsertCatalogOverride(override);
-      showToast(`Catalog item "${override.nameEn}" synced to storefront.`);
+      showToast(`Catalog item "${override.nameEn}" (${override.brand}) synced to storefront.`);
       setEditingProduct(null);
     } catch {
       showToast('Failed to save catalog update.');
@@ -471,6 +482,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       await upsertCatalogOverride({
         id: newId,
         sourceCatalog: 'custom',
+        brand: customForm.brand,
         nameEn: customForm.nameEn.trim(),
         nameBn: customForm.nameBn.trim() || customForm.nameEn.trim(),
         category: customForm.category,
@@ -487,7 +499,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
         isNew: customForm.isNew,
         isBestseller: customForm.isBestseller,
       });
-      showToast(`Custom product "${customForm.nameEn.trim()}" published to storefront.`);
+      showToast(`Custom product "${customForm.nameEn.trim()}" published under ${customForm.brand}.`);
       setIsAddCustomOpen(false);
       setCustomForm({
         ...customForm,
@@ -569,6 +581,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     const lowOrOutCount = unifiedCatalog.filter(
       (p) => p.status === 'out_of_stock' || p.stockCount <= 3
     ).length;
+    const starKitSkus = unifiedCatalog.filter((p) => p.brand === 'StarKiT').length;
+    const starKitActive = unifiedCatalog.filter(
+      (p) => p.brand === 'StarKiT' && p.status === 'active'
+    ).length;
+    const farizaSkus = unifiedCatalog.filter((p) => p.brand === "Fariza's Territory").length;
+    const farizaActive = unifiedCatalog.filter(
+      (p) => p.brand === "Fariza's Territory" && p.status === 'active'
+    ).length;
 
     return {
       revenueBDT,
@@ -581,6 +601,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       codCount: codOrders.length,
       mfsCount: mfsOrders.length,
       lowOrOutCount,
+      starKitSkus,
+      starKitActive,
+      farizaSkus,
+      farizaActive,
     };
   }, [orders, unifiedCatalog]);
 
@@ -602,6 +626,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
   const filteredCatalog = useMemo(() => {
     const q = catalogSearch.trim().toLowerCase();
     return unifiedCatalog.filter((p) => {
+      const matchBrand =
+        catalogBrandFilter === 'all' || p.brand === catalogBrandFilter;
       const matchSource =
         catalogSourceFilter === 'all' || p.sourceCatalog === catalogSourceFilter;
       const matchSearch =
@@ -609,11 +635,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
         p.id.toLowerCase().includes(q) ||
         p.nameEn.toLowerCase().includes(q) ||
         p.nameBn.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
         p.collection.toLowerCase().includes(q) ||
         p.category.toLowerCase().includes(q);
-      return matchSource && matchSearch;
+      return matchBrand && matchSource && matchSearch;
     });
-  }, [unifiedCatalog, catalogSearch, catalogSourceFilter]);
+  }, [unifiedCatalog, catalogSearch, catalogBrandFilter, catalogSourceFilter]);
 
   const filteredReviews = useMemo(() => {
     if (reviewFilter === 'all') return reviews;
@@ -1001,7 +1028,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
               </div>
 
               {/* Breakdown Row */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="p-5 rounded-xl bg-[#11141C] border border-white/10">
+                  <h2 className="text-xs font-mono uppercase tracking-wider text-[#D5BA80] mb-4">
+                    Collab Brand Houses
+                  </h2>
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between py-2 border-b border-white/5">
+                      <div>
+                        <div className="text-[#F5F2EB] font-medium">StarKiT</div>
+                        <div className="text-[11px] font-mono text-[#77777D]">
+                          Menswear &amp; 11 Graphic Hoodies
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCatalogBrandFilter('StarKiT');
+                          setCatalogSourceFilter('all');
+                          setActiveTab('catalog');
+                        }}
+                        className="font-mono text-[#D5BA80] hover:underline tabular-nums cursor-pointer"
+                      >
+                        {metrics.starKitActive}/{metrics.starKitSkus} Active →
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <div>
+                        <div className="text-[#F5F2EB] font-medium">Fariza&apos;s Territory</div>
+                        <div className="text-[11px] font-mono text-[#77777D]">
+                          Women&apos;s Couture &amp; 18 Three-Piece Sets
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCatalogBrandFilter("Fariza's Territory");
+                          setCatalogSourceFilter('all');
+                          setActiveTab('catalog');
+                        }}
+                        className="font-mono text-[#D5BA80] hover:underline tabular-nums cursor-pointer"
+                      >
+                        {metrics.farizaActive}/{metrics.farizaSkus} Active →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="p-5 rounded-xl bg-[#11141C] border border-white/10">
                   <h2 className="text-xs font-mono uppercase tracking-wider text-[#D5BA80] mb-4">
                     Payment Method Mix
@@ -1331,49 +1404,84 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
           {activeTab === 'catalog' && (
             <div className="space-y-4">
               {/* Controls */}
-              <div className="p-4 rounded-xl bg-[#11141C] border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {[
-                    { id: 'all', label: `All (${unifiedCatalog.length})` },
-                    { id: 'essentials', label: 'Essentials' },
-                    { id: 'three-piece', label: 'Three-Piece Edit' },
-                    { id: 'graphic-archive', label: 'Graphic Archive' },
-                    { id: 'custom', label: 'Custom Drops' },
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setCatalogSourceFilter(tab.id as typeof catalogSourceFilter)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-                        catalogSourceFilter === tab.id
-                          ? 'bg-[#B69A60] text-[#09090B] font-semibold'
-                          : 'bg-white/5 text-[#D8D3C9] hover:bg-white/10'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
+              <div className="p-4 rounded-xl bg-[#11141C] border border-white/10 space-y-3">
+                {/* Brand Collab Filter Strip */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/10">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="text-[11px] font-mono uppercase text-[#77777D] mr-1">
+                      Brand:
+                    </span>
+                    {(
+                      [
+                        { id: 'all', label: `All Brands (${unifiedCatalog.length})` },
+                        { id: 'StarKiT', label: `StarKiT (${metrics.starKitSkus})` },
+                        { id: "Fariza's Territory", label: `Fariza's Territory (${metrics.farizaSkus})` },
+                        { id: 'FABRICIAN', label: 'FABRICIAN' },
+                      ] as const
+                    ).map((b) => (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => setCatalogBrandFilter(b.id)}
+                        className={`px-3 py-1 rounded-md text-xs font-mono transition-colors cursor-pointer ${
+                          catalogBrandFilter === b.id
+                            ? 'bg-[#F5F2EB] text-[#09090B] font-semibold'
+                            : 'bg-white/5 text-[#D8D3C9] hover:bg-white/10'
+                        }`}
+                      >
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-[11px] font-mono text-[#9A9892] tabular-nums">
+                    Showing {filteredCatalog.length} of {unifiedCatalog.length} items
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1 sm:w-64">
-                    <Search className="w-3.5 h-3.5 text-[#77777D] absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={catalogSearch}
-                      onChange={(e) => setCatalogSearch(e.target.value)}
-                      placeholder="Search SKU, name, category..."
-                      className="w-full bg-[#0B0D12] border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
-                    />
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {[
+                      { id: 'all', label: 'All Catalogs' },
+                      { id: 'essentials', label: 'Essentials' },
+                      { id: 'three-piece', label: 'Three-Piece Edit' },
+                      { id: 'graphic-archive', label: 'Graphic Archive' },
+                      { id: 'custom', label: 'Custom Drops' },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setCatalogSourceFilter(tab.id as typeof catalogSourceFilter)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                          catalogSourceFilter === tab.id
+                            ? 'bg-[#B69A60] text-[#09090B] font-semibold'
+                            : 'bg-white/5 text-[#D8D3C9] hover:bg-white/10'
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsAddCustomOpen(true)}
-                    className="px-3 py-1.5 rounded-lg bg-[#F5F2EB] hover:bg-[#D5BA80] text-[#09090B] text-xs font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add Product</span>
-                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1 sm:w-64">
+                      <Search className="w-3.5 h-3.5 text-[#77777D] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={catalogSearch}
+                        onChange={(e) => setCatalogSearch(e.target.value)}
+                        placeholder="Search SKU, brand, name..."
+                        className="w-full bg-[#0B0D12] border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsAddCustomOpen(true)}
+                      className="px-3 py-1.5 rounded-lg bg-[#F5F2EB] hover:bg-[#D5BA80] text-[#09090B] text-xs font-semibold flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Product</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1393,7 +1501,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                       <thead>
                         <tr className="border-b border-white/10 text-[11px] font-mono uppercase text-[#77777D]">
                           <th className="py-3 px-4">Product</th>
-                          <th className="py-3 px-4">Collection</th>
+                          <th className="py-3 px-4">Brand &amp; Collection</th>
                           <th className="py-3 px-4">Status</th>
                           <th className="py-3 px-4 text-right">Stock</th>
                           <th className="py-3 px-4 text-right">Price</th>
@@ -1430,7 +1538,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                               </div>
                             </td>
                             <td className="py-2.5 px-4 text-[#9A9892]">
-                              <div className="truncate max-w-[180px]">{item.collection}</div>
+                              <div className="text-[11px] font-mono text-[#D5BA80] font-medium">
+                                {item.brand}
+                              </div>
+                              <div className="truncate max-w-[180px] text-[#D8D3C9]">{item.collection}</div>
                               <div className="text-[10px] font-mono uppercase text-[#77777D]">
                                 {item.sourceCatalog}
                               </div>
@@ -2247,6 +2358,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
 
                 <div>
                   <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
+                    Partner Brand
+                  </label>
+                  <select
+                    value={catalogForm.brand}
+                    onChange={(e) =>
+                      setCatalogForm({
+                        ...catalogForm,
+                        brand: e.target.value as BrandPartner,
+                      })
+                    }
+                    className="w-full bg-[#0B0D12] border border-white/15 focus:border-[#B69A60] rounded-lg px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none"
+                  >
+                    {BRAND_PARTNERS.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
                     Category
                   </label>
                   <select
@@ -2267,7 +2400,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                   </select>
                 </div>
 
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
                     Collection Label
                   </label>
@@ -2279,6 +2412,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                       setCatalogForm({ ...catalogForm, collection: e.target.value })
                     }
                     className="w-full bg-[#0B0D12] border border-white/15 focus:border-[#B69A60] rounded-lg px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
+                    Product Image Path / URL
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {PRESET_ATELIER_IMAGES.map((preset) => (
+                      <button
+                        key={preset.url}
+                        type="button"
+                        onClick={() => setCatalogForm({ ...catalogForm, image: preset.url })}
+                        className={`px-2 py-1 rounded text-[10px] font-mono cursor-pointer border ${
+                          catalogForm.image === preset.url
+                            ? 'bg-[#B69A60] text-[#09090B] border-[#B69A60] font-semibold'
+                            : 'bg-[#0B0D12] text-[#D8D3C9] border-white/10 hover:border-white/30'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={catalogForm.image}
+                    onChange={(e) => setCatalogForm({ ...catalogForm, image: e.target.value })}
+                    className="w-full bg-[#0B0D12] border border-white/15 focus:border-[#B69A60] rounded-lg px-3 py-2 text-xs font-mono text-[#F5F2EB] focus:outline-none"
                   />
                 </div>
               </div>
@@ -2381,6 +2543,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
 
                 <div>
                   <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
+                    Partner Brand
+                  </label>
+                  <select
+                    value={customForm.brand}
+                    onChange={(e) =>
+                      setCustomForm({
+                        ...customForm,
+                        brand: e.target.value as BrandPartner,
+                      })
+                    }
+                    className="w-full bg-[#0B0D12] border border-white/15 focus:border-[#B69A60] rounded-lg px-3 py-2 text-xs text-[#F5F2EB] focus:outline-none"
+                  >
+                    {BRAND_PARTNERS.map((b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
                     Category
                   </label>
                   <select
@@ -2401,7 +2585,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                   </select>
                 </div>
 
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-[11px] font-mono uppercase text-[#9A9892] mb-1">
                     Collection Name
                   </label>

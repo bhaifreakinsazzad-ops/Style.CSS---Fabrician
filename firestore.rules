@@ -122,7 +122,7 @@ service cloud.firestore {
           'collection', 'priceBDT', 'stockCount', 'status', 'updatedAt'
         ])
         && data.keys().hasOnly([
-          'id', 'sourceCatalog', 'nameEn', 'nameBn', 'category',
+          'id', 'sourceCatalog', 'brand', 'nameEn', 'nameBn', 'category',
           'collection', 'priceBDT', 'compareAtPriceBDT', 'stockCount',
           'status', 'image', 'fabricEn', 'fabricBn', 'fitEn', 'fitBn',
           'isNew', 'isBestseller', 'updatedAt'
@@ -130,6 +130,7 @@ service cloud.firestore {
         && data.id == productId
         && isValidId(data.id)
         && data.sourceCatalog in ['essentials', 'three-piece', 'graphic-archive', 'custom']
+        && (!('brand' in data) || data.brand in ['StarKiT', "Fariza's Territory", 'FABRICIAN'])
         && isNonEmptyString(data.nameEn, 1, 160)
         && isNonEmptyString(data.nameBn, 1, 160)
         && data.category in ['Men', 'Women', 'Unisex', 'Traditional', 'Streetwear']

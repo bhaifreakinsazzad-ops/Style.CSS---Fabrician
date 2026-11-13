@@ -8,6 +8,7 @@ import { subscribeNewsletter } from '../../services/storeService';
 interface FooterProps {
   language: Language;
   onNavigate: (sectionId: string) => void;
+  onSelectBrand?: (brand: 'store' | 'starkit' | 'farizas-territory') => void;
   onOpenSizeGuide?: () => void;
   onOpenTrackOrder?: () => void;
   onOpenAdmin?: () => void;
@@ -16,6 +17,7 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({
   language,
   onNavigate,
+  onSelectBrand,
   onOpenSizeGuide,
   onOpenTrackOrder,
   onOpenAdmin,
@@ -97,6 +99,26 @@ export const Footer: React.FC<FooterProps> = ({
               {t.footer.navigation}
             </h4>
             <ul className="space-y-2.5 text-xs text-[#77777D]">
+              {onSelectBrand && (
+                <>
+                  <li>
+                    <button
+                      onClick={() => onSelectBrand('starkit')}
+                      className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer text-left font-medium"
+                    >
+                      {language === 'en' ? 'StarKiT (Menswear & Hoodies)' : 'স্টারকিট (মেন্সওয়্যার ও হুডি)'}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => onSelectBrand('farizas-territory')}
+                      className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer text-left font-medium"
+                    >
+                      {language === 'en' ? "Fariza's Territory (Women)" : 'ফারিজাস টেরিটরি (উইমেনস)'}
+                    </button>
+                  </li>
+                </>
+              )}
               <li>
                 <button
                   onClick={() => onNavigate('lookbook')}

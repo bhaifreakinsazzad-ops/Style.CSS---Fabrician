@@ -65,6 +65,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const resolvedProduct = liveCatalogItem
     ? {
         ...product!,
+        brand: liveCatalogItem.brand || product!.brand,
         nameEn: liveCatalogItem.nameEn,
         nameBn: liveCatalogItem.nameBn,
         priceBDT: liveCatalogItem.priceBDT,
@@ -153,7 +154,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         <div className="p-6 sm:p-8 flex flex-col justify-between md:overflow-y-auto md:max-h-[92vh]">
           <div>
             <div className="flex items-center justify-between text-xs font-mono text-[#B69A60] uppercase tracking-wider mb-2 pr-8">
-              <span className="truncate">{resolvedProduct.collection}</span>
+              <span className="truncate">
+                {resolvedProduct.brand ? `${resolvedProduct.brand} · ` : ''}
+                {resolvedProduct.collection}
+              </span>
               <button
                 type="button"
                 onClick={() => setActiveTab('reviews')}

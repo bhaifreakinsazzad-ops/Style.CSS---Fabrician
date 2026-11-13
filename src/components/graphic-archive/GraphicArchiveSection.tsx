@@ -14,6 +14,7 @@ import {
   Info,
   Truck,
   Heart,
+  ArrowUpRight,
 } from 'lucide-react';
 import {
   GRAPHIC_ARCHIVE_PRODUCTS,
@@ -29,6 +30,7 @@ interface GraphicArchiveSectionProps {
   onToggleWishlist?: (product: Product) => void;
   isWishlisted?: (productId: string) => boolean;
   onOpenQuickView?: (product: Product) => void;
+  onOpenBrandPage?: () => void;
 }
 
 const ARCHIVE_SIZES = ['M', 'L', 'XL'] as const;
@@ -39,10 +41,11 @@ const toArchiveProduct = (
 ): Product => ({
   id: product.id,
   slug: product.id.toLowerCase(),
+  brand: product.brand || 'StarKiT',
   nameEn: `${product.name} Hoodie`,
   nameBn: `${product.name} হুডি`,
   category: 'Streetwear',
-  collection: `The Graphic Archive · ${product.category}`,
+  collection: `StarKiT · ${product.category}`,
   priceBDT: variant.priceBdt,
   image: variant.previewImage,
   colors: product.variants.map((v) => ({ name: v.color, hex: v.colorHex })),
@@ -60,6 +63,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   onToggleWishlist,
   isWishlisted,
   onOpenQuickView,
+  onOpenBrandPage,
 }) => {
   const { liveGraphicArchiveProducts, storeSettings } = useStoreData();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -165,9 +169,9 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
               alt="Fabrician Emblem"
               className="w-4 h-4 object-contain"
             />
-            <span>DROP 01</span>
+            <span>STARKIT × FABRICIAN</span>
             <span className="text-white/20">·</span>
-            <span>11 DESIGNS · 15 COLORWAYS</span>
+            <span>DROP 01 · 11 DESIGNS · 15 COLORWAYS</span>
           </div>
 
           <h2 className="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-light text-[#F5F2EB] tracking-tight leading-[1.1] mb-5 text-balance">
@@ -184,11 +188,28 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
             )}
           </h2>
 
-          <p className="text-sm sm:text-base text-[#9A9892] max-w-2xl mx-auto font-light leading-relaxed mb-8">
+          <p className="text-sm sm:text-base text-[#9A9892] max-w-2xl mx-auto font-light leading-relaxed mb-6">
             {language === 'en'
               ? 'Meticulously crafted from 330–350 GSM one-side brushed fleece with contemporary relaxed silhouettes. Every piece carries an authentic narrative rooted in Dhaka streets, retro moto speedways, and bold pop art.'
               : '৩৩০-৩৫০ জিএসএম প্রিমিয়াম ব্রাশড ফ্লিসে তৈরি সমকালীন ড্রপ-শোল্ডার হুডি। পুরান ঢাকার নস্টালজিয়া, মোটরস্পোর্ট স্পিডওয়ে এবং অ্যানিমে কালচারের সাহসী শৈল্পিক প্রকাশ।'}
           </p>
+
+          {onOpenBrandPage && (
+            <div className="mb-8">
+              <button
+                type="button"
+                onClick={onOpenBrandPage}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#18181C] border border-[#B69A60]/50 hover:bg-[#B69A60] text-[#D5BA80] hover:text-[#09090B] text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
+              >
+                <span>
+                  {language === 'en'
+                    ? 'Explore StarKiT Brand Showcase'
+                    : 'স্টারকিট ব্র্যান্ড শোরুম দেখুন'}
+                </span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
 
           {/* Bundle Promotions & Hotline Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto bg-gradient-to-r from-[#17171B] via-[#1E1E24] to-[#17171B] border border-[#B69A60]/25 rounded-2xl p-4 sm:p-5 shadow-xl text-left">
@@ -379,7 +400,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
                     <p className="text-[10px] font-mono tracking-widest text-[#B69A60] uppercase mb-1">
-                      {product.editorial}
+                      {product.brand || 'StarKiT'} · {product.editorial}
                     </p>
 
                     <div className="flex items-baseline justify-between gap-2 mb-2">
