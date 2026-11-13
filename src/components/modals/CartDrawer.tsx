@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle2, Truck } from 'lucide-react';
 import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
@@ -67,6 +68,42 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, checkoutStep, isSubmitting]);
+
+  useEffect(() => {
+    if (!isOpen || checkoutStep !== 'success' || !confirmedOrder) return;
+
+    const celebrationColors = ['#B69A60', '#D5BA80', '#F5E4B7', '#F5F2EB', '#756BFF'];
+
+    confetti({
+      particleCount: 85,
+      spread: 72,
+      startVelocity: 42,
+      ticks: 220,
+      origin: { x: 0.72, y: 0.55 },
+      colors: celebrationColors,
+      zIndex: 100,
+      disableForReducedMotion: true,
+    });
+
+    const secondaryTimer = window.setTimeout(() => {
+      confetti({
+        particleCount: 55,
+        angle: 118,
+        spread: 60,
+        startVelocity: 36,
+        ticks: 200,
+        origin: { x: 0.88, y: 0.62 },
+        colors: celebrationColors,
+        zIndex: 100,
+        disableForReducedMotion: true,
+      });
+    }, 260);
+
+    return () => {
+      window.clearTimeout(secondaryTimer);
+      confetti.reset();
+    };
+  }, [isOpen, checkoutStep, confirmedOrder]);
 
   if (!isOpen) return null;
 

@@ -36,12 +36,13 @@ const STORAGE_WISHLIST_KEY = 'fabrician_wishlist_v1';
 
 type AppViewMode = 'store' | 'starkit' | 'farizas-territory' | 'admin';
 
-function getViewModeFromHash(): AppViewMode {
+function getViewModeFromLocation(): AppViewMode {
   if (typeof window === 'undefined') return 'store';
-  const hash = window.location.hash;
-  if (hash === '#admin') return 'admin';
-  if (hash === '#starkit') return 'starkit';
-  if (hash === '#farizas-territory') return 'farizas-territory';
+  const hash = window.location.hash.toLowerCase();
+  const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  if (hash === '#admin' || path === '/admin') return 'admin';
+  if (hash === '#starkit' || path === '/starkit') return 'starkit';
+  if (hash === '#farizas-territory' || path === '/farizas-territory') return 'farizas-territory';
   return 'store';
 }
 
@@ -58,7 +59,7 @@ export default function App() {
   const { storeSettings } = useStoreData();
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 220, damping: 30, restDelta: 0.001 });
-  const [viewMode, setViewMode] = useState<AppViewMode>(() => getViewModeFromHash());
+  const [viewMode, setViewMode] = useState<AppViewMode>(() => getViewModeFromLocation());
   const [language, setLanguage] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_LANG_KEY);
@@ -86,11 +87,15 @@ export default function App() {
   const [external3DItem, setExternal3DItem] = useState<ThreePieceItem | null>(null);
 
   useEffect(() => {
-    const syncFromHash = () => {
-      setViewMode(getViewModeFromHash());
+    const syncFromLocation = () => {
+      setViewMode(getViewModeFromLocation());
     };
-    window.addEventListener('hashchange', syncFromHash);
-    return () => window.removeEventListener('hashchange', syncFromHash);
+    window.addEventListener('hashchange', syncFromLocation);
+    window.addEventListener('popstate', syncFromLocation);
+    return () => {
+      window.removeEventListener('hashchange', syncFromLocation);
+      window.removeEventListener('popstate', syncFromLocation);
+    };
   }, []);
 
   const navigateToAdmin = () => {
@@ -101,7 +106,10 @@ export default function App() {
 
   const navigateToBrand = (brand: 'store' | 'starkit' | 'farizas-territory') => {
     if (brand === 'store') {
-      if (
+      const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+      if (path === '/admin' || path === '/starkit' || path === '/farizas-territory') {
+        window.history.replaceState(null, '', '/' + window.location.search);
+      } else if (
         window.location.hash === '#admin' ||
         window.location.hash === '#starkit' ||
         window.location.hash === '#farizas-territory'
@@ -279,6 +287,7 @@ export default function App() {
         onOpenSearch={() => setIsSearchOpen(true)}
         onNavigateSection={handleNavigateSection}
         onOpenTrackOrder={() => handleOpenTrackOrder()}
+        onOpenAdmin={navigateToAdmin}
         viewMode={viewMode}
         onSelectBrand={navigateToBrand}
       />

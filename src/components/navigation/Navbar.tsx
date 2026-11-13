@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ShoppingBag, Heart, Menu, X, Globe, Truck } from 'lucide-react';
+import { Search, ShoppingBag, Heart, Menu, X, Globe, Truck, LayoutDashboard } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
@@ -15,6 +15,7 @@ interface NavbarProps {
   onOpenSearch: () => void;
   onNavigateSection: (sectionId: string) => void;
   onOpenTrackOrder: () => void;
+  onOpenAdmin?: () => void;
   viewMode?: 'store' | 'starkit' | 'farizas-territory';
   onSelectBrand?: (brand: 'store' | 'starkit' | 'farizas-territory') => void;
 }
@@ -29,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenSearch,
   onNavigateSection,
   onOpenTrackOrder,
+  onOpenAdmin,
   viewMode = 'store',
   onSelectBrand,
 }) => {
@@ -151,6 +153,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Compact PWA Install Button */}
             <PWAInstallButton language={language} variant="compact" className="hidden sm:flex" />
+
+            {/* Store Admin Console Trigger */}
+            {onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono text-[#D5BA80] hover:text-[#F5F2EB] border border-[#B69A60]/30 hover:border-[#B69A60] bg-[#B69A60]/5 rounded transition-all cursor-pointer"
+                title="Store Admin Dashboard (/admin)"
+                aria-label="Open Store Admin Dashboard"
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#B69A60]" />
+                <span className="hidden xl:inline tracking-wider">
+                  {language === 'en' ? 'Admin' : 'অ্যাডমিন'}
+                </span>
+              </button>
+            )}
 
             {/* Track Order Trigger */}
             <button
@@ -339,6 +356,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Truck className="w-5 h-5 text-[#B69A60]" />
               <span>{language === 'en' ? '08. Track Delivery (Pathao)' : '০৮. অর্ডার ডেলিভারি ট্র্যাক'}</span>
             </button>
+            {onOpenAdmin && (
+              <button
+                onClick={() => {
+                  onOpenAdmin();
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left py-2 text-[#D5BA80] flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
+              >
+                <LayoutDashboard className="w-5 h-5 text-[#B69A60]" />
+                <span>{language === 'en' ? '09. Store Admin' : '০৯. স্টোর অ্যাডমিন'}</span>
+              </button>
+            )}
           </div>
 
           <div className="mt-8 flex flex-col gap-4 text-xs text-[#77777D] uppercase tracking-[0.2em]">
