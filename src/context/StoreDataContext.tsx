@@ -433,7 +433,9 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       unifiedCatalog.filter(
         (p) =>
           (p.sourceCatalog === 'custom' || CURATED_SIGNATURE_IDS.has(p.id)) &&
-          p.status !== 'hidden'
+          p.status !== 'hidden' &&
+          (p.sourceCatalog !== 'graphic-archive' || GRAPHIC_ARCHIVE_PRODUCTS.some(g =>
+            g.id === p.id && g.status === 'APPROVED' && !g.isLicensingRequired))
       ),
     [unifiedCatalog]
   );
@@ -474,7 +476,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           stockCount: ov ? ov.stockCount : 24,
           catalogStatus: ov ? ov.status : 'active',
         };
-      }).filter((item) => item.catalogStatus !== 'hidden'),
+      }).filter((item) => item.catalogStatus !== 'hidden' && item.status === 'APPROVED' && !item.isLicensingRequired),
     [catalogOverrides]
   );
 

@@ -10,7 +10,7 @@ import {
   X,
 } from 'lucide-react';
 import { Product, Language } from '../../types';
-import { ReviewItem, INITIAL_REVIEWS } from '../../data/mockReviews';
+import { ReviewItem } from '../../data/mockReviews';
 import { useStoreData } from '../../context/StoreDataContext';
 import { submitStoreReview, upvoteStoreReview } from '../../services/storeService';
 
@@ -28,7 +28,6 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [upvotedReviews, setUpvotedReviews] = useState<Record<string, boolean>>({});
-  const [seedHelpfulBonus, setSeedHelpfulBonus] = useState<Record<string, number>>({});
 
   // Review form state
   const [formRating, setFormRating] = useState<number>(5);
@@ -61,25 +60,19 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
         fitFeedback: r.fitFeedback,
         title: r.title,
         comment: r.comment,
-        verifiedBuyer: true,
+        verifiedBuyer: false, // Require an order match before claiming verified buyer
         helpfulCount: r.helpfulCount,
       }));
   }, [approvedReviews, product.id]);
 
-  const reviews = useMemo<ReviewItem[]>(() => {
-    const seed = (INITIAL_REVIEWS[product.id] || INITIAL_REVIEWS['default']).map((r) => ({
-      ...r,
-      helpfulCount: r.helpfulCount + (seedHelpfulBonus[r.id] || 0),
-    }));
-    const existingIds = new Set(firestoreReviewsForProduct.map((r) => r.id));
-    return [...firestoreReviewsForProduct, ...seed.filter((r) => !existingIds.has(r.id))];
-  }, [firestoreReviewsForProduct, product.id, seedHelpfulBonus]);
+  // Demo reviews must never be shown as customer testimonials.
+  const reviews = firestoreReviewsForProduct;
 
   // Calculations
   const totalReviews = reviews.length;
   const averageRating = totalReviews > 0
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1)
-    : '5.0';
+    : '0.0';
 
   const ratingCounts: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
   reviews.forEach((r) => {
@@ -105,8 +98,6 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
       } catch {
         // revert silently on network failure
       }
-    } else {
-      setSeedHelpfulBonus((prev) => ({ ...prev, [reviewId]: (prev[reviewId] || 0) + 1 }));
     }
   };
 
@@ -175,7 +166,7 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
               ))}
             </div>
             <span className="text-[11px] font-mono text-[#77777D] mt-1">
-              {totalReviews} {language === 'en' ? 'Verified Client Reviews' : 'টি যাচাইকৃত রিভিউ'}
+              {totalReviews} {language === 'en' ? 'Customer Reviews' : 'টি গ্রাহক রিভিউ'}
             </span>
           </div>
 
@@ -186,11 +177,11 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
           <div className="text-xs space-y-1 text-[#D8D3C9]">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>98% recommend this piece</span>
+              <span>Ratings reflect submitted customer feedback</span>
             </div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-3.5 h-3.5 text-[#B69A60] shrink-0" />
-              <span>100% Verified Bangladesh Deliveries</span>
+              <span>Purchase verification is not yet available</span>
             </div>
           </div>
         </div>
