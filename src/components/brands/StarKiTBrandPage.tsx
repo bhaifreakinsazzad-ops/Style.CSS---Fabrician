@@ -27,6 +27,7 @@ import {
   StarKiTSize,
 } from '../starkit/StarKiTCatalogGrid';
 import { StarKiTInteractiveTools } from '../starkit/StarKiTInteractiveTools';
+import { CustomerVoicesSection } from '../testimonials/CustomerVoicesSection';
 import {
   buildStarKiTWhatsAppHref,
   STARKIT_BRAND_BOOK,
@@ -785,6 +786,15 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
           )}
         </div>
       </section>
+
+      {/* Customer Voices: StarKiT Community Wearers */}
+      <CustomerVoicesSection
+        language={language}
+        brandScope="StarKiT"
+        variant="starkit"
+        sectionId="starkit-customer-voices"
+        onQuickView={onQuickView}
+      />
     </div>
   );
 };

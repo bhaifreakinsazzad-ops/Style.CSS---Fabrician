@@ -8,6 +8,10 @@ import threepieceMagentaPlum from './threepiece_magenta_plum_1794373917839.jpg';
 import threepieceMirrorEmbroidery from './threepiece_mirror_embroidery_1794373918597.jpg';
 import threepieceSwissLawn from './threepiece_swiss_lawn_1794373919056.jpg';
 import threepieceTealBatik from './threepiece_teal_batik_1794373918349.jpg';
+import farizaVoicePlumLawn from './fariza_voice_plum_lawn_1794605408657.jpg';
+import farizaVoiceTealBatik from './fariza_voice_teal_batik_1794605409413.jpg';
+import starkitVoiceFolkHoodie from './starkit_voice_folk_hoodie_1794605409706.jpg';
+import starkitVoiceCreamHoodie from './starkit_voice_cream_hoodie_1794605410497.jpg';
 
 export {
   craftsmanshipTextileMacro,
@@ -20,4 +24,8 @@ export {
   threepieceMirrorEmbroidery,
   threepieceSwissLawn,
   threepieceTealBatik,
+  farizaVoicePlumLawn,
+  farizaVoiceTealBatik,
+  starkitVoiceFolkHoodie,
+  starkitVoiceCreamHoodie,
 };

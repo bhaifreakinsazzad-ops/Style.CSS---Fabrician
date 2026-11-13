@@ -15,6 +15,7 @@ import { FeaturedEssentials } from './components/products/FeaturedEssentials';
 import { CraftsmanshipSection } from './components/craftsmanship/CraftsmanshipSection';
 import { StyleIntelligence } from './components/style-intelligence/StyleIntelligence';
 import { EditorialStories } from './components/editorial/EditorialStories';
+import { CustomerVoicesSection } from './components/testimonials/CustomerVoicesSection';
 import { Footer } from './components/footer/Footer';
 import { CartDrawer } from './components/modals/CartDrawer';
 import { WishlistDrawer } from './components/modals/WishlistDrawer';
@@ -514,6 +515,13 @@ export default function App() {
 
           {/* Bangladeshi Craftsmanship & Heritage */}
           <CraftsmanshipSection language={language} />
+
+          {/* Customer Voices: Verified Portraits & Reviews across Fariza's Territory & StarKiT */}
+          <CustomerVoicesSection
+            language={language}
+            onQuickView={(p) => setQuickViewProduct(p)}
+            onSelectBrand={(brand) => navigateToBrand(brand)}
+          />
 
           {/* Style Intelligence Engine */}
           <StyleIntelligence

@@ -24,6 +24,7 @@ import { useStoreData } from '../../context/StoreDataContext';
 import { FarizaCatalogGrid, FarizaPromoBar } from '../three-piece/FarizaCatalogGrid';
 import { FarizaInteractiveTools } from '../three-piece/FarizaInteractiveTools';
 import { FarizaLogo } from '../three-piece/FarizaLogo';
+import { CustomerVoicesSection } from '../testimonials/CustomerVoicesSection';
 import {
   buildFarizaWhatsAppHref,
   FARIZA_BRAND_ASSETS,
@@ -727,6 +728,15 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
           )}
         </div>
       </section>
+
+      {/* Customer Voices: Fariza's Territory Community Social Proof */}
+      <CustomerVoicesSection
+        language={language}
+        brandScope="Fariza's Territory"
+        variant="fariza"
+        sectionId="fariza-customer-voices"
+        onQuickView={onQuickView}
+      />
 
       {/* Interactive 3D Fabric Studio Modal */}
       {active3DItem && (
