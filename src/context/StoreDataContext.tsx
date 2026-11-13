@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import {
   User,
-  onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
@@ -68,6 +68,7 @@ interface StoreDataContextValue {
   user: User | null;
   authReady: boolean;
   isAdmin: boolean;
+  isPrimaryOwner: boolean;
   authNotice: string | null;
   signInWithGoogle: () => Promise<void>;
   signInWithGoogleRedirect: () => Promise<void>;
@@ -85,7 +86,8 @@ const StoreDataContext = createContext<StoreDataContextValue | null>(null);
 
 export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [authReady, setAuthReady] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
+  const [roleChecking, setRoleChecking] = useState(false);
   const [hasAdminRoleDoc, setHasAdminRoleDoc] = useState(false);
   const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
@@ -94,7 +96,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     if (!auth || !db) {
-      setAuthReady(true);
+      setAuthInitialized(true);
       return;
     }
 
@@ -103,6 +105,30 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const dbInstance = db;
 
     void testFirestoreConnection();
+
+    const resolveAdminRole = async (targetUser: User | null) => {
+      if (
+        !targetUser ||
+        !targetUser.emailVerified ||
+        targetUser.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase()
+      ) {
+        if (!cancelled) {
+          setHasAdminRoleDoc(false);
+          setRoleChecking(false);
+        }
+        return;
+      }
+
+      if (!cancelled) setRoleChecking(true);
+      try {
+        const adminSnap = await getDoc(doc(dbInstance, 'admins', targetUser.uid));
+        if (!cancelled) setHasAdminRoleDoc(adminSnap.exists());
+      } catch {
+        if (!cancelled) setHasAdminRoleDoc(false);
+      } finally {
+        if (!cancelled) setRoleChecking(false);
+      }
+    };
 
     const hydrateAuth = async () => {
       await ensureAuthPersistence();
@@ -124,44 +150,18 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         // Ignore if authStateReady rejects unexpectedly
       }
       if (!cancelled) {
-        const settledUser = authInstance.currentUser;
-        if (
-          settledUser &&
-          settledUser.emailVerified &&
-          settledUser.email?.toLowerCase() !== PRIMARY_ADMIN_EMAIL.toLowerCase()
-        ) {
-          try {
-            const adminSnap = await getDoc(doc(dbInstance, 'admins', settledUser.uid));
-            if (!cancelled) setHasAdminRoleDoc(adminSnap.exists());
-          } catch {
-            if (!cancelled) setHasAdminRoleDoc(false);
-          }
-        }
-        setAuthReady(true);
+        await resolveAdminRole(authInstance.currentUser);
+        if (!cancelled) setAuthInitialized(true);
       }
     };
 
     void hydrateAuth();
 
-    const unsubAuth = onAuthStateChanged(authInstance, async (currentUser) => {
+    const unsubAuth = onIdTokenChanged(authInstance, (currentUser) => {
       if (cancelled) return;
       setUser(currentUser);
       if (currentUser) setAuthNotice(null);
-
-      if (
-        currentUser &&
-        currentUser.emailVerified &&
-        currentUser.email?.toLowerCase() !== PRIMARY_ADMIN_EMAIL.toLowerCase()
-      ) {
-        try {
-          const adminSnap = await getDoc(doc(dbInstance, 'admins', currentUser.uid));
-          if (!cancelled) setHasAdminRoleDoc(adminSnap.exists());
-        } catch {
-          if (!cancelled) setHasAdminRoleDoc(false);
-        }
-      } else {
-        setHasAdminRoleDoc(false);
-      }
+      void resolveAdminRole(currentUser);
     });
 
     const unsubSettings = onSnapshot(
@@ -286,6 +286,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, []);
 
+  const authReady = authInitialized && !roleChecking;
   const isPrimaryOwner = Boolean(
     user && user.emailVerified && user.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase()
   );
@@ -481,6 +482,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     user,
     authReady,
     isAdmin,
+    isPrimaryOwner,
     authNotice,
     signInWithGoogle,
     signInWithGoogleRedirect,

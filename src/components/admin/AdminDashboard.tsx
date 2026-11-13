@@ -179,11 +179,22 @@ function downloadCsv(filename: string, headers: string[], rows: unknown[][]) {
   URL.revokeObjectURL(url);
 }
 
+const ADMIN_TAB_STORAGE_KEY = 'fabrician_admin_active_tab';
+const VALID_ADMIN_TABS: AdminTab[] = [
+  'overview',
+  'orders',
+  'catalog',
+  'reviews',
+  'subscribers',
+  'settings',
+];
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) => {
   const {
     user,
     authReady,
     isAdmin,
+    isPrimaryOwner,
     authNotice,
     signInWithGoogle,
     signInWithGoogleRedirect,
@@ -193,7 +204,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     catalogOverrides,
   } = useStoreData();
 
-  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    try {
+      const saved = sessionStorage.getItem(ADMIN_TAB_STORAGE_KEY) as AdminTab | null;
+      return saved && VALID_ADMIN_TABS.includes(saved) ? saved : 'overview';
+    } catch {
+      return 'overview';
+    }
+  });
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSubmitting, setAuthSubmitting] = useState(false);
@@ -214,6 +232,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     setTimeout(() => setToastMsg(null), 3200);
   };
 
+  useEffect(() => {
+    setAuthError(null);
+  }, [user]);
+
+  useEffect(() => {
+    try {
+      if (isAdmin) {
+        sessionStorage.setItem(ADMIN_TAB_STORAGE_KEY, activeTab);
+      } else {
+        sessionStorage.removeItem(ADMIN_TAB_STORAGE_KEY);
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, [isAdmin, activeTab]);
+
   // Subscribe to private admin collections once authenticated as owner
   useEffect(() => {
     if (!isAdmin || !db) {
@@ -225,6 +259,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       setIsAddCustomOpen(false);
       setConfirmDeleteOrderId(null);
       setDataError(null);
+      setOrdersLoading(false);
+      setReviewsLoading(false);
+      setSubscribersLoading(false);
+      return;
+    }
+
+    if (!isPrimaryOwner) {
+      // Collection list queries on orders/subscribers/all-reviews are strictly scoped to primary owner in firestore.rules
+      setOrders([]);
+      setReviews([]);
+      setSubscribers([]);
       setOrdersLoading(false);
       setReviewsLoading(false);
       setSubscribersLoading(false);
@@ -333,7 +378,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       setReviews([]);
       setSubscribers([]);
     };
-  }, [isAdmin]);
+  }, [isAdmin, isPrimaryOwner]);
 
   // Orders filter & dispatch editor state
   const [orderSearch, setOrderSearch] = useState('');

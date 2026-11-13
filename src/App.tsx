@@ -40,7 +40,14 @@ function getViewModeFromLocation(): AppViewMode {
   if (typeof window === 'undefined') return 'store';
   const hash = window.location.hash.toLowerCase();
   const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
-  if (hash === '#admin' || path === '/admin') return 'admin';
+  if (
+    hash === '#admin' ||
+    hash.startsWith('#admin/') ||
+    path === '/admin' ||
+    path.startsWith('/admin/')
+  ) {
+    return 'admin';
+  }
   if (hash === '#starkit' || path === '/starkit') return 'starkit';
   if (hash === '#farizas-territory' || path === '/farizas-territory') return 'farizas-territory';
   return 'store';
@@ -107,10 +114,16 @@ export default function App() {
   const navigateToBrand = (brand: 'store' | 'starkit' | 'farizas-territory') => {
     if (brand === 'store') {
       const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
-      if (path === '/admin' || path === '/starkit' || path === '/farizas-territory') {
+      if (
+        path === '/admin' ||
+        path.startsWith('/admin/') ||
+        path === '/starkit' ||
+        path === '/farizas-territory'
+      ) {
         window.history.replaceState(null, '', '/' + window.location.search);
       } else if (
         window.location.hash === '#admin' ||
+        window.location.hash.startsWith('#admin/') ||
         window.location.hash === '#starkit' ||
         window.location.hash === '#farizas-territory'
       ) {
