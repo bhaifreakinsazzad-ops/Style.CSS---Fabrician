@@ -25,6 +25,12 @@ import { StyleQuizModal } from './components/style-intelligence/StyleQuizModal';
 import { TrackOrderModal } from './components/modals/TrackOrderModal';
 import { StarKiTBrandPage } from './components/brands/StarKiTBrandPage';
 import { FarizasTerritoryBrandPage } from './components/brands/FarizasTerritoryBrandPage';
+import {
+  isStarKiTItem,
+  isStarKiTProduct,
+  trackStarKiTAddToCart,
+  trackStarKiTAddToWishlist,
+} from './services/metaPixel';
 
 const AdminDashboard = React.lazy(() =>
   import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
@@ -174,6 +180,14 @@ export default function App() {
 
   // Cart Handlers
   const upsertCartItem = (item: Omit<CartItem, 'id'>) => {
+    if (isStarKiTItem(item.productId, item.nameEn, unifiedCatalog)) {
+      trackStarKiTAddToCart({
+        id: item.productId,
+        name: item.nameEn,
+        priceBDT: item.priceBDT,
+        quantity: item.quantity,
+      });
+    }
     setCartItems((prev) => {
       const existing = prev.find(
         (i) => i.productId === item.productId && i.size === item.size && i.color === item.color
@@ -231,8 +245,16 @@ export default function App() {
 
   // Wishlist Handlers
   const handleToggleWishlist = (product: Product) => {
+    const exists = wishlist.some((p) => p.id === product.id);
+    if (!exists && isStarKiTProduct(product, unifiedCatalog)) {
+      trackStarKiTAddToWishlist({
+        id: product.id,
+        name: product.nameEn,
+        category: product.collection,
+        valueBDT: product.priceBDT,
+      });
+    }
     setWishlist((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
       if (exists) {
         return prev.filter((p) => p.id !== product.id);
       }

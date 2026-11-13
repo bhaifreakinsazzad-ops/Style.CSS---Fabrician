@@ -25,6 +25,10 @@ import {
 import { StarKiTSize } from './StarKiTCatalogGrid';
 import { StarKiTLogo } from './StarKiTLogo';
 import { useStoreData } from '../../context/StoreDataContext';
+import {
+  trackStarKiTContact,
+  trackStarKiTCustomizeProduct,
+} from '../../services/metaPixel';
 
 interface StarKiTInteractiveToolsProps {
   products: LiveGraphicArchiveProduct[];
@@ -253,6 +257,7 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                     type="button"
                     onClick={() => {
                       onApplyRecommendedSize(recommendedFit.size);
+                      trackStarKiTCustomizeProduct(`Fit Calculator: Size ${recommendedFit.size} (${drapeStyle})`);
                       setAppliedSizeFeedback(true);
                       setTimeout(() => setAppliedSizeFeedback(false), 2000);
                     }}
@@ -655,6 +660,7 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
               href={customWaLink}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackStarKiTContact('WhatsApp', `${waTopic} · ${waSku}`)}
               className="w-full py-3 px-4 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
             >
               <MessageCircle className="w-4 h-4" />

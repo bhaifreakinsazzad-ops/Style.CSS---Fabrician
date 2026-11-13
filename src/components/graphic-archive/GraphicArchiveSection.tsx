@@ -4,7 +4,7 @@
  */
 
 import React, { Suspense, useEffect, useState } from 'react';
-import { ArrowUpRight, Box, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowUpRight, Box, Check, Copy, ShieldCheck, Truck } from 'lucide-react';
 import { GraphicArchiveProduct } from '../../data/graphicArchiveCatalog';
 import { useStoreData } from '../../context/StoreDataContext';
 import { Language, CartItem, Product } from '../../types';
@@ -38,8 +38,16 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   const { liveGraphicArchiveProducts } = useStoreData();
   const [studioProduct, setStudioProduct] = useState<GraphicArchiveProduct | null>(null);
   const [showStudioModal, setShowStudioModal] = useState(false);
+  const [copiedStarKiTLink, setCopiedStarKiTLink] = useState(false);
 
   const starKiTProducts = liveGraphicArchiveProducts.filter((p) => p.brand === 'StarKiT');
+
+  const handleCopyLink = () => {
+    const url = typeof window !== 'undefined' ? `${window.location.origin}/starkit` : '/starkit';
+    navigator.clipboard?.writeText(url).catch(() => {});
+    setCopiedStarKiTLink(true);
+    setTimeout(() => setCopiedStarKiTLink(false), 2000);
+  };
 
   useEffect(() => {
     if (!showStudioModal) return;
@@ -74,9 +82,27 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                 <span className="px-3 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
                   Drop 01 · 11 Designs · 15 Colorways
                 </span>
-                <span className="px-3 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-mono uppercase tracking-wider text-white/90">
+                <a
+                  href="/starkit"
+                  onClick={(e) => {
+                    if (onOpenBrandPage && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onOpenBrandPage();
+                    }
+                  }}
+                  className="px-3 py-1 rounded bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-mono uppercase tracking-wider text-white/90 transition-colors"
+                >
                   /starkit
-                </span>
+                </a>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="px-2.5 py-1 rounded bg-white/10 hover:bg-white hover:text-[#170000] border border-white/20 text-[10px] font-mono text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
+                  title="Copy direct StarKiT storefront URL"
+                >
+                  {copiedStarKiTLink ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedStarKiTLink ? 'Copied /starkit' : 'Copy Link'}</span>
+                </button>
               </div>
 
               <StarKiTLogo variant="light-on-dark" size="lg" showTagline />
@@ -129,9 +155,14 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
               </button>
 
               {onOpenBrandPage && (
-                <button
-                  type="button"
-                  onClick={onOpenBrandPage}
+                <a
+                  href="/starkit"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onOpenBrandPage();
+                    }
+                  }}
                   className="px-5 py-3 rounded-xl bg-white hover:bg-[#C7C1BF] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-lg"
                 >
                   <span>
@@ -140,7 +171,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                       : 'স্টারকিট ফ্ল্যাগশিপ পেজ'}
                   </span>
                   <ArrowUpRight className="w-4 h-4" />
-                </button>
+                </a>
               )}
             </div>
           </div>

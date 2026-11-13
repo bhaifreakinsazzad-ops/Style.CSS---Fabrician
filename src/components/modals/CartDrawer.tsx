@@ -18,6 +18,14 @@ import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useStoreData } from '../../context/StoreDataContext';
 import { placeStoreOrder } from '../../services/storeService';
+import {
+  isStarKiTItem,
+  isStarKiTRoute,
+  MetaPixelContentItem,
+  trackStarKiTAddPaymentInfo,
+  trackStarKiTInitiateCheckout,
+  trackStarKiTPurchase,
+} from '../../services/metaPixel';
 
 const CHECKOUT_PROFILE_KEY = 'fabrician_checkout_profile_v1';
 
@@ -96,6 +104,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
   const [copiedReceipt, setCopiedReceipt] = useState(false);
   const checkoutRequestRef = useRef<{requestId: string; lookupToken: string} | null>(null);
+  const checkoutTrackedRef = React.useRef(false);
 
   const t = translations[language];
   useEffect(() => { checkoutRequestRef.current = null; }, [items, fullName, phone, address, division, appliedPromo]);
@@ -108,7 +117,42 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         setCheckoutStep('cart');
       }
     }
+    if (!isOpen) {
+      checkoutTrackedRef.current = false;
+    }
   }, [isOpen, initialStep, items.length]);
+
+  useEffect(() => {
+    if (!isOpen || checkoutStep !== 'checkout' || items.length === 0) {
+      if (checkoutStep !== 'checkout') checkoutTrackedRef.current = false;
+      return;
+    }
+    if (checkoutTrackedRef.current) return;
+
+    const starKiTItems: MetaPixelContentItem[] = items
+      .filter((i) => isStarKiTItem(i.productId, i.nameEn, unifiedCatalog))
+      .map((i) => ({
+        id: i.productId,
+        name: i.nameEn,
+        priceBDT: i.priceBDT,
+        quantity: i.quantity,
+      }));
+
+    if (starKiTItems.length > 0 || isStarKiTRoute()) {
+      checkoutTrackedRef.current = true;
+      const targetItems =
+        starKiTItems.length > 0
+          ? starKiTItems
+          : items.map((i) => ({
+              id: i.productId,
+              name: i.nameEn,
+              priceBDT: i.priceBDT,
+              quantity: i.quantity,
+            }));
+      const value = targetItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
+      trackStarKiTInitiateCheckout(targetItems, value);
+    }
+  }, [isOpen, checkoutStep, items, unifiedCatalog]);
 
   useEffect(() => {
     try {
@@ -287,6 +331,36 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     ).slice(0, 1200);
     const combinedAddress = trimmedAddress.slice(0, 300);
 
+    const starKiTItems: MetaPixelContentItem[] = items
+      .filter((i) => isStarKiTItem(i.productId, i.nameEn, unifiedCatalog))
+      .map((i) => ({
+        id: i.productId,
+        name: i.nameEn,
+        priceBDT: i.priceBDT,
+        quantity: i.quantity,
+      }));
+    const onStarKiTRoute = isStarKiTRoute();
+    const shouldTrackConversion = starKiTItems.length > 0 || onStarKiTRoute;
+    const conversionItems: MetaPixelContentItem[] =
+      starKiTItems.length > 0
+        ? starKiTItems
+        : items.map((i) => ({
+            id: i.productId,
+            name: i.nameEn,
+            priceBDT: i.priceBDT,
+            quantity: i.quantity,
+          }));
+    const starKiTRawValue = starKiTItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
+    const starKiTShareRatio = subtotal > 0 ? Math.min(1, starKiTRawValue / subtotal) : 0;
+    const conversionTotalBDT =
+      starKiTItems.length === items.length || onStarKiTRoute
+        ? orderTotal
+        : Math.max(0, Math.round(discountedSubtotal * starKiTShareRatio));
+
+    if (shouldTrackConversion) {
+      trackStarKiTAddPaymentInfo(paymentMethod, conversionItems, conversionTotalBDT);
+    }
+
     try {
       if (!checkoutRequestRef.current) {
         const bytes = crypto.getRandomValues(new Uint8Array(32));
@@ -313,6 +387,19 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       });
 
       checkoutRequestRef.current = null;
+      if (shouldTrackConversion) {
+        trackStarKiTPurchase({
+          orderId: result.orderId,
+          items: conversionItems,
+          totalValueBDT: conversionTotalBDT,
+          customer: {
+            fullName: trimmedName,
+            phone: phone.trim(),
+            division,
+          },
+        });
+      }
+
       setConfirmedOrder({
         orderId: result.orderId,
         consignmentId: result.consignmentId,

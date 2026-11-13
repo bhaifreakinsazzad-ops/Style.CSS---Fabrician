@@ -96,8 +96,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Zone 2: Navigation Links (Clean Single-Line Text Links) */}
           <nav className="hidden lg:flex items-center gap-4 xl:gap-5 text-[11px] xl:text-xs uppercase tracking-[0.16em] font-medium text-[#D8D3C9]">
-            <button
-              onClick={() => handleBrandClick('starkit')}
+            <a
+              href="/starkit"
+              onClick={(e) => {
+                if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                  e.preventDefault();
+                  handleBrandClick('starkit');
+                }
+              }}
               className={`font-starkit transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-white tracking-[0.22em] font-semibold ${
                 viewMode === 'starkit'
                   ? 'text-white border-b border-white pb-0.5'
@@ -105,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               {language === 'en' ? 'StarkiT' : 'স্টারকিট'}
-            </button>
+            </a>
             <button
               onClick={() => handleBrandClick('farizas-territory')}
               className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] ${
@@ -275,9 +281,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#B69A60]">
                 {language === 'en' ? 'Partner Brand Houses' : 'পার্টনার ব্র্যান্ড শোরুম'}
               </div>
-              <button
-                onClick={() => handleBrandClick('starkit')}
-                className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
+              <a
+                href="/starkit"
+                onClick={(e) => {
+                  if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                    e.preventDefault();
+                    handleBrandClick('starkit');
+                  }
+                }}
+                className={`block w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
                   viewMode === 'starkit'
                     ? 'bg-white border-white text-[#170000]'
                     : 'bg-[#170000] border-white/25 text-white hover:border-white'
@@ -304,7 +316,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     ? 'Community · Style · Authenticity (/starkit)'
                     : '৩৩০–৪৮০ জিএসএম ফ্লিস ও ১১টি হুডি'}
                 </div>
-              </button>
+              </a>
               <button
                 onClick={() => handleBrandClick('farizas-territory')}
                 className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${

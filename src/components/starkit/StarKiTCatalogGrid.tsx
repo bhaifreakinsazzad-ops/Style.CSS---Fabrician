@@ -30,6 +30,11 @@ import {
   STARKIT_SIZE_CHART,
   STARKIT_WHATSAPP_DISPLAY,
 } from '../../data/starkitBrandData';
+import {
+  trackStarKiTContact,
+  trackStarKiTSearch,
+  trackStarKiTViewContent,
+} from '../../services/metaPixel';
 
 export const STARKIT_SIZES = ['M', 'L', 'XL', 'XXL'] as const;
 export type StarKiTSize = (typeof STARKIT_SIZES)[number];
@@ -124,6 +129,7 @@ export const StarKiTPromoBanner: React.FC<{ language: Language }> = ({ language 
             )}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackStarKiTContact('WhatsApp', 'StarKiT Promo Banner Desk')}
             className="px-3 py-2 rounded-lg bg-[#170000] hover:bg-neutral-800 text-white text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-colors"
           >
             <MessageCircle className="w-3.5 h-3.5" />
@@ -220,12 +226,27 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
 
   useEffect(() => {
     if (!activeSheetModal) return;
+    trackStarKiTViewContent({
+      id: activeSheetModal.product.id,
+      name: `StarkiT ${activeSheetModal.product.name} Hoodie (${activeSheetModal.variant.color})`,
+      category: `StarKiT · ${activeSheetModal.product.category}`,
+      valueBDT: activeSheetModal.variant.priceBdt,
+    });
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setActiveSheetModal(null);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [activeSheetModal]);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackStarKiTSearch(q);
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
 
   const categories = [
     { id: 'all', en: `All Drops (${products.length})`, bn: `সকল ড্রপ (${products.length})` },
@@ -723,6 +744,9 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       href={buildStarKiTWhatsAppHref(waMessage)}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={() =>
+                        trackStarKiTContact('WhatsApp', `${product.stkCode || product.id} (${currentVariant.color})`)
+                      }
                       className={`w-full py-1.5 px-3 rounded-lg border text-[11px] font-mono font-semibold flex items-center justify-center gap-1.5 transition-colors ${
                         isLight
                           ? 'border-[#170000]/25 text-[#170000] hover:bg-[#170000] hover:text-white'

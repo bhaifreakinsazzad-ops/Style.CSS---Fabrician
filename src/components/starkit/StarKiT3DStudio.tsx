@@ -15,6 +15,10 @@ import {
   GraphicArchiveVariant,
 } from '../../data/graphicArchiveCatalog';
 import { CartItem, Language } from '../../types';
+import {
+  trackStarKiTCustomizeProduct,
+  trackStarKiTViewContent,
+} from '../../services/metaPixel';
 
 interface StarKiT3DStudioProps {
   products: GraphicArchiveProduct[];
@@ -876,7 +880,18 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                 <select
                   id="starkit-3d-design-select"
                   value={activeProduct.id}
-                  onChange={(e) => setSelectedProductId(e.target.value)}
+                  onChange={(e) => {
+                    const nextProd = products.find((p) => p.id === e.target.value);
+                    setSelectedProductId(e.target.value);
+                    if (nextProd) {
+                      trackStarKiTViewContent({
+                        id: nextProd.id,
+                        name: `StarkiT ${nextProd.name} Hoodie (3D Studio)`,
+                        category: `StarKiT · ${nextProd.category}`,
+                        valueBDT: nextProd.basePrice,
+                      });
+                    }
+                  }}
                   className="bg-black border border-white/25 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white cursor-pointer max-w-[230px]"
                 >
                   {products.map((p) => (
@@ -921,7 +936,10 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                     <button
                       key={v.sku}
                       type="button"
-                      onClick={() => setSelectedVariantSku(v.sku)}
+                      onClick={() => {
+                        setSelectedVariantSku(v.sku);
+                        trackStarKiTCustomizeProduct(`3D Colorway: ${v.color}`, activeProduct.id);
+                      }}
                       title={v.color}
                       aria-label={`Select colorway ${v.color}`}
                       className={`w-5 h-5 rounded-full border-2 cursor-pointer transition-transform ${
