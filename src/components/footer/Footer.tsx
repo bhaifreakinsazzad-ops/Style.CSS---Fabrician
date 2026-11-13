@@ -102,14 +102,20 @@ export const Footer: React.FC<FooterProps> = ({
               {onSelectBrand && (
                 <>
                   <li>
-                    <button
-                      onClick={() => onSelectBrand('starkit')}
-                      className="text-white hover:text-[#C7C1BF] transition-colors cursor-pointer text-left font-medium"
+                    <a
+                      href="/starkit"
+                      onClick={(e) => {
+                        if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                          e.preventDefault();
+                          onSelectBrand('starkit');
+                        }
+                      }}
+                      className="text-white hover:text-[#C7C1BF] transition-colors cursor-pointer text-left font-medium inline-block"
                     >
                       {language === 'en'
                         ? 'StarkiT — Graphic Archive (/starkit)'
                         : 'স্টারকিট — গ্রাফিক আর্কাইভ (/starkit)'}
-                    </button>
+                    </a>
                   </li>
                   <li>
                     <button

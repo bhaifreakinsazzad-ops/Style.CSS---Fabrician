@@ -197,14 +197,19 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
 
             {onOpenBrandPage && (
               <>
-                <button
-                  type="button"
-                  onClick={() => onOpenBrandPage('starkit')}
+                <a
+                  href="/starkit"
+                  onClick={(e) => {
+                    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                      e.preventDefault();
+                      onOpenBrandPage('starkit');
+                    }
+                  }}
                   className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#B69A60] text-[#F5F2EB] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>StarKiT Menswear</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
+                </a>
                 <button
                   type="button"
                   onClick={() => onOpenBrandPage('farizas-territory')}

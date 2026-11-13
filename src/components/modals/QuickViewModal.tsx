@@ -20,6 +20,7 @@ import { ProductReviewsModule } from '../reviews/ProductReviewsModule';
 import { INITIAL_REVIEWS } from '../../data/mockReviews';
 import { useStoreData } from '../../context/StoreDataContext';
 import { StoreReview } from '../../types/store';
+import { isStarKiTProduct, trackStarKiTViewContent } from '../../services/metaPixel';
 
 const GarmentTryOn3DModal = React.lazy(() =>
   import('./GarmentTryOn3DModal').then((m) => ({ default: m.GarmentTryOn3DModal }))
@@ -123,6 +124,18 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
       setActiveTab('details');
     }
   }, [product?.id]);
+
+  useEffect(() => {
+    if (!isOpen || !resolvedProduct) return;
+    if (isStarKiTProduct(resolvedProduct, unifiedCatalog)) {
+      trackStarKiTViewContent({
+        id: resolvedProduct.id,
+        name: resolvedProduct.nameEn,
+        category: resolvedProduct.collection,
+        valueBDT: resolvedProduct.priceBDT,
+      });
+    }
+  }, [isOpen, resolvedProduct?.id]);
 
   useEffect(() => {
     if (!isOpen) return;

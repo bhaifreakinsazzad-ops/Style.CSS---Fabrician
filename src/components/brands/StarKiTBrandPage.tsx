@@ -1,9 +1,10 @@
-import React, { Suspense, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft,
   ArrowUpRight,
   Box,
   Check,
+  Copy,
   FileText,
   Heart,
   Layers,
@@ -33,6 +34,10 @@ import {
   STARKIT_LOOKBOOK_PDF,
   STARKIT_WHATSAPP_DISPLAY,
 } from '../../data/starkitBrandData';
+import {
+  trackStarKiTContact,
+  trackStarKiTPageView,
+} from '../../services/metaPixel';
 
 const StarKiT3DStudio = React.lazy(() =>
   import('../starkit/StarKiT3DStudio').then((m) => ({ default: m.StarKiT3DStudio }))
@@ -65,6 +70,19 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
   const [studioProduct, setStudioProduct] = useState<GraphicArchiveProduct | undefined>(undefined);
   const [recommendedSize, setRecommendedSize] = useState<StarKiTSize | null>(null);
   const [addedKey, setAddedKey] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  useEffect(() => {
+    trackStarKiTPageView();
+  }, []);
+
+  const handleCopyStarKiTLink = () => {
+    const fullUrl =
+      typeof window !== 'undefined' ? `${window.location.origin}/starkit` : '/starkit';
+    navigator.clipboard?.writeText(fullUrl).catch(() => {});
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
 
   const starKiTEssentials = useMemo<LiveProduct[]>(
     () =>
@@ -138,9 +156,21 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             <span className="font-starkit font-bold tracking-widest uppercase text-white">
               StarkiT (ستاركيت)
             </span>
-            <span className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] font-mono text-white/85">
+            <a
+              href="/starkit"
+              className="px-2 py-0.5 rounded bg-white/10 border border-white/20 text-[10px] font-mono text-white/85 hover:bg-white/20 transition-colors"
+            >
               /starkit
-            </span>
+            </a>
+            <button
+              type="button"
+              onClick={handleCopyStarKiTLink}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/10 hover:bg-white hover:text-[#170000] border border-white/20 text-[10px] font-mono text-white transition-colors cursor-pointer"
+              title="Copy direct StarKiT link"
+            >
+              {copiedLink ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
+            </button>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -259,6 +289,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackStarKiTContact('WhatsApp', 'StarKiT /starkit Hero')}
                 className="px-4 py-3 rounded-xl border border-white/35 hover:bg-white hover:text-[#170000] text-white text-xs font-mono font-bold inline-flex items-center gap-2 transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
