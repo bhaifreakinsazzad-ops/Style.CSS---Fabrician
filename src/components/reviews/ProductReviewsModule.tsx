@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Star, 
-  CheckCircle2, 
-  ThumbsUp, 
-  PenLine, 
-  Sparkles, 
-  MessageSquare, 
-  ShieldCheck, 
-  MapPin, 
+import {
+  Star,
+  CheckCircle2,
+  ThumbsUp,
+  PenLine,
+  Sparkles,
+  ShieldCheck,
+  MapPin,
   X,
-  Filter
 } from 'lucide-react';
 import { Product, Language } from '../../types';
 import { ReviewItem, INITIAL_REVIEWS } from '../../data/mockReviews';
@@ -19,21 +17,27 @@ interface ProductReviewsModuleProps {
   language: Language;
 }
 
+function loadReviewsForProduct(productId: string): ReviewItem[] {
+  try {
+    const saved = localStorage.getItem(`fabrician_reviews_${productId}`);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // fallback
+  }
+  return INITIAL_REVIEWS[productId] || INITIAL_REVIEWS['default'];
+}
+
 export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
   product,
   language,
 }) => {
   const storageKey = `fabrician_reviews_${product.id}`;
 
-  const [reviews, setReviews] = useState<ReviewItem[]>(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      if (saved) return JSON.parse(saved);
-    } catch {
-      // fallback
-    }
-    return INITIAL_REVIEWS[product.id] || INITIAL_REVIEWS['default'];
-  });
+  const [reviews, setReviews] = useState<ReviewItem[]>(() => loadReviewsForProduct(product.id));
+
+  useEffect(() => {
+    setReviews(loadReviewsForProduct(product.id));
+  }, [product.id]);
 
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [filterRating, setFilterRating] = useState<number | null>(null);

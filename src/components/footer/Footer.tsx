@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { ArrowRight, CheckCircle2, Globe, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle2, Sparkles, X, PhoneCall, MapPin, ShieldCheck } from 'lucide-react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
+import { GRAPHIC_ARCHIVE_HOTLINE, GRAPHIC_ARCHIVE_HOTLINE_TEL } from '../../data/graphicArchiveCatalog';
 
 interface FooterProps {
   language: Language;
@@ -10,24 +11,31 @@ interface FooterProps {
   onOpenTrackOrder?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ 
-  language, 
-  onNavigate, 
-  onOpenSizeGuide, 
-  onOpenTrackOrder 
+export const Footer: React.FC<FooterProps> = ({
+  language,
+  onNavigate,
+  onOpenSizeGuide,
+  onOpenTrackOrder,
 }) => {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [activeInfoModal, setActiveInfoModal] = useState<'contact' | 'legal' | null>(null);
   const t = translations[language];
+
+  useEffect(() => {
+    if (!activeInfoModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setActiveInfoModal(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeInfoModal]);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email.trim()) return;
     setIsSubscribed(true);
-    setTimeout(() => {
-      setEmail('');
-      setIsSubscribed(false);
-    }, 4000);
+    setEmail('');
   };
 
   return (
@@ -58,7 +66,7 @@ export const Footer: React.FC<FooterProps> = ({
               <Sparkles className="w-3 h-3 text-[#B69A60]" />
               <span>{t.brand.originBadge}</span>
               <span className="text-white/20">·</span>
-              <span>Est. 2021 / Relaunch 2026</span>
+              <span>Est. 2021</span>
             </div>
           </div>
 
@@ -74,6 +82,22 @@ export const Footer: React.FC<FooterProps> = ({
                   className="hover:text-[#F5F2EB] transition-colors cursor-pointer text-left"
                 >
                   {t.nav.lookbook}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('three-piece-edit')}
+                  className="hover:text-[#F5F2EB] transition-colors cursor-pointer text-left"
+                >
+                  {t.nav.threePiece}
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('graphic-archive')}
+                  className="hover:text-[#F5F2EB] transition-colors cursor-pointer text-left"
+                >
+                  {t.nav.graphicArchive}
                 </button>
               </li>
               <li>
@@ -137,14 +161,22 @@ export const Footer: React.FC<FooterProps> = ({
                 </button>
               </li>
               <li>
-                <span className="hover:text-[#F5F2EB] transition-colors cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal('contact')}
+                  className="hover:text-[#F5F2EB] transition-colors cursor-pointer text-left"
+                >
                   {t.footer.contact}
-                </span>
+                </button>
               </li>
               <li>
-                <span className="hover:text-[#F5F2EB] transition-colors cursor-pointer">
+                <button
+                  type="button"
+                  onClick={() => setActiveInfoModal('legal')}
+                  className="hover:text-[#F5F2EB] transition-colors cursor-pointer text-left"
+                >
                   {t.footer.legal}
-                </span>
+                </button>
               </li>
             </ul>
           </div>
@@ -159,9 +191,18 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
 
             {isSubscribed ? (
-              <div className="p-3 bg-[#B69A60]/10 border border-[#B69A60]/40 rounded text-xs text-[#D5BA80] flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#B69A60]" />
-                <span>{t.footer.subscribed}</span>
+              <div className="p-3 bg-[#B69A60]/10 border border-[#B69A60]/40 rounded text-xs text-[#D5BA80] flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-[#B69A60] shrink-0" />
+                  <span>{t.footer.subscribed}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsSubscribed(false)}
+                  className="text-[10px] font-mono underline hover:text-white cursor-pointer"
+                >
+                  {language === 'en' ? 'Dismiss' : 'বাতিল'}
+                </button>
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex gap-2">
@@ -190,10 +231,88 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="flex items-center gap-6 font-mono text-[11px]">
             <span>BDT (৳) Currency</span>
             <span>Dhaka Atelier</span>
-            <span>Worldwide Delivery</span>
+            <span>Nationwide &amp; Global Dispatch</span>
           </div>
         </div>
       </div>
+
+      {/* Atelier Contact / Legal Info Modal */}
+      {activeInfoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            onClick={() => setActiveInfoModal(null)}
+            className="fixed inset-0 bg-black/85 backdrop-blur-md"
+          />
+
+          <div className="relative w-full max-w-lg bg-[#121215] border border-white/15 rounded-2xl shadow-2xl overflow-hidden z-10 p-6 sm:p-7">
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/10">
+              <h3 className="font-serif-luxury text-2xl text-[#F5F2EB] font-light">
+                {activeInfoModal === 'contact'
+                  ? language === 'en'
+                    ? 'Dhaka Atelier & Concierge'
+                    : 'ঢাকা আতেলিয়ে ও কনসিয়ার্জ'
+                  : language === 'en'
+                  ? 'Privacy, Terms & Exchange Policy'
+                  : 'গোপনীয়তা, শর্তাবলী ও রিটার্ন নীতি'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setActiveInfoModal(null)}
+                className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 text-[#D8D3C9] hover:text-white cursor-pointer"
+                aria-label="Close modal"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {activeInfoModal === 'contact' ? (
+              <div className="space-y-4 text-xs text-[#D8D3C9] leading-relaxed">
+                <div className="p-4 rounded-xl bg-black/40 border border-white/10 flex items-start gap-3">
+                  <MapPin className="w-4 h-4 text-[#B69A60] shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-[#F5F2EB] mb-0.5">
+                      {language === 'en' ? 'Flagship Studio' : 'ফ্ল্যাগশিপ স্টুডিও'}
+                    </div>
+                    <p className="text-[#9A9892]">
+                      Road 11, Banani, Dhaka 1213, Bangladesh · Open Sat–Thu, 11:00 AM – 8:30 PM
+                    </p>
+                  </div>
+                </div>
+                <div className="p-4 rounded-xl bg-black/40 border border-white/10 flex items-start gap-3">
+                  <PhoneCall className="w-4 h-4 text-[#B69A60] shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-semibold text-[#F5F2EB] mb-0.5">
+                      {language === 'en' ? 'Order & Bespoke Fitting Hotline' : 'অর্ডার ও ফিটিং হটলাইন'}
+                    </div>
+                    <a
+                      href={GRAPHIC_ARCHIVE_HOTLINE_TEL}
+                      className="font-mono text-[#D5BA80] hover:underline"
+                    >
+                      {GRAPHIC_ARCHIVE_HOTLINE}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 text-xs text-[#9A9892] leading-relaxed">
+                <div className="flex items-start gap-2.5 text-[#D8D3C9]">
+                  <ShieldCheck className="w-4 h-4 text-[#B69A60] shrink-0 mt-0.5" />
+                  <p>
+                    {language === 'en'
+                      ? '7-Day Size Exchange: Unworn garments with original tags intact may be exchanged across Bangladesh via Pathao Courier.'
+                      : '৭ দিনের সাইজ এক্সচেঞ্জ সুবিধা: ট্যাগ অক্ষুণ্ন থাকা সাপেক্ষে অব্যবহৃত পোশাক ৭ দিনের মধ্যে পরিবর্তনযোগ্য।'}
+                  </p>
+                </div>
+                <p>
+                  {language === 'en'
+                    ? 'Customer delivery details and wishlist preferences are used strictly to fulfill orders and enhance your shopping experience.'
+                    : 'গ্রাহকের ডেলিভারি তথ্য ও পছন্দসমূহ শুধুমাত্র অর্ডার সরবরাহ ও সেবার মান উন্নয়নে ব্যবহৃত হয়।'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </footer>
   );
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowDown, Sparkles, ChevronRight } from 'lucide-react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
+import { heroModelCampaign } from '../../assets/images';
 
 interface CinematicHeroProps {
   language: Language;
@@ -17,11 +18,11 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
   const t = translations[language];
 
   return (
-    <section id="hero" className="relative min-h-[92vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#09090B]">
+    <section id="hero" className="scroll-mt-20 relative min-h-[92vh] lg:min-h-screen flex items-center justify-center overflow-hidden bg-[#09090B]">
       {/* Background Image Layer with Editorial Scrim */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/src/assets/images/hero_model_campaign_1794372400425.jpg"
+          src={heroModelCampaign}
           alt="FABRICIAN Luxury Fashion Campaign"
           className="w-full h-full object-cover object-center lg:object-top opacity-60 scale-100 transition-transform duration-1000 ease-out"
           referrerPolicy="no-referrer"
@@ -84,10 +85,14 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
         <div className="w-48 my-12 thread-line opacity-60" />
 
         {/* Scroll Discovery Indicator */}
-        <div className="flex flex-col items-center gap-2 text-xs text-[#77777D] tracking-[0.2em] uppercase">
+        <button
+          type="button"
+          onClick={onEnterLookbook}
+          className="flex flex-col items-center gap-2 text-xs text-[#77777D] hover:text-[#D5BA80] transition-colors tracking-[0.2em] uppercase cursor-pointer"
+        >
           <span>{t.hero.scrollHint}</span>
-          <ArrowDown className="w-3.5 h-3.5 animate-bounce text-[#B69A60]" />
-        </div>
+          <ArrowDown className="w-3.5 h-3.5 text-[#B69A60]" />
+        </button>
       </div>
     </section>
   );

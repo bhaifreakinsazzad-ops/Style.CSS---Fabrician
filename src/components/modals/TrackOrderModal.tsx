@@ -1,29 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, 
-  Search, 
-  Truck, 
-  Package, 
-  CheckCircle2, 
-  Clock, 
-  MapPin, 
-  Phone, 
-  User, 
-  Key, 
-  ExternalLink, 
-  ShieldCheck, 
+import {
+  X,
+  Search,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  Phone,
+  User,
   AlertCircle,
   Copy,
-  ChevronDown,
-  ChevronUp,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { Language } from '../../types';
-import { 
-  trackPathaoOrder, 
-  PathaoTrackingData, 
+import {
+  trackPathaoOrder,
+  PathaoTrackingData,
   PathaoDeliveryStatus,
-  pathaoConfig 
 } from '../../services/pathaoCourier';
 
 interface TrackOrderModalProps {
@@ -43,27 +35,14 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
   const [trackingData, setTrackingData] = useState<PathaoTrackingData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  
-  // Live Merchant Token Integration Drawer State
-  const [isTokenDrawerOpen, setIsTokenDrawerOpen] = useState(false);
-  const [merchantToken, setMerchantToken] = useState(() => {
-    return localStorage.getItem('fabrician_pathao_token') || pathaoConfig.accessToken || '';
-  });
-  const [tokenSavedNotification, setTokenSavedNotification] = useState(false);
   const [copiedConsignment, setCopiedConsignment] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      const targetId = initialOrderId || 'FAB-2026';
-      setOrderQuery(targetId);
-      handleTrack(targetId);
-    }
-  }, [isOpen, initialOrderId]);
 
   const handleTrack = async (idToSearch?: string) => {
     const query = (idToSearch || orderQuery).trim();
     if (!query) {
-      setErrorMessage(language === 'en' ? 'Please enter a valid Order ID' : 'অনুগ্রহ করে সঠিক অর্ডার আইডি লিখুন');
+      setErrorMessage(
+        language === 'en' ? 'Please enter a valid Order ID' : 'অনুগ্রহ করে সঠিক অর্ডার আইডি লিখুন'
+      );
       return;
     }
 
@@ -71,7 +50,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
     setErrorMessage(null);
 
     try {
-      const data = await trackPathaoOrder(query, merchantToken);
+      const data = await trackPathaoOrder(query);
       setTrackingData(data);
     } catch {
       setErrorMessage(
@@ -84,25 +63,19 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
     }
   };
 
-  const handleSaveToken = (e: React.FormEvent) => {
-    e.preventDefault();
-    localStorage.setItem('fabrician_pathao_token', merchantToken.trim());
-    pathaoConfig.accessToken = merchantToken.trim();
-    setTokenSavedNotification(true);
-    setTimeout(() => {
-      setTokenSavedNotification(false);
-      setIsTokenDrawerOpen(false);
-    }, 1500);
-    // Refresh tracking with new token
-    handleTrack();
-  };
+  useEffect(() => {
+    if (isOpen) {
+      const targetId = initialOrderId || 'FAB-2026';
+      setOrderQuery(targetId);
+      handleTrack(targetId);
 
-  const handleClearToken = () => {
-    localStorage.removeItem('fabrician_pathao_token');
-    setMerchantToken('');
-    pathaoConfig.accessToken = '';
-    handleTrack();
-  };
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, initialOrderId, onClose]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -150,9 +123,9 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
-      <div 
-        onClick={onClose} 
-        className="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity" 
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black/85 backdrop-blur-md transition-opacity"
       />
 
       <div className="relative w-full max-w-3xl bg-[#121215] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col my-auto max-h-[92vh]">
@@ -161,22 +134,24 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
           <div className="flex items-center gap-3.5">
             <img
               src="/assets/aistudio/Untitled_design_a468bd14.png"
-              alt="Fabrician Master Emblem"
+              alt="Fabrician Emblem"
               className="w-11 h-11 object-contain drop-shadow shrink-0"
             />
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-serif-luxury text-xl sm:text-2xl text-[#F5F2EB] font-light">
-                  {language === 'en' ? 'Track Your Fabrician Consignment' : 'অর্ডার ডেলিভারি ট্র্যাক করুন'}
+                  {language === 'en'
+                    ? 'Track Your Fabrician Consignment'
+                    : 'অর্ডার ডেলিভারি ট্র্যাক করুন'}
                 </h3>
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider bg-red-600/20 text-red-300 border border-red-500/30">
                   Pathao Courier
                 </span>
               </div>
               <p className="text-xs text-[#77777D] mt-0.5 font-mono">
-                {language === 'en' 
-                  ? 'Real-time doorstep courier tracking across 64 districts in Bangladesh' 
-                  : 'সারাদেশের ৬৪ জেলায় রিয়েল-টাইম কুরিয়ার ট্র্যাকিং'}
+                {language === 'en'
+                  ? 'Doorstep courier tracking across 64 districts in Bangladesh'
+                  : 'সারাদেশের ৬৪ জেলায় কুরিয়ার ডেলিভারি ট্র্যাকিং'}
               </p>
             </div>
           </div>
@@ -194,7 +169,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
           {/* Order Search Bar */}
           <div>
-            <form 
+            <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleTrack();
@@ -206,7 +181,11 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                   type="text"
                   value={orderQuery}
                   onChange={(e) => setOrderQuery(e.target.value)}
-                  placeholder={language === 'en' ? 'Enter Order ID (e.g. FAB-2026, CAT-001)' : 'অর্ডার আইডি দিন (যেমন: FAB-2026)'}
+                  placeholder={
+                    language === 'en'
+                      ? 'Enter Order ID (e.g. FAB-2026, CAT-001)'
+                      : 'অর্ডার আইডি দিন (যেমন: FAB-2026)'
+                  }
                   className="w-full bg-black/60 border border-white/15 focus:border-[#B69A60] rounded-xl px-4 py-3 text-sm text-[#F5F2EB] font-mono placeholder:text-[#77777D] focus:outline-none transition-colors"
                 />
                 {orderQuery && (
@@ -214,6 +193,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                     type="button"
                     onClick={() => setOrderQuery('')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#77777D] hover:text-white p-1"
+                    aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -239,10 +219,10 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
               </button>
             </form>
 
-            {/* Quick Demo Pick Chips */}
+            {/* Sample Order Quick Lookup */}
             <div className="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
               <span className="text-[#77777D] font-mono text-[11px]">
-                {language === 'en' ? 'Try sample orders:' : 'নমুনা অর্ডার পরীক্ষা করুন:'}
+                {language === 'en' ? 'Sample orders:' : 'নমুনা অর্ডার:'}
               </span>
               {[
                 { id: 'FAB-2026', label: 'FAB-2026 (Out for Delivery)' },
@@ -278,14 +258,15 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
           {/* Tracking Result Card */}
           {trackingData && (
             <div className="space-y-6">
-              {/* Status Header Badge Card */}
               {(() => {
                 const badge = getStatusBadge(trackingData.currentStatus);
                 return (
                   <div className="p-4 sm:p-5 rounded-xl bg-black/40 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-mono font-semibold border flex items-center gap-1.5 ${badge.bg}`}>
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-xs font-mono font-semibold border flex items-center gap-1.5 ${badge.bg}`}
+                        >
                           <span className={`w-2 h-2 rounded-full ${badge.dot}`} />
                           <span>{badge.label}</span>
                         </span>
@@ -300,11 +281,14 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
 
                     <div className="flex items-center gap-2 font-mono text-xs text-[#D8D3C9]">
                       <span className="text-[#77777D]">Consignment:</span>
-                      <span className="text-[#D5BA80] font-semibold">{trackingData.consignmentId}</span>
+                      <span className="text-[#D5BA80] font-semibold">
+                        {trackingData.consignmentId}
+                      </span>
                       <button
                         onClick={() => copyToClipboard(trackingData.consignmentId)}
-                        className="p-1 text-[#77777D] hover:text-white rounded hover:bg-white/10 transition-colors"
+                        className="p-1 text-[#77777D] hover:text-white rounded hover:bg-white/10 transition-colors cursor-pointer"
                         title="Copy Consignment ID"
+                        aria-label="Copy Consignment ID"
                       >
                         {copiedConsignment ? (
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -319,7 +303,6 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
 
               {/* Delivery & Rider Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Destination & Recipient Card */}
                 <div className="p-4 rounded-xl bg-black/30 border border-white/5 space-y-3">
                   <div className="flex items-center gap-2 text-xs font-mono text-[#B69A60] uppercase tracking-wider">
                     <MapPin className="w-3.5 h-3.5" />
@@ -335,18 +318,21 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                   </div>
                 </div>
 
-                {/* Pathao Hero / Rider & Payment Card */}
                 <div className="p-4 rounded-xl bg-black/30 border border-white/5 space-y-3">
                   <div className="flex items-center gap-2 text-xs font-mono text-[#B69A60] uppercase tracking-wider">
                     <User className="w-3.5 h-3.5" />
-                    <span>{language === 'en' ? 'Pathao Hero & Payment' : 'ডেলিভারি রাইডার ও পেমেন্ট'}</span>
+                    <span>
+                      {language === 'en' ? 'Courier Rider & Payment' : 'ডেলিভারি রাইডার ও পেমেন্ট'}
+                    </span>
                   </div>
                   <div className="text-xs space-y-1.5">
                     {trackingData.riderName ? (
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-[#F5F2EB] font-medium">{trackingData.riderName}</p>
-                          <p className="text-[#77777D] text-[11px]">Authorized Pathao Courier Hero</p>
+                          <p className="text-[#77777D] text-[11px]">
+                            Authorized Pathao Courier Hero
+                          </p>
                         </div>
                         {trackingData.riderPhone && (
                           <a
@@ -359,14 +345,18 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                         )}
                       </div>
                     ) : (
-                      <p className="text-[#77777D]">Assigned during Last-Mile Hub dispatch</p>
+                      <p className="text-[#77777D]">
+                        {language === 'en'
+                          ? 'Assigned during Last-Mile Hub dispatch'
+                          : 'ডেলিভারি হাব থেকে রাইডার নির্ধারিত হবে'}
+                      </p>
                     )}
 
                     <div className="pt-1 border-t border-white/5 flex items-center justify-between">
                       <span className="text-[#77777D]">{trackingData.paymentType}</span>
                       <span className="font-mono font-bold text-[#D5BA80] tabular-nums">
-                        {trackingData.amountToCollectBDT > 0 
-                          ? `৳ ${trackingData.amountToCollectBDT.toLocaleString()} to collect` 
+                        {trackingData.amountToCollectBDT > 0
+                          ? `৳ ${trackingData.amountToCollectBDT.toLocaleString()} due`
                           : 'Prepaid (৳ 0 due)'}
                       </span>
                     </div>
@@ -384,29 +374,30 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                 <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-white/10">
                   {trackingData.timeline.map((event, idx) => (
                     <div key={idx} className="relative group">
-                      {/* Timeline Dot */}
-                      <span className={`absolute -left-6 top-1 w-3 h-3 rounded-full border-2 transition-all ${
-                        idx === 0 
-                          ? 'bg-[#B69A60] border-white ring-4 ring-[#B69A60]/20' 
-                          : 'bg-[#171719] border-white/40'
-                      }`} />
+                      <span
+                        className={`absolute -left-6 top-1 w-3 h-3 rounded-full border-2 transition-all ${
+                          idx === 0
+                            ? 'bg-[#B69A60] border-white ring-4 ring-[#B69A60]/20'
+                            : 'bg-[#171719] border-white/40'
+                        }`}
+                      />
 
                       <div>
                         <div className="flex flex-wrap items-baseline gap-2 mb-0.5">
-                          <span className={`text-xs font-semibold ${idx === 0 ? 'text-[#F5F2EB]' : 'text-[#D8D3C9]'}`}>
+                          <span
+                            className={`text-xs font-semibold ${
+                              idx === 0 ? 'text-[#F5F2EB]' : 'text-[#D8D3C9]'
+                            }`}
+                          >
                             {event.status}
                           </span>
-                          <span className="text-[11px] font-mono text-[#77777D]">
-                            {event.time}
-                          </span>
+                          <span className="text-[11px] font-mono text-[#77777D]">{event.time}</span>
                         </div>
                         <p className="text-xs text-[#B69A60] font-mono mb-0.5">
-                          📍 {event.location}
+                          {event.location}
                         </p>
                         {event.note && (
-                          <p className="text-xs text-[#77777D] font-light">
-                            {event.note}
-                          </p>
+                          <p className="text-xs text-[#77777D] font-light">{event.note}</p>
                         )}
                       </div>
                     </div>
@@ -415,109 +406,15 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
               </div>
             </div>
           )}
-
-          {/* Expandable Pathao Merchant API Access Token Integration Panel */}
-          <div className="border border-white/10 rounded-xl bg-black/40 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setIsTokenDrawerOpen(!isTokenDrawerOpen)}
-              className="w-full p-4 flex items-center justify-between text-left hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <Key className="w-4 h-4 text-[#B69A60]" />
-                <div>
-                  <h6 className="text-xs font-semibold text-[#F5F2EB] uppercase tracking-wider font-mono">
-                    Pathao Merchant API Integration Settings
-                  </h6>
-                  <p className="text-[11px] text-[#77777D]">
-                    {merchantToken 
-                      ? 'Live Merchant Bearer Token configured (Calls Hermes API)' 
-                      : 'Mock API Active · Click to connect live Pathao access token'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase ${
-                  merchantToken ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-white/10 text-[#D8D3C9]'
-                }`}>
-                  {merchantToken ? 'Live Token Linked' : 'Mock Mode'}
-                </span>
-                {isTokenDrawerOpen ? <ChevronUp className="w-4 h-4 text-[#77777D]" /> : <ChevronDown className="w-4 h-4 text-[#77777D]" />}
-              </div>
-            </button>
-
-            {isTokenDrawerOpen && (
-              <div className="p-4 sm:p-5 border-t border-white/10 bg-black/60 space-y-4 text-xs">
-                <p className="text-[#D8D3C9] leading-relaxed">
-                  To connect live order tracking directly to your official Pathao Merchant Account:
-                  <br />
-                  1. Obtain your API Access Token from the{' '}
-                  <a 
-                    href="https://merchant.pathao.com" 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="text-[#D5BA80] underline hover:text-white inline-flex items-center gap-0.5"
-                  >
-                    Pathao Merchant Portal <ExternalLink className="w-3 h-3" />
-                  </a>.
-                  <br />
-                  2. Paste it below. The system automatically signs requests to{' '}
-                  <code className="text-[#B69A60] bg-white/5 px-1 py-0.5 rounded">
-                    https://api-hermes.pathao.com/aladdin/api/v1/orders/{'{id}'}/info
-                  </code>{' '}
-                  with Bearer authentication.
-                </p>
-
-                <form onSubmit={handleSaveToken} className="space-y-3">
-                  <div>
-                    <label className="block text-[11px] font-mono uppercase text-[#77777D] mb-1">
-                      Pathao Courier Bearer Access Token
-                    </label>
-                    <input
-                      type="password"
-                      value={merchantToken}
-                      onChange={(e) => setMerchantToken(e.target.value)}
-                      placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
-                      className="w-full bg-black/70 border border-white/15 focus:border-[#B69A60] rounded-lg px-3 py-2 text-xs text-[#F5F2EB] font-mono focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex gap-2">
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-[#B69A60] hover:bg-[#D5BA80] text-[#09090B] font-semibold rounded text-xs uppercase tracking-wider transition-colors cursor-pointer"
-                      >
-                        {tokenSavedNotification ? 'Saved & Verified!' : 'Save Access Token'}
-                      </button>
-                      {merchantToken && (
-                        <button
-                          type="button"
-                          onClick={handleClearToken}
-                          className="px-3 py-2 bg-white/5 hover:bg-white/10 text-red-300 rounded text-xs transition-colors cursor-pointer"
-                        >
-                          Clear Token
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-[11px] text-[#77777D] font-mono">
-                      <ShieldCheck className="w-3.5 h-3.5 text-[#B69A60]" />
-                      <span>Stored locally in client browser</span>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Footer */}
         <div className="p-4 sm:p-5 border-t border-white/10 bg-black/60 flex items-center justify-between text-xs text-[#77777D]">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="font-mono">Direct Pathao Courier Service Active</span>
-          </div>
+          <span className="font-mono text-[11px]">
+            {language === 'en'
+              ? 'Concierge Hotline: +880 1778 307704'
+              : 'সহায়তা হটলাইন: +৮৮০ ১৭৭৮ ৩০৭৭০৪'}
+          </span>
 
           <button
             onClick={onClose}

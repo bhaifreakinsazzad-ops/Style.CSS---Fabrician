@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { Sparkles, Eye, ChevronUp, ChevronDown, RotateCcw, Wind } from 'lucide-react';
+import { Sparkles, ChevronUp, ChevronDown, RotateCcw, Wind } from 'lucide-react';
 import { ThreePieceItem } from '../../data/threePieceCatalog';
 
 interface ThreePiece3DViewerProps {
@@ -17,8 +17,10 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
   const [activeFinish, setActiveFinish] = useState<'lawn' | 'batik' | 'mirror' | 'silk'>('lawn');
   const [waveSpeed, setWaveSpeed] = useState<number>(1.2);
   const [activeViewPreset, setActiveViewPreset] = useState<'front' | 'macro' | 'shoulder' | 'flat'>('front');
+  const [contextLost, setContextLost] = useState<boolean>(false);
 
   // Three.js mutable state refs
+  const waveSpeedRef = useRef<number>(waveSpeed);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const fabricMeshRef = useRef<THREE.Mesh | null>(null);
@@ -29,6 +31,10 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
   const previousPointerX = useRef<number>(0);
   const previousPointerY = useRef<number>(0);
   const rotationGroupRef = useRef<THREE.Group | null>(null);
+
+  useEffect(() => {
+    waveSpeedRef.current = waveSpeed;
+  }, [waveSpeed]);
 
   // Generate procedural woven/batik canvas texture for the active product
   const createProceduralTexture = (item: ThreePieceItem, finish: string): THREE.CanvasTexture => {
@@ -151,18 +157,16 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
     })();
 
+    const width = Math.max(container.clientWidth, 1);
+    const height = Math.max(container.clientHeight, 1);
+
     // 1. Scene & Camera Setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     scene.background = new THREE.Color(0x09090b);
     scene.fog = new THREE.Fog(0x09090b, 3.5, 7.5);
 
-    const camera = new THREE.PerspectiveCamera(
-      45,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      20
-    );
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20);
     camera.position.set(0, 0.4, 2.8);
     cameraRef.current = camera;
 
@@ -171,7 +175,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       antialias: !isSoftwareGl,
       powerPreference: 'high-performance',
     });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -181,9 +185,22 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
 
     container.replaceChildren(renderer.domElement);
 
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      setContextLost(true);
+    };
+    const handleContextRestored = () => {
+      setContextLost(false);
+    };
+    renderer.domElement.addEventListener('webglcontextlost', handleContextLost);
+    renderer.domElement.addEventListener('webglcontextrestored', handleContextRestored);
+
     // 3. Studio Environment Map (PMREMGenerator + RoomEnvironment)
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+    const roomEnv = new RoomEnvironment();
+    const envTarget = pmremGenerator.fromScene(roomEnv, 0.04);
+    scene.environment = envTarget.texture;
+    roomEnv.dispose();
     pmremGenerator.dispose();
 
     // 4. Lighting Rig
@@ -217,26 +234,22 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       metalness: 0.2,
     });
 
-    // Torso hourglass form
     const torsoGeo = new THREE.CylinderGeometry(0.24, 0.18, 0.9, 32);
     const torsoMesh = new THREE.Mesh(torsoGeo, torsoMat);
     torsoMesh.position.y = 0.45;
     torsoMesh.castShadow = !isSoftwareGl;
     rotationGroup.add(torsoMesh);
 
-    // Shoulders
     const shoulderGeo = new THREE.CylinderGeometry(0.38, 0.34, 0.22, 32);
     const shoulderMesh = new THREE.Mesh(shoulderGeo, torsoMat);
     shoulderMesh.position.y = 0.85;
     rotationGroup.add(shoulderMesh);
 
-    // Neck
     const neckGeo = new THREE.CylinderGeometry(0.12, 0.13, 0.25, 24);
     const neckMesh = new THREE.Mesh(neckGeo, torsoMat);
     neckMesh.position.y = 1.05;
     rotationGroup.add(neckMesh);
 
-    // Stand Rod & Heavy Base
     const rodGeo = new THREE.CylinderGeometry(0.025, 0.025, 1.2, 16);
     const rodMesh = new THREE.Mesh(rodGeo, torsoMat);
     rodMesh.position.y = -0.4;
@@ -258,9 +271,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
     });
     fabricMaterialRef.current = fabricMat;
 
-    // Curved front drape plane
     const fabricGeo = new THREE.PlaneGeometry(0.72, 1.25, 36, 48);
-    // Curve slightly around the torso
     const posAttr = fabricGeo.attributes.position;
     for (let i = 0; i < posAttr.count; i++) {
       const x = posAttr.getX(i);
@@ -322,7 +333,6 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       const deltaY = clientY - previousPointerY.current;
 
       rotationGroupRef.current.rotation.y += deltaX * 0.008;
-      // Slight pitch tilt
       rotationGroupRef.current.rotation.x = Math.max(
         -0.2,
         Math.min(0.2, rotationGroupRef.current.rotation.x + deltaY * 0.003)
@@ -340,20 +350,20 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
     dom.addEventListener('mousedown', handlePointerDown);
     dom.addEventListener('mousemove', handlePointerMove);
     window.addEventListener('mouseup', handlePointerUp);
-    dom.addEventListener('touchstart', handlePointerDown);
-    dom.addEventListener('touchmove', handlePointerMove);
+    dom.addEventListener('touchstart', handlePointerDown, { passive: true });
+    dom.addEventListener('touchmove', handlePointerMove, { passive: true });
     window.addEventListener('touchend', handlePointerUp);
 
     // 7. Animation Loop with Organic Fabric Wave Physics
     let animationFrameId = 0;
-    let clock = new THREE.Clock();
+    const clock = new THREE.Clock();
 
     const originalPositions = fabricGeo.attributes.position.clone();
     const originalDupattaPositions = dupattaGeo.attributes.position.clone();
 
     const animate = () => {
       const elapsedTime = clock.getElapsedTime();
-      const delta = clock.getDelta();
+      const currentSpeed = waveSpeedRef.current;
 
       // Idle smooth auto-rotation when user is not dragging
       if (!isDragging.current && rotationGroupRef.current) {
@@ -365,10 +375,9 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
         cameraRef.current.position.lerp(targetCameraPos.current, 0.05);
       }
 
-      // Procedural Fabric Wave Dynamics (Simulating gentle air drift in showroom)
+      // Procedural Fabric Wave Dynamics
       if (fabricMeshRef.current) {
         const positions = fabricMeshRef.current.geometry.attributes.position;
-        const currentSpeed = waveSpeed;
         for (let i = 0; i < positions.count; i++) {
           const u = positions.getX(i);
           const v = positions.getY(i);
@@ -389,7 +398,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
         for (let i = 0; i < dPositions.count; i++) {
           const v = dPositions.getY(i);
           const origZ = originalDupattaPositions.getZ(i);
-          const wave = Math.sin(v * 3.5 + elapsedTime * waveSpeed * 2.5) * 0.04;
+          const wave = Math.sin(v * 3.5 + elapsedTime * currentSpeed * 2.5) * 0.04;
           dPositions.setZ(i, origZ + wave);
         }
         dPositions.needsUpdate = true;
@@ -401,18 +410,25 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
 
     animate();
 
-    // 8. Resize Handler
+    // 8. Resize Handler + ResizeObserver
     const handleResize = () => {
       if (!container || !renderer || !camera) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
+      const nextWidth = Math.max(container.clientWidth, 1);
+      const nextHeight = Math.max(container.clientHeight, 1);
+      camera.aspect = nextWidth / nextHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(nextWidth, nextHeight);
     };
     window.addEventListener('resize', handleResize);
+    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(handleResize) : null;
+    resizeObserver?.observe(container);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
+      resizeObserver?.disconnect();
+      dom.removeEventListener('webglcontextlost', handleContextLost);
+      dom.removeEventListener('webglcontextrestored', handleContextRestored);
       dom.removeEventListener('mousedown', handlePointerDown);
       dom.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
@@ -420,21 +436,30 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       dom.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
 
-      renderer.dispose();
+      envTarget.dispose();
       fabricGeo.dispose();
       dupattaGeo.dispose();
       torsoGeo.dispose();
+      shoulderGeo.dispose();
+      neckGeo.dispose();
+      rodGeo.dispose();
       baseGeo.dispose();
+      shadowGeo.dispose();
       fabricTex.dispose();
+      fabricMat.dispose();
+      dupattaMat.dispose();
+      torsoMat.dispose();
+      shadowMat.dispose();
+      renderer.dispose();
     };
-  }, [selectedItem, activeFinish, waveSpeed]);
+  }, [selectedItem, activeFinish]);
 
   // View Preset Handler
   const handleSetPreset = (preset: 'front' | 'macro' | 'shoulder' | 'flat') => {
     setActiveViewPreset(preset);
     if (preset === 'front') {
       targetCameraPos.current.set(0, 0.4, 2.8);
-      if (rotationGroupRef.current) rotationGroupRef.current.rotation.y = 0;
+      if (rotationGroupRef.current) rotationGroupRef.current.rotation.set(0, 0, 0);
     } else if (preset === 'macro') {
       targetCameraPos.current.set(0, 0.45, 1.4);
     } else if (preset === 'shoulder') {
@@ -454,6 +479,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       rotationGroupRef.current.rotation.set(0, 0, 0);
     }
     targetCameraPos.current.set(0, 0.4, 2.8);
+    setActiveViewPreset('front');
   };
 
   return (
@@ -461,9 +487,16 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       {/* 3D WebGL Canvas Mount */}
       <div ref={mountRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
 
-      {/* Top Spec Badge (Zero Viewport Occlusion) */}
+      {contextLost && (
+        <div className="absolute inset-0 bg-[#09090B]/95 flex flex-col items-center justify-center text-center p-6 z-30">
+          <p className="font-serif-luxury text-xl text-[#F5F2EB] mb-2">Restoring 3D Textile Viewport</p>
+          <p className="text-xs font-mono text-[#77777D]">Graphics context interrupted — reinitializing studio...</p>
+        </div>
+      )}
+
+      {/* Top Spec Badge */}
       <div className="absolute top-5 left-5 right-5 flex items-center justify-between pointer-events-none">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md border border-white/10 text-xs font-mono">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/90 border border-white/10 text-xs font-mono">
           <Sparkles className="w-3.5 h-3.5 text-[#B69A60]" />
           <span className="text-[#D5BA80] font-semibold">{selectedItem.code}</span>
           <span className="text-white/20">·</span>
@@ -472,8 +505,9 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
 
         <button
           onClick={handleResetRotation}
-          className="pointer-events-auto p-2 rounded-full bg-black/75 backdrop-blur-md border border-white/10 hover:border-[#B69A60] text-[#D8D3C9] hover:text-white transition-colors cursor-pointer"
+          className="pointer-events-auto p-2 rounded-full bg-black/90 border border-white/10 hover:border-[#B69A60] text-[#D8D3C9] hover:text-white transition-colors cursor-pointer"
           title="Reset 3D Perspective"
+          aria-label="Reset 3D Perspective"
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -484,13 +518,13 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
         Drag to inspect 360° · Real-time drape dynamics
       </div>
 
-      {/* Unified Bottom Control Dock (Following ThreeJS Skill Directives) */}
+      {/* Unified Bottom Control Dock */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-2xl z-20 transition-all duration-300">
         {/* Toggle Collapse/Expand Button */}
         <div className="flex justify-center mb-1">
           <button
             onClick={() => setHudExpanded(!hudExpanded)}
-            className="px-3 py-1 rounded-t-lg bg-[#171719]/90 border border-b-0 border-white/15 text-[11px] font-mono uppercase tracking-wider text-[#D8D3C9] hover:text-white flex items-center gap-1.5 cursor-pointer shadow-lg"
+            className="px-3 py-1 rounded-t-lg bg-[#171719] border border-b-0 border-white/15 text-[11px] font-mono uppercase tracking-wider text-[#D8D3C9] hover:text-white flex items-center gap-1.5 cursor-pointer shadow-lg"
           >
             {hudExpanded ? (
               <>
@@ -506,11 +540,11 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
           </button>
         </div>
 
-        {/* Dock Surface */}
+        {/* Dock Surface (Solid/High-Contrast surface over WebGL) */}
         {hudExpanded && (
-          <div className="p-4 rounded-xl bg-[#171719]/95 border border-white/15 shadow-2xl backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+          <div className="p-4 rounded-xl bg-[#171719]/95 border border-white/15 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
             {/* View Presets */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-[10px] font-mono uppercase text-[#77777D] mr-1 hidden sm:inline">
                 Preset:
               </span>
@@ -522,7 +556,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
               ].map((p) => (
                 <button
                   key={p.id}
-                  onClick={() => handleSetPreset(p.id as any)}
+                  onClick={() => handleSetPreset(p.id as 'front' | 'macro' | 'shoulder' | 'flat')}
                   className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                     activeViewPreset === p.id
                       ? 'bg-[#B69A60] text-[#09090B] font-bold shadow'
@@ -535,7 +569,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
             </div>
 
             {/* Fabric Material Finish Swatches */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-[10px] font-mono uppercase text-[#77777D] hidden md:inline">
                 Texture Weave:
               </span>
@@ -546,7 +580,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
               ].map((f) => (
                 <button
                   key={f.id}
-                  onClick={() => setActiveFinish(f.id as any)}
+                  onClick={() => setActiveFinish(f.id as 'lawn' | 'batik' | 'mirror')}
                   className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer ${
                     activeFinish === f.id
                       ? 'border border-[#B69A60] text-[#D5BA80] bg-[#B69A60]/10 font-bold'
@@ -569,6 +603,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
                 value={waveSpeed}
                 onChange={(e) => setWaveSpeed(parseFloat(e.target.value))}
                 className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#B69A60]"
+                aria-label="Fabric Wave Intensity"
                 title="Fabric Wave Intensity"
               />
             </div>

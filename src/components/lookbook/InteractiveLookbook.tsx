@@ -9,9 +9,7 @@ import {
   RotateCcw, 
   Ruler, 
   ArrowLeft, 
-  Tag, 
   Layers, 
-  Eye,
   ShieldCheck
 } from 'lucide-react';
 import { FashionLook, Language, CartItem, LookGarment } from '../../types';
@@ -37,7 +35,6 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
   const [addedAnimationLook, setAddedAnimationLook] = useState(false);
   const [addedItemAnimation, setAddedItemAnimation] = useState<string | null>(null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [hoveredHotspot, setHoveredHotspot] = useState<LookGarment | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -143,7 +140,7 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
   return (
     <section 
       id="lookbook" 
-      className="py-16 lg:py-24 bg-[#0a0a0c] text-[#F5F2EB] relative overflow-hidden border-t border-white/5 select-none"
+      className="scroll-mt-20 py-16 lg:py-24 bg-[#0a0a0c] text-[#F5F2EB] relative overflow-hidden border-t border-white/5 select-none"
     >
       {/* Background Studio Ambience & Vignette */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[550px] bg-gradient-to-b from-[#B69A60]/10 via-[#B69A60]/3 to-transparent rounded-full blur-[160px] pointer-events-none" />
@@ -379,7 +376,11 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
 
                             {/* Floating Tooltip Card */}
                             {(hoveredHotspot?.id === garment.id || isSelected) && (
-                              <div className="absolute left-8 top-1/2 -translate-y-1/2 w-52 p-3 rounded-xl bg-black/90 backdrop-blur-md border border-[#B69A60]/40 shadow-2xl text-left pointer-events-none z-40 animate-fadeIn">
+                              <div
+                                className={`hidden sm:block absolute top-1/2 -translate-y-1/2 w-52 p-3 rounded-xl bg-black/95 border border-[#B69A60]/40 shadow-2xl text-left pointer-events-none z-40 animate-fadeIn ${
+                                  hotspot.x > 60 ? 'right-9' : 'left-9'
+                                }`}
+                              >
                                 <span className="text-[10px] font-mono text-[#B69A60] uppercase tracking-wider block mb-0.5">
                                   {garment.type}
                                 </span>
@@ -390,7 +391,7 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
                                   <span className="text-[#D5BA80] font-semibold tabular-nums">
                                     ৳ {garment.priceBDT.toLocaleString()}
                                   </span>
-                                  <span className="text-[10px] text-[#77777D]">{garment.fabric}</span>
+                                  <span className="text-[10px] text-[#77777D] truncate max-w-[95px]">{garment.fabric}</span>
                                 </div>
                               </div>
                             )}

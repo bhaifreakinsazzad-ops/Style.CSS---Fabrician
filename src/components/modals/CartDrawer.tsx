@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle2, Truck } from 'lucide-react';
 import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
+import { saveCustomerOrder } from '../../services/pathaoCourier';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -9,8 +10,18 @@ interface CartDrawerProps {
   items: CartItem[];
   onUpdateQuantity: (id: string, delta: number) => void;
   onRemoveItem: (id: string) => void;
+  onClearCart: () => void;
   language: Language;
   onOpenTrackOrder?: (orderId: string) => void;
+}
+
+interface ConfirmedOrderInfo {
+  orderId: string;
+  consignmentId: string;
+  recipientName: string;
+  recipientAddress: string;
+  division: string;
+  totalBDT: number;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -19,24 +30,109 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   items,
   onUpdateQuantity,
   onRemoveItem,
+  onClearCart,
   language,
   onOpenTrackOrder,
 }) => {
-  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'mock-checkout' | 'success'>('cart');
+  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'checkout' | 'success'>('cart');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [division, setDivision] = useState('Dhaka Division');
+  const [paymentMethod, setPaymentMethod] = useState<'mfs' | 'cod'>('cod');
+  const [formError, setFormError] = useState<string | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderInfo | null>(null);
+
   const t = translations[language];
+
+  const handleClose = () => {
+    if (checkoutStep === 'success') {
+      setCheckoutStep('cart');
+      setConfirmedOrder(null);
+    }
+    setFormError(null);
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, checkoutStep]);
 
   if (!isOpen) return null;
 
   const subtotal = items.reduce((acc, item) => acc + item.priceBDT * item.quantity, 0);
   const freeShippingThreshold = 5000;
   const freeShippingUnlocked = subtotal >= freeShippingThreshold;
+  const deliveryFee =
+    items.length === 0 || freeShippingUnlocked
+      ? 0
+      : division === 'Dhaka Division'
+      ? 80
+      : 130;
+  const orderTotal = subtotal + deliveryFee;
 
   const handleStartCheckout = () => {
-    setCheckoutStep('mock-checkout');
+    setFormError(null);
+    setCheckoutStep('checkout');
   };
 
-  const handleConfirmMockOrder = (e: React.FormEvent) => {
+  const handleConfirmOrder = (e: React.FormEvent) => {
     e.preventDefault();
+    const trimmedName = fullName.trim();
+    const digitsOnlyPhone = phone.replace(/\D/g, '');
+    const trimmedAddress = address.trim();
+
+    if (trimmedName.length < 2) {
+      setFormError(
+        language === 'en'
+          ? 'Please enter your full name.'
+          : 'অনুগ্রহ করে আপনার সম্পূর্ণ নাম লিখুন।'
+      );
+      return;
+    }
+    if (digitsOnlyPhone.length < 10) {
+      setFormError(
+        language === 'en'
+          ? 'Please enter a valid Bangladesh mobile number.'
+          : 'অনুগ্রহ করে একটি সঠিক মোবাইল নম্বর দিন।'
+      );
+      return;
+    }
+    if (trimmedAddress.length < 5) {
+      setFormError(
+        language === 'en'
+          ? 'Please provide a complete delivery street address.'
+          : 'অনুগ্রহ করে সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।'
+      );
+      return;
+    }
+
+    setFormError(null);
+    const orderId = `FAB-${Math.floor(1000 + Math.random() * 9000)}`;
+    const savedRecord = saveCustomerOrder({
+      orderId,
+      recipientName: trimmedName,
+      recipientPhone: phone.trim(),
+      recipientAddress: trimmedAddress,
+      division,
+      paymentMethod,
+      totalBDT: orderTotal,
+    });
+
+    setConfirmedOrder({
+      orderId,
+      consignmentId: savedRecord.consignmentId,
+      recipientName: trimmedName,
+      recipientAddress: trimmedAddress,
+      division,
+      totalBDT: orderTotal,
+    });
+    onClearCart();
     setCheckoutStep('success');
   };
 
@@ -44,7 +140,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        onClick={onClose}
+        onClick={handleClose}
         className="absolute inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
       />
 
@@ -57,12 +153,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <h3 className="font-serif-luxury text-xl font-light tracking-wide">
                 {t.cart.title}
               </h3>
-              <span className="text-xs font-mono text-[#77777D]">
+              <span className="text-xs font-mono text-[#77777D] tabular-nums">
                 ({items.reduce((sum, item) => sum + item.quantity, 0)})
               </span>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-1.5 text-[#D8D3C9] hover:text-white rounded-full hover:bg-white/5 cursor-pointer"
               aria-label="Close cart"
             >
@@ -79,10 +175,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <div className="flex justify-between mb-1.5 font-light">
                     <span className="text-[#D8D3C9]">
                       {freeShippingUnlocked
-                        ? '✓ Complimentary delivery unlocked'
-                        : `Add ৳ ${(freeShippingThreshold - subtotal).toLocaleString()} for free delivery`}
+                        ? language === 'en'
+                          ? '✓ Complimentary delivery unlocked'
+                          : '✓ ফ্রি ডেলিভারি আনলক হয়েছে'
+                        : language === 'en'
+                        ? `Add ৳ ${(freeShippingThreshold - subtotal).toLocaleString()} for free delivery`
+                        : `ফ্রি ডেলিভারির জন্য আরও ৳ ${(freeShippingThreshold - subtotal).toLocaleString()} যোগ করুন`}
                     </span>
-                    <span className="text-[#B69A60] font-mono">
+                    <span className="text-[#B69A60] font-mono tabular-nums">
                       {Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))}%
                     </span>
                   </div>
@@ -104,7 +204,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       {t.cart.emptySub}
                     </p>
                     <button
-                      onClick={onClose}
+                      onClick={handleClose}
                       className="px-6 py-2.5 text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 text-[#F5F2EB] rounded transition-colors cursor-pointer"
                     >
                       {t.cart.continueShopping}
@@ -139,7 +239,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             <div className="flex items-center border border-white/15 rounded bg-black/60">
                               <button
                                 onClick={() => onUpdateQuantity(item.id, -1)}
-                                className="px-2 py-0.5 text-xs text-[#D8D3C9] hover:text-white"
+                                className="px-2 py-0.5 text-xs text-[#D8D3C9] hover:text-white cursor-pointer"
+                                aria-label="Decrease quantity"
                               >
                                 -
                               </button>
@@ -148,7 +249,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                               </span>
                               <button
                                 onClick={() => onUpdateQuantity(item.id, 1)}
-                                className="px-2 py-0.5 text-xs text-[#D8D3C9] hover:text-white"
+                                className="px-2 py-0.5 text-xs text-[#D8D3C9] hover:text-white cursor-pointer"
+                                aria-label="Increase quantity"
                               >
                                 +
                               </button>
@@ -156,7 +258,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
                             <button
                               onClick={() => onRemoveItem(item.id)}
-                              className="p-1 text-[#77777D] hover:text-red-400 transition-colors ml-auto"
+                              className="p-1 text-[#77777D] hover:text-red-400 transition-colors ml-auto cursor-pointer"
                               aria-label="Remove item"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -170,128 +272,204 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               </>
             )}
 
-            {/* Mock Checkout Step */}
-            {checkoutStep === 'mock-checkout' && (
-              <form onSubmit={handleConfirmMockOrder} className="space-y-4 text-xs">
-                <div className="p-3 bg-[#B69A60]/10 border border-[#B69A60]/30 rounded text-[#D5BA80] mb-4">
-                  Phase 01 Prototype: Demonstration checkout for Bangladesh addresses.
+            {/* Checkout Form */}
+            {checkoutStep === 'checkout' && (
+              <form onSubmit={handleConfirmOrder} className="space-y-4 text-xs">
+                <div className="p-3 bg-[#B69A60]/10 border border-[#B69A60]/30 rounded text-[#D5BA80]">
+                  {language === 'en'
+                    ? 'Express Pathao Courier Dispatch across all 64 districts in Bangladesh.'
+                    : 'বাংলাদেশের সকল ৬৪ জেলায় পাঠাও কুরিয়ারের মাধ্যমে এক্সপ্রেস ডেলিভারি।'}
                 </div>
+
+                {formError && (
+                  <div className="p-2.5 rounded bg-red-500/10 border border-red-500/30 text-red-300">
+                    {formError}
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
-                    Full Name
+                    {language === 'en' ? 'Full Name' : 'সম্পূর্ণ নাম'}
                   </label>
                   <input
                     type="text"
                     required
-                    defaultValue="Sazzad Sharif"
-                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder={language === 'en' ? 'e.g. Nusrat Jahan' : 'যেমন: নুসরাত জাহান'}
+                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
-                    Phone (MFS / Delivery SMS)
+                    {language === 'en' ? 'Mobile Number (SMS & Rider)' : 'মোবাইল নম্বর'}
                   </label>
                   <input
                     type="tel"
                     required
-                    defaultValue="+880 1712 345678"
-                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+880 17XX XXXXXX"
+                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
-                    Delivery Address
+                    {language === 'en' ? 'Delivery Address' : 'ডেলিভারি ঠিকানা'}
                   </label>
                   <input
                     type="text"
                     required
-                    defaultValue="Road 11, Banani, Dhaka 1213"
-                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder={
+                      language === 'en'
+                        ? 'House, Road, Area (e.g. Road 11, Banani, Dhaka)'
+                        : 'বাসা, রোড, এলাকা'
+                    }
+                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
                   />
                 </div>
 
                 <div>
                   <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
-                    Division
+                    {language === 'en' ? 'Division' : 'বিভাগ'}
                   </label>
-                  <select className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]">
-                    <option>Dhaka Division</option>
-                    <option>Chittagong Division</option>
-                    <option>Sylhet Division</option>
-                    <option>Rajshahi Division</option>
+                  <select
+                    value={division}
+                    onChange={(e) => setDivision(e.target.value)}
+                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]"
+                  >
+                    <option value="Dhaka Division">Dhaka Division</option>
+                    <option value="Chittagong Division">Chittagong Division</option>
+                    <option value="Sylhet Division">Sylhet Division</option>
+                    <option value="Rajshahi Division">Rajshahi Division</option>
+                    <option value="Khulna Division">Khulna Division</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
-                    Payment Option
+                    {language === 'en' ? 'Payment Method' : 'পেমেন্ট মাধ্যম'}
                   </label>
                   <div className="grid grid-cols-2 gap-2 mt-1">
-                    <label className="p-2 border border-[#B69A60] rounded bg-[#B69A60]/10 flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="pay" defaultChecked />
-                      <span>bKash / Nagad</span>
+                    <label
+                      className={`p-2 rounded flex items-center gap-2 cursor-pointer border ${
+                        paymentMethod === 'cod'
+                          ? 'border-[#B69A60] bg-[#B69A60]/10 text-[#F5F2EB]'
+                          : 'border-white/10 bg-black/40 text-[#D8D3C9]'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="pay"
+                        checked={paymentMethod === 'cod'}
+                        onChange={() => setPaymentMethod('cod')}
+                      />
+                      <span>{language === 'en' ? 'Cash on Delivery' : 'ক্যাশ অন ডেলিভারি'}</span>
                     </label>
-                    <label className="p-2 border border-white/10 rounded bg-black/40 flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="pay" />
-                      <span>Cash on Delivery</span>
+                    <label
+                      className={`p-2 rounded flex items-center gap-2 cursor-pointer border ${
+                        paymentMethod === 'mfs'
+                          ? 'border-[#B69A60] bg-[#B69A60]/10 text-[#F5F2EB]'
+                          : 'border-white/10 bg-black/40 text-[#D8D3C9]'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="pay"
+                        checked={paymentMethod === 'mfs'}
+                        onChange={() => setPaymentMethod('mfs')}
+                      />
+                      <span>bKash / Nagad</span>
                     </label>
                   </div>
                 </div>
 
-                <div className="pt-4 flex gap-2">
+                {/* Order Breakdown */}
+                <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-1.5 font-mono text-[11px]">
+                  <div className="flex justify-between text-[#D8D3C9]">
+                    <span>{language === 'en' ? 'Subtotal' : 'সাবটোটাল'}</span>
+                    <span className="tabular-nums">৳ {subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-[#D8D3C9]">
+                    <span>{language === 'en' ? 'Pathao Courier' : 'পাঠাও ডেলিভারি'}</span>
+                    <span className="tabular-nums">
+                      {deliveryFee === 0 ? 'Complimentary' : `৳ ${deliveryFee}`}
+                    </span>
+                  </div>
+                  <div className="pt-1.5 border-t border-white/10 flex justify-between text-[#D5BA80] font-bold text-xs">
+                    <span>{language === 'en' ? 'Total' : 'সর্বমোট'}</span>
+                    <span className="tabular-nums">৳ {orderTotal.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex gap-2">
                   <button
                     type="button"
                     onClick={() => setCheckoutStep('cart')}
                     className="w-1/3 py-2.5 border border-white/15 rounded hover:bg-white/5 uppercase tracking-wider font-medium text-xs cursor-pointer"
                   >
-                    Back
+                    {language === 'en' ? 'Back' : 'ফিরে যান'}
                   </button>
                   <button
                     type="submit"
                     className="w-2/3 py-2.5 bg-[#B69A60] text-[#09090B] rounded font-semibold uppercase tracking-wider text-xs hover:bg-[#D5BA80] transition-colors cursor-pointer"
                   >
-                    Confirm Mock Order
+                    {language === 'en' ? 'Place Order' : 'অর্ডার নিশ্চিত করুন'}
                   </button>
                 </div>
               </form>
             )}
 
             {/* Success State */}
-            {checkoutStep === 'success' && (
-              <div className="text-center py-12">
+            {checkoutStep === 'success' && confirmedOrder && (
+              <div className="text-center py-10">
                 <CheckCircle2 className="w-14 h-14 text-[#B69A60] mx-auto mb-4" />
                 <h4 className="font-serif-luxury text-2xl text-[#F5F2EB] mb-2 font-light">
-                  Order #FAB-2026 Confirmed
+                  {language === 'en'
+                    ? `Order #${confirmedOrder.orderId} Confirmed`
+                    : `অর্ডার #${confirmedOrder.orderId} নিশ্চিত হয়েছে`}
                 </h4>
-                <p className="text-xs text-[#D8D3C9] leading-relaxed max-w-xs mx-auto mb-6">
-                  Thank you for exploring FABRICIAN. Your luxury consignment has been registered with Pathao Courier for priority delivery to Banani, Dhaka.
+                <p className="text-xs text-[#D8D3C9] leading-relaxed max-w-xs mx-auto mb-4">
+                  {language === 'en'
+                    ? `Thank you, ${confirmedOrder.recipientName}. Your consignment has been registered with Pathao Courier for priority delivery to ${confirmedOrder.recipientAddress}, ${confirmedOrder.division}.`
+                    : `ধন্যবাদ, ${confirmedOrder.recipientName}। আপনার পার্সেলটি ${confirmedOrder.recipientAddress}, ${confirmedOrder.division} ঠিকানায় ডেলিভারির জন্য পাঠাও কুরিয়ারে নিবন্ধিত হয়েছে।`}
                 </p>
+
+                <div className="max-w-xs mx-auto p-3 rounded-xl bg-black/50 border border-white/10 text-[11px] font-mono text-[#D5BA80] mb-6 space-y-1">
+                  <div>Consignment ID: {confirmedOrder.consignmentId}</div>
+                  <div className="text-[#77777D] tabular-nums">
+                    Total: ৳ {confirmedOrder.totalBDT.toLocaleString()}
+                  </div>
+                </div>
 
                 <div className="flex flex-col gap-2.5 max-w-xs mx-auto mb-4">
                   {onOpenTrackOrder && (
                     <button
                       onClick={() => {
-                        onClose();
-                        onOpenTrackOrder('FAB-2026');
+                        const orderIdToTrack = confirmedOrder.orderId;
+                        handleClose();
+                        onOpenTrackOrder(orderIdToTrack);
                       }}
                       className="w-full py-3 bg-[#B69A60] hover:bg-[#D5BA80] text-[#09090B] text-xs font-semibold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg"
                     >
                       <Truck className="w-4 h-4" />
-                      <span>Track Delivery with Pathao</span>
+                      <span>
+                        {language === 'en'
+                          ? 'Track Delivery with Pathao'
+                          : 'পাঠাও কুরিয়ারে ট্র্যাক করুন'}
+                      </span>
                     </button>
                   )}
 
                   <button
-                    onClick={() => {
-                      setCheckoutStep('cart');
-                      onClose();
-                    }}
+                    onClick={handleClose}
                     className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-[#D8D3C9] text-xs font-mono uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
                   >
-                    Return to Store
+                    {language === 'en' ? 'Return to Store' : 'স্টোরে ফিরে যান'}
                   </button>
                 </div>
               </div>
@@ -309,9 +487,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   ৳ {subtotal.toLocaleString()}
                 </span>
               </div>
-              <p className="text-[11px] text-[#77777D] mb-4">
-                {t.cart.shippingNote}
-              </p>
+              <p className="text-[11px] text-[#77777D] mb-4">{t.cart.shippingNote}</p>
 
               <button
                 onClick={handleStartCheckout}

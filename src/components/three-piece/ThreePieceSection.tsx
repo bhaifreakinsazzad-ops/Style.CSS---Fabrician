@@ -1,22 +1,49 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { animate, stagger } from 'animejs';
-import { Sparkles, Layers, Box, ShoppingBag, Heart, Check, Eye, Search, SlidersHorizontal, Maximize2 } from 'lucide-react';
+import { Sparkles, Box, ShoppingBag, Heart, Check, Eye, Search } from 'lucide-react';
 import { THREE_PIECE_CATALOG, ThreePieceItem } from '../../data/threePieceCatalog';
-import { Language, CartItem } from '../../types';
-import { ThreePiece3DViewer } from './ThreePiece3DViewer';
+import { Language, CartItem, Product } from '../../types';
+
+const ThreePiece3DViewer = React.lazy(() =>
+  import('./ThreePiece3DViewer').then((m) => ({ default: m.ThreePiece3DViewer }))
+);
 
 interface ThreePieceSectionProps {
   language: Language;
   onAddToCart: (item: Omit<CartItem, 'id'>) => void;
-  onToggleWishlist: (item: any) => void;
+  onToggleWishlist: (item: Product) => void;
   isWishlisted: (id: string) => boolean;
+  onQuickView?: (product: Product) => void;
+  external3DItem?: ThreePieceItem | null;
+  onClearExternal3D?: () => void;
 }
+
+const toProduct = (item: ThreePieceItem): Product => ({
+  id: item.id,
+  slug: item.code.toLowerCase(),
+  nameEn: `${item.code} — ${item.nameEn}`,
+  nameBn: `${item.code} — ${item.nameBn}`,
+  category: 'Traditional',
+  collection: item.subCollection,
+  priceBDT: item.priceBDT,
+  image: item.flatLayImage,
+  colors: item.colors,
+  sizes: ['Unstitched Set', 'S', 'M', 'L', 'XL'],
+  fabricEn: item.fabric,
+  fabricBn: item.fabric,
+  fitEn: 'Tailorable 3-Piece Ensemble',
+  fitBn: 'কাস্টম টেইলরেবল থ্রি-পিস',
+  styleTag: 'heritage',
+});
 
 export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
   language,
   onAddToCart,
   onToggleWishlist,
   isWishlisted,
+  onQuickView,
+  external3DItem = null,
+  onClearExternal3D,
 }) => {
   const [activeSubEdit, setActiveSubEdit] = useState<string>('All');
   const [viewMode, setViewMode] = useState<'flatlay' | 'model'>('flatlay');
@@ -27,6 +54,25 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
 
   const gridRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (external3DItem) {
+      setActive3DItem(external3DItem);
+      setShow3DModal(true);
+    }
+  }, [external3DItem]);
+
+  useEffect(() => {
+    if (!show3DModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShow3DModal(false);
+        onClearExternal3D?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [show3DModal, onClearExternal3D]);
 
   const edits = [
     'All',
@@ -75,7 +121,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
       ease: 'outExpo',
       onUpdate: () => {
         if (counterRef.current) {
-          counterRef.current.innerHTML = String(Math.round(obj.val)).padStart(2, '0');
+          counterRef.current.textContent = String(Math.round(obj.val)).padStart(2, '0');
         }
       },
     });
@@ -97,23 +143,31 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
     setTimeout(() => setAddedItemCode(null), 1800);
   };
 
-  const handleLaunch3D = (item: ThreePieceItem) => {
+  const handleLaunch3D = (item: ThreePieceItem, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     setActive3DItem(item);
     setShow3DModal(true);
   };
 
+  const close3D = () => {
+    setShow3DModal(false);
+    onClearExternal3D?.();
+  };
+
   return (
-    <section id="three-piece-edit" className="py-24 lg:py-32 bg-[#09090B] border-t border-white/5 relative">
+    <section id="three-piece-edit" className="scroll-mt-20 py-24 lg:py-32 bg-[#09090B] border-t border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#B69A60]/10 border border-[#B69A60]/30 rounded-full text-xs font-mono tracking-widest text-[#D5BA80] uppercase mb-3">
               <Sparkles className="w-3.5 h-3.5 text-[#B69A60]" />
-              <span>Collection Edit 2026 · 18 Curated Designs</span>
+              <span>
+                {language === 'en' ? 'Collection Edit 2026 · 18 Curated Designs' : 'সংকলন এডিট ২০২৬ · ১৮টি ডিজাইন'}
+              </span>
             </div>
 
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-light text-[#F5F2EB] tracking-wide mb-2">
+            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-light text-[#F5F2EB] tracking-wide mb-2 text-balance">
               {language === 'en' ? 'THE THREE-PIECE EDIT.' : 'দ্য থ্রি-পিস এডিট।'}
             </h2>
 
@@ -122,7 +176,9 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
             </p>
 
             <p className="text-xs sm:text-sm text-[#77777D] font-light max-w-xl">
-              Authentic Bangladeshi three-piece sets curated with original fabric references, artisanal batik, Swiss lawn, and festive mirror embroidery.
+              {language === 'en'
+                ? 'Authentic Bangladeshi three-piece sets curated with original fabric references, artisanal batik, Swiss lawn, and festive mirror embroidery.'
+                : 'আসল বাটিক, সুইস লন এবং উৎসবের মিরর এমব্রয়ডারিতে তৈরি বাংলাদেশের ঐতিহ্যবাহী থ্রি-পিস সংকলন।'}
             </p>
           </div>
 
@@ -137,7 +193,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     : 'text-[#D8D3C9] hover:text-white'
                 }`}
               >
-                Original Fabric
+                {language === 'en' ? 'Original Fabric' : 'আসল ফ্যাব্রিক'}
               </button>
               <button
                 onClick={() => setViewMode('model')}
@@ -147,7 +203,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     : 'text-[#D8D3C9] hover:text-white'
                 }`}
               >
-                Model Concept
+                {language === 'en' ? 'Model Concept' : 'মডেল প্রিভিউ'}
               </button>
             </div>
 
@@ -158,7 +214,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                 className="px-4 py-2 bg-gradient-to-r from-[#B69A60]/20 to-[#756BFF]/20 border border-[#B69A60]/40 hover:border-[#B69A60] rounded-lg text-xs font-mono text-[#F5F2EB] hover:text-[#D5BA80] flex items-center gap-2 cursor-pointer transition-all shadow-md group"
               >
                 <Box className="w-4 h-4 text-[#B69A60] group-hover:rotate-12 transition-transform" />
-                <span>3D Fabric Studio</span>
+                <span>{language === 'en' ? '3D Fabric Studio' : '৩ডি ফ্যাব্রিক স্টুডিও'}</span>
               </button>
             )}
           </div>
@@ -178,7 +234,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     : 'text-[#D8D3C9] hover:text-white hover:bg-white/5'
                 }`}
               >
-                {edit}
+                {edit === 'All' && language === 'bn' ? 'সকল' : edit}
               </button>
             ))}
           </div>
@@ -190,7 +246,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search code (e.g. CAT-001, ZSL-01)..."
+              placeholder={language === 'en' ? 'Search code (e.g. CAT-001, ZSL-01)...' : 'কোড খুঁজুন (CAT-001)...'}
               className="w-full bg-black/60 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
             />
           </div>
@@ -199,157 +255,198 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
         {/* Dynamic Counter Strip */}
         <div className="flex items-center justify-between text-xs font-mono text-[#77777D] uppercase tracking-wider mb-8 pb-3 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <span>Showing</span>
+            <span>{language === 'en' ? 'Showing' : 'দেখানো হচ্ছে'}</span>
             <span ref={counterRef} className="text-[#D5BA80] font-bold tabular-nums">
               {String(filteredItems.length).padStart(2, '0')}
             </span>
-            <span>of 18 Designs</span>
+            <span>{language === 'en' ? 'of 18 Designs' : 'টি (মোট ১৮ ডিজাইন)'}</span>
           </div>
-          <span>Price Range: ৳ 1,650 — ৳ 2,450</span>
+          <span>{language === 'en' ? 'Price Range: ৳ 1,650 — ৳ 2,450' : 'মূল্য: ৳ ১,৬৫০ — ৳ ২,৪৫০'}</span>
         </div>
 
-        {/* 18-Product Responsive Grid with Anime.js Target Class */}
-        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredItems.map((item) => {
-            const isWish = isWishlisted(item.id);
-            const isJustAdded = addedItemCode === item.code;
-            const displayImage = viewMode === 'flatlay' ? item.flatLayImage : item.modelImage;
+        {/* 18-Product Responsive Grid */}
+        {filteredItems.length === 0 ? (
+          <div className="py-16 text-center rounded-2xl border border-white/10 bg-[#171719]/40">
+            <p className="font-serif-luxury text-xl text-[#F5F2EB] mb-2">
+              {language === 'en' ? 'No matching three-piece sets found' : 'কোনো থ্রি-পিস ডিজাইন পাওয়া যায়নি'}
+            </p>
+            <button
+              onClick={() => {
+                setActiveSubEdit('All');
+                setSearchQuery('');
+              }}
+              className="mt-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-mono text-[#D5BA80] cursor-pointer"
+            >
+              {language === 'en' ? 'Reset Filters' : 'ফিল্টার রিসেট করুন'}
+            </button>
+          </div>
+        ) : (
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredItems.map((item) => {
+              const isWish = isWishlisted(item.id);
+              const isJustAdded = addedItemCode === item.code;
+              const displayImage = viewMode === 'flatlay' ? item.flatLayImage : item.modelImage;
+              const mappedProduct = toProduct(item);
 
-            return (
-              <div
-                key={item.id}
-                className="tp-product-card group relative bg-[#171719] border border-white/10 hover:border-white/25 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-xl"
-              >
-                {/* Media Stage */}
-                <div className="relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-black/60">
-                  <img
-                    src={displayImage}
-                    alt={item.nameEn}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                    referrerPolicy="no-referrer"
-                  />
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => onQuickView?.(mappedProduct)}
+                  className={`tp-product-card group relative bg-[#171719] border border-white/10 hover:border-white/25 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-xl ${
+                    onQuickView ? 'cursor-pointer' : ''
+                  }`}
+                >
+                  {/* Media Stage */}
+                  <div className="relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-black/60">
+                    <img
+                      src={displayImage}
+                      alt={item.nameEn}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                      referrerPolicy="no-referrer"
+                    />
 
-                  {/* Top Badges */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                    <span className="font-mono text-[11px] font-bold text-[#09090B] bg-[#D5BA80] px-2.5 py-0.5 rounded shadow">
-                      {item.code}
-                    </span>
+                    {/* Top Badges */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                      <span className="font-mono text-[11px] font-bold text-[#09090B] bg-[#D5BA80] px-2.5 py-0.5 rounded shadow">
+                        {item.code}
+                      </span>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleLaunch3D(item)}
-                        className="p-1.5 bg-black/70 hover:bg-black text-[#D5BA80] hover:text-white rounded-full backdrop-blur-md border border-white/10 transition-colors cursor-pointer"
-                        title="Inspect in 3D Studio"
-                      >
-                        <Box className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {onQuickView && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onQuickView(mappedProduct);
+                            }}
+                            className="p-1.5 bg-black/70 hover:bg-black text-[#D8D3C9] hover:text-white rounded-full backdrop-blur-md border border-white/10 transition-colors cursor-pointer"
+                            title={language === 'en' ? 'Quick View' : 'দ্রুত দেখুন'}
+                            aria-label="Quick View"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        )}
 
-                      <button
-                        onClick={() => onToggleWishlist(item)}
-                        className={`p-1.5 rounded-full backdrop-blur-md transition-colors cursor-pointer ${
-                          isWish
-                            ? 'bg-[#B69A60] text-[#09090B]'
-                            : 'bg-black/50 text-[#D8D3C9] hover:text-white hover:bg-black/80'
-                        }`}
-                        aria-label="Wishlist toggle"
-                      >
-                        <Heart className="w-3.5 h-3.5 fill-current" />
-                      </button>
+                        <button
+                          onClick={(e) => handleLaunch3D(item, e)}
+                          className="p-1.5 bg-black/70 hover:bg-black text-[#D5BA80] hover:text-white rounded-full backdrop-blur-md border border-white/10 transition-colors cursor-pointer"
+                          title={language === 'en' ? 'Inspect in 3D Studio' : '৩ডি স্টুডিওতে দেখুন'}
+                          aria-label="Inspect in 3D Studio"
+                        >
+                          <Box className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleWishlist(mappedProduct);
+                          }}
+                          className={`p-1.5 rounded-full backdrop-blur-md transition-colors cursor-pointer ${
+                            isWish
+                              ? 'bg-[#B69A60] text-[#09090B]'
+                              : 'bg-black/50 text-[#D8D3C9] hover:text-white hover:bg-black/80'
+                          }`}
+                          aria-label="Wishlist toggle"
+                        >
+                          <Heart className="w-3.5 h-3.5 fill-current" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Mode Label Tag */}
+                    <div className="absolute bottom-3 left-3">
+                      <span className="text-[10px] font-mono text-[#D8D3C9] bg-black/70 backdrop-blur-md px-2 py-0.5 rounded border border-white/10">
+                        {viewMode === 'flatlay'
+                          ? language === 'en' ? 'Original Fabric' : 'আসল ফ্যাব্রিক'
+                          : language === 'en' ? 'Model Concept' : 'মডেল প্রিভিউ'}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Mode Label Tag */}
-                  <div className="absolute bottom-3 left-3">
-                    <span className="text-[10px] font-mono text-[#D8D3C9] bg-black/70 backdrop-blur-md px-2 py-0.5 rounded border border-white/10">
-                      {viewMode === 'flatlay' ? 'Original Fabric' : 'Model Concept'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Content & 3-Piece Breakdown */}
-                <div className="p-5 flex flex-col justify-between flex-1">
-                  <div>
-                    <div className="text-[11px] font-mono uppercase tracking-wider text-[#B69A60] mb-1">
-                      {item.subCollection}
-                    </div>
-
-                    <h3 className="font-serif-luxury text-xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-1">
-                      {language === 'en' ? item.nameEn : item.nameBn}
-                    </h3>
-
-                    <p className="text-xs text-[#77777D] line-clamp-2 font-light mb-4">
-                      {language === 'en' ? item.descriptionEn : item.descriptionBn}
-                    </p>
-
-                    {/* 3-Piece Detailed Specifications Accordion Box */}
-                    <div className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-1.5 text-[11px] mb-4">
-                      <div className="flex gap-2">
-                        <span className="font-mono text-[#B69A60] shrink-0">KAMEEZ:</span>
-                        <span className="text-[#D8D3C9] truncate">
-                          {language === 'en' ? item.kameezEn : item.kameezBn}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="font-mono text-[#B69A60] shrink-0">SALWAR:</span>
-                        <span className="text-[#D8D3C9] truncate">
-                          {language === 'en' ? item.salwarEn : item.salwarBn}
-                        </span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="font-mono text-[#B69A60] shrink-0">DUPATTA:</span>
-                        <span className="text-[#D8D3C9] truncate">
-                          {language === 'en' ? item.dupattaEn : item.dupattaBn}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Price & Action Row */}
-                  <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-3">
+                  {/* Card Content & 3-Piece Breakdown */}
+                  <div className="p-5 flex flex-col justify-between flex-1">
                     <div>
-                      <div className="font-mono text-lg text-[#F5F2EB] font-bold tabular-nums">
-                        ৳ {item.priceBDT.toLocaleString()}
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-[#B69A60] mb-1">
+                        {item.subCollection}
                       </div>
-                      {item.priceNote && (
-                        <div className="text-[9px] text-[#B69A60]">{item.priceNote}</div>
-                      )}
+
+                      <h3 className="font-serif-luxury text-xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-1">
+                        {language === 'en' ? item.nameEn : item.nameBn}
+                      </h3>
+
+                      <p className="text-xs text-[#77777D] line-clamp-2 font-light mb-4">
+                        {language === 'en' ? item.descriptionEn : item.descriptionBn}
+                      </p>
+
+                      {/* 3-Piece Detailed Specifications Box */}
+                      <div className="p-3 rounded-lg bg-black/40 border border-white/5 space-y-1.5 text-[11px] mb-4">
+                        <div className="flex gap-2">
+                          <span className="font-mono text-[#B69A60] shrink-0">KAMEEZ:</span>
+                          <span className="text-[#D8D3C9] truncate">
+                            {language === 'en' ? item.kameezEn : item.kameezBn}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="font-mono text-[#B69A60] shrink-0">SALWAR:</span>
+                          <span className="text-[#D8D3C9] truncate">
+                            {language === 'en' ? item.salwarEn : item.salwarBn}
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="font-mono text-[#B69A60] shrink-0">DUPATTA:</span>
+                          <span className="text-[#D8D3C9] truncate">
+                            {language === 'en' ? item.dupattaEn : item.dupattaBn}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    <button
-                      onClick={(e) => handleQuickAdd(item, e)}
-                      disabled={isJustAdded}
-                      className={`py-2 px-3.5 rounded text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                        isJustAdded
-                          ? 'bg-[#B69A60] text-[#09090B]'
-                          : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80]'
-                      }`}
-                    >
-                      {isJustAdded ? (
-                        <>
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Added</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Order Set</span>
-                        </>
-                      )}
-                    </button>
+                    {/* Price & Action Row */}
+                    <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="font-mono text-lg text-[#F5F2EB] font-bold tabular-nums">
+                          ৳ {item.priceBDT.toLocaleString()}
+                        </div>
+                        {item.priceNote && (
+                          <div className="text-[9px] text-[#B69A60]">{item.priceNote}</div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={(e) => handleQuickAdd(item, e)}
+                        disabled={isJustAdded}
+                        className={`py-2 px-3.5 rounded text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                          isJustAdded
+                            ? 'bg-[#B69A60] text-[#09090B]'
+                            : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80]'
+                        }`}
+                      >
+                        {isJustAdded ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>{language === 'en' ? 'Added' : 'যুক্ত হয়েছে'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>{language === 'en' ? 'Order Set' : 'অর্ডার করুন'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Interactive 3D Fabric Studio Modal */}
       {show3DModal && active3DItem && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            onClick={() => setShow3DModal(false)}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md"
+            onClick={close3D}
+            className="fixed inset-0 bg-black/90"
           />
 
           <div className="relative w-full max-w-4xl bg-[#09090B] border border-white/15 rounded-3xl overflow-hidden z-10 shadow-2xl">
@@ -357,7 +454,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
               <div className="flex items-center gap-2">
                 <Box className="w-4 h-4 text-[#B69A60]" />
                 <span className="font-serif-luxury text-lg text-[#F5F2EB]">
-                  3D Textile Drape Simulation
+                  {language === 'en' ? '3D Textile Drape Simulation' : '৩ডি ফ্যাব্রিক ড্র্যাপ স্টুডিও'}
                 </span>
                 <span className="text-xs font-mono text-[#D5BA80] px-2 py-0.5 rounded bg-black/60 border border-white/10">
                   {active3DItem.code} · {active3DItem.nameEn}
@@ -365,17 +462,26 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
               </div>
 
               <button
-                onClick={() => setShow3DModal(false)}
+                onClick={close3D}
                 className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded text-xs uppercase tracking-wider text-[#F5F2EB] cursor-pointer"
               >
-                Close 3D
+                {language === 'en' ? 'Close 3D' : 'বন্ধ করুন'}
               </button>
             </div>
 
-            <ThreePiece3DViewer
-              selectedItem={active3DItem}
-              onClose={() => setShow3DModal(false)}
-            />
+            <Suspense
+              fallback={
+                <div className="h-[520px] lg:h-[620px] flex flex-col items-center justify-center bg-[#09090B] text-xs font-mono text-[#D5BA80]">
+                  <div className="w-8 h-8 border-2 border-[#B69A60] border-t-transparent rounded-full animate-spin mb-3" />
+                  <span>Loading 3D Textile Studio...</span>
+                </div>
+              }
+            >
+              <ThreePiece3DViewer
+                selectedItem={active3DItem}
+                onClose={close3D}
+              />
+            </Suspense>
           </div>
         </div>
       )}

@@ -4,18 +4,14 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { 
   X, 
   RotateCcw, 
-  Sparkles, 
   ChevronUp, 
   ChevronDown, 
   Wind, 
   Sun, 
-  Layers, 
   ShoppingBag,
-  Check,
-  Maximize2
+  Check
 } from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
-import { translations } from '../../data/translations';
 
 interface GarmentTryOn3DModalProps {
   product: Product | null;
@@ -40,8 +36,10 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
   const [lightingPreset, setLightingPreset] = useState<'atelier' | 'golden' | 'dramatic'>('atelier');
   const [waveSpeed, setWaveSpeed] = useState<number>(1.1);
   const [addedAnimation, setAddedAnimation] = useState(false);
+  const [contextLost, setContextLost] = useState(false);
 
   // Three.js mutable state refs
+  const waveSpeedRef = useRef<number>(waveSpeed);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rotationGroupRef = useRef<THREE.Group | null>(null);
@@ -57,7 +55,18 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
   const previousPointerX = useRef<number>(0);
   const previousPointerY = useRef<number>(0);
 
-  const t = translations[language];
+  useEffect(() => {
+    waveSpeedRef.current = waveSpeed;
+  }, [waveSpeed]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   // Procedural dynamic texture generation tailored to the product color & fabric
   const createProductTexture = (prod: Product, weave: string): THREE.CanvasTexture => {
@@ -70,7 +79,6 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     const accentColor = prod.colors[1]?.hex || '#C6A767';
     const highlightColor = prod.colors[2]?.hex || '#FFFFFF';
 
-    // Base garment color
     ctx.fillStyle = baseColor;
     ctx.fillRect(0, 0, 1024, 1024);
 
@@ -91,7 +99,6 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     }
 
     if (weave === 'silk') {
-      // Subtle lustrous sheen diagonal twill
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
       ctx.lineWidth = 1.5;
       for (let d = -1024; d < 2048; d += 16) {
@@ -101,7 +108,6 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
         ctx.stroke();
       }
     } else if (weave === 'brocade' || weave === 'linen') {
-      // Intricate Jacquard / Jamdani or Khadi geometric motif
       ctx.strokeStyle = accentColor;
       ctx.fillStyle = accentColor;
       ctx.globalAlpha = 0.65;
@@ -115,7 +121,6 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
         }
       }
     } else {
-      // Contemporary refined lawn/cotton fine texture
       ctx.strokeStyle = accentColor;
       ctx.globalAlpha = 0.35;
       for (let i = 0; i < 36; i++) {
@@ -125,10 +130,10 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       }
     }
 
-    // Collar / Placket embroidery band simulation (centered along vertical seam)
+    // Collar / Placket embroidery band simulation
     ctx.globalAlpha = 0.95;
     ctx.fillStyle = accentColor;
-    ctx.fillRect(496, 0, 32, 450); // Vertical central placket
+    ctx.fillRect(496, 0, 32, 450);
     ctx.fillStyle = highlightColor;
     for (let btnY = 60; btnY < 420; btnY += 70) {
       ctx.beginPath();
@@ -169,18 +174,16 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       return /SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu);
     })();
 
+    const width = Math.max(container.clientWidth, 1);
+    const height = Math.max(container.clientHeight, 1);
+
     // 1. Scene & Camera Setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
     scene.background = new THREE.Color(0x0a0a0d);
     scene.fog = new THREE.Fog(0x0a0a0d, 4.0, 9.0);
 
-    const camera = new THREE.PerspectiveCamera(
-      42,
-      container.clientWidth / container.clientHeight,
-      0.1,
-      25
-    );
+    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 25);
     camera.position.set(0, 0.45, 3.1);
     cameraRef.current = camera;
 
@@ -189,7 +192,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       antialias: !isSoftwareGl,
       powerPreference: 'high-performance',
     });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setSize(width, height);
     renderer.setPixelRatio(isSoftwareGl ? 1 : Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -199,9 +202,22 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
     container.replaceChildren(renderer.domElement);
 
+    const handleContextLost = (e: Event) => {
+      e.preventDefault();
+      setContextLost(true);
+    };
+    const handleContextRestored = () => {
+      setContextLost(false);
+    };
+    renderer.domElement.addEventListener('webglcontextlost', handleContextLost);
+    renderer.domElement.addEventListener('webglcontextrestored', handleContextRestored);
+
     // 3. Studio Environment Reflection Map
     const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+    const roomEnv = new RoomEnvironment();
+    const envTarget = pmremGenerator.fromScene(roomEnv, 0.04);
+    scene.environment = envTarget.texture;
+    roomEnv.dispose();
     pmremGenerator.dispose();
 
     // 4. Studio Lighting Rig
@@ -233,7 +249,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     scene.add(rotationGroup);
     rotationGroupRef.current = rotationGroup;
 
-    // A. Mannequin Torso & Stand (Matte Luxury Ceramic)
+    // A. Mannequin Torso & Stand
     const mannequinGroup = new THREE.Group();
     rotationGroup.add(mannequinGroup);
     mannequinGroupRef.current = mannequinGroup;
@@ -250,7 +266,6 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       metalness: 0.9,
     });
 
-    // Neck & Neck Cap
     const neckGeo = new THREE.CylinderGeometry(0.12, 0.14, 0.28, 32);
     const neckMesh = new THREE.Mesh(neckGeo, mannequinMat);
     neckMesh.position.y = 1.08;
@@ -261,19 +276,16 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     neckCapMesh.position.y = 1.23;
     mannequinGroup.add(neckCapMesh);
 
-    // Shoulders
     const shoulderGeo = new THREE.CylinderGeometry(0.42, 0.38, 0.22, 32);
     const shoulderMesh = new THREE.Mesh(shoulderGeo, mannequinMat);
     shoulderMesh.position.y = 0.86;
     mannequinGroup.add(shoulderMesh);
 
-    // Chest & Waist
     const torsoGeo = new THREE.CylinderGeometry(0.28, 0.21, 0.85, 32);
     const torsoMesh = new THREE.Mesh(torsoGeo, mannequinMat);
     torsoMesh.position.y = 0.44;
     mannequinGroup.add(torsoMesh);
 
-    // Stand Rod & Weighted Atelier Base
     const rodGeo = new THREE.CylinderGeometry(0.024, 0.024, 1.35, 24);
     const rodMesh = new THREE.Mesh(rodGeo, brassAccentMat);
     rodMesh.position.y = -0.42;
@@ -303,20 +315,15 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     const isPanjabi = product.nameEn.toLowerCase().includes('panjabi') || product.category === 'Traditional';
     const isThreePiece = product.sizes.includes('Unstitched Set') || product.nameEn.toLowerCase().includes('kameez') || product.category === 'Women';
 
-    // Tailored Garment Drape Plane
-    // Panjabi is longer (reaches knees), Kameez is styled with subtle hourglass flare
     const garmentLength = isPanjabi ? 1.55 : isThreePiece ? 1.4 : 1.15;
     const garmentWidth = 0.78;
     const fabricGeo = new THREE.PlaneGeometry(garmentWidth, garmentLength, 40, 48);
 
-    // Curvature around the torso
     const pos = fabricGeo.attributes.position;
     for (let i = 0; i < pos.count; i++) {
       const x = pos.getX(i);
       const y = pos.getY(i);
-      // Gentle radial wrap around body cylinder
       const zCurvature = -Math.cos(x * 3.2) * 0.14 + 0.16;
-      // Flared hem at bottom
       const hemSpread = y < -0.3 ? (0.3 - y) * 0.04 : 0;
       pos.setZ(i, zCurvature);
       pos.setX(i, x * (1 + hemSpread));
@@ -330,19 +337,17 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     garmentGroup.add(fabricMesh);
     fabricMeshRef.current = fabricMesh;
 
-    // Mandarin Collar for Panjabi / Clean Neckline Band
     const collarRadius = 0.15;
     const collarGeo = new THREE.CylinderGeometry(collarRadius, collarRadius + 0.02, 0.1, 32, 1, true);
     const collarMesh = new THREE.Mesh(collarGeo, garmentMat);
     collarMesh.position.set(0, 1.05, 0);
     garmentGroup.add(collarMesh);
 
-    // Dupatta / Accent Drape (for Three-Piece items or layered luxury looks)
     let dupattaGeo: THREE.PlaneGeometry | null = null;
-    let dupattaMesh: THREE.Mesh | null = null;
+    let dupattaMat: THREE.MeshPhysicalMaterial | null = null;
     if (isThreePiece || isPanjabi) {
       dupattaGeo = new THREE.PlaneGeometry(0.38, 1.6, 28, 36);
-      const dupattaMat = new THREE.MeshPhysicalMaterial({
+      dupattaMat = new THREE.MeshPhysicalMaterial({
         map: fabricTex,
         roughness: 0.45,
         metalness: 0.15,
@@ -350,11 +355,13 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
         opacity: 0.95,
         side: THREE.DoubleSide,
       });
-      dupattaMesh = new THREE.Mesh(dupattaGeo, dupattaMat);
+      const dupattaMesh = new THREE.Mesh(dupattaGeo, dupattaMat);
       dupattaMesh.position.set(-0.38, 0.32, 0.18);
       dupattaMesh.rotation.set(0.08, 0.22, -0.16);
       garmentGroup.add(dupattaMesh);
       dupattaMeshRef.current = dupattaMesh;
+    } else {
+      dupattaMeshRef.current = null;
     }
 
     // C. Soft Contact Shadow Plane Grounding the Model
@@ -404,8 +411,8 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     dom.addEventListener('mousedown', handlePointerDown);
     dom.addEventListener('mousemove', handlePointerMove);
     window.addEventListener('mouseup', handlePointerUp);
-    dom.addEventListener('touchstart', handlePointerDown);
-    dom.addEventListener('touchmove', handlePointerMove);
+    dom.addEventListener('touchstart', handlePointerDown, { passive: true });
+    dom.addEventListener('touchmove', handlePointerMove, { passive: true });
     window.addEventListener('touchend', handlePointerUp);
 
     // 7. Animation Loop with Organic Fabric Wave Dynamics
@@ -416,21 +423,18 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
     const animate = () => {
       const elapsedTime = clock.getElapsedTime();
+      const currentSpeed = waveSpeedRef.current;
 
-      // Smooth camera lerping
       if (cameraRef.current) {
         cameraRef.current.position.lerp(targetCameraPos.current, 0.06);
       }
 
-      // Gentle auto-rotation when user is not actively inspecting
       if (!isDragging.current && rotationGroupRef.current) {
         rotationGroupRef.current.rotation.y += 0.0025;
       }
 
-      // Wave simulation on front drape
       if (fabricMeshRef.current) {
         const positions = fabricMeshRef.current.geometry.attributes.position;
-        const currentSpeed = waveSpeed;
         for (let i = 0; i < positions.count; i++) {
           const u = positions.getX(i);
           const v = positions.getY(i);
@@ -445,13 +449,12 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
         positions.needsUpdate = true;
       }
 
-      // Wave on dupatta
       if (dupattaMeshRef.current && originalDupattaPos) {
         const dPositions = dupattaMeshRef.current.geometry.attributes.position;
         for (let i = 0; i < dPositions.count; i++) {
           const v = dPositions.getY(i);
           const origZ = originalDupattaPos.getZ(i);
-          const wave = Math.sin(v * 3.6 + elapsedTime * waveSpeed * 2.6) * 0.035;
+          const wave = Math.sin(v * 3.6 + elapsedTime * currentSpeed * 2.6) * 0.035;
           dPositions.setZ(i, origZ + wave);
         }
         dPositions.needsUpdate = true;
@@ -463,18 +466,25 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
     animate();
 
-    // 8. Resize Handler
+    // 8. Resize Handler + ResizeObserver
     const handleResize = () => {
       if (!container || !renderer || !camera) return;
-      camera.aspect = container.clientWidth / container.clientHeight;
+      const nextWidth = Math.max(container.clientWidth, 1);
+      const nextHeight = Math.max(container.clientHeight, 1);
+      camera.aspect = nextWidth / nextHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(nextWidth, nextHeight);
     };
     window.addEventListener('resize', handleResize);
+    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(handleResize) : null;
+    resizeObserver?.observe(container);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
+      resizeObserver?.disconnect();
+      dom.removeEventListener('webglcontextlost', handleContextLost);
+      dom.removeEventListener('webglcontextrestored', handleContextRestored);
       dom.removeEventListener('mousedown', handlePointerDown);
       dom.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('mouseup', handlePointerUp);
@@ -482,7 +492,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       dom.removeEventListener('touchmove', handlePointerMove);
       window.removeEventListener('touchend', handlePointerUp);
 
-      renderer.dispose();
+      envTarget.dispose();
       fabricGeo.dispose();
       if (dupattaGeo) dupattaGeo.dispose();
       torsoGeo.dispose();
@@ -494,10 +504,16 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       shadowGeo.dispose();
       collarGeo.dispose();
       fabricTex.dispose();
+      garmentMat.dispose();
+      if (dupattaMat) dupattaMat.dispose();
+      mannequinMat.dispose();
+      brassAccentMat.dispose();
+      shadowMat.dispose();
+      renderer.dispose();
     };
-  }, [isOpen, product, fabricWeave, waveSpeed]);
+  }, [isOpen, product, fabricWeave]);
 
-  // Adjust mannequin size scale dynamically (Chest & Shoulder tailoring)
+  // Adjust mannequin size scale dynamically
   useEffect(() => {
     if (!mannequinGroupRef.current || !garmentGroupRef.current) return;
     const scaleFactor = activeSize === 'S' ? 0.94 : activeSize === 'M' ? 1.0 : activeSize === 'L' ? 1.06 : 1.12;
@@ -577,19 +593,26 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       {/* Dark Ambient Backdrop */}
       <div 
         onClick={onClose} 
-        className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity" 
+        className="fixed inset-0 bg-black/90 transition-opacity" 
       />
 
       <div className="relative w-full max-w-5xl h-[88vh] bg-[#0c0c0f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col">
-        {/* 3D Canvas Mount (Unobstructed Viewport) */}
+        {/* 3D Canvas Mount */}
         <div 
           ref={mountRef} 
           className="w-full h-full cursor-grab active:cursor-grabbing select-none"
         />
 
-        {/* Top Floating Spec Bar (Zero Occlusion) */}
+        {contextLost && (
+          <div className="absolute inset-0 bg-[#09090B]/95 flex flex-col items-center justify-center text-center p-6 z-30">
+            <p className="font-serif-luxury text-xl text-[#F5F2EB] mb-2">Restoring 3D Atelier Viewport</p>
+            <p className="text-xs font-mono text-[#77777D]">Graphics context interrupted — reinitializing...</p>
+          </div>
+        )}
+
+        {/* Top Floating Spec Bar */}
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
-          <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-white/15 text-xs font-mono pointer-events-auto shadow-lg">
+          <div className="flex items-center gap-3 px-3.5 py-1.5 rounded-full bg-black/90 border border-white/15 text-xs font-mono pointer-events-auto shadow-lg">
             <img
               src="/assets/aistudio/Untitled_design_a468bd14.png"
               alt="Fabrician Emblem"
@@ -611,7 +634,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
           <div className="flex items-center gap-2 pointer-events-auto">
             <button
               onClick={handleReset}
-              className="p-2 rounded-full bg-black/80 backdrop-blur-md border border-white/15 hover:border-[#B69A60] text-[#D8D3C9] hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-black/90 border border-white/15 hover:border-[#B69A60] text-[#D8D3C9] hover:text-white transition-colors cursor-pointer"
               title="Reset 3D Angle"
               aria-label="Reset Camera"
             >
@@ -620,7 +643,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-2 rounded-full bg-black/80 backdrop-blur-md border border-white/15 hover:border-red-400 text-[#D8D3C9] hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-black/90 border border-white/15 hover:border-red-400 text-[#D8D3C9] hover:text-white transition-colors cursor-pointer"
               aria-label="Close Try-On"
             >
               <X className="w-4 h-4" />
@@ -633,13 +656,13 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
           360° Drag Rotation · Real-Time Cloth Draping &amp; Lighting Simulation
         </div>
 
-        {/* Unified Bottom Control Dock (Consolidated, Zero-Occlusion) */}
+        {/* Unified Bottom Control Dock */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-4xl z-20 transition-all duration-300">
           {/* Collapse / Expand Toggle Button */}
           <div className="flex justify-center mb-1.5">
             <button
               onClick={() => setHudExpanded(!hudExpanded)}
-              className="px-3.5 py-1 rounded-t-lg bg-[#171719]/95 border border-b-0 border-white/15 text-[11px] font-mono uppercase tracking-wider text-[#D8D3C9] hover:text-white flex items-center gap-1.5 cursor-pointer shadow-xl"
+              className="px-3.5 py-1 rounded-t-lg bg-[#171719] border border-b-0 border-white/15 text-[11px] font-mono uppercase tracking-wider text-[#D8D3C9] hover:text-white flex items-center gap-1.5 cursor-pointer shadow-xl"
             >
               {hudExpanded ? (
                 <>
@@ -657,10 +680,10 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
           {/* Dock Body */}
           {hudExpanded && (
-            <div className="p-3.5 sm:p-4 rounded-xl bg-[#171719]/95 border border-white/15 shadow-2xl backdrop-blur-md flex flex-col gap-3">
+            <div className="p-3.5 sm:p-4 rounded-xl bg-[#171719]/95 border border-white/15 shadow-2xl flex flex-col gap-3">
               <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
                 {/* 1. Camera Angle Presets */}
-                <div className="flex items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-[10px] font-mono uppercase text-[#77777D] mr-1 hidden md:inline">
                     Angle:
                   </span>
@@ -672,7 +695,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                   ].map((p) => (
                     <button
                       key={p.id}
-                      onClick={() => handleSetPreset(p.id as any)}
+                      onClick={() => handleSetPreset(p.id as 'full' | 'collar' | 'shoulder' | 'side')}
                       className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                         activePreset === p.id
                           ? 'bg-[#B69A60] text-[#09090B] font-bold shadow'
@@ -732,8 +755,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
               {/* Secondary Controls Bar: Lighting & Weave Finish */}
               <div className="pt-2 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono">
-                {/* Textile Weave Finish */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[#77777D] uppercase text-[10px] hidden sm:inline">Fabric Simulation:</span>
                   {[
                     { id: 'cotton', label: 'Fine Cotton' },
@@ -743,7 +765,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                   ].map((w) => (
                     <button
                       key={w.id}
-                      onClick={() => setFabricWeave(w.id as any)}
+                      onClick={() => setFabricWeave(w.id as 'cotton' | 'silk' | 'linen' | 'brocade')}
                       className={`px-2 py-0.5 rounded uppercase tracking-wider transition-colors cursor-pointer ${
                         fabricWeave === w.id
                           ? 'border border-[#B69A60] text-[#D5BA80] bg-[#B69A60]/10 font-bold'
@@ -755,8 +777,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                   ))}
                 </div>
 
-                {/* Lighting Mode */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Sun className="w-3.5 h-3.5 text-[#B69A60]" />
                   <span className="text-[#77777D] uppercase text-[10px] hidden sm:inline">Lighting:</span>
                   {[
@@ -766,7 +787,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                   ].map((l) => (
                     <button
                       key={l.id}
-                      onClick={() => setLightingPreset(l.id as any)}
+                      onClick={() => setLightingPreset(l.id as 'atelier' | 'golden' | 'dramatic')}
                       className={`px-2 py-0.5 rounded uppercase tracking-wider transition-colors cursor-pointer ${
                         lightingPreset === l.id
                           ? 'border border-[#B69A60] text-[#D5BA80] bg-[#B69A60]/10 font-bold'
@@ -778,7 +799,6 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                   ))}
                 </div>
 
-                {/* Cloth Drift Wind Speed */}
                 <div className="flex items-center gap-2 text-[#77777D]">
                   <Wind className="w-3.5 h-3.5 text-[#B69A60]" />
                   <span className="uppercase text-[10px] hidden md:inline">Air Drift:</span>
@@ -790,6 +810,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                     value={waveSpeed}
                     onChange={(e) => setWaveSpeed(parseFloat(e.target.value))}
                     className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-[#B69A60]"
+                    aria-label="Cloth Air Drift Speed"
                     title="Cloth Air Drift Speed"
                   />
                 </div>

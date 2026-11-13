@@ -3,12 +3,13 @@ import { Search, X, ArrowRight } from 'lucide-react';
 import { Product, Language } from '../../types';
 import { FEATURED_PRODUCTS } from '../../data/mockData';
 import { THREE_PIECE_CATALOG } from '../../data/threePieceCatalog';
+import { GRAPHIC_ARCHIVE_PRODUCTS } from '../../data/graphicArchiveCatalog';
 import { translations } from '../../data/translations';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectProduct: (product: any) => void;
+  onSelectProduct: (product: Product) => void;
   language: Language;
 }
 
@@ -25,29 +26,36 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     } else {
       setQuery('');
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
-  // Search in both collections
-  const standardResults = FEATURED_PRODUCTS.filter(
+  const q = query.trim().toLowerCase();
+
+  // Search across all three catalogs
+  const standardResults: Product[] = FEATURED_PRODUCTS.filter(
     (p) =>
-      p.nameEn.toLowerCase().includes(query.toLowerCase()) ||
+      p.nameEn.toLowerCase().includes(q) ||
       p.nameBn.includes(query) ||
-      p.category.toLowerCase().includes(query.toLowerCase()) ||
-      p.fabricEn.toLowerCase().includes(query.toLowerCase())
+      p.category.toLowerCase().includes(q) ||
+      p.fabricEn.toLowerCase().includes(q)
   );
 
-  const threePieceResults = THREE_PIECE_CATALOG.filter(
+  const threePieceResults: Product[] = THREE_PIECE_CATALOG.filter(
     (tp) =>
-      tp.code.toLowerCase().includes(query.toLowerCase()) ||
-      tp.nameEn.toLowerCase().includes(query.toLowerCase()) ||
+      tp.code.toLowerCase().includes(q) ||
+      tp.nameEn.toLowerCase().includes(q) ||
       tp.nameBn.includes(query) ||
-      tp.subCollection.toLowerCase().includes(query.toLowerCase()) ||
-      tp.fabric.toLowerCase().includes(query.toLowerCase())
+      tp.subCollection.toLowerCase().includes(q) ||
+      tp.fabric.toLowerCase().includes(q)
   ).map((tp) => ({
     id: tp.id,
     slug: tp.code.toLowerCase(),
@@ -66,8 +74,33 @@ export const SearchModal: React.FC<SearchModalProps> = ({
     styleTag: 'heritage' as const,
   }));
 
-  const allMatches = [...standardResults, ...threePieceResults];
-  const results = query.trim() === '' ? FEATURED_PRODUCTS.slice(0, 4) : allMatches;
+  const graphicArchiveResults: Product[] = GRAPHIC_ARCHIVE_PRODUCTS.filter(
+    (ga) =>
+      ga.id.toLowerCase().includes(q) ||
+      ga.name.toLowerCase().includes(q) ||
+      ga.category.toLowerCase().includes(q) ||
+      ga.descriptionEn.toLowerCase().includes(q) ||
+      ga.tags.some((tag) => tag.toLowerCase().includes(q))
+  ).map((ga) => ({
+    id: ga.id,
+    slug: ga.id.toLowerCase(),
+    nameEn: `${ga.name} Hoodie`,
+    nameBn: `${ga.name} হুডি`,
+    category: 'Streetwear' as const,
+    collection: `Graphic Archive · ${ga.category}`,
+    priceBDT: ga.variants[0].priceBdt,
+    image: ga.variants[0].previewImage,
+    colors: ga.variants.map((v) => ({ name: v.color, hex: v.colorHex })),
+    sizes: ['M', 'L', 'XL'],
+    fabricEn: ga.variants[0].fabric,
+    fabricBn: `${ga.variants[0].gsm} ওয়ান-সাইড ব্রাশড ফ্লিস`,
+    fitEn: ga.variants[0].fit,
+    fitBn: 'সমসাময়িক রিল্যাক্সড ড্রপ-শোল্ডার ফিট',
+    styleTag: 'urban' as const,
+  }));
+
+  const allMatches = [...standardResults, ...threePieceResults, ...graphicArchiveResults];
+  const results = q === '' ? FEATURED_PRODUCTS.slice(0, 4) : allMatches;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">
@@ -88,6 +121,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
           <button
             onClick={onClose}
             className="p-1.5 text-[#77777D] hover:text-white rounded-full hover:bg-white/5 cursor-pointer"
+            aria-label="Close search"
           >
             <X className="w-5 h-5" />
           </button>
@@ -96,7 +130,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({
         {/* Results List */}
         <div className="p-4 sm:p-6 max-h-[60vh] overflow-y-auto">
           <div className="text-[11px] font-mono text-[#77777D] uppercase tracking-wider mb-3">
-            {query.trim() === '' ? 'Suggested Essentials' : `${results.length} Results Found`}
+            {q === ''
+              ? language === 'en'
+                ? 'Suggested Essentials'
+                : 'প্রস্তাবিত পোশাক'
+              : language === 'en'
+              ? `${results.length} Results Found`
+              : `${results.length}টি ফলাফল পাওয়া গেছে`}
           </div>
 
           {results.length === 0 ? (

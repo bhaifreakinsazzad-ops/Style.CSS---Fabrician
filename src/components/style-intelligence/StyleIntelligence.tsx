@@ -57,7 +57,7 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
   };
 
   return (
-    <section id="style-intelligence" className="py-20 lg:py-28 bg-[#171719]/40 border-t border-white/5 relative">
+    <section id="style-intelligence" className="scroll-mt-20 py-20 lg:py-28 bg-[#171719]/40 border-t border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">

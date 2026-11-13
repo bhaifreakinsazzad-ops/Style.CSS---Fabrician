@@ -2,6 +2,7 @@ import React from 'react';
 import { Compass, Feather, Scissors, Sparkles } from 'lucide-react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
+import { craftsmanshipTextileMacro } from '../../assets/images';
 
 interface CraftsmanshipSectionProps {
   language: Language;
@@ -11,7 +12,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({ lang
   const t = translations[language];
 
   return (
-    <section id="craft" className="py-24 lg:py-32 bg-[#09090B] border-t border-white/5 relative overflow-hidden">
+    <section id="craft" className="scroll-mt-20 py-24 lg:py-32 bg-[#09090B] border-t border-white/5 relative overflow-hidden">
       {/* Background Motifs */}
       <div className="absolute inset-0 bg-jamdani-pattern opacity-40 pointer-events-none" />
 
@@ -25,7 +26,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({ lang
               <span>{t.craft.subtitle}</span>
             </div>
 
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-light text-[#F5F2EB] tracking-wide mb-6 leading-tight">
+            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-light text-[#F5F2EB] tracking-wide mb-6 leading-tight text-balance">
               {t.craft.title}
             </h2>
 
@@ -56,7 +57,7 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({ lang
           <div className="lg:col-span-6">
             <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
               <img
-                src="/src/assets/images/craftsmanship_textile_macro_1794372402782.jpg"
+                src={craftsmanshipTextileMacro}
                 alt="Bangladeshi Handloom Jamdani Weave Macro Photography"
                 className="w-full aspect-[16/10] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"

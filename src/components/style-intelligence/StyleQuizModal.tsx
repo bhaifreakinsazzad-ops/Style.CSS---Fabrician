@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
-import { Sparkles, X, ArrowRight, RotateCcw, ShoppingBag, Check, Box, HelpCircle } from 'lucide-react';
+import { Sparkles, X, ArrowRight, RotateCcw, ShoppingBag, Check, Box } from 'lucide-react';
 import { Language, CartItem } from '../../types';
 import { THREE_PIECE_CATALOG, ThreePieceItem } from '../../data/threePieceCatalog';
 import { FEATURED_PRODUCTS } from '../../data/mockData';
@@ -123,6 +123,15 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
       });
     }
   }, [isCompleted]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

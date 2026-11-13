@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Language, CartItem, Product } from './types';
-import { FASHION_LOOKS, FEATURED_PRODUCTS } from './data/mockData';
+import { FASHION_LOOKS } from './data/mockData';
+import { ThreePieceItem } from './data/threePieceCatalog';
 import { Navbar } from './components/navigation/Navbar';
 import { CinematicHero } from './components/hero/CinematicHero';
 import { InteractiveLookbook } from './components/lookbook/InteractiveLookbook';
 import { ThreePieceSection } from './components/three-piece/ThreePieceSection';
+import { GraphicArchiveSection } from './components/graphic-archive/GraphicArchiveSection';
 import { CollectionDiscovery } from './components/collections/CollectionDiscovery';
 import { FeaturedEssentials } from './components/products/FeaturedEssentials';
 import { CraftsmanshipSection } from './components/craftsmanship/CraftsmanshipSection';
@@ -19,22 +21,35 @@ import { SizeGuideModal } from './components/modals/SizeGuideModal';
 import { StyleQuizModal } from './components/style-intelligence/StyleQuizModal';
 import { TrackOrderModal } from './components/modals/TrackOrderModal';
 
+const STORAGE_LANG_KEY = 'fabrician_lang_v1';
+const STORAGE_CART_KEY = 'fabrician_cart_v1';
+const STORAGE_WISHLIST_KEY = 'fabrician_wishlist_v1';
+
+function readStoredJson<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export default function App() {
-  const [language, setLanguage] = useState<Language>('en');
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 'initial-cart-1',
-      productId: 'prod-01',
-      nameEn: 'Obsidian Tailored Panjabi',
-      nameBn: 'অবসিডিয়ান টেইলর্ড পাঞ্জাবি',
-      priceBDT: 6800,
-      image: '/src/assets/images/lookbook_model_panjabi_1794372401468.jpg',
-      color: 'Obsidian Black',
-      size: '40 / M',
-      quantity: 1,
-    },
-  ]);
-  const [wishlist, setWishlist] = useState<Product[]>([FEATURED_PRODUCTS[1]]);
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_LANG_KEY);
+      return saved === 'bn' ? 'bn' : 'en';
+    } catch {
+      return 'en';
+    }
+  });
+  const [cartItems, setCartItems] = useState<CartItem[]>(() =>
+    readStoredJson<CartItem[]>(STORAGE_CART_KEY, [])
+  );
+  const [wishlist, setWishlist] = useState<Product[]>(() =>
+    readStoredJson<Product[]>(STORAGE_WISHLIST_KEY, [])
+  );
+
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -44,6 +59,31 @@ export default function App() {
   const [isStyleQuizOpen, setIsStyleQuizOpen] = useState(false);
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
   const [trackOrderId, setTrackOrderId] = useState('FAB-2026');
+  const [external3DItem, setExternal3DItem] = useState<ThreePieceItem | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_LANG_KEY, language);
+    } catch {
+      // ignore storage errors
+    }
+  }, [language]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_CART_KEY, JSON.stringify(cartItems));
+    } catch {
+      // ignore storage errors
+    }
+  }, [cartItems]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_WISHLIST_KEY, JSON.stringify(wishlist));
+    } catch {
+      // ignore storage errors
+    }
+  }, [wishlist]);
 
   const handleOpenTrackOrder = (orderId?: string) => {
     if (orderId) setTrackOrderId(orderId);
@@ -84,6 +124,10 @@ export default function App() {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const handleClearCart = () => {
+    setCartItems([]);
+  };
+
   // Wishlist Handlers
   const handleToggleWishlist = (product: Product) => {
     setWishlist((prev) => {
@@ -113,7 +157,11 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#09090B] text-[#F5F2EB] ${language === 'bn' ? 'font-bengali' : 'font-sans-modern'}`}>
+    <div
+      className={`min-h-screen bg-[#09090B] text-[#F5F2EB] ${
+        language === 'bn' ? 'font-bengali' : 'font-sans-modern'
+      }`}
+    >
       {/* Top Navigation */}
       <Navbar
         language={language}
@@ -127,35 +175,47 @@ export default function App() {
         onOpenTrackOrder={() => handleOpenTrackOrder()}
       />
 
-      {/* SECTION B: Cinematic Hero */}
+      {/* Cinematic Hero */}
       <CinematicHero
         language={language}
         onExploreCollections={() => handleNavigateSection('collections')}
         onEnterLookbook={() => handleNavigateSection('lookbook')}
       />
 
-      {/* SECTION C: Interactive Lookbook (Signature MVP Experience) */}
+      {/* Interactive Lookbook */}
       <InteractiveLookbook
         looks={FASHION_LOOKS}
         language={language}
         onAddToCart={handleAddToCart}
       />
 
-      {/* THE THREE-PIECE EDIT: 18 Curated Designs with Anime.js & Three.js 3D Studio */}
+      {/* The Three-Piece Edit: 18 Curated Designs with 3D Studio */}
       <ThreePieceSection
         language={language}
         onAddToCart={handleAddToCart}
         onToggleWishlist={handleToggleWishlist}
         isWishlisted={isWishlisted}
+        onQuickView={(p) => setQuickViewProduct(p)}
+        external3DItem={external3DItem}
+        onClearExternal3D={() => setExternal3DItem(null)}
       />
 
-      {/* SECTION D: Collection Discovery */}
+      {/* The Graphic Archive: Heavyweight Fleece Edit */}
+      <GraphicArchiveSection
+        language={language}
+        onAddToCart={handleAddToCart}
+        onToggleWishlist={handleToggleWishlist}
+        isWishlisted={isWishlisted}
+        onOpenQuickView={(p) => setQuickViewProduct(p)}
+      />
+
+      {/* Collection Discovery */}
       <CollectionDiscovery
         language={language}
         onSelectCategory={handleSelectCollection}
       />
 
-      {/* SECTION E: Featured Essentials */}
+      {/* Featured Essentials */}
       <FeaturedEssentials
         language={language}
         onAddToCart={handleAddToCart}
@@ -165,10 +225,10 @@ export default function App() {
         selectedFilterCategory={selectedFilterCategory}
       />
 
-      {/* SECTION F: Bangladeshi Craftsmanship & Heritage */}
+      {/* Bangladeshi Craftsmanship & Heritage */}
       <CraftsmanshipSection language={language} />
 
-      {/* SECTION G: Style Intelligence Engine */}
+      {/* Style Intelligence Engine */}
       <StyleIntelligence
         language={language}
         onAddToCart={handleAddToCart}
@@ -176,10 +236,10 @@ export default function App() {
         onOpenQuiz={() => setIsStyleQuizOpen(true)}
       />
 
-      {/* SECTION H: Editorial Magazine */}
+      {/* Editorial Magazine */}
       <EditorialStories language={language} />
 
-      {/* SECTION I: Brand Footer */}
+      {/* Brand Footer */}
       <Footer
         language={language}
         onNavigate={handleNavigateSection}
@@ -194,6 +254,7 @@ export default function App() {
         items={cartItems}
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveFromCart}
+        onClearCart={handleClearCart}
         language={language}
         onOpenTrackOrder={handleOpenTrackOrder}
       />
@@ -232,15 +293,19 @@ export default function App() {
         defaultCategory="panjabi"
       />
 
-      {/* AI Style Discovery Quiz Modal */}
+      {/* Style Discovery Quiz Modal */}
       <StyleQuizModal
         isOpen={isStyleQuizOpen}
         onClose={() => setIsStyleQuizOpen(false)}
         language={language}
         onAddToCart={handleAddToCart}
+        onOpen3DStudio={(item) => {
+          setExternal3DItem(item);
+          handleNavigateSection('three-piece-edit');
+        }}
       />
 
-      {/* Pathao Courier Real-Time Delivery Tracking Modal */}
+      {/* Pathao Courier Delivery Tracking Modal */}
       <TrackOrderModal
         isOpen={isTrackOrderOpen}
         onClose={() => setIsTrackOrderOpen(false)}

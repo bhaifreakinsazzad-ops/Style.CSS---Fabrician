@@ -16,7 +16,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
   const t = translations[language];
 
   return (
-    <section id="collections" className="py-20 lg:py-28 bg-[#09090B] border-t border-white/5 relative">
+    <section id="collections" className="scroll-mt-20 py-20 lg:py-28 bg-[#09090B] border-t border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">

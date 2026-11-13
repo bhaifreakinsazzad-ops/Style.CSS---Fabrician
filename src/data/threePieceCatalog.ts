@@ -1,3 +1,13 @@
+import {
+  heroModelCampaign,
+  lookbookModelPanjabi,
+  lookbookModelSaree,
+  threepieceMagentaPlum,
+  threepieceMirrorEmbroidery,
+  threepieceSwissLawn,
+  threepieceTealBatik,
+} from '../assets/images';
+
 export interface ThreePieceItem {
   id: string;
   code: string;
@@ -29,8 +39,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ম্যাজেন্টা ও প্লাম প্রিন্টেড থ্রি-পিস',
     subCollection: 'Magenta & Plum',
     priceBDT: 2350,
-    flatLayImage: '/src/assets/images/threepiece_magenta_plum_1794373917839.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMagentaPlum,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Plum Purple', hex: '#4A154B' },
       { name: 'Fuchsia Pink', hex: '#D81B60' },
@@ -55,8 +65,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'এমারেল্ড টিল বাটিক থ্রি-পিস',
     subCollection: 'Alfi Boutique',
     priceBDT: 2150,
-    flatLayImage: '/src/assets/images/threepiece_teal_batik_1794373918349.jpg',
-    modelImage: '/src/assets/images/lookbook_model_panjabi_1794372401468.jpg',
+    flatLayImage: threepieceTealBatik,
+    modelImage: lookbookModelPanjabi,
     colors: [
       { name: 'Emerald Teal', hex: '#006D77' },
       { name: 'Charcoal Black', hex: '#1C1C1F' },
@@ -79,8 +89,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ডাস্টি মভ ফ্লোরাল বাটিক থ্রি-পিস',
     subCollection: 'Alfi Boutique',
     priceBDT: 2050,
-    flatLayImage: '/src/assets/images/threepiece_magenta_plum_1794373917839.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMagentaPlum,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Dusty Mauve', hex: '#8E6E7E' },
       { name: 'Off-White', hex: '#F3EFE6' },
@@ -104,8 +114,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ফরেস্ট এলিগ্যান্স',
     subCollection: 'Mome Boutique',
     priceBDT: 1850,
-    flatLayImage: '/src/assets/images/threepiece_teal_batik_1794373918349.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceTealBatik,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Forest Green', hex: '#1E4620' },
       { name: 'Earthy Brown', hex: '#583D28' },
@@ -128,8 +138,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ফুশিয়া নোয়ার',
     subCollection: 'Mome Boutique',
     priceBDT: 1700,
-    flatLayImage: '/src/assets/images/threepiece_magenta_plum_1794373917839.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMagentaPlum,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Pitch Charcoal', hex: '#1C1C1F' },
       { name: 'Vivid Fuchsia', hex: '#D81B60' },
@@ -152,8 +162,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'মাস্টার্ড নোয়ার',
     subCollection: 'Mome Boutique',
     priceBDT: 1650,
-    flatLayImage: '/src/assets/images/threepiece_mirror_embroidery_1794373918597.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMirrorEmbroidery,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Charcoal Black', hex: '#171719' },
       { name: 'Sunny Mustard', hex: '#E5A93B' },
@@ -175,8 +185,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'বার্গান্ডি সানসেট',
     subCollection: 'Mome Boutique',
     priceBDT: 1750,
-    flatLayImage: '/src/assets/images/threepiece_mirror_embroidery_1794373918597.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMirrorEmbroidery,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Deep Maroon', hex: '#631D24' },
       { name: 'Sunset Mustard', hex: '#D88D2D' },
@@ -201,8 +211,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1750,
     priceNote: 'Color verified on request',
-    flatLayImage: '/src/assets/images/threepiece_swiss_lawn_1794373919056.jpg',
-    modelImage: '/src/assets/images/hero_model_campaign_1794372400425.jpg',
+    flatLayImage: threepieceSwissLawn,
+    modelImage: heroModelCampaign,
     colors: [
       { name: 'Royal Navy', hex: '#16223B' },
       { name: 'Gold Ochre', hex: '#C69214' },
@@ -225,8 +235,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'অটাম ফ্লোরাল এলিগ্যান্স',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1700,
-    flatLayImage: '/src/assets/images/threepiece_swiss_lawn_1794373919056.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceSwissLawn,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Stone Beige', hex: '#D6C7B2' },
       { name: 'Rust Orange', hex: '#BC5D34' },
@@ -249,8 +259,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'মিডনাইট টিল হেরিটেজ',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1650,
-    flatLayImage: '/src/assets/images/threepiece_teal_batik_1794373918349.jpg',
-    modelImage: '/src/assets/images/lookbook_model_panjabi_1794372401468.jpg',
+    flatLayImage: threepieceTealBatik,
+    modelImage: lookbookModelPanjabi,
     colors: [
       { name: 'Deep Plum Charcoal', hex: '#2A1F2D' },
       { name: 'Aqua Teal', hex: '#3FA7A0' },
@@ -272,8 +282,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'অলিভ গার্ডেন ব্লুম',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1850,
-    flatLayImage: '/src/assets/images/threepiece_swiss_lawn_1794373919056.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceSwissLawn,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Olive Green', hex: '#4A5B36' },
       { name: 'Pastel Rose', hex: '#D9899C' },
@@ -296,8 +306,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'কোরাল জিওমেট্রিক ব্লুম',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1800,
-    flatLayImage: '/src/assets/images/threepiece_magenta_plum_1794373917839.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMagentaPlum,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Coral Rose', hex: '#E06D76' },
       { name: 'Blush Pink', hex: '#F2A9B2' },
@@ -319,8 +329,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ক্রিমসন ফ্লোরাল মোজাইক',
     subCollection: 'Zam Zam Swiss Lawn',
     priceBDT: 1650,
-    flatLayImage: '/src/assets/images/threepiece_swiss_lawn_1794373919056.jpg',
-    modelImage: '/src/assets/images/hero_model_campaign_1794372400425.jpg',
+    flatLayImage: threepieceSwissLawn,
+    modelImage: heroModelCampaign,
     colors: [
       { name: 'Charcoal Grey', hex: '#26262B' },
       { name: 'Crimson Red', hex: '#A81C28' },
@@ -345,8 +355,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'গোল্ডেন মাস্টার্ড মিরর এলিগ্যান্স',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2050,
-    flatLayImage: '/src/assets/images/threepiece_mirror_embroidery_1794373918597.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMirrorEmbroidery,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Mustard Gold', hex: '#D69E2E' },
       { name: 'Magenta Pink', hex: '#97266D' },
@@ -369,8 +379,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'মিডনাইট ব্ল্যাক এথনিক চার্ম',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2150,
-    flatLayImage: '/src/assets/images/threepiece_mirror_embroidery_1794373918597.jpg',
-    modelImage: '/src/assets/images/hero_model_campaign_1794372400425.jpg',
+    flatLayImage: threepieceMirrorEmbroidery,
+    modelImage: heroModelCampaign,
     colors: [
       { name: 'Midnight Black', hex: '#09090B' },
       { name: 'Burnt Orange', hex: '#DD6B20' },
@@ -393,8 +403,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ফুশিয়া ব্লুম অ্যাকোয়া ডিলাইট',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 1950,
-    flatLayImage: '/src/assets/images/threepiece_magenta_plum_1794373917839.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceMagentaPlum,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Fuchsia Bloom', hex: '#C53030' },
       { name: 'Aqua Blue', hex: '#319795' },
@@ -416,8 +426,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'ইলেকট্রিক ব্লু মিরর ব্লসম',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2250,
-    flatLayImage: '/src/assets/images/threepiece_teal_batik_1794373918349.jpg',
-    modelImage: '/src/assets/images/hero_model_campaign_1794372400425.jpg',
+    flatLayImage: threepieceTealBatik,
+    modelImage: heroModelCampaign,
     colors: [
       { name: 'Electric Blue', hex: '#2B6CB0' },
       { name: 'Sun Yellow', hex: '#ECC94B' },
@@ -440,8 +450,8 @@ export const THREE_PIECE_CATALOG: ThreePieceItem[] = [
     nameBn: 'স্যান্ড বেইজ ফ্লোরাল গ্রেস',
     subCollection: 'Embroidery & Mirror',
     priceBDT: 2450,
-    flatLayImage: '/src/assets/images/threepiece_swiss_lawn_1794373919056.jpg',
-    modelImage: '/src/assets/images/lookbook_model_saree_1794372402040.jpg',
+    flatLayImage: threepieceSwissLawn,
+    modelImage: lookbookModelSaree,
     colors: [
       { name: 'Sand Beige', hex: '#DBCFB0' },
       { name: 'Royal Purple', hex: '#553C9A' },

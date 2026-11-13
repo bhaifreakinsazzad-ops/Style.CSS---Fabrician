@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingBag, Check, Eye } from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
 import { FEATURED_PRODUCTS } from '../../data/mockData';
@@ -25,6 +25,12 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const t = translations[language];
 
+  useEffect(() => {
+    if (selectedFilterCategory) {
+      setActiveCategory(selectedFilterCategory);
+    }
+  }, [selectedFilterCategory]);
+
   const categories = ['All', 'Men', 'Women', 'Unisex', 'Traditional', 'Streetwear'];
 
   const filteredProducts = activeCategory === 'All'
@@ -48,7 +54,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   };
 
   return (
-    <section id="essentials" className="py-20 lg:py-28 bg-[#09090B] border-t border-white/5 relative">
+    <section id="essentials" className="scroll-mt-20 py-20 lg:py-28 bg-[#09090B] border-t border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">

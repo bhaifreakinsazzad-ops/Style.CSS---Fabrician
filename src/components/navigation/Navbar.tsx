@@ -34,8 +34,15 @@ export const Navbar: React.FC<NavbarProps> = ({
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 40);
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleLinkClick = (id: string) => {
@@ -52,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             : 'bg-gradient-to-b from-[#09090B]/80 via-[#09090B]/30 to-transparent py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-6">
           {/* Zone 1: Brand Wordmark & Woven Gold Emblem */}
           <button
             onClick={() => handleLinkClick('hero')}
@@ -75,7 +82,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Zone 2: Navigation Links (Clean Single-Line Text Links) */}
-          <nav className="hidden lg:flex items-center gap-6 text-xs uppercase tracking-[0.2em] font-medium text-[#D8D3C9]">
+          <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-xs uppercase tracking-[0.18em] font-medium text-[#D8D3C9]">
             <button
               onClick={() => handleLinkClick('lookbook')}
               className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
@@ -84,17 +91,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={() => handleLinkClick('three-piece-edit')}
-              className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] font-semibold flex items-center gap-1.5"
+              className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] font-semibold"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#B69A60]" />
-              <span>{t.nav.threePiece}</span>
+              {t.nav.threePiece}
             </button>
             <button
               onClick={() => handleLinkClick('graphic-archive')}
-              className="text-[#F5F2EB] hover:text-[#D5BA80] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] flex items-center gap-1.5 font-medium"
+              className="text-[#F5F2EB] hover:text-[#D5BA80] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] font-medium"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span>{language === 'en' ? 'Graphic Archive (11)' : 'গ্রাফিক আর্কাইভ (১১)'}</span>
+              {t.nav.graphicArchive}
             </button>
             <button
               onClick={() => handleLinkClick('collections')}
@@ -117,7 +122,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Zone 3: Primary Actions (Search, Wishlist, Bag, Language Switcher) */}
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
             {/* Track Order Trigger */}
             <button
               onClick={onOpenTrackOrder}
@@ -188,53 +193,59 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden bg-[#09090B]/98 backdrop-blur-xl flex flex-col pt-24 px-6 pb-8 transition-all">
-          <div className="flex flex-col gap-6 text-lg font-serif-luxury tracking-widest text-[#F5F2EB] border-b border-white/10 pb-8">
+        <div className="fixed inset-0 z-30 lg:hidden bg-[#09090B]/98 backdrop-blur-xl flex flex-col pt-24 px-6 pb-8 overflow-y-auto transition-all">
+          <div className="flex flex-col gap-5 text-lg font-serif-luxury tracking-widest text-[#F5F2EB] border-b border-white/10 pb-8">
             <button
               onClick={() => handleLinkClick('lookbook')}
-              className="text-left py-2 hover:text-[#D5BA80] transition-colors"
+              className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
               01. {t.nav.lookbook}
             </button>
             <button
               onClick={() => handleLinkClick('three-piece-edit')}
-              className="text-left py-2 text-[#D5BA80] font-medium"
+              className="text-left py-2 text-[#D5BA80] font-medium cursor-pointer"
             >
-              02. {t.nav.threePiece} (18 Designs)
+              02. {t.nav.threePiece} {language === 'en' ? '(18 Designs)' : '(১৮টি ডিজাইন)'}
+            </button>
+            <button
+              onClick={() => handleLinkClick('graphic-archive')}
+              className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
+            >
+              03. {t.nav.graphicArchive} {language === 'en' ? '(11 Drops)' : '(১১টি ডিজাইন)'}
             </button>
             <button
               onClick={() => handleLinkClick('collections')}
-              className="text-left py-2 hover:text-[#D5BA80] transition-colors"
+              className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              03. {t.nav.collections}
+              04. {t.nav.collections}
             </button>
             <button
               onClick={() => handleLinkClick('essentials')}
-              className="text-left py-2 hover:text-[#D5BA80] transition-colors"
+              className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              04. {t.nav.men} &amp; {t.nav.women}
+              05. {t.nav.men} &amp; {t.nav.women}
             </button>
             <button
               onClick={() => handleLinkClick('craft')}
-              className="text-left py-2 hover:text-[#D5BA80] transition-colors"
+              className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              05. {t.nav.craft}
+              06. {t.nav.craft}
             </button>
             <button
               onClick={() => handleLinkClick('style-intelligence')}
-              className="text-left py-2 hover:text-[#D5BA80] transition-colors"
+              className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              06. {t.nav.styleIntelligence}
+              07. {t.nav.styleIntelligence}
             </button>
             <button
               onClick={() => {
                 onOpenTrackOrder();
                 setMobileMenuOpen(false);
               }}
-              className="text-left py-2 text-[#D5BA80] flex items-center gap-2 hover:text-white transition-colors"
+              className="text-left py-2 text-[#D5BA80] flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
             >
               <Truck className="w-5 h-5 text-[#B69A60]" />
-              <span>07. Track Delivery (Pathao)</span>
+              <span>{language === 'en' ? '08. Track Delivery (Pathao)' : '০৮. অর্ডার ডেলিভারি ট্র্যাক'}</span>
             </button>
           </div>
 

@@ -48,9 +48,70 @@ export interface PathaoTrackingData {
 // Default Configuration (Ready for live access token)
 export const pathaoConfig: PathaoCourierConfig = {
   baseUrl: 'https://api-hermes.pathao.com/aladdin/api/v1',
-  accessToken: process.env.VITE_PATHAO_ACCESS_TOKEN || '',
+  accessToken: import.meta.env?.VITE_PATHAO_ACCESS_TOKEN || '',
   isSandbox: false,
 };
+
+const CUSTOMER_ORDERS_STORAGE_KEY = 'fabrician_customer_orders_v1';
+
+export function getSavedCustomerOrders(): Record<string, PathaoTrackingData> {
+  try {
+    const raw = localStorage.getItem(CUSTOMER_ORDERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveCustomerOrder(order: {
+  orderId: string;
+  recipientName: string;
+  recipientPhone: string;
+  recipientAddress: string;
+  division: string;
+  paymentMethod: 'mfs' | 'cod';
+  totalBDT: number;
+}): PathaoTrackingData {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const consignmentId = `PTH-DH-${Math.floor(100000 + Math.random() * 900000)}`;
+  const isDhaka = order.division.toLowerCase().includes('dhaka');
+
+  const record: PathaoTrackingData = {
+    consignmentId,
+    orderId: order.orderId,
+    recipientName: order.recipientName,
+    recipientPhone: order.recipientPhone,
+    recipientAddress: `${order.recipientAddress}, ${order.division}`,
+    hubLocation: isDhaka ? 'Tejgaon Central Hub, Dhaka' : `${order.division} Regional Hub`,
+    courierPartner: 'Pathao Courier',
+    paymentType:
+      order.paymentMethod === 'cod'
+        ? 'Cash on Delivery (COD)'
+        : 'Prepaid via MFS (bKash/Nagad)',
+    amountToCollectBDT: order.paymentMethod === 'cod' ? order.totalBDT : 0,
+    currentStatus: 'Pending',
+    estimatedDelivery: isDhaka ? 'Within 24–48 Hours' : 'Within 2–4 Business Days',
+    timeline: [
+      {
+        time: `Today, ${timeStr}`,
+        status: 'Order Confirmed & Registered',
+        location: 'Fabrician Atelier, Dhaka',
+        note: 'Garment quality inspection scheduled prior to Pathao Courier pickup.',
+      },
+    ],
+  };
+
+  try {
+    const existing = getSavedCustomerOrders();
+    existing[order.orderId.toUpperCase()] = record;
+    localStorage.setItem(CUSTOMER_ORDERS_STORAGE_KEY, JSON.stringify(existing));
+  } catch {
+    // ignore storage quota errors
+  }
+
+  return record;
+}
 
 // Realistic mock orders database for demonstration and testing
 const MOCK_PATHAO_ORDERS: Record<string, PathaoTrackingData> = {
@@ -214,7 +275,13 @@ export async function trackPathaoOrder(
   // Simulated latency for realistic response
   await new Promise((resolve) => setTimeout(resolve, 350));
 
-  // Check known mock records or generate realistic dynamic order
+  // Check customer-placed orders saved in browser storage first
+  const savedOrders = getSavedCustomerOrders();
+  if (savedOrders[cleanId]) {
+    return savedOrders[cleanId];
+  }
+
+  // Check known sample records
   if (MOCK_PATHAO_ORDERS[cleanId]) {
     return MOCK_PATHAO_ORDERS[cleanId];
   }
