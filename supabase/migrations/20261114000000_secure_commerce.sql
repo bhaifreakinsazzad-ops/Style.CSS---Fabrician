@@ -169,7 +169,7 @@ begin
     raise exception 'INVALID_ITEMS';
   end if;
   if length(v_name) < 2 or length(v_name) > 120
-     or v_phone !~ '^(01[0-9]{9}|[+]8801[0-9]{9})
+     or v_phone !~ '^(01[0-9]{9}|[+]8801[0-9]{9})$'
      or length(v_address) < 8 or length(v_address) > 300
      or length(v_division) < 3 or length(v_division) > 80 then
     raise exception 'INVALID_CUSTOMER';
@@ -220,7 +220,7 @@ begin
                      when v_quantity >= 2 then v_settings.bundle_2_discount_bdt else 0 end;
   v_discount := least(v_discount,v_subtotal::integer);
   if v_same_brand and ((v_promo='STARKIT10' and v_brand='StarKiT')
-     or (v_promo='FARIZA10' and v_brand='Fariza''s Territory')) then
+      or (v_promo='FARIZA10' and v_brand='Fariza''s Territory')) then
     v_discount := least(v_subtotal::integer,v_discount + round((v_subtotal-v_discount)*0.10)::integer);
   elsif v_promo <> '' then
     raise exception 'PROMO_NOT_ELIGIBLE';
@@ -229,229 +229,10 @@ begin
                 when v_division='Dhaka Division' then v_settings.dhaka_shipping_bdt
                 else v_settings.outside_dhaka_shipping_bdt end;
   v_total := (v_subtotal-v_discount)::integer + v_fee;
-  if coalesce(p_payload->>'expectedTotalBDT','') !~ '^[0-9]{1,8}
-  insert into public.fabrician_orders (
-    id,public_id,request_key,lookup_token_hash,customer_name,customer_phone,delivery_address,
-    division,subtotal_bdt,discount_bdt,delivery_fee_bdt,total_bdt
-  ) values (
-    v_order,v_public_id,v_req,encode(extensions.digest(v_token,'sha256'),'hex'),
-    v_name,v_phone,v_address,v_division,v_subtotal::integer,v_discount,v_fee,v_total
-  );
-  insert into public.fabrician_order_items(order_id,sku,product_name,color,size,quantity,unit_price_bdt,line_total_bdt)
-    select v_order,l->>'sku',l->>'productName',l->>'color',l->>'size',
-           (l->>'quantity')::integer,(l->>'price')::integer,
-           (l->>'quantity')::integer*(l->>'price')::integer
-    from jsonb_array_elements(v_lines) l;
-  return jsonb_build_object('orderId',v_public_id,'totalBDT',v_total,
-     'status','pending','consignmentId',null);
-end;
-$$;
-revoke all on function public.fabrician_checkout(jsonb) from public, anon, authenticated;
-grant execute on function public.fabrician_checkout(jsonb) to service_role;
-
-create or replace function public.fabrician_track(p_order_id text,p_lookup_token text)
-returns jsonb
-language sql
-security definer
-set search_path = ''
-as $$
-  select jsonb_build_object('orderId',o.public_id,'status',o.fulfillment_status,
-    'paymentStatus',o.payment_status,'totalBDT',o.total_bdt,
-    'consignmentId',o.courier_consignment_id,'updatedAt',o.updated_at)
-  from public.fabrician_orders o
-  where o.public_id=p_order_id
-    and o.lookup_token_hash=encode(extensions.digest(p_lookup_token,'sha256'),'hex')
-  limit 1;
-$$;
-revoke all on function public.fabrician_track(text,text) from public, anon, authenticated;
-grant execute on function public.fabrician_track(text,text) to service_role;
-
--- All real products start unpublished with stock 0. An authorized manager must
--- verify physical stock, licensing, prices and photos before setting active.
-
-     or length(v_address) < 8 or length(v_address) > 300
-     or length(v_division) < 3 or length(v_division) > 80 then
-    raise exception 'INVALID_CUSTOMER';
-  end if;
-  select id, public_id, lookup_token_hash into v_existing from public.fabrician_orders where request_key=v_req;
-  if found then
-    if v_existing.lookup_token_hash <> encode(extensions.digest(v_token,'sha256'),'hex') then
-      raise exception 'REUSED_REQUEST_KEY';
-    end if;
-    return jsonb_build_object('orderId',v_existing.public_id,'status','already_created');
-  end if;
-  -- Defense in depth; edge-level anti-bot and operational review also required.
-  if (select count(*) from public.fabrician_orders
-      where customer_phone=v_phone and created_at > now()-interval '1 hour') >= 5 then
-    raise exception 'ORDER_RATE_LIMITED';
-  end if;
-  select * into v_settings from public.fabrician_settings where id='main';
-  if not found then raise exception 'STORE_NOT_CONFIGURED'; end if;
-  for v_line in select value from jsonb_array_elements(v_items) loop
-    v_sku := v_line->>'sku';
-    if v_sku is null or length(v_sku)>100 then raise exception 'INVALID_SKU'; end if;
-    if coalesce(v_line->>'quantity','') !~ '^[0-9]{1,2}$' then raise exception 'INVALID_QUANTITY'; end if;
-    v_qty := (v_line->>'quantity')::integer;
-    if v_qty < 1 or v_qty > 20 then raise exception 'INVALID_QUANTITY'; end if;
-    select v.sku,v.color,v.size,v.price_bdt,v.stock_count,v.enabled,
-           p.id as product_id,p.name_en,p.status,p.rights_cleared
-      into v_variant
-      from public.fabrician_variants v
-      join public.fabrician_products p on p.id=v.product_id
-      where v.sku=v_sku
-      for update of v,p;
-    if not found or not v_variant.enabled or v_variant.status<>'active'
-      or not v_variant.rights_cleared then
-      raise exception 'PRODUCT_NOT_PUBLISHED';
-    end if;
-    if v_variant.stock_count < v_qty then raise exception 'INSUFFICIENT_STOCK'; end if;
-    update public.fabrician_variants set stock_count=stock_count-v_qty where sku=v_sku;
-    v_subtotal := v_subtotal + v_variant.price_bdt * v_qty;
-    v_quantity := v_quantity + v_qty;
-    v_lines := v_lines || jsonb_build_array(jsonb_build_object(
-      'sku',v_sku,'productName',v_variant.name_en,'color',v_variant.color,
-      'size',v_variant.size,'quantity',v_qty,'price',v_variant.price_bdt));
-  end loop;
-  if v_quantity > 40 or v_subtotal > 10000000 then raise exception 'ORDER_LIMIT_EXCEEDED'; end if;
-  v_discount := case when v_quantity >= 3 then v_settings.bundle_3_discount_bdt
-                     when v_quantity >= 2 then v_settings.bundle_2_discount_bdt else 0 end;
-  v_discount := least(v_discount,v_subtotal::integer);
-  v_fee := case when v_subtotal-v_discount >= v_settings.free_shipping_threshold_bdt then 0
-                when v_division='Dhaka Division' then v_settings.dhaka_shipping_bdt
-                else v_settings.outside_dhaka_shipping_bdt end;
-  v_total := (v_subtotal-v_discount)::integer + v_fee;
-  insert into public.fabrician_orders (
-    id,public_id,request_key,lookup_token_hash,customer_name,customer_phone,delivery_address,
-    division,subtotal_bdt,discount_bdt,delivery_fee_bdt,total_bdt
-  ) values (
-    v_order,v_public_id,v_req,encode(extensions.digest(v_token,'sha256'),'hex'),
-    v_name,v_phone,v_address,v_division,v_subtotal::integer,v_discount,v_fee,v_total
-  );
-  insert into public.fabrician_order_items(order_id,sku,product_name,color,size,quantity,unit_price_bdt,line_total_bdt)
-    select v_order,l->>'sku',l->>'productName',l->>'color',l->>'size',
-           (l->>'quantity')::integer,(l->>'price')::integer,
-           (l->>'quantity')::integer*(l->>'price')::integer
-    from jsonb_array_elements(v_lines) l;
-  return jsonb_build_object('orderId',v_public_id,'totalBDT',v_total,
-     'status','pending','consignmentId',null);
-end;
-$$;
-revoke all on function public.fabrician_checkout(jsonb) from public, anon, authenticated;
-grant execute on function public.fabrician_checkout(jsonb) to service_role;
-
-create or replace function public.fabrician_track(p_order_id text,p_lookup_token text)
-returns jsonb
-language sql
-security definer
-set search_path = ''
-as $$
-  select jsonb_build_object('orderId',o.public_id,'status',o.fulfillment_status,
-    'paymentStatus',o.payment_status,'totalBDT',o.total_bdt,
-    'consignmentId',o.courier_consignment_id,'updatedAt',o.updated_at)
-  from public.fabrician_orders o
-  where o.public_id=p_order_id
-    and o.lookup_token_hash=encode(extensions.digest(p_lookup_token,'sha256'),'hex')
-  limit 1;
-$$;
-revoke all on function public.fabrician_track(text,text) from public, anon, authenticated;
-grant execute on function public.fabrician_track(text,text) to service_role;
-
--- All real products start unpublished with stock 0. An authorized manager must
--- verify physical stock, licensing, prices and photos before setting active.
-
-     or v_total <> (p_payload->>'expectedTotalBDT')::integer then
+  if coalesce(p_payload->>'expectedTotalBDT','') !~ '^[0-9]{1,8}$'
+      or v_total <> (p_payload->>'expectedTotalBDT')::integer then
     raise exception 'PRICE_CHANGED';
   end if;
-  insert into public.fabrician_orders (
-    id,public_id,request_key,lookup_token_hash,customer_name,customer_phone,delivery_address,
-    division,subtotal_bdt,discount_bdt,delivery_fee_bdt,total_bdt
-  ) values (
-    v_order,v_public_id,v_req,encode(extensions.digest(v_token,'sha256'),'hex'),
-    v_name,v_phone,v_address,v_division,v_subtotal::integer,v_discount,v_fee,v_total
-  );
-  insert into public.fabrician_order_items(order_id,sku,product_name,color,size,quantity,unit_price_bdt,line_total_bdt)
-    select v_order,l->>'sku',l->>'productName',l->>'color',l->>'size',
-           (l->>'quantity')::integer,(l->>'price')::integer,
-           (l->>'quantity')::integer*(l->>'price')::integer
-    from jsonb_array_elements(v_lines) l;
-  return jsonb_build_object('orderId',v_public_id,'totalBDT',v_total,
-     'status','pending','consignmentId',null);
-end;
-$$;
-revoke all on function public.fabrician_checkout(jsonb) from public, anon, authenticated;
-grant execute on function public.fabrician_checkout(jsonb) to service_role;
-
-create or replace function public.fabrician_track(p_order_id text,p_lookup_token text)
-returns jsonb
-language sql
-security definer
-set search_path = ''
-as $$
-  select jsonb_build_object('orderId',o.public_id,'status',o.fulfillment_status,
-    'paymentStatus',o.payment_status,'totalBDT',o.total_bdt,
-    'consignmentId',o.courier_consignment_id,'updatedAt',o.updated_at)
-  from public.fabrician_orders o
-  where o.public_id=p_order_id
-    and o.lookup_token_hash=encode(extensions.digest(p_lookup_token,'sha256'),'hex')
-  limit 1;
-$$;
-revoke all on function public.fabrician_track(text,text) from public, anon, authenticated;
-grant execute on function public.fabrician_track(text,text) to service_role;
-
--- All real products start unpublished with stock 0. An authorized manager must
--- verify physical stock, licensing, prices and photos before setting active.
-
-     or length(v_address) < 8 or length(v_address) > 300
-     or length(v_division) < 3 or length(v_division) > 80 then
-    raise exception 'INVALID_CUSTOMER';
-  end if;
-  select id, public_id, lookup_token_hash into v_existing from public.fabrician_orders where request_key=v_req;
-  if found then
-    if v_existing.lookup_token_hash <> encode(extensions.digest(v_token,'sha256'),'hex') then
-      raise exception 'REUSED_REQUEST_KEY';
-    end if;
-    return jsonb_build_object('orderId',v_existing.public_id,'status','already_created');
-  end if;
-  -- Defense in depth; edge-level anti-bot and operational review also required.
-  if (select count(*) from public.fabrician_orders
-      where customer_phone=v_phone and created_at > now()-interval '1 hour') >= 5 then
-    raise exception 'ORDER_RATE_LIMITED';
-  end if;
-  select * into v_settings from public.fabrician_settings where id='main';
-  if not found then raise exception 'STORE_NOT_CONFIGURED'; end if;
-  for v_line in select value from jsonb_array_elements(v_items) loop
-    v_sku := v_line->>'sku';
-    if v_sku is null or length(v_sku)>100 then raise exception 'INVALID_SKU'; end if;
-    if coalesce(v_line->>'quantity','') !~ '^[0-9]{1,2}$' then raise exception 'INVALID_QUANTITY'; end if;
-    v_qty := (v_line->>'quantity')::integer;
-    if v_qty < 1 or v_qty > 20 then raise exception 'INVALID_QUANTITY'; end if;
-    select v.sku,v.color,v.size,v.price_bdt,v.stock_count,v.enabled,
-           p.id as product_id,p.name_en,p.status,p.rights_cleared
-      into v_variant
-      from public.fabrician_variants v
-      join public.fabrician_products p on p.id=v.product_id
-      where v.sku=v_sku
-      for update of v,p;
-    if not found or not v_variant.enabled or v_variant.status<>'active'
-      or not v_variant.rights_cleared then
-      raise exception 'PRODUCT_NOT_PUBLISHED';
-    end if;
-    if v_variant.stock_count < v_qty then raise exception 'INSUFFICIENT_STOCK'; end if;
-    update public.fabrician_variants set stock_count=stock_count-v_qty where sku=v_sku;
-    v_subtotal := v_subtotal + v_variant.price_bdt * v_qty;
-    v_quantity := v_quantity + v_qty;
-    v_lines := v_lines || jsonb_build_array(jsonb_build_object(
-      'sku',v_sku,'productName',v_variant.name_en,'color',v_variant.color,
-      'size',v_variant.size,'quantity',v_qty,'price',v_variant.price_bdt));
-  end loop;
-  if v_quantity > 40 or v_subtotal > 10000000 then raise exception 'ORDER_LIMIT_EXCEEDED'; end if;
-  v_discount := case when v_quantity >= 3 then v_settings.bundle_3_discount_bdt
-                     when v_quantity >= 2 then v_settings.bundle_2_discount_bdt else 0 end;
-  v_discount := least(v_discount,v_subtotal::integer);
-  v_fee := case when v_subtotal-v_discount >= v_settings.free_shipping_threshold_bdt then 0
-                when v_division='Dhaka Division' then v_settings.dhaka_shipping_bdt
-                else v_settings.outside_dhaka_shipping_bdt end;
-  v_total := (v_subtotal-v_discount)::integer + v_fee;
   insert into public.fabrician_orders (
     id,public_id,request_key,lookup_token_hash,customer_name,customer_phone,delivery_address,
     division,subtotal_bdt,discount_bdt,delivery_fee_bdt,total_bdt
