@@ -19,7 +19,12 @@ import { SizeGuideModal } from './SizeGuideModal';
 import { ProductReviewsModule } from '../reviews/ProductReviewsModule';
 import { useStoreData } from '../../context/StoreDataContext';
 import { StoreReview } from '../../types/store';
-import { isStarKiTProduct, trackStarKiTViewContent } from '../../services/metaPixel';
+import {
+  isFarizaProduct,
+  isStarKiTProduct,
+  trackFarizaViewContent,
+  trackStarKiTViewContent,
+} from '../../services/metaPixel';
 
 const GarmentTryOn3DModal = React.lazy(() =>
   import('./GarmentTryOn3DModal').then((m) => ({ default: m.GarmentTryOn3DModal }))
@@ -125,6 +130,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     if (!isOpen || !resolvedProduct) return;
     if (isStarKiTProduct(resolvedProduct, unifiedCatalog)) {
       trackStarKiTViewContent({
+        id: resolvedProduct.id,
+        name: resolvedProduct.nameEn,
+        category: resolvedProduct.collection,
+        valueBDT: resolvedProduct.priceBDT,
+      });
+    } else if (isFarizaProduct(resolvedProduct, unifiedCatalog)) {
+      trackFarizaViewContent({
         id: resolvedProduct.id,
         name: resolvedProduct.nameEn,
         category: resolvedProduct.collection,
@@ -501,7 +513,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {resolvedProduct.sizes.map((s) => (
+                    {(import.meta.env.VITE_COMMERCE_BACKEND === 'supabase' &&
+                    matchedThreePiece
+                      ? ['Unstitched Set']
+                      : resolvedProduct.sizes
+                    ).map((s) => (
                       <button
                         key={s}
                         type="button"

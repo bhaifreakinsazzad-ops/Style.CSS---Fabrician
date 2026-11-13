@@ -19,9 +19,14 @@ import { translations } from '../../data/translations';
 import { useStoreData } from '../../context/StoreDataContext';
 import { placeStoreOrder } from '../../services/storeService';
 import {
+  isFarizaItem,
+  isFarizaRoute,
   isStarKiTItem,
   isStarKiTRoute,
   MetaPixelContentItem,
+  trackFarizaAddPaymentInfo,
+  trackFarizaInitiateCheckout,
+  trackFarizaPurchase,
   trackStarKiTAddPaymentInfo,
   trackStarKiTInitiateCheckout,
   trackStarKiTPurchase,
@@ -129,28 +134,35 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     }
     if (checkoutTrackedRef.current) return;
 
-    const starKiTItems: MetaPixelContentItem[] = items
-      .filter((i) => isStarKiTItem(i.productId, i.nameEn, unifiedCatalog))
-      .map((i) => ({
-        id: i.productId,
-        name: i.nameEn,
-        priceBDT: i.priceBDT,
-        quantity: i.quantity,
-      }));
+    const allMappedItems: MetaPixelContentItem[] = items.map((i) => ({
+      id: i.productId,
+      name: i.nameEn,
+      priceBDT: i.priceBDT,
+      quantity: i.quantity,
+    }));
 
+    const starKiTItems = allMappedItems.filter((i) =>
+      isStarKiTItem(i.id, i.name, unifiedCatalog)
+    );
+    const farizaItems = allMappedItems.filter((i) =>
+      isFarizaItem(i.id, i.name, unifiedCatalog)
+    );
+
+    let tracked = false;
     if (starKiTItems.length > 0 || isStarKiTRoute()) {
-      checkoutTrackedRef.current = true;
-      const targetItems =
-        starKiTItems.length > 0
-          ? starKiTItems
-          : items.map((i) => ({
-              id: i.productId,
-              name: i.nameEn,
-              priceBDT: i.priceBDT,
-              quantity: i.quantity,
-            }));
+      tracked = true;
+      const targetItems = starKiTItems.length > 0 ? starKiTItems : allMappedItems;
       const value = targetItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
       trackStarKiTInitiateCheckout(targetItems, value);
+    }
+    if (farizaItems.length > 0 || isFarizaRoute()) {
+      tracked = true;
+      const targetItems = farizaItems.length > 0 ? farizaItems : allMappedItems;
+      const value = targetItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
+      trackFarizaInitiateCheckout(targetItems, value);
+    }
+    if (tracked) {
+      checkoutTrackedRef.current = true;
     }
   }, [isOpen, checkoutStep, items, unifiedCatalog]);
 
@@ -260,15 +272,34 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const handleApplyPromo = (codeOverride?: string) => {
     const code = (codeOverride ?? promoInput).trim().toUpperCase();
-    const promoBrand = code === 'FARIZA10' ? "Fariza's Territory" : code === 'STARKIT10' ? 'StarKiT' : null;
-    if (promoBrand && items.length > 0 && items.every(item =>
-      unifiedCatalog.find(prod => prod.id === item.productId)?.brand === promoBrand
-    )) {
-      setAppliedPromo(code as 'FARIZA10' | 'STARKIT10');
-      setPromoInput(code);
-      setPromoMessage(
-        language === 'en' ? `${code}: 10% Extra Off Applied!` : `${code}: অতিরিক্ত ১০% ছাড় কার্যকর হয়েছে!`
+    const promoBrand =
+      code === 'FARIZA10'
+        ? "Fariza's Territory"
+        : code === 'STARKIT10'
+        ? 'StarKiT'
+        : null;
+    if (promoBrand && items.length > 0) {
+      const allMatchBrand = items.every(
+        (item) =>
+          unifiedCatalog.find((prod) => prod.id === item.productId)?.brand ===
+          promoBrand
       );
+      if (allMatchBrand) {
+        setAppliedPromo(code as 'FARIZA10' | 'STARKIT10');
+        setPromoInput(code);
+        setPromoMessage(
+          language === 'en'
+            ? `${code}: 10% Extra Off Applied!`
+            : `${code}: অতিরিক্ত ১০% ছাড় কার্যকর হয়েছে!`
+        );
+      } else {
+        setAppliedPromo(null);
+        setPromoMessage(
+          language === 'en'
+            ? `${code} applies only when every item in your bag is from ${promoBrand}.`
+            : `${code} কোডটি শুধুমাত্র ${promoBrand}-এর আইটেমগুলোর একক ব্যাগে কার্যকর হয়।`
+        );
+      }
     } else if (!code) {
       setAppliedPromo(null);
       setPromoMessage(null);
@@ -331,34 +362,52 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     ).slice(0, 1200);
     const combinedAddress = trimmedAddress.slice(0, 300);
 
-    const starKiTItems: MetaPixelContentItem[] = items
-      .filter((i) => isStarKiTItem(i.productId, i.nameEn, unifiedCatalog))
-      .map((i) => ({
-        id: i.productId,
-        name: i.nameEn,
-        priceBDT: i.priceBDT,
-        quantity: i.quantity,
-      }));
+    const allMappedConversionItems: MetaPixelContentItem[] = items.map((i) => ({
+      id: i.productId,
+      name: i.nameEn,
+      priceBDT: i.priceBDT,
+      quantity: i.quantity,
+    }));
+
+    const starKiTItems = allMappedConversionItems.filter((i) =>
+      isStarKiTItem(i.id, i.name, unifiedCatalog)
+    );
     const onStarKiTRoute = isStarKiTRoute();
-    const shouldTrackConversion = starKiTItems.length > 0 || onStarKiTRoute;
-    const conversionItems: MetaPixelContentItem[] =
-      starKiTItems.length > 0
-        ? starKiTItems
-        : items.map((i) => ({
-            id: i.productId,
-            name: i.nameEn,
-            priceBDT: i.priceBDT,
-            quantity: i.quantity,
-          }));
-    const starKiTRawValue = starKiTItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
+    const shouldTrackStarKiT = starKiTItems.length > 0 || onStarKiTRoute;
+    const starKiTConversionItems =
+      starKiTItems.length > 0 ? starKiTItems : allMappedConversionItems;
+    const starKiTRawValue = starKiTItems.reduce(
+      (sum, i) => sum + i.priceBDT * i.quantity,
+      0
+    );
     const starKiTShareRatio = subtotal > 0 ? Math.min(1, starKiTRawValue / subtotal) : 0;
-    const conversionTotalBDT =
+    const starKiTTotalBDT =
       starKiTItems.length === items.length || onStarKiTRoute
         ? orderTotal
         : Math.max(0, Math.round(discountedSubtotal * starKiTShareRatio));
 
-    if (shouldTrackConversion) {
-      trackStarKiTAddPaymentInfo(paymentMethod, conversionItems, conversionTotalBDT);
+    const farizaItems = allMappedConversionItems.filter((i) =>
+      isFarizaItem(i.id, i.name, unifiedCatalog)
+    );
+    const onFarizaRoute = isFarizaRoute();
+    const shouldTrackFariza = farizaItems.length > 0 || onFarizaRoute;
+    const farizaConversionItems =
+      farizaItems.length > 0 ? farizaItems : allMappedConversionItems;
+    const farizaRawValue = farizaItems.reduce(
+      (sum, i) => sum + i.priceBDT * i.quantity,
+      0
+    );
+    const farizaShareRatio = subtotal > 0 ? Math.min(1, farizaRawValue / subtotal) : 0;
+    const farizaTotalBDT =
+      farizaItems.length === items.length || onFarizaRoute
+        ? orderTotal
+        : Math.max(0, Math.round(discountedSubtotal * farizaShareRatio));
+
+    if (shouldTrackStarKiT) {
+      trackStarKiTAddPaymentInfo(paymentMethod, starKiTConversionItems, starKiTTotalBDT);
+    }
+    if (shouldTrackFariza) {
+      trackFarizaAddPaymentInfo(paymentMethod, farizaConversionItems, farizaTotalBDT);
     }
 
     try {
@@ -387,11 +436,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       });
 
       checkoutRequestRef.current = null;
-      if (shouldTrackConversion) {
+      if (shouldTrackStarKiT) {
         trackStarKiTPurchase({
           orderId: result.orderId,
-          items: conversionItems,
-          totalValueBDT: conversionTotalBDT,
+          items: starKiTConversionItems,
+          totalValueBDT: starKiTTotalBDT,
+          customer: {
+            fullName: trimmedName,
+            phone: phone.trim(),
+            division,
+          },
+        });
+      }
+      if (shouldTrackFariza) {
+        trackFarizaPurchase({
+          orderId: result.orderId,
+          items: farizaConversionItems,
+          totalValueBDT: farizaTotalBDT,
           customer: {
             fullName: trimmedName,
             phone: phone.trim(),

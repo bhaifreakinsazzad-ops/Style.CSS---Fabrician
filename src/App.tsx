@@ -26,8 +26,13 @@ import { TrackOrderModal } from './components/modals/TrackOrderModal';
 import { StarKiTBrandPage } from './components/brands/StarKiTBrandPage';
 import { FarizasTerritoryBrandPage } from './components/brands/FarizasTerritoryBrandPage';
 import {
+  isFarizaItem,
+  isFarizaProduct,
   isStarKiTItem,
   isStarKiTProduct,
+  syncInitialPageViewCapi,
+  trackFarizaAddToCart,
+  trackFarizaAddToWishlist,
   trackStarKiTAddToCart,
   trackStarKiTAddToWishlist,
 } from './services/metaPixel';
@@ -102,6 +107,7 @@ export default function App() {
   const [external3DItem, setExternal3DItem] = useState<ThreePieceItem | null>(null);
 
   useEffect(() => {
+    syncInitialPageViewCapi();
     const syncFromLocation = () => {
       setViewMode(getViewModeFromLocation());
     };
@@ -137,7 +143,7 @@ export default function App() {
     if (viewMode === 'starkit') {
       document.title = 'StarKiT (ستاركيت) — Wear Your World | FABRICIAN';
     } else if (viewMode === 'farizas-territory') {
-      document.title = "Fariza's Territory — Three-Piece Couture | FABRICIAN";
+      document.title = "Fariza's Territory — Handmade & Crafts | FABRICIAN";
     } else if (viewMode === 'admin') {
       document.title = 'Store Admin Console | FABRICIAN';
     } else {
@@ -182,6 +188,13 @@ export default function App() {
   const upsertCartItem = (item: Omit<CartItem, 'id'>) => {
     if (isStarKiTItem(item.productId, item.nameEn, unifiedCatalog)) {
       trackStarKiTAddToCart({
+        id: item.productId,
+        name: item.nameEn,
+        priceBDT: item.priceBDT,
+        quantity: item.quantity,
+      });
+    } else if (isFarizaItem(item.productId, item.nameEn, unifiedCatalog)) {
+      trackFarizaAddToCart({
         id: item.productId,
         name: item.nameEn,
         priceBDT: item.priceBDT,
@@ -248,6 +261,13 @@ export default function App() {
     const exists = wishlist.some((p) => p.id === product.id);
     if (!exists && isStarKiTProduct(product, unifiedCatalog)) {
       trackStarKiTAddToWishlist({
+        id: product.id,
+        name: product.nameEn,
+        category: product.collection,
+        valueBDT: product.priceBDT,
+      });
+    } else if (!exists && isFarizaProduct(product, unifiedCatalog)) {
+      trackFarizaAddToWishlist({
         id: product.id,
         name: product.nameEn,
         category: product.collection,

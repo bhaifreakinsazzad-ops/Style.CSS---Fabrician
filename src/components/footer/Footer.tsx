@@ -118,14 +118,20 @@ export const Footer: React.FC<FooterProps> = ({
                     </a>
                   </li>
                   <li>
-                    <button
-                      onClick={() => onSelectBrand('farizas-territory')}
-                      className="text-[#F48FB1] hover:text-[#F5F2EB] transition-colors cursor-pointer text-left font-medium"
+                    <a
+                      href="/farizas-territory"
+                      onClick={(e) => {
+                        if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                          e.preventDefault();
+                          onSelectBrand('farizas-territory');
+                        }
+                      }}
+                      className="text-[#60A5FA] hover:text-white transition-colors cursor-pointer text-left font-medium inline-block"
                     >
                       {language === 'en'
                         ? "Fariza's Territory (/farizas-territory)"
                         : 'ফারিজাস টেরিটরি (/farizas-territory)'}
-                    </button>
+                    </a>
                   </li>
                 </>
               )}
