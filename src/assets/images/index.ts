@@ -1,4 +1,5 @@
 import craftsmanshipTextileMacro from './craftsmanship_textile_macro_1794372402782.jpg';
+import heroEditorialCampaign from './fabrician_hero_campaign_1794577168293.jpg';
 import heroModelCampaign from './hero_model_campaign_1794372400425.jpg';
 import lookbookModelPanjabi from './lookbook_model_panjabi_1794372401468.jpg';
 import lookbookModelSaree from './lookbook_model_saree_1794372402040.jpg';
@@ -10,6 +11,7 @@ import threepieceTealBatik from './threepiece_teal_batik_1794373918349.jpg';
 
 export {
   craftsmanshipTextileMacro,
+  heroEditorialCampaign,
   heroModelCampaign,
   lookbookModelPanjabi,
   lookbookModelSaree,

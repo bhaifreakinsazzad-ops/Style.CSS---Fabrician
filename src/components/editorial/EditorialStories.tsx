@@ -89,7 +89,7 @@ export const EditorialStories: React.FC<EditorialStoriesProps> = ({ language }) 
               <img
                 src={activeArticle.image}
                 alt={activeArticle.titleEn}
-                className="w-full h-full object-cover object-center opacity-80"
+                className="w-full h-full object-cover object-top opacity-85"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-black/40 to-transparent" />

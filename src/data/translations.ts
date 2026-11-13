@@ -64,14 +64,14 @@ export const translations = {
     craft: {
       title: "CRAFTED WITH PURPOSE",
       subtitle: "Rooted in Bangladesh. Designed for modern expression.",
-      storyP1: "FABRICIAN evolves the storied textile heritage of Bengal into a sharp contemporary design language. From the centuries-old geometric precision of Jamdani weaving to modern heavy loopback cottons, each garment represents purposeful tailoring.",
-      storyP2: "Crafted in small, meticulous batches across Dhaka and Tangail, we celebrate ethical South Asian craftsmanship without compromise.",
-      pillar1Title: "Jamdani Geometric Geometry",
-      pillar1Desc: "Hand-interlaced supplementary wefts translated into contemporary structural accents and minimalist borders.",
-      pillar2Title: "Dhaka Atelier Precision",
-      pillar2Desc: "Sculptural outerwear, clean-line Panjabis, and oversized streetwear cut with obsessive sartorial proportions.",
-      pillar3Title: "Zero-Compromise Fabrics",
-      pillar3Desc: "480 GSM dense combed cottons, raw handloom silks, and ethically sourced organic fibers engineered to endure.",
+      storyP1: "FABRICIAN unites StarKiT graphic streetwear and Fariza's Territory womenswear into a focused Made in Bangladesh fashion house—pairing 330–350 GSM brushed cotton fleece with authentic wax-resist batik, Swiss lawn, and mirror embroidery.",
+      storyP2: "Every SKU in our 29-piece flagship release is inspected across flat-lay weave texture and editorial drape before dispatch from our Banani, Dhaka studio.",
+      pillar1Title: "Wax-Resist Batik & Swiss Lawn",
+      pillar1Desc: "Fariza's Territory three-piece sets woven in combed fine cotton, imported Swiss lawn, and resham mirror work.",
+      pillar2Title: "StarKiT Street Silhouettes",
+      pillar2Desc: "Front, back, and sleeve graphic hoodies tailored with relaxed drop shoulders and double-layered hoods.",
+      pillar3Title: "330–350 GSM Fleece Standard",
+      pillar3Desc: "One-side brushed cotton fleece built for crisp shoulder structure, breathable winter warmth, and lasting print clarity.",
     },
     styleIntel: {
       badge: "FABRICIAN / STYLE INTELLIGENCE",
@@ -108,7 +108,7 @@ export const translations = {
       moveToBag: "Move to Bag",
     },
     search: {
-      placeholder: "Search hoodies, panjabis, sarees, tees...",
+      placeholder: "Search StarKiT hoodies, Swiss lawn, batik, mirror three-piece...",
       noResults: "No garments found matching",
     },
     footer: {
@@ -192,14 +192,14 @@ export const translations = {
     craft: {
       title: "উদ্দেশ্যমূলক কারুশিল্প",
       subtitle: "বাংলাদেশের ঐতিহ্য। আধুনিক ফ্যাশনের রূপরেখা।",
-      storyP1: "বাংলার শতাব্দী প্রাচীন বয়ন ঐতিহ্যকে আধুনিক ফ্যাশনের পরিশীলিত রূপ দিয়েছে ফ্যাব্রিশিয়ান। জামদানির সূক্ষ্ম জ্যামিতিক বুনন থেকে শুরু করে প্রিমিয়াম কটন—প্রতিটি পোশাকেই স্পষ্ট নিপুণতা।",
-      storyP2: "ঢাকা এবং টাঙ্গাইলের অভিজ্ঞ কারিগরদের তত্ত্বাবধানে সীমিত পরিসরে তৈরি হয় প্রতিটি পণ্য।",
-      pillar1Title: "জামদানি জ্যামিতিক বুনন",
-      pillar1Desc: "ঐতিহ্যবাহী জামদানি মোটিফ সমসাময়িক পোশাকে পরিশীলিত রূপ পেয়েছে।",
-      pillar2Title: "ঢাকার দক্ষ টেইলারিং",
-      pillar2Desc: "আধুনিক পাঞ্জাবি ও আরামদায়ক স্ট্রিটওয়্যারে নিখুঁত কাটিং ও ফিটিংস।",
-      pillar3Title: "আপসহীন কাপড়ের মান",
-      pillar3Desc: "৪৮০ জিএসএম প্রিমিয়াম কটন এবং খাঁটি হ্যান্ডলুম সিল্কের টেকসই বুনন।",
+      storyP1: "স্টারকিটের গ্রাফিক স্ট্রিটওয়্যার এবং ফারিজাস টেরিটরির থ্রি-পিস একত্রিত হয়ে তৈরি করেছে ফ্যাব্রিশিয়ান—যেখানে ৩৩০–৩৫০ জিএসএম ব্রাশড ফ্লিসের সাথে যুক্ত হয়েছে খাঁটি বাটিক, সুইস লন ও মিরর এমব্রয়ডারি।",
+      storyP2: "ঢাকার বনানী স্টুডিও থেকে প্রতিটি পিস নিখুঁত মান যাচাইয়ের পর সারা দেশে পৌঁছে দেওয়া হয়।",
+      pillar1Title: "বাটিক ও সুইস লন কারুশিল্প",
+      pillar1Desc: "ফারিজাস টেরিটরির থ্রি-পিস সেটে কম্বড কটন, সুইস লন ও রেশম মিরর-ওয়ার্কের নিখুঁত কাজ।",
+      pillar2Title: "স্টারকিট স্ট্রিট সিলুয়েট",
+      pillar2Desc: "রিল্যাক্সড ড্রপ-শোল্ডার ও সামনে-পেছনে স্টেটমেন্ট গ্রাফিক সমৃদ্ধ আধুনিক হুডি।",
+      pillar3Title: "৩৩০–৩৫০ জিএসএম ফ্লিস মানদণ্ড",
+      pillar3Desc: "ওয়ান-সাইড ব্রাশড কটন ফ্লিস যা দীর্ঘস্থায়ী গড়ন ও আরামদায়ক উষ্ণতা নিশ্চিত করে।",
     },
     styleIntel: {
       badge: "ফ্যাব্রিশিয়ান / স্টাইল ইন্টেলিজেন্স",
@@ -236,7 +236,7 @@ export const translations = {
       moveToBag: "ব্যাগে পাঠান",
     },
     search: {
-      placeholder: "হুডি, পাঞ্জাবি, শাড়ি, টি-শার্ট খুঁজুন...",
+      placeholder: "স্টারকিট হুডি, সুইস লন, বাটিক বা মিরর থ্রি-পিস খুঁজুন...",
       noResults: "কোনো পোশাক খুঁজে পাওয়া যায়নি",
     },
     footer: {

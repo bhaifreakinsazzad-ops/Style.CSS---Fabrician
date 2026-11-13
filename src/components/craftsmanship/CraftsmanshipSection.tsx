@@ -3,7 +3,6 @@ import { Compass, Feather, Scissors, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
-import { craftsmanshipTextileMacro } from '../../assets/images';
 
 interface CraftsmanshipSectionProps {
   language: Language;
@@ -62,23 +61,23 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({ lang
 
             <div className="flex items-center gap-6 pt-6 border-t border-white/10 text-xs font-mono text-[#77777D] uppercase tracking-wider">
               <div>
-                <span className="block text-lg font-serif-luxury text-[#F5F2EB] font-normal mb-0.5">Tangail</span>
-                <span>Handloom Guilds</span>
+                <span className="block text-lg font-serif-luxury text-[#F5F2EB] font-normal mb-0.5">Banani</span>
+                <span>Dhaka Atelier</span>
               </div>
               <div className="w-px h-8 bg-white/10" />
               <div>
-                <span className="block text-lg font-serif-luxury text-[#F5F2EB] font-normal mb-0.5">Dhaka</span>
-                <span>Sartorial Atelier</span>
+                <span className="block text-lg font-serif-luxury text-[#F5F2EB] font-normal mb-0.5">Batik &amp; Lawn</span>
+                <span>Fariza&apos;s Edit</span>
               </div>
               <div className="w-px h-8 bg-white/10" />
               <div>
-                <span className="block text-lg font-serif-luxury text-[#F5F2EB] font-normal mb-0.5">Gazipur</span>
-                <span>480 GSM Knitting</span>
+                <span className="block text-lg font-serif-luxury text-[#F5F2EB] font-normal mb-0.5">350 GSM</span>
+                <span>StarKiT Fleece</span>
               </div>
             </div>
           </motion.div>
 
-          {/* Macro Textile Weave Showcase (6 cols) */}
+          {/* Textile Craft Showcase (6 cols) */}
           <motion.div
             initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -88,8 +87,8 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({ lang
           >
             <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
               <img
-                src={craftsmanshipTextileMacro}
-                alt="Bangladeshi Handloom Jamdani Weave Macro Photography"
+                src="/assets/fariza/CAT-002_flat.jpg"
+                alt="Fariza's Territory Wax-Resist Batik Textile Flat Lay"
                 className="w-full aspect-[16/10] object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"
               />
@@ -97,10 +96,10 @@ export const CraftsmanshipSection: React.FC<CraftsmanshipSectionProps> = ({ lang
 
               <div className="absolute bottom-4 left-4 right-4 p-4 rounded-lg bg-black/70 backdrop-blur-md border border-white/10 text-xs text-[#D8D3C9] flex items-center justify-between">
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-[#B69A60]">Macrophotography</div>
-                  <div className="font-serif-luxury text-sm text-[#F5F2EB]">Intricate Jamdani Gold Weft Intersection</div>
+                  <div className="text-[10px] uppercase tracking-wider text-[#B69A60]">Authentic Textile</div>
+                  <div className="font-serif-luxury text-sm text-[#F5F2EB]">Wax-Resist Emerald Teal Batik &amp; Tie-Dye</div>
                 </div>
-                <span className="text-[10px] font-mono text-[#77777D]">100% Tangail Cotton</span>
+                <span className="text-[10px] font-mono text-[#77777D]">100% Combed Cotton</span>
               </div>
             </div>
           </motion.div>

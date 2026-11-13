@@ -74,7 +74,7 @@ export default defineConfig(() => {
             {
               name: 'StarKiT — Menswear & Hoodies',
               short_name: 'StarKiT',
-              description: 'Explore heavyweight 480GSM hoodies and tailored menswear',
+              description: 'Explore 11 graphic archive 330–350 GSM brushed fleece hoodies',
               url: '/#starkit',
               icons: [{ src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },

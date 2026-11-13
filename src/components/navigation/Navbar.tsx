@@ -268,7 +268,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <div className="font-serif-luxury text-lg tracking-wider">StarKiT × FABRICIAN</div>
                 <div className="text-[11px] font-mono text-[#D5BA80]">
-                  {language === 'en' ? 'Menswear, Panjabis & 11 Graphic Hoodies' : 'মেন্সওয়্যার, পাঞ্জাবি ও ১১টি হুডি'}
+                  {language === 'en' ? '330–350 GSM Fleece & 11 Graphic Hoodies' : '৩৩০–৩৫০ জিএসএম ফ্লিস ও ১১টি হুডি'}
                 </div>
               </button>
               <button

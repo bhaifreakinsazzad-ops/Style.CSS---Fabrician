@@ -322,10 +322,12 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       side: THREE.DoubleSide,
     });
 
-    const isPanjabi = product.nameEn.toLowerCase().includes('panjabi') || product.category === 'Traditional';
-    const isThreePiece = product.sizes.includes('Unstitched Set') || product.nameEn.toLowerCase().includes('kameez') || product.category === 'Women';
+    const isThreePiece =
+      product.sizes.some((s) => s.toLowerCase().includes('unstitched')) ||
+      product.brand === "Fariza's Territory" ||
+      product.category === 'Women';
 
-    const garmentLength = isPanjabi ? 1.55 : isThreePiece ? 1.4 : 1.15;
+    const garmentLength = isThreePiece ? 1.42 : 1.15;
     const garmentWidth = 0.78;
     const fabricGeo = new THREE.PlaneGeometry(garmentWidth, garmentLength, 40, 48);
 
@@ -341,7 +343,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     fabricGeo.computeVertexNormals();
 
     const fabricMesh = new THREE.Mesh(fabricGeo, garmentMat);
-    fabricMesh.position.set(0, isPanjabi ? 0.25 : 0.35, 0.12);
+    fabricMesh.position.set(0, isThreePiece ? 0.32 : 0.36, 0.12);
     fabricMesh.castShadow = !isSoftwareGl;
     fabricMesh.receiveShadow = !isSoftwareGl;
     garmentGroup.add(fabricMesh);
@@ -355,7 +357,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
     let dupattaGeo: THREE.PlaneGeometry | null = null;
     let dupattaMat: THREE.MeshPhysicalMaterial | null = null;
-    if (isThreePiece || isPanjabi) {
+    if (isThreePiece) {
       dupattaGeo = new THREE.PlaneGeometry(0.38, 1.6, 28, 36);
       dupattaMat = new THREE.MeshPhysicalMaterial({
         map: fabricTex,
@@ -610,6 +612,9 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
 
   const handleDirectAdd = () => {
     if (!product || !onAddToCart) return;
+    const resolvedSize = product.sizes.some((s) => s.toLowerCase().includes('unstitched'))
+      ? product.sizes[0] || 'Unstitched Fabric Set'
+      : activeSize;
     onAddToCart({
       productId: product.id,
       nameEn: product.nameEn,
@@ -617,7 +622,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       priceBDT: product.priceBDT,
       image: product.image,
       color: product.colors[0]?.name || 'Standard',
-      size: activeSize,
+      size: resolvedSize,
       quantity: 1,
     });
     setAddedAnimation(true);

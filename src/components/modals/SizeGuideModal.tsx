@@ -6,16 +6,16 @@ interface SizeGuideModalProps {
   isOpen: boolean;
   onClose: () => void;
   language: Language;
-  defaultCategory?: 'panjabi' | 'kameez' | 'unstitched' | 'streetwear';
+  defaultCategory?: 'streetwear' | 'unstitched' | 'kameez';
 }
 
 export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
   isOpen,
   onClose,
   language,
-  defaultCategory = 'panjabi',
+  defaultCategory = 'streetwear',
 }) => {
-  const [activeTab, setActiveTab] = useState<'panjabi' | 'kameez' | 'unstitched' | 'streetwear'>(defaultCategory);
+  const [activeTab, setActiveTab] = useState<'streetwear' | 'unstitched' | 'kameez'>(defaultCategory);
   const [unit, setUnit] = useState<'in' | 'cm'>('in');
   const [userChest, setUserChest] = useState<number>(39);
   const [fitPreference, setFitPreference] = useState<'slim' | 'regular' | 'relaxed'>('regular');
@@ -41,15 +41,7 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
     return unit === 'in' ? `${inches}"` : `${Math.round(inches * 2.54)} cm`;
   };
 
-  // Sizing data calibrated for Bangladeshi contemporary body profiles
-  const panjabiSizes = [
-    { size: '38 (S)', chestInches: 38, garmentChest: 41, length: 40, shoulder: 16.5, sleeve: 24, heightRec: '5\'4" – 5\'6"' },
-    { size: '40 (M)', chestInches: 40, garmentChest: 43, length: 42, shoulder: 17.5, sleeve: 25, heightRec: '5\'6" – 5\'8"' },
-    { size: '42 (L)', chestInches: 42, garmentChest: 45, length: 44, shoulder: 18.5, sleeve: 25.5, heightRec: '5\'8" – 5\'10"' },
-    { size: '44 (XL)', chestInches: 44, garmentChest: 47, length: 45, shoulder: 19.5, sleeve: 26, heightRec: '5\'10" – 6\'0"' },
-    { size: '46 (XXL)', chestInches: 46, garmentChest: 49, length: 46, shoulder: 20.5, sleeve: 26.5, heightRec: '6\'0"+' },
-  ];
-
+  // Sizing data calibrated for Fariza's Territory & StarKiT Bangladesh fit profiles
   const kameezSizes = [
     { size: '36 (S)', bustInches: 36, waist: 32, hip: 38, length: 42, shoulder: 14.0, sleeve: 18.5 },
     { size: '38 (M)', bustInches: 38, waist: 34, hip: 40, length: 43, shoulder: 14.5, sleeve: 19.0 },
@@ -59,10 +51,9 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
   ];
 
   const streetwearSizes = [
-    { size: 'S', chestInches: 42, length: 27, shoulder: 21, fit: 'Slightly Relaxed' },
-    { size: 'M', chestInches: 44, length: 28, shoulder: 22, fit: 'Contemporary Boxy' },
-    { size: 'L', chestInches: 46, length: 29, shoulder: 23, fit: 'Architectural Oversized' },
-    { size: 'XL', chestInches: 48, length: 30, shoulder: 24, fit: 'Heavy Street Drape' },
+    { size: 'M', chestInches: 42, length: 27.5, shoulder: 20.5, fit: 'Contemporary Relaxed Fit' },
+    { size: 'L', chestInches: 44, length: 28.5, shoulder: 21.5, fit: 'Drop-Shoulder Standard' },
+    { size: 'XL', chestInches: 46.5, length: 29.5, shoulder: 22.5, fit: 'Architectural Oversized' },
   ];
 
   // Dynamic recommendation logic
@@ -71,21 +62,14 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
     if (fitPreference === 'slim') target -= 1;
     if (fitPreference === 'relaxed') target += 1.5;
 
-    if (activeTab === 'panjabi') {
-      if (target <= 38.5) return '38 (S)';
-      if (target <= 40.5) return '40 (M)';
-      if (target <= 42.5) return '42 (L)';
-      if (target <= 44.5) return '44 (XL)';
-      return '46 (XXL)';
-    } else if (activeTab === 'kameez') {
+    if (activeTab === 'kameez') {
       if (target <= 36.5) return '36 (S)';
       if (target <= 38.5) return '38 (M)';
       if (target <= 40.5) return '40 (L)';
       if (target <= 42.5) return '42 (XL)';
       return '44 (XXL)';
     } else if (activeTab === 'streetwear') {
-      if (target <= 38) return 'S';
-      if (target <= 40.5) return 'M';
+      if (target <= 40) return 'M';
       if (target <= 43) return 'L';
       return 'XL';
     }
@@ -158,14 +142,13 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
         {/* Category Navigation Tabs */}
         <div className="flex border-b border-white/10 bg-[#09090B] px-5 sm:px-6 overflow-x-auto gap-2">
           {[
-            { id: 'panjabi', labelEn: 'Modern Panjabi', labelBn: 'আধুনিক পাঞ্জাবি' },
-            { id: 'kameez', labelEn: 'Tailored Kameez', labelBn: 'টেইলর্ড কামিজ' },
-            { id: 'unstitched', labelEn: 'Unstitched 3-Piece', labelBn: 'আনস্টিচড কাপড়ের মাপ' },
-            { id: 'streetwear', labelEn: 'Streetwear & Knits', labelBn: 'হুডি ও স্ট্রিটওয়্যার' },
+            { id: 'streetwear', labelEn: 'StarKiT Fleece Hoodies', labelBn: 'স্টারকিট ফ্লিস হুডি' },
+            { id: 'unstitched', labelEn: "Fariza's 3-Piece Yardage", labelBn: 'ফারিজাস থ্রি-পিস কাপড়ের মাপ' },
+            { id: 'kameez', labelEn: 'Tailored Kameez Reference', labelBn: 'টেইলর্ড কামিজ মাপ' },
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'streetwear' | 'unstitched' | 'kameez')}
               className={`py-3 px-3 text-xs font-medium border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === tab.id
                   ? 'border-[#B69A60] text-[#D5BA80] font-semibold'
@@ -253,59 +236,6 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
           )}
 
           {/* Sizing Tables */}
-          {activeTab === 'panjabi' && (
-            <div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-white/15 text-[#77777D] font-mono uppercase tracking-wider text-[11px]">
-                      <th className="py-2.5 px-3">Size</th>
-                      <th className="py-2.5 px-3">Body Chest</th>
-                      <th className="py-2.5 px-3">Garment Chest</th>
-                      <th className="py-2.5 px-3">Length (ঝুল)</th>
-                      <th className="py-2.5 px-3">Shoulder (কাঁধ)</th>
-                      <th className="py-2.5 px-3">Sleeve (হাতা)</th>
-                      <th className="py-2.5 px-3">Approx. Height</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {panjabiSizes.map((row) => {
-                      const isHighlighted = recommendedSize === row.size;
-                      return (
-                        <tr
-                          key={row.size}
-                          className={`transition-colors ${
-                            isHighlighted
-                              ? 'bg-[#B69A60]/15 font-semibold text-[#D5BA80]'
-                              : 'hover:bg-white/5 text-[#D8D3C9]'
-                          }`}
-                        >
-                          <td className="py-3 px-3 font-mono font-bold">{row.size}</td>
-                          <td className="py-3 px-3 font-mono tabular-nums">{val(row.chestInches)}</td>
-                          <td className="py-3 px-3 font-mono tabular-nums text-white">
-                            {val(row.garmentChest)}
-                          </td>
-                          <td className="py-3 px-3 font-mono tabular-nums">{val(row.length)}</td>
-                          <td className="py-3 px-3 font-mono tabular-nums">{val(row.shoulder)}</td>
-                          <td className="py-3 px-3 font-mono tabular-nums">{val(row.sleeve)}</td>
-                          <td className="py-3 px-3 text-[#77777D]">{row.heightRec}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg text-xs text-[#77777D] flex items-start gap-2">
-                <Info className="w-4 h-4 text-[#B69A60] shrink-0 mt-0.5" />
-                <span>
-                  <strong>Dhaka Sartorial Ease Note:</strong> Our panjabis are tailored with a +3.0"
-                  ease allowance over your body chest to ensure breathability and fluid drape in
-                  subtropical weather while keeping sharp shoulder structure.
-                </span>
-              </div>
-            </div>
-          )}
 
           {activeTab === 'kameez' && (
             <div>
@@ -452,6 +382,13 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
                     })}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg text-xs text-[#77777D] flex items-start gap-2">
+                <Info className="w-4 h-4 text-[#B69A60] shrink-0 mt-0.5" />
+                <span>
+                  <strong>StarKiT 330–350 GSM One-Side Brushed Fleece:</strong> Generous contemporary block with pre-shrunk fleece construction for structured everyday drape.
+                </span>
               </div>
             </div>
           )}

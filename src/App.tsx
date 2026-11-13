@@ -430,7 +430,7 @@ export default function App() {
         isOpen={isGlobalSizeGuideOpen}
         onClose={() => setIsGlobalSizeGuideOpen(false)}
         language={language}
-        defaultCategory="panjabi"
+        defaultCategory={viewMode === 'farizas-territory' ? 'unstitched' : 'streetwear'}
       />
 
       {/* Style Discovery Quiz Modal */}

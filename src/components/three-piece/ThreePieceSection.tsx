@@ -180,8 +180,8 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-[#B69A60]" />
               <span>
                 {language === 'en'
-                  ? "Fariza's Territory · 18 Curated Designs"
-                  : 'ফারিজাস টেরিটরি · ১৮টি ডিজাইন'}
+                  ? `Fariza's Territory · ${liveThreePieceItems.length} Curated Designs`
+                  : `ফারিজাস টেরিটরি · ${liveThreePieceItems.length}টি ডিজাইন`}
               </span>
             </div>
 

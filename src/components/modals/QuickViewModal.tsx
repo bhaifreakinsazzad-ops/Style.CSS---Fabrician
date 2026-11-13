@@ -390,9 +390,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         onClose={() => setIsSizeGuideOpen(false)}
         language={language}
         defaultCategory={
-          resolvedProduct.nameEn.toLowerCase().includes('panjabi') || resolvedProduct.category === 'Traditional'
-            ? 'panjabi'
-            : resolvedProduct.sizes.includes('Unstitched Set') || resolvedProduct.sizes.includes('Free Size')
+          resolvedProduct.sizes.some(
+            (s) => s.toLowerCase().includes('unstitched') || s === 'Free Size'
+          )
             ? 'unstitched'
             : resolvedProduct.category === 'Women'
             ? 'kameez'

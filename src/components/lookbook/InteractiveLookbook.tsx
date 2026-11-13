@@ -293,16 +293,13 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
                         }`}
                       >
                         {/* Model Figure Image */}
-                        <div className="relative w-full h-[88%] flex items-end justify-center">
+                        <div className="relative w-full h-[86%] rounded-xl overflow-hidden border border-white/10 bg-[#121216] shadow-2xl">
                           <img
                             src={look.modelImage}
                             alt={look.titleEn}
-                            className="w-full h-full object-contain object-bottom drop-shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]"
+                            className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
                             referrerPolicy="no-referrer"
                           />
-
-                          {/* Ground Reflection & Contact Shadow */}
-                          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-black/90 rounded-full blur-md -z-10" />
                         </div>
 
                         {/* Center Model Highlight Ring / Badge */}
@@ -333,16 +330,13 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
               {isFocusMode && (
                 <div className="relative w-full h-full flex items-center justify-center p-4">
                   {/* Model Figure in Sharp Focus */}
-                  <div className="relative h-full max-h-[92%] w-auto aspect-[3/4] flex items-center justify-center">
+                  <div className="relative h-full max-h-[92%] w-auto aspect-[3/4] flex items-center justify-center rounded-2xl overflow-hidden border border-white/15 bg-[#121216] shadow-2xl">
                     <img
                       src={currentLook.modelImage}
                       alt={currentLook.titleEn}
-                      className="w-full h-full object-contain object-bottom drop-shadow-2xl"
+                      className="w-full h-full object-cover object-top"
                       referrerPolicy="no-referrer"
                     />
-
-                    {/* Ground Shadow */}
-                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/95 rounded-full blur-lg -z-10" />
 
                     {/* Interactive Hotspot Pins on the Model */}
                     {currentLook.garments.map((garment) => {
@@ -648,7 +642,7 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
         onClose={() => setIsSizeGuideOpen(false)}
         language={language}
         defaultCategory={
-          currentLook.category === 'Men' ? 'panjabi' : currentLook.category === 'Women' ? 'kameez' : 'streetwear'
+          currentLook.category === 'Women' ? 'unstitched' : 'streetwear'
         }
       />
     </section>

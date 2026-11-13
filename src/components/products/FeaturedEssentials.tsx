@@ -36,7 +36,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
     }
   }, [selectedFilterCategory]);
 
-  const categories = ['All', 'Men', 'Women', 'Unisex', 'Traditional', 'Streetwear'];
+  const categories = ['All', 'Streetwear', 'Women', 'Men', 'Unisex'];
 
   const filteredProducts = liveEssentialsProducts.filter((p) => {
     const matchCategory = activeCategory === 'All' || p.category === activeCategory;
@@ -47,6 +47,9 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   const handleQuickAdd = (product: Product, isOutOfStock: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isOutOfStock) return;
+    const defaultSize = product.sizes.includes('Unstitched Set')
+      ? 'Unstitched Fabric Set'
+      : product.sizes[1] || product.sizes[0] || 'L';
     onAddToCart({
       productId: product.id,
       nameEn: product.nameEn,
@@ -54,7 +57,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
       priceBDT: product.priceBDT,
       image: product.image,
       color: product.colors[0]?.name || 'Standard',
-      size: product.sizes[0] || 'M',
+      size: defaultSize,
       quantity: 1,
     });
     setAddedProductId(product.id);
@@ -158,6 +161,25 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
         )}
 
         {/* Product Grid */}
+        {filteredProducts.length === 0 ? (
+          <div className="py-16 text-center rounded-2xl border border-white/10 bg-[#171719]/50">
+            <p className="font-serif-luxury text-xl text-[#F5F2EB] mb-3">
+              {language === 'en'
+                ? 'No signature highlights match this filter combination.'
+                : 'এই ফিল্টারে কোনো সিগনেচার পিস পাওয়া যায়নি।'}
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveCategory('All');
+                setActiveBrand('All');
+              }}
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-mono text-[#D5BA80] cursor-pointer"
+            >
+              {language === 'en' ? 'Show All Signature Picks' : 'সব সিগনেচার পিস দেখুন'}
+            </button>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map((product) => {
             const wish = isWishlisted(product.id);
@@ -317,6 +339,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
             );
           })}
         </div>
+        )}
       </div>
     </section>
   );

@@ -15,9 +15,8 @@ import {
   PRIMARY_ADMIN_EMAIL,
   testFirestoreConnection,
 } from '../firebase';
-import { FEATURED_PRODUCTS } from '../data/mockData';
-import { THREE_PIECE_CATALOG } from '../data/threePieceCatalog';
-import { GRAPHIC_ARCHIVE_PRODUCTS } from '../data/graphicArchiveCatalog';
+import { THREE_PIECE_CATALOG, ThreePieceItem } from '../data/threePieceCatalog';
+import { GRAPHIC_ARCHIVE_PRODUCTS, GraphicArchiveProduct } from '../data/graphicArchiveCatalog';
 import {
   CatalogOverride,
   DEFAULT_STORE_SETTINGS,
@@ -27,6 +26,34 @@ import {
   StoreReview,
   StoreSettings,
 } from '../types/store';
+
+function resolveThreePieceStyleTag(
+  sub: ThreePieceItem['subCollection']
+): LiveProduct['styleTag'] {
+  if (sub === 'Zam Zam Swiss Lawn') return 'minimal';
+  if (sub === 'Magenta & Plum') return 'relaxed';
+  return 'heritage';
+}
+
+function resolveGraphicStyleTag(
+  cat: GraphicArchiveProduct['category']
+): LiveProduct['styleTag'] {
+  if (cat === 'Bangla Heritage' || cat === 'City Stories') return 'heritage';
+  if (cat === 'Playful Street') return 'relaxed';
+  if (cat === 'Statement Graphics') return 'minimal';
+  return 'urban';
+}
+
+const CURATED_SIGNATURE_IDS = new Set([
+  'FAB-H001',
+  'FAB-H003',
+  'FAB-H007',
+  'FAB-H008',
+  'tp-cat-001',
+  'tp-zsl-01',
+  'tp-fs-01',
+  'tp-mb-01',
+]);
 
 interface StoreDataContextValue {
   user: User | null;
@@ -53,6 +80,11 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [approvedReviews, setApprovedReviews] = useState<StoreReview[]>([]);
 
   useEffect(() => {
+    if (!auth || !db) {
+      setAuthReady(true);
+      return;
+    }
+
     testFirestoreConnection();
 
     const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -110,7 +142,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           const d = docSnap.data();
           next[docSnap.id] = {
             id: docSnap.id,
-            sourceCatalog: d.sourceCatalog || 'essentials',
+            sourceCatalog: d.sourceCatalog || 'custom',
             brand: d.brand,
             nameEn: d.nameEn || '',
             nameBn: d.nameBn || '',
@@ -186,45 +218,19 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 
   const signInWithGoogle = async () => {
+    if (!auth || !googleProvider) {
+      throw new Error('Firebase Authentication is not configured. Set VITE_FIREBASE_API_KEY.');
+    }
     await signInWithPopup(auth, googleProvider);
   };
 
   const signOutAdmin = async () => {
+    if (!auth) return;
     await signOut(auth);
   };
 
-  // Build unified live catalog across Essentials, Three-Piece Edit, Graphic Archive, and Custom Items
+  // Build unified live catalog strictly from StarKiT Graphic Archive (11), Fariza's Territory Three-Piece Edit (18), and Admin Custom Items
   const unifiedCatalog = useMemo<LiveProduct[]>(() => {
-    const essentialsRows: LiveProduct[] = FEATURED_PRODUCTS.map((p) => {
-      const ov = catalogOverrides[p.id];
-      const resolvedCategory = ov?.category || p.category;
-      const defaultBrand =
-        p.brand ||
-        (resolvedCategory === 'Women' ? "Fariza's Territory" : 'StarKiT');
-      return {
-        ...p,
-        brand: ov?.brand || defaultBrand,
-        nameEn: ov?.nameEn || p.nameEn,
-        nameBn: ov?.nameBn || p.nameBn,
-        category: resolvedCategory,
-        collection: ov?.collection || p.collection,
-        priceBDT: ov ? ov.priceBDT : p.priceBDT,
-        compareAtPriceBDT:
-          ov?.compareAtPriceBDT !== undefined ? ov.compareAtPriceBDT : p.compareAtPriceBDT,
-        image: ov?.image || p.image,
-        fabricEn: ov?.fabricEn || p.fabricEn,
-        fabricBn: ov?.fabricBn || p.fabricBn,
-        fitEn: ov?.fitEn || p.fitEn,
-        fitBn: ov?.fitBn || p.fitBn,
-        isNew: ov?.isNew !== undefined ? ov.isNew : p.isNew,
-        isBestseller: ov?.isBestseller !== undefined ? ov.isBestseller : p.isBestseller,
-        stockCount: ov ? ov.stockCount : 18,
-        status: ov ? ov.status : 'active',
-        sourceCatalog: 'essentials',
-        hasOverride: Boolean(ov),
-      };
-    });
-
     const threePieceRows: LiveProduct[] = THREE_PIECE_CATALOG.map((tp) => {
       const ov = catalogOverrides[tp.id];
       return {
@@ -246,7 +252,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         fitBn: ov?.fitBn || 'কাস্টম টেইলরেবল থ্রি-পিস',
         isNew: ov?.isNew,
         isBestseller: ov?.isBestseller,
-        styleTag: 'heritage',
+        styleTag: resolveThreePieceStyleTag(tp.subCollection),
         stockCount: ov ? ov.stockCount : 14,
         status: ov ? ov.status : 'active',
         sourceCatalog: 'three-piece',
@@ -275,7 +281,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         fitBn: ov?.fitBn || 'রিল্যাক্সড ড্রপ-শোল্ডার ফিট',
         isNew: ov?.isNew,
         isBestseller: ov?.isBestseller,
-        styleTag: 'urban',
+        styleTag: resolveGraphicStyleTag(ga.category),
         stockCount: ov ? ov.stockCount : 24,
         status: ov ? ov.status : 'active',
         sourceCatalog: 'graphic-archive',
@@ -301,9 +307,9 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         collection: ov.collection,
         priceBDT: ov.priceBDT,
         compareAtPriceBDT: ov.compareAtPriceBDT,
-        image: ov.image || FEATURED_PRODUCTS[0].image,
+        image: ov.image || '/assets/aistudio/hoodie_preview_FAB-H001-CRM.png',
         colors: [{ name: 'Obsidian', hex: '#09090B' }],
-        sizes: ['S', 'M', 'L', 'XL'],
+        sizes: ov.category === 'Women' ? ['Unstitched Set', 'S', 'M', 'L'] : ['M', 'L', 'XL'],
         fabricEn: ov.fabricEn || 'Signature Atelier Textile',
         fabricBn: ov.fabricBn || 'আতেলিয়ে ফ্যাব্রিক',
         fitEn: ov.fitEn || 'Contemporary Fit',
@@ -317,14 +323,14 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         hasOverride: true,
       }));
 
-    return [...customRows, ...essentialsRows, ...threePieceRows, ...graphicRows];
+    return [...customRows, ...threePieceRows, ...graphicRows];
   }, [catalogOverrides]);
 
   const liveEssentialsProducts = useMemo(
     () =>
       unifiedCatalog.filter(
         (p) =>
-          (p.sourceCatalog === 'essentials' || p.sourceCatalog === 'custom') &&
+          (p.sourceCatalog === 'custom' || CURATED_SIGNATURE_IDS.has(p.id)) &&
           p.status !== 'hidden'
       ),
     [unifiedCatalog]

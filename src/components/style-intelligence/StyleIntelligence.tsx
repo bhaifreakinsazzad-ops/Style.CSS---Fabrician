@@ -17,7 +17,7 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
   onQuickView,
   onOpenQuiz,
 }) => {
-  const { liveEssentialsProducts } = useStoreData();
+  const { unifiedCatalog } = useStoreData();
   const [selectedAudience, setSelectedAudience] = useState<string>('All');
   const [selectedDirection, setSelectedDirection] = useState<'minimal' | 'urban' | 'heritage' | 'relaxed'>('minimal');
   const [selectedOccasion, setSelectedOccasion] = useState<string>('evening');
@@ -26,30 +26,44 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
 
   const availableProducts = useMemo(
     () =>
-      liveEssentialsProducts.filter(
-        (p) => p.status !== 'out_of_stock' && p.stockCount > 0
+      unifiedCatalog.filter(
+        (p) => p.status !== 'hidden' && p.status !== 'out_of_stock' && p.stockCount > 0
       ),
-    [liveEssentialsProducts]
+    [unifiedCatalog]
   );
+
+  const audienceMatchedProducts = useMemo(() => {
+    return availableProducts.filter((product) => {
+      if (selectedAudience === 'All') return true;
+      if (selectedAudience === 'Unisex') return product.category === 'Unisex';
+      if (selectedAudience === 'Men') {
+        return product.category === 'Men' || product.category === 'Streetwear' || product.brand === 'StarKiT';
+      }
+      if (selectedAudience === 'Women') {
+        return product.category === 'Women' || product.brand === "Fariza's Territory";
+      }
+      return product.category === selectedAudience;
+    });
+  }, [availableProducts, selectedAudience]);
 
   // Deterministic recommendation algorithm based on user selection
   const recommendations = useMemo(() => {
-    return availableProducts.filter((product) => {
-      const matchAudience =
-        selectedAudience === 'All' ||
-        product.category === selectedAudience ||
-        (selectedAudience === 'Unisex' && product.category === 'Unisex') ||
-        (selectedAudience === 'Men' && (product.category === 'Men' || product.category === 'Traditional')) ||
-        (selectedAudience === 'Women' && product.category === 'Women');
+    return audienceMatchedProducts
+      .filter((product) => product.styleTag === selectedDirection)
+      .slice(0, 3);
+  }, [audienceMatchedProducts, selectedDirection]);
 
-      const matchDirection = product.styleTag === selectedDirection;
-      return matchAudience && matchDirection;
-    }).slice(0, 3);
-  }, [availableProducts, selectedAudience, selectedDirection]);
-
-  // Fallback to ensure there's always an intelligent match
-  const displayResults =
-    recommendations.length > 0 ? recommendations : availableProducts.slice(0, 3);
+  // Fallback keeps audience preference first before global active catalog
+  const displayResults = useMemo(() => {
+    if (recommendations.length >= 3) return recommendations;
+    const pickedIds = new Set(recommendations.map((p) => p.id));
+    const extras = audienceMatchedProducts
+      .filter((p) => !pickedIds.has(p.id))
+      .slice(0, 3 - recommendations.length);
+    const combined = [...recommendations, ...extras];
+    if (combined.length > 0) return combined;
+    return availableProducts.slice(0, 3);
+  }, [recommendations, audienceMatchedProducts, availableProducts]);
 
   const handleAdd = (product: Product) => {
     onAddToCart({
@@ -59,7 +73,9 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
       priceBDT: product.priceBDT,
       image: product.image,
       color: product.colors[0]?.name || 'Standard',
-      size: product.sizes[0] || 'M',
+      size:
+        product.sizes[0] ||
+        (product.brand === "Fariza's Territory" ? 'Unstitched Fabric Set' : 'L'),
       quantity: 1,
     });
     setAddedId(product.id);

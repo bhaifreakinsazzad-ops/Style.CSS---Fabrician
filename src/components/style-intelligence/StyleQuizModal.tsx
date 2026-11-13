@@ -3,7 +3,7 @@ import { animate, stagger } from 'animejs';
 import { Sparkles, X, ArrowRight, RotateCcw, ShoppingBag, Check, Box } from 'lucide-react';
 import { Language, CartItem } from '../../types';
 import { THREE_PIECE_CATALOG, ThreePieceItem } from '../../data/threePieceCatalog';
-import { FEATURED_PRODUCTS } from '../../data/mockData';
+import { GRAPHIC_ARCHIVE_PRODUCTS } from '../../data/graphicArchiveCatalog';
 
 interface StyleQuizModalProps {
   isOpen: boolean;
@@ -43,13 +43,13 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
   const questions: Question[] = [
     {
       id: 1,
-      questionEn: 'Which silhouette best captures your sartorial identity?',
-      questionBn: 'কোন ধরনের পোশাক আপনার নিজস্ব স্টাইলকে সবচেয়ে ভালো প্রকাশ করে?',
+      questionEn: 'Which collab collection best captures your sartorial identity?',
+      questionBn: 'কোন কালেকশন আপনার নিজস্ব স্টাইলকে সবচেয়ে ভালো প্রকাশ করে?',
       options: [
-        { labelEn: 'Authentic 3-Piece & Festive Lawn Sets', labelBn: 'ঐতিহ্যবাহী থ্রি-পিস ও লন ড্রেস', tag: 'threepiece' },
-        { labelEn: 'Contemporary Tailored Panjabi & Menswear', labelBn: 'আধুনিক টেইলর্ড পাঞ্জাবি ও ফরমাল', tag: 'panjabi' },
-        { labelEn: 'Modern Jamdani Saree & Structural Couture', labelBn: 'মডার্ন জামদানি শাড়ি ও স্ট্রাকচারাল ব্লেজার', tag: 'couture' },
-        { labelEn: 'Architectural Heavyweight Streetwear', labelBn: 'ভারী কটন হুডি ও স্ট্রিটওয়্যার', tag: 'streetwear' },
+        { labelEn: "Fariza's Territory · Unstitched 3-Piece Sets", labelBn: 'ফারিজাস টেরিটরি · আনস্টিচড থ্রি-পিস', tag: 'threepiece' },
+        { labelEn: 'StarKiT · Dhaka Heritage & City Hoodies', labelBn: 'স্টারকিট · ঢাকা হেরিটেজ ও সিটি হুডি', tag: 'heritage_hoodie' },
+        { labelEn: 'StarKiT · Anime & Moto Graphic Streetwear', labelBn: 'স্টারকিট · অ্যানিমে ও মোটো গ্রাফিক স্ট্রিটওয়্যার', tag: 'streetwear' },
+        { labelEn: "Fariza's Territory · Mirror-Work & Swiss Lawn", labelBn: 'ফারিজাস টেরিটরি · মিরর ওয়ার্ক ও সুইস লন', tag: 'mirror_lawn' },
       ],
     },
     {
@@ -57,10 +57,10 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
       questionEn: 'For what moment are you curating this ensemble?',
       questionBn: 'কোন উপলক্ষ বা সময়ের জন্য পোশাক খুঁজছেন?',
       options: [
-        { labelEn: 'Weddings & Festive Family Gatherings', labelBn: 'বিয়ে, উৎসব ও পারিবারিক আয়োজন', tag: 'festive' },
-        { labelEn: 'Creative Studio & Everyday Elegance', labelBn: 'দৈনন্দিন অফিস, স্টুডিও ও আরামদায়ক ক্যাজুয়াল', tag: 'everyday' },
-        { labelEn: 'Nocturnal Gala & Statement Evening', labelBn: 'রাতের আভিজাত্যপূর্ণ পার্টি বা গালা অনুষ্ঠান', tag: 'evening' },
-        { labelEn: 'Weekend Leisure & Cultural Gatherings', labelBn: 'ছুটির দিন ও সাংস্কৃতিক অনুষ্ঠান', tag: 'relaxed' },
+        { labelEn: 'Festive Family Gatherings & Invitations', labelBn: 'উৎসব, দাওয়াত ও পারিবারিক আয়োজন', tag: 'festive' },
+        { labelEn: 'Creative Studio & Everyday Comfort', labelBn: 'দৈনন্দিন অফিস, স্টুডিও ও আরামদায়ক ক্যাজুয়াল', tag: 'everyday' },
+        { labelEn: 'Nocturnal City Drive & Evening Statement', labelBn: 'রাতের আড্ডা ও স্টেটমেন্ট ইভিনিং লুক', tag: 'evening' },
+        { labelEn: 'Weekend Gallery & Cultural Hangouts', labelBn: 'ছুটির দিন ও সাংস্কৃতিক অনুষ্ঠান', tag: 'relaxed' },
       ],
     },
     {
@@ -68,10 +68,10 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
       questionEn: 'What chromatic palette speaks to your mood?',
       questionBn: 'কোন রঙের আবহ আপনার ব্যক্তিত্বের সাথে মানানসই?',
       options: [
-        { labelEn: 'Nocturnal Obsidian, Pitch Charcoal & Gold', labelBn: 'গভীর কালো, চারকোল ও এন্টিক গোল্ড', tag: 'dark' },
-        { labelEn: 'Vivid Jewel Tones (Plum, Fuchsia & Cobalt)', labelBn: 'উজ্জ্বল রত্নসম রঙ (প্লাম, ফুশিয়া ও ব্লু)', tag: 'jewel' },
-        { labelEn: 'Earth & Forest (Moss Green, Rust, Terracotta)', labelBn: 'মাটির রঙ ও বনসবুজ (সবুজ, রাস্ট ও ব্রাউন)', tag: 'earth' },
-        { labelEn: 'Serene Neutrals (Stone Beige, Ivory & Dusty Mauve)', labelBn: 'শান্ত আইভরি, বেইজ ও ডাস্টি মভ', tag: 'neutral' },
+        { labelEn: 'Nocturnal Obsidian, Maroon & Deep Charcoal', labelBn: 'গভীর কালো, মেরুন ও চারকোল', tag: 'dark' },
+        { labelEn: 'Vivid Jewel Tones (Plum, Magenta & Cobalt)', labelBn: 'উজ্জ্বল রত্নসম রঙ (প্লাম, ম্যাজেন্টা ও ব্লু)', tag: 'jewel' },
+        { labelEn: 'Earth, Chocolate Brown & Olive Moss', labelBn: 'মাটির রঙ, চকলেট ব্রাউন ও অলিভ', tag: 'earth' },
+        { labelEn: 'Serene Neutrals (Natural Cream & Dusty Mauve)', labelBn: 'শান্ত ক্রিম, আইভরি ও ডাস্টি মভ', tag: 'neutral' },
       ],
     },
     {
@@ -80,20 +80,20 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
       questionBn: 'পোশাকের কোন ধরনের বুনন ও কারুশিল্প আপনার পছন্দ?',
       options: [
         { labelEn: 'Hand-Dyed Wax Batik & Organic Crackle', labelBn: 'হাতে করা মোম বাটিক ও অর্গানিক ক্র্যাকল', tag: 'batik' },
-        { labelEn: 'Reflective Mirror-Work & Diamond Trellis', labelBn: 'ঝলমলে কাঁচের কাজ ও জরি এমব্রয়ডারি', tag: 'mirror' },
+        { labelEn: 'Reflective Mirror-Work & Diamond Trellis', labelBn: 'ঝলমলে মিরর ওয়ার্ক ও ডায়মন্ড এমব্রয়ডারি', tag: 'mirror' },
         { labelEn: 'Silky Fine Swiss Lawn with Paisley Borders', labelBn: 'কোমল সুইস লন ও সূক্ষ্ম পেইসলি বর্ডার', tag: 'lawn' },
-        { labelEn: '480 GSM Heavy French Terry & Combed Giza Cotton', labelBn: 'ভারী ৪৮০ জিএসএম কটন ও মার্সারাইজড কাপড়', tag: 'cotton' },
+        { labelEn: 'StarKiT 330–350 GSM One-Side Brushed Fleece', labelBn: 'স্টারকিট ৩৩০–৩৫০ জিএসএম ব্রাশড ফ্লিস', tag: 'fleece' },
       ],
     },
     {
       id: 5,
-      questionEn: 'What is your preferred ease of drape?',
-      questionBn: 'পোশাকের ফিটিংস ও ড্র্যাপ কেমন পছন্দ করেন?',
+      questionEn: 'What is your preferred silhouette & ease of wear?',
+      questionBn: 'পোশাকের ফিটিংস ও পরার ধরন কেমন পছন্দ করেন?',
       options: [
-        { labelEn: 'Flowing & Layered with a Handcrafted Dupatta', labelBn: 'আরামদায়ক ও জমকালো ওড়নাযুক্ত ড্র্যাপ', tag: 'drape' },
-        { labelEn: 'Tailored Architectural Fit (Crisp Collar & Cuffs)', labelBn: 'শার্প টেইলর্ড কাটিং ও নিখুঁত কলার', tag: 'tailored' },
-        { labelEn: 'Unstitched Fabric Set to Custom-Tailor to Perfection', labelBn: 'নিজের মাপমতো বানানোর জন্য আনস্টিচড ফ্যাব্রিক', tag: 'unstitched' },
-        { labelEn: 'Boxy Drop-Shoulder Oversized Silhouette', labelBn: 'বক্সি ড্রপ-শোল্ডার রিল্যাক্সড লুক', tag: 'oversized' },
+        { labelEn: 'Flowing 3-Piece Drape with Statement Dupatta', labelBn: 'আরামদায়ক ও জমকালো ওড়নাযুক্ত ড্র্যাপ', tag: 'drape' },
+        { labelEn: 'Unstitched Set Tailored to Exact Measurements', labelBn: 'নিজের মাপমতো সেলাইযোগ্য আনস্টিচড থ্রি-পিস', tag: 'unstitched' },
+        { labelEn: 'Contemporary Relaxed Fleece Hoodie Fit', labelBn: 'সমসাময়িক রিল্যাক্সড ফ্লিস হুডি ফিট', tag: 'relaxed_hoodie' },
+        { labelEn: 'Boxy Drop-Shoulder Graphic Layering', labelBn: 'বক্সি ড্রপ-শোল্ডার গ্রাফিক লেয়ারিং', tag: 'oversized' },
       ],
     },
   ];
@@ -159,75 +159,130 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
     setIsCompleted(false);
   };
 
-  // Deterministic 3-product recommendation engine based on user answers
-  const getCuratedResults = () => {
+  interface CuratedQuizResult {
+    id: string;
+    nameEn: string;
+    nameBn: string;
+    priceBDT: number;
+    image: string;
+    subtitle: string;
+    detailText: string;
+    colorName: string;
+    size: string;
+    threePieceItem?: ThreePieceItem;
+  }
+
+  const toQuizThreePiece = (code: string, fallbackIndex: number): CuratedQuizResult => {
+    const tp = THREE_PIECE_CATALOG.find((p) => p.code === code) || THREE_PIECE_CATALOG[fallbackIndex];
+    return {
+      id: tp.id,
+      nameEn: `${tp.code} — ${tp.nameEn}`,
+      nameBn: `${tp.code} — ${tp.nameBn}`,
+      priceBDT: tp.priceBDT,
+      image: tp.flatLayImage || tp.modelImage,
+      subtitle: tp.subCollection,
+      detailText: tp.kameezEn,
+      colorName: tp.colors?.[0]?.name || 'Standard',
+      size: 'Unstitched Fabric Set',
+      threePieceItem: tp,
+    };
+  };
+
+  const toQuizHoodie = (id: string): CuratedQuizResult => {
+    const h = GRAPHIC_ARCHIVE_PRODUCTS.find((p) => p.id === id) || GRAPHIC_ARCHIVE_PRODUCTS[0];
+    const v = h.variants[0];
+    return {
+      id: h.id,
+      nameEn: `${h.name} Hoodie (${h.id})`,
+      nameBn: `${h.name} হুডি (${h.id})`,
+      priceBDT: h.basePrice,
+      image: v.previewImage,
+      subtitle: `StarKiT · ${h.category}`,
+      detailText: `${v.fabric} · ${h.feature}`,
+      colorName: v.color,
+      size: 'L',
+    };
+  };
+
+  // Deterministic 3-product recommendation engine based on authentic StarKiT & Fariza's Territory SKUs
+  const getCuratedResults = (): CuratedQuizResult[] => {
     const wardrobeChoice = selectedAnswers[0] || 'threepiece';
     const colorChoice = selectedAnswers[2] || 'jewel';
     const craftChoice = selectedAnswers[3] || 'batik';
 
-    let curated: any[] = [];
-
-    if (craftChoice === 'batik') {
-      curated = [
-        THREE_PIECE_CATALOG.find((p) => p.code === 'CAT-002') || THREE_PIECE_CATALOG[1],
-        THREE_PIECE_CATALOG.find((p) => p.code === 'MB-BT-01') || THREE_PIECE_CATALOG[3],
-        THREE_PIECE_CATALOG.find((p) => p.code === 'CAT-003') || THREE_PIECE_CATALOG[2],
+    if (wardrobeChoice === 'heritage_hoodie') {
+      return [
+        toQuizHoodie('FAB-H003'),
+        toQuizHoodie('FAB-H007'),
+        toQuizHoodie('FAB-H009'),
       ];
-    } else if (craftChoice === 'mirror') {
-      curated = [
-        THREE_PIECE_CATALOG.find((p) => p.code === 'FS-D01') || THREE_PIECE_CATALOG[13],
-        THREE_PIECE_CATALOG.find((p) => p.code === 'FS-D02') || THREE_PIECE_CATALOG[14],
-        THREE_PIECE_CATALOG.find((p) => p.code === 'FS-D04') || THREE_PIECE_CATALOG[16],
-      ];
-    } else if (wardrobeChoice === 'panjabi') {
-      curated = [
-        FEATURED_PRODUCTS[0], // Obsidian Tailored Panjabi
-        THREE_PIECE_CATALOG.find((p) => p.code === 'ZSL-01') || THREE_PIECE_CATALOG[7],
-        FEATURED_PRODUCTS[5], // Jamdani Relaxed Shirt
-      ];
-    } else if (wardrobeChoice === 'streetwear') {
-      curated = [
-        FEATURED_PRODUCTS[2], // Brutalist Hoodie
-        FEATURED_PRODUCTS[4], // Essential Heavyweight Tee
-        THREE_PIECE_CATALOG.find((p) => p.code === 'MB-BT-02') || THREE_PIECE_CATALOG[4],
-      ];
-    } else {
-      // Swiss Lawn & Festive Palette
-      if (colorChoice === 'dark') {
-        curated = [
-          THREE_PIECE_CATALOG.find((p) => p.code === 'ZSL-03') || THREE_PIECE_CATALOG[9],
-          THREE_PIECE_CATALOG.find((p) => p.code === 'FS-D02') || THREE_PIECE_CATALOG[14],
-          FEATURED_PRODUCTS[3], // Couture Tuxedo Blazer
-        ];
-      } else if (colorChoice === 'earth') {
-        curated = [
-          THREE_PIECE_CATALOG.find((p) => p.code === 'ZSL-04') || THREE_PIECE_CATALOG[10],
-          THREE_PIECE_CATALOG.find((p) => p.code === 'MB-BT-01') || THREE_PIECE_CATALOG[3],
-          THREE_PIECE_CATALOG.find((p) => p.code === 'ZSL-02') || THREE_PIECE_CATALOG[8],
-        ];
-      } else {
-        curated = [
-          THREE_PIECE_CATALOG.find((p) => p.code === 'CAT-001') || THREE_PIECE_CATALOG[0],
-          THREE_PIECE_CATALOG.find((p) => p.code === 'FS-D03') || THREE_PIECE_CATALOG[15],
-          THREE_PIECE_CATALOG.find((p) => p.code === 'ZSL-05') || THREE_PIECE_CATALOG[11],
-        ];
-      }
     }
 
-    return curated;
+    if (wardrobeChoice === 'streetwear' || craftChoice === 'fleece') {
+      if (colorChoice === 'neutral') {
+        return [
+          toQuizHoodie('FAB-H001'),
+          toQuizHoodie('FAB-H010'),
+          toQuizHoodie('FAB-H006'),
+        ];
+      }
+      return [
+        toQuizHoodie('FAB-H002'),
+        toQuizHoodie('FAB-H005'),
+        toQuizHoodie('FAB-H004'),
+      ];
+    }
+
+    if (craftChoice === 'batik') {
+      return [
+        toQuizThreePiece('CAT-002', 1),
+        toQuizThreePiece('MB-BT-01', 3),
+        toQuizThreePiece('CAT-003', 2),
+      ];
+    }
+
+    if (craftChoice === 'mirror' || wardrobeChoice === 'mirror_lawn') {
+      return [
+        toQuizThreePiece('FS-D01', 13),
+        toQuizThreePiece('FS-D02', 14),
+        toQuizThreePiece('FS-D04', 16),
+      ];
+    }
+
+    if (colorChoice === 'dark') {
+      return [
+        toQuizThreePiece('ZSL-03', 9),
+        toQuizThreePiece('FS-D02', 14),
+        toQuizHoodie('FAB-H008'),
+      ];
+    }
+
+    if (colorChoice === 'earth') {
+      return [
+        toQuizThreePiece('ZSL-04', 10),
+        toQuizThreePiece('MB-BT-01', 3),
+        toQuizThreePiece('ZSL-02', 8),
+      ];
+    }
+
+    return [
+      toQuizThreePiece('CAT-001', 0),
+      toQuizThreePiece('FS-D03', 15),
+      toQuizThreePiece('ZSL-05', 11),
+    ];
   };
 
   const curatedProducts = getCuratedResults();
 
-  const handleAddProduct = (item: any) => {
+  const handleAddProduct = (item: CuratedQuizResult) => {
     onAddToCart({
       productId: item.id,
-      nameEn: item.code ? `${item.code} — ${item.nameEn}` : item.nameEn,
-      nameBn: item.code ? `${item.code} — ${item.nameBn}` : item.nameBn,
+      nameEn: item.nameEn,
+      nameBn: item.nameBn,
       priceBDT: item.priceBDT,
-      image: item.flatLayImage || item.image,
-      color: item.colors?.[0]?.name || 'Standard',
-      size: item.code ? 'Unstitched Fabric Set' : 'M',
+      image: item.image,
+      color: item.colorName,
+      size: item.size,
       quantity: 1,
     });
     setAddedItemIds((prev) => [...prev, item.id]);
@@ -375,9 +430,6 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {curatedProducts.map((item, idx) => {
                   const isAdded = addedItemIds.includes(item.id);
-                  const imageSrc = item.flatLayImage || item.image;
-                  const itemTitleEn = item.code ? `${item.code} — ${item.nameEn}` : item.nameEn;
-                  const itemTitleBn = item.code ? `${item.code} — ${item.nameBn}` : item.nameBn;
 
                   return (
                     <div
@@ -386,7 +438,7 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
                     >
                       <div className="relative aspect-[4/3] bg-black/60 overflow-hidden">
                         <img
-                          src={imageSrc}
+                          src={item.image}
                           alt={item.nameEn}
                           className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                           referrerPolicy="no-referrer"
@@ -401,13 +453,13 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
                       <div className="p-4 flex-1 flex flex-col justify-between">
                         <div>
                           <div className="text-[10px] font-mono text-[#77777D] uppercase tracking-wider mb-1 truncate">
-                            {item.subCollection || item.collection || item.category}
+                            {item.subtitle}
                           </div>
                           <h5 className="font-serif-luxury text-base text-[#F5F2EB] group-hover:text-[#D5BA80] transition-colors font-medium mb-1 line-clamp-1">
-                            {language === 'en' ? itemTitleEn : itemTitleBn}
+                            {language === 'en' ? item.nameEn : item.nameBn}
                           </h5>
                           <p className="text-[11px] text-[#77777D] line-clamp-2 font-light mb-3">
-                            {item.kameezEn || item.fabricEn || item.fabric}
+                            {item.detailText}
                           </p>
                         </div>
 
@@ -417,11 +469,11 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
                           </span>
 
                           <div className="flex items-center gap-2">
-                            {item.code && onOpen3DStudio && (
+                            {item.threePieceItem && onOpen3DStudio && (
                               <button
                                 onClick={() => {
                                   onClose();
-                                  onOpen3DStudio(item);
+                                  onOpen3DStudio(item.threePieceItem!);
                                 }}
                                 className="p-1.5 bg-white/5 hover:bg-white/10 text-[#D8D3C9] rounded"
                                 title="Inspect in 3D"

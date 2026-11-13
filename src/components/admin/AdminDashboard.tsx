@@ -29,7 +29,13 @@ import {
   Truck,
   X,
 } from 'lucide-react';
-import { db, handleFirestoreError, OperationType, PRIMARY_ADMIN_EMAIL } from '../../firebase';
+import {
+  db,
+  isFirebaseConfigured,
+  handleFirestoreError,
+  OperationType,
+  PRIMARY_ADMIN_EMAIL,
+} from '../../firebase';
 import { useStoreData } from '../../context/StoreDataContext';
 import {
   deleteCatalogOverride,
@@ -54,7 +60,7 @@ import {
   StoreSubscriber,
 } from '../../types/store';
 import { BrandPartner, Product } from '../../types';
-import { FEATURED_PRODUCTS } from '../../data/mockData';
+import { AMBASSADOR_PORTRAIT } from '../../data/mockData';
 
 interface AdminDashboardProps {
   onExitAdmin: () => void;
@@ -89,12 +95,16 @@ const CATEGORIES: Product['category'][] = [
 
 const PRESET_ATELIER_IMAGES = [
   {
-    label: 'StarKiT Panjabi Noir',
-    url: FEATURED_PRODUCTS[0]?.image || '/assets/aistudio/Gemini_Generated_Image_2s41172s41172s41_1f02e931.jpg',
+    label: 'StarKiT Ambassador Portrait',
+    url: AMBASSADOR_PORTRAIT,
   },
   {
     label: 'StarKiT Cream Hoodie',
     url: '/assets/aistudio/hoodie_preview_FAB-H001-CRM.png',
+  },
+  {
+    label: 'StarKiT Bus Hoodie (FAB-H003)',
+    url: '/assets/aistudio/hoodie_preview_FAB-H003-BLK.png',
   },
   {
     label: "Fariza's 3-Piece (CAT-001)",
@@ -204,15 +214,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
 
   // Subscribe to private admin collections once authenticated as owner
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAdmin || !db) {
+      setOrdersLoading(false);
+      setReviewsLoading(false);
+      setSubscribersLoading(false);
+      return;
+    }
 
+    const firestore = db;
     setOrdersLoading(true);
     setReviewsLoading(true);
     setSubscribersLoading(true);
     setDataError(null);
 
     const unsubOrders = onSnapshot(
-      collection(db, 'orders'),
+      collection(firestore, 'orders'),
       (snap) => {
         const next: StoreOrder[] = [];
         snap.forEach((docSnap) => {
@@ -234,7 +250,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     );
 
     const unsubReviews = onSnapshot(
-      collection(db, 'reviews'),
+      collection(firestore, 'reviews'),
       (snap) => {
         const next: StoreReview[] = [];
         snap.forEach((docSnap) => {
@@ -271,7 +287,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     );
 
     const unsubSubscribers = onSnapshot(
-      collection(db, 'subscribers'),
+      collection(firestore, 'subscribers'),
       (snap) => {
         const next: StoreSubscriber[] = [];
         snap.forEach((docSnap) => {
@@ -371,7 +387,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
   const [catalogSearch, setCatalogSearch] = useState('');
   const [catalogBrandFilter, setCatalogBrandFilter] = useState<'all' | BrandPartner>('all');
   const [catalogSourceFilter, setCatalogSourceFilter] = useState<
-    'all' | 'essentials' | 'three-piece' | 'graphic-archive' | 'custom'
+    'all' | 'three-piece' | 'graphic-archive' | 'custom'
   >('all');
   const [editingProduct, setEditingProduct] = useState<LiveProduct | null>(null);
   const [catalogForm, setCatalogForm] = useState({
@@ -713,6 +729,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
               </div>
             </div>
 
+            {!isFirebaseConfigured && (
+              <div className="p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/40 text-xs text-amber-200 leading-relaxed">
+                <p className="font-semibold text-amber-100 mb-1">
+                  Firebase Web API Key Not Configured
+                </p>
+                <p>
+                  Add{' '}
+                  <span className="font-mono text-[#D5BA80]">VITE_FIREBASE_API_KEY</span> in{' '}
+                  <span className="font-mono">.env.local</span> or Vercel Environment Variables (with HTTP referrer restrictions in Google Cloud Console) to enable Google Admin sign-in and live Firestore sync.
+                </p>
+              </div>
+            )}
+
             {authError && (
               <div className="p-3 rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/40 text-xs text-red-300">
                 {authError}
@@ -724,10 +753,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              disabled={authSubmitting}
-              className="w-full py-2.5 px-4 rounded-lg bg-[#F5F2EB] hover:bg-[#D5BA80] text-[#09090B] font-semibold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-60"
+              disabled={authSubmitting || !isFirebaseConfigured}
+              className="w-full py-2.5 px-4 rounded-lg bg-[#F5F2EB] hover:bg-[#D5BA80] text-[#09090B] font-semibold text-xs uppercase tracking-wider transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {authSubmitting ? 'Connecting Google Account...' : 'Sign in with Google'}
+              {authSubmitting
+                ? 'Connecting Google Account...'
+                : !isFirebaseConfigured
+                ? 'Set VITE_FIREBASE_API_KEY to Sign In'
+                : 'Sign in with Google'}
             </button>
 
             <button
@@ -1442,9 +1475,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                   <div className="flex flex-wrap items-center gap-1.5">
                     {[
                       { id: 'all', label: 'All Catalogs' },
-                      { id: 'essentials', label: 'Essentials' },
-                      { id: 'three-piece', label: 'Three-Piece Edit' },
-                      { id: 'graphic-archive', label: 'Graphic Archive' },
+                      { id: 'three-piece', label: "Fariza's 3-Piece (18)" },
+                      { id: 'graphic-archive', label: 'StarKiT Hoodies (11)' },
                       { id: 'custom', label: 'Custom Drops' },
                     ].map((tab) => (
                       <button

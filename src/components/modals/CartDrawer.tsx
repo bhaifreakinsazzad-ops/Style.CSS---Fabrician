@@ -42,6 +42,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [address, setAddress] = useState('');
   const [division, setDivision] = useState('Dhaka Division');
   const [paymentMethod, setPaymentMethod] = useState<'mfs' | 'cod'>('cod');
+  const [mfsReference, setMfsReference] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderInfo | null>(null);
@@ -129,17 +130,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     setFormError(null);
     setIsSubmitting(true);
 
-    const orderId = `FAB-${Math.floor(1000 + Math.random() * 9000)}`;
+    const orderId = `FAB-${Date.now().toString(36).toUpperCase().slice(-4)}${Math.floor(10 + Math.random() * 89)}`;
     const itemsSummary = items
       .map((i) => `${i.nameEn} (${i.size}, ${i.color}) x${i.quantity}`)
       .join(' | ');
+    const trimmedRef = mfsReference.trim();
+    const combinedAddress =
+      paymentMethod === 'mfs' && trimmedRef
+        ? `${trimmedAddress} [MFS Ref: ${trimmedRef}]`.slice(0, 300)
+        : trimmedAddress.slice(0, 300);
 
     try {
       const result = await placeStoreOrder({
         orderId,
         recipientName: trimmedName,
         recipientPhone: phone.trim(),
-        recipientAddress: trimmedAddress,
+        recipientAddress: combinedAddress,
         division,
         paymentMethod,
         subtotalBDT: subtotal,
@@ -154,11 +160,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         orderId: result.orderId,
         consignmentId: result.consignmentId,
         recipientName: trimmedName,
-        recipientAddress: trimmedAddress,
+        recipientAddress: combinedAddress,
         division,
         totalBDT: orderTotal,
       });
       onClearCart();
+      setMfsReference('');
       setCheckoutStep('success');
     } catch {
       setFormError(
@@ -384,10 +391,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]"
                   >
                     <option value="Dhaka Division">Dhaka Division</option>
-                    <option value="Chittagong Division">Chittagong Division</option>
+                    <option value="Chattogram Division">Chattogram Division</option>
                     <option value="Sylhet Division">Sylhet Division</option>
                     <option value="Rajshahi Division">Rajshahi Division</option>
                     <option value="Khulna Division">Khulna Division</option>
+                    <option value="Barishal Division">Barishal Division</option>
+                    <option value="Rangpur Division">Rangpur Division</option>
+                    <option value="Mymensingh Division">Mymensingh Division</option>
                   </select>
                 </div>
 
@@ -427,6 +437,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <span>bKash / Nagad</span>
                     </label>
                   </div>
+                  {paymentMethod === 'mfs' && (
+                    <div className="mt-2.5 p-3 rounded-lg bg-black/60 border border-[#B69A60]/30 space-y-2">
+                      <p className="text-[11px] text-[#D5BA80] leading-relaxed">
+                        {language === 'en'
+                          ? `Send ৳ ${orderTotal.toLocaleString()} via bKash or Nagad (Personal/Send Money) to ${storeSettings.hotlineDisplay} using your Name as reference, or share your TrxID below for priority dispatch.`
+                          : `অগ্রাধিকার ডেলিভারির জন্য ${storeSettings.hotlineDisplay} নম্বরে বিকাশ/নগদ সেন্ড মানি (৳ ${orderTotal.toLocaleString()}) করে নিচে TrxID দিন।`}
+                      </p>
+                      <input
+                        type="text"
+                        maxLength={48}
+                        value={mfsReference}
+                        onChange={(e) => setMfsReference(e.target.value)}
+                        placeholder={
+                          language === 'en'
+                            ? 'Optional: bKash / Nagad TrxID or sender number'
+                            : 'ঐচ্ছিক: বিকাশ / নগদ TrxID বা সেন্ডার নম্বর'
+                        }
+                        className="w-full bg-black/50 border border-white/15 rounded px-3 py-1.5 text-[11px] font-mono text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-1.5 font-mono text-[11px]">
@@ -547,7 +578,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   ৳ {discountedSubtotal.toLocaleString()}
                 </span>
               </div>
-              <p className="text-[11px] text-[#77777D] mb-4">{t.cart.shippingNote}</p>
+              <p className="text-[11px] text-[#77777D] mb-4">
+                {language === 'en'
+                  ? `Complimentary nationwide delivery on orders ৳ ${freeShippingThreshold.toLocaleString()}+.`
+                  : `৳ ${freeShippingThreshold.toLocaleString()}+ অর্ডারে সারাদেশে ফ্রি ডেলিভারি।`}
+              </p>
 
               <button
                 onClick={handleStartCheckout}

@@ -14,6 +14,7 @@ import {
 import { Language } from '../../types';
 import {
   trackPathaoOrder,
+  getSavedCustomerOrders,
   PathaoTrackingData,
   PathaoDeliveryStatus,
 } from '../../services/pathaoCourier';
@@ -53,10 +54,11 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
       const data = await trackPathaoOrder(query);
       setTrackingData(data);
     } catch {
+      setTrackingData(null);
       setErrorMessage(
         language === 'en'
-          ? 'Unable to retrieve Pathao tracking status. Please verify the ID or try again.'
-          : 'পাঠাও ট্র্যাকিং তথ্য পাওয়া যায়নি। অনুগ্রহ করে আইডি যাচাই করুন।'
+          ? `No Pathao consignment or order found for "${query}". Please verify your Order ID or Consignment ID.`
+          : `"${query}" আইডির জন্য কোনো পাঠাও পার্সেল বা অর্ডার পাওয়া যায়নি।`
       );
     } finally {
       setIsLoading(false);
@@ -219,33 +221,49 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
               </button>
             </form>
 
-            {/* Sample Order Quick Lookup */}
-            <div className="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
-              <span className="text-[#77777D] font-mono text-[11px]">
-                {language === 'en' ? 'Sample orders:' : 'নমুনা অর্ডার:'}
-              </span>
-              {[
-                { id: 'FAB-2026', label: 'FAB-2026 (Out for Delivery)' },
-                { id: 'CAT-001', label: 'CAT-001 (In Transit - CTG)' },
-                { id: 'FAB-8921', label: 'FAB-8921 (Delivered)' },
-              ].map((chip) => (
-                <button
-                  key={chip.id}
-                  type="button"
-                  onClick={() => {
-                    setOrderQuery(chip.id);
-                    handleTrack(chip.id);
-                  }}
-                  className={`px-2.5 py-1 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
-                    orderQuery.toUpperCase() === chip.id
-                      ? 'bg-[#B69A60]/20 text-[#D5BA80] border border-[#B69A60]/50 font-bold'
-                      : 'bg-white/5 hover:bg-white/10 text-[#D8D3C9] border border-white/5'
-                  }`}
-                >
-                  {chip.label}
-                </button>
-              ))}
-            </div>
+            {/* Recent Local Orders & Sample Demo Quick Lookup */}
+            {(() => {
+              const localOrders = Object.values(getSavedCustomerOrders()).slice(-3).reverse();
+              const chips = [
+                ...localOrders.map((o) => ({
+                  id: o.orderId,
+                  label: `${o.orderId} (${language === 'en' ? 'Your Order' : 'আপনার অর্ডার'})`,
+                })),
+                { id: 'FAB-2026', label: 'Demo: FAB-2026' },
+                { id: 'CAT-001', label: 'Demo: CAT-001' },
+                { id: 'FAB-8921', label: 'Demo: FAB-8921' },
+              ];
+              return (
+                <div className="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
+                  <span className="text-[#77777D] font-mono text-[11px]">
+                    {localOrders.length > 0
+                      ? language === 'en'
+                        ? 'Your orders / Demos:'
+                        : 'আপনার অর্ডার / ডেমো:'
+                      : language === 'en'
+                      ? 'Sample demo IDs:'
+                      : 'নমুনা ডেমো আইডি:'}
+                  </span>
+                  {chips.map((chip) => (
+                    <button
+                      key={chip.id}
+                      type="button"
+                      onClick={() => {
+                        setOrderQuery(chip.id);
+                        handleTrack(chip.id);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg font-mono text-[11px] transition-colors cursor-pointer ${
+                        orderQuery.toUpperCase() === chip.id
+                          ? 'bg-[#B69A60]/20 text-[#D5BA80] border border-[#B69A60]/50 font-bold'
+                          : 'bg-white/5 hover:bg-white/10 text-[#D8D3C9] border border-white/5'
+                      }`}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
 
           {errorMessage && (

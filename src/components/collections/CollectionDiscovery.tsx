@@ -59,7 +59,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                 src={col.image}
                 alt={col.nameEn}
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
                 referrerPolicy="no-referrer"
               />
 

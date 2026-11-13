@@ -329,39 +329,13 @@ export async function trackPathaoOrder(
     return MOCK_PATHAO_ORDERS[cleanId];
   }
 
-  // Fallback realistic dynamic generation for any user-typed order ID
-  return {
-    consignmentId: `PTH-DH-${Math.floor(100000 + Math.random() * 900000)}`,
-    orderId: cleanId,
-    recipientName: 'Valued Fabrician Client',
-    recipientPhone: '+880 17**-******',
-    recipientAddress: 'Dhaka Metropolitan Area, Bangladesh',
-    hubLocation: 'Pathao Central Express Sorting Hub, Tejgaon',
-    courierPartner: 'Pathao Courier',
-    riderName: 'Pathao Express Logistics',
-    paymentType: 'Cash on Delivery (COD)',
-    amountToCollectBDT: 3500,
-    currentStatus: 'In_Transit',
-    estimatedDelivery: 'Tomorrow afternoon',
-    timeline: [
-      {
-        time: 'Today, 02:45 PM',
-        status: 'In Transit',
-        location: 'Pathao Sorting Hub, Dhaka',
-        note: 'Package processed through automated barcode sorting scan',
-      },
-      {
-        time: 'Today, 10:15 AM',
-        status: 'Picked Up by Pathao Hero',
-        location: 'Fabrician Atelier, Dhaka',
-        note: 'Garment sealed in branded waterproof protective packaging',
-      },
-      {
-        time: 'Yesterday, 06:00 PM',
-        status: 'Order Confirmed',
-        location: 'Fabrician Atelier',
-        note: 'Quality check verified by head tailor',
-      },
-    ],
-  };
+  // Also check if input matches any saved consignment ID
+  const byConsignment = Object.values(savedOrders).find(
+    (entry) => entry.consignmentId.toUpperCase() === cleanId
+  );
+  if (byConsignment) {
+    return byConsignment;
+  }
+
+  throw new Error('ORDER_NOT_FOUND');
 }

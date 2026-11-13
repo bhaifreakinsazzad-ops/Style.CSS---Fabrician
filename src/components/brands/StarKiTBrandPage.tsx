@@ -20,9 +20,8 @@ import {
   GraphicArchiveProduct,
   GraphicArchiveVariant,
 } from '../../data/graphicArchiveCatalog';
-import { FASHION_LOOKS } from '../../data/mockData';
+import { AMBASSADOR_PORTRAIT, FASHION_LOOKS } from '../../data/mockData';
 import { useStoreData } from '../../context/StoreDataContext';
-import { lookbookModelPanjabi, lookbookModelStreetwear } from '../../assets/images';
 
 interface StarKiTBrandPageProps {
   language: Language;
@@ -178,9 +177,9 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
   const handleAddHoodie = (product: GraphicArchiveProduct, variant: GraphicArchiveVariant) => {
     const size = selectedSizes[product.id] || 'L';
     onAddToCart({
-      productId: variant.sku,
-      nameEn: `StarKiT — ${product.name} Hoodie`,
-      nameBn: `স্টারকিট — ${product.name} হুডি`,
+      productId: product.id,
+      nameEn: `StarKiT — ${product.name} Hoodie (${variant.sku})`,
+      nameBn: `স্টারকিট — ${product.name} হুডি (${variant.sku})`,
       priceBDT: variant.priceBdt,
       image: variant.previewImage,
       color: variant.color,
@@ -256,13 +255,13 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             </div>
 
             <h1 className="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-light text-[#F5F2EB] tracking-wide leading-[1.08] text-balance">
-              StarKiT <span className="italic text-[#D5BA80]">Archive &amp; Tailored</span>
+              StarKiT <span className="italic text-[#D5BA80]">Graphic Archive</span>
             </h1>
 
             <p className="text-sm sm:text-base text-[#D8D3C9] font-light leading-relaxed max-w-xl">
               {language === 'en'
-                ? 'Bringing together geometric Jamdani cuff Panjabis, Gazipur-knitted 480 GSM monolith fleece, and 11 graphic archive drops designed for modern Bangladeshi men.'
-                : 'জ্যামিতিক জামদানি কাফ পাঞ্জাবি, ৪৮০ জিএসএম মনোলিথ ফ্লিস এবং ১১টি এক্সক্লুসিভ গ্রাফিক আর্কাইভ হুডির সমন্বয়ে স্টারকিট মেনস কালেকশন।'}
+                ? 'Fronted by our official Brand Ambassador, featuring 11 graphic archive fleece hoodies across 15 verified colorways in 330–350 GSM one-side brushed cotton.'
+                : 'আমাদের অফিশিয়াল ব্র্যান্ড অ্যাম্বাসেডরের সাথে ১১টি ডিজাইন ও ১৫টি কালারওয়ের ৩৩০–৩৫০ জিএসএম ওয়ান-সাইড ব্রাশড ফ্লিস হুডি কালেকশন।'}
             </p>
 
             {/* Key Campaign Numbers */}
@@ -277,10 +276,10 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
               </div>
               <div>
                 <div className="font-mono text-2xl text-[#D5BA80] font-semibold tabular-nums">
-                  350–480
+                  330–350
                 </div>
                 <div className="text-[11px] font-mono uppercase text-[#77777D]">
-                  {language === 'en' ? 'GSM Cotton' : 'জিএসএম কটন'}
+                  {language === 'en' ? 'GSM Fleece' : 'জিএসএম ফ্লিস'}
                 </div>
               </div>
               <div>
@@ -317,26 +316,26 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
           <div className="lg:col-span-6 grid grid-cols-2 gap-4">
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-[#171719]">
               <img
-                src={lookbookModelPanjabi}
-                alt="StarKiT Sovereign Tailored Panjabi"
+                src={AMBASSADOR_PORTRAIT}
+                alt="StarKiT Official Brand Ambassador"
                 className="w-full h-full object-cover object-top"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent opacity-80" />
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#B69A60]">
-                  Sartorial Line
+                  Brand Ambassador
                 </div>
                 <div className="font-serif-luxury text-lg text-[#F5F2EB]">
-                  Obsidian Panjabi &amp; Shirts
+                  Face of StarKiT 2026
                 </div>
               </div>
             </div>
 
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-[#171719] translate-y-4">
               <img
-                src={lookbookModelStreetwear}
-                alt="StarKiT Brutalist Heavyweight Streetwear"
-                className="w-full h-full object-cover object-top"
+                src="/assets/aistudio/hoodie_preview_FAB-H003-BLK.png"
+                alt="StarKiT Folk Art Bus 330-350 GSM Fleece Hoodie"
+                className="w-full h-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent opacity-80" />
               <div className="absolute bottom-4 left-4 right-4">
@@ -344,7 +343,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                   Graphic Drop 01
                 </div>
                 <div className="font-serif-luxury text-lg text-[#F5F2EB]">
-                  Heavyweight Fleece Hoodies
+                  330–350 GSM Brushed Fleece
                 </div>
               </div>
             </div>
@@ -390,8 +389,9 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             <div className="flex flex-wrap items-center gap-1.5">
               {[
                 { id: 'all', labelEn: `All StarKiT (${totalCount})`, labelBn: `সব (${totalCount})` },
-                { id: 'sartorial', labelEn: 'Panjabi & Tailored', labelBn: 'পাঞ্জাবি ও শার্ট' },
-                { id: 'essentials', labelEn: '480GSM & Heavy Tees', labelBn: '৪৮০ জিএসএম ও টি-শার্ট' },
+                ...(starKiTEssentials.length > 0
+                  ? [{ id: 'essentials', labelEn: `Custom Drops (${starKiTEssentials.length})`, labelBn: `কাস্টম (${starKiTEssentials.length})` }]
+                  : []),
                 { id: 'hoodies', labelEn: `Graphic Hoodies (${starKiTHoodies.length})`, labelBn: `গ্রাফিক হুডি (${starKiTHoodies.length})` },
               ].map((tab) => (
                 <button
@@ -417,24 +417,24 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={
                   language === 'en'
-                    ? 'Search Panjabi, Hoodie, SKU...'
-                    : 'পাঞ্জাবি, হুডি বা কোড খুঁজুন...'
+                    ? 'Search Hoodie, SKU (FAB-H001)...'
+                    : 'হুডি বা কোড খুঁজুন...'
                 }
                 className="w-full bg-black/60 border border-white/10 rounded-lg pl-8 pr-3 py-2 text-xs text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
               />
             </div>
           </div>
 
-          {/* Part 1: StarKiT Sartorial & Heavyweight Essentials */}
+          {/* Part 1: Admin Custom StarKiT Drops (when created) */}
           {filteredEssentials.length > 0 && activeFilter !== 'hoodies' && (
             <div className="mb-16">
               <div className="flex items-baseline justify-between mb-6 pb-3 border-b border-white/10">
                 <div>
                   <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#B69A60]">
-                    StarKiT × Atelier Signatures
+                    StarKiT × Atelier Drops
                   </span>
                   <h2 className="font-serif-luxury text-2xl sm:text-3xl font-light text-[#F5F2EB]">
-                    {language === 'en' ? 'Panjabis, Shirts & Heavyweight Basics' : 'পাঞ্জাবি, শার্ট ও হেভিওয়েট বেসিকস'}
+                    {language === 'en' ? 'Custom StarKiT Editions' : 'কাস্টম স্টারকিট এডিশন'}
                   </h2>
                 </div>
                 <span className="text-xs font-mono text-[#77777D] tabular-nums">

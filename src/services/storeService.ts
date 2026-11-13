@@ -106,6 +106,10 @@ export async function placeStoreOrder(input: {
     consignmentId,
   });
 
+  if (!db) {
+    return { orderId: cleanOrderId, consignmentId };
+  }
+
   try {
     const batch = writeBatch(db);
     batch.set(doc(db, 'orders', cleanOrderId), orderDoc);
@@ -127,6 +131,7 @@ export async function updateStoreOrderDispatch(input: {
   estimatedDelivery: string;
   trackingNote: string;
 }): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(input.orderId);
   const orderPatch: Record<string, unknown> = {
     status: input.status,
@@ -162,6 +167,7 @@ export async function updateStoreOrderDispatch(input: {
 }
 
 export async function deleteStoreOrder(orderId: string): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(orderId);
   try {
     const batch = writeBatch(db);
@@ -174,6 +180,7 @@ export async function deleteStoreOrder(orderId: string): Promise<void> {
 }
 
 export async function fetchLiveOrderTracking(orderId: string): Promise<StoreOrderTracking | null> {
+  if (!db) return null;
   const cleanId = sanitizeId(orderId.toUpperCase());
   try {
     const snap = await getDoc(doc(db, 'orderTracking', cleanId));
@@ -198,6 +205,7 @@ export async function fetchLiveOrderTracking(orderId: string): Promise<StoreOrde
 }
 
 export async function upsertCatalogOverride(item: CatalogOverride): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(item.id);
   const payload: Record<string, unknown> = {
     id: cleanId,
@@ -244,6 +252,7 @@ export async function upsertCatalogOverride(item: CatalogOverride): Promise<void
 }
 
 export async function deleteCatalogOverride(productId: string): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(productId);
   try {
     await deleteDoc(doc(db, 'catalogOverrides', cleanId));
@@ -253,6 +262,7 @@ export async function deleteCatalogOverride(productId: string): Promise<void> {
 }
 
 export async function saveStoreSettings(settings: StoreSettings): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const payload = {
     hotlineDisplay: truncateStr(settings.hotlineDisplay, 40),
     hotlineTel: truncateStr(settings.hotlineTel, 48),
@@ -276,6 +286,7 @@ export async function saveStoreSettings(settings: StoreSettings): Promise<void> 
 }
 
 export async function subscribeNewsletter(email: string, language: Language): Promise<void> {
+  if (!db) throw new Error('Newsletter cloud sync requires VITE_FIREBASE_API_KEY.');
   const normalizedEmail = truncateStr(email.toLowerCase(), 160);
   const subId = sanitizeId(`sub-${normalizedEmail.replace(/[@.]/g, '_')}`);
   try {
@@ -290,6 +301,7 @@ export async function subscribeNewsletter(email: string, language: Language): Pr
 }
 
 export async function deleteSubscriber(subscriberId: string): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(subscriberId);
   try {
     await deleteDoc(doc(db, 'subscribers', cleanId));
@@ -324,6 +336,10 @@ export async function submitStoreReview(input: {
     createdAt: serverTimestamp(),
   };
 
+  if (!db) {
+    throw new Error('Reviews cloud sync requires VITE_FIREBASE_API_KEY.');
+  }
+
   try {
     await setDoc(doc(db, 'reviews', reviewId), docPayload);
   } catch (error) {
@@ -347,6 +363,7 @@ export async function submitStoreReview(input: {
 }
 
 export async function upvoteStoreReview(reviewId: string): Promise<void> {
+  if (!db) return;
   const cleanId = sanitizeId(reviewId);
   try {
     await updateDoc(doc(db, 'reviews', cleanId), {
@@ -361,6 +378,7 @@ export async function moderateStoreReview(
   reviewId: string,
   status: 'approved' | 'hidden'
 ): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(reviewId);
   try {
     await updateDoc(doc(db, 'reviews', cleanId), { status });
@@ -370,6 +388,7 @@ export async function moderateStoreReview(
 }
 
 export async function deleteStoreReview(reviewId: string): Promise<void> {
+  if (!db) throw new Error('Firebase is not configured. Set VITE_FIREBASE_API_KEY.');
   const cleanId = sanitizeId(reviewId);
   try {
     await deleteDoc(doc(db, 'reviews', cleanId));

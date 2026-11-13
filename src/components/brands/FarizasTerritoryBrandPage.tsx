@@ -19,7 +19,6 @@ import { LiveProduct, LiveThreePieceItem } from '../../types/store';
 import { ThreePieceItem } from '../../data/threePieceCatalog';
 import { FASHION_LOOKS } from '../../data/mockData';
 import { useStoreData } from '../../context/StoreDataContext';
-import { lookbookModelSaree } from '../../assets/images';
 
 const ThreePiece3DViewer = React.lazy(() =>
   import('../three-piece/ThreePiece3DViewer').then((m) => ({ default: m.ThreePiece3DViewer }))
@@ -220,8 +219,8 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
 
             <p className="text-sm sm:text-base text-[#D8D3C9] font-light leading-relaxed max-w-xl">
               {language === 'en'
-                ? 'From architectural Jamdani handloom sarees to 18 verified three-piece ensembles in Swiss lawn, wax-resist Alfi & Mome batik, and festive mirror embroidery.'
-                : 'টাঙ্গাইলের হাতে বোনা জামদানি শাড়ি থেকে শুরু করে সুইস লন, আলফি ও মমি বাটিক এবং উৎসবের মিরর এমব্রয়ডারির ১৮টি আসল থ্রি-পিস সংকলন।'}
+                ? 'Explore all 18 verified three-piece ensembles across Swiss lawn, wax-resist Alfi & Mome batik, Magenta & Plum prints, and festive mirror-work embroidery.'
+                : 'সুইস লন, আলফি ও মমি বাটিক, ম্যাজেন্টা ও প্লাম এবং উৎসবের মিরর এমব্রয়ডারির ১৮টি আসল থ্রি-পিস সংকলন।'}
             </p>
 
             {/* Key Campaign Numbers */}
@@ -260,7 +259,9 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
                 }
                 className="px-6 py-3 rounded-lg bg-[#F5F2EB] hover:bg-[#D5BA80] text-[#09090B] text-xs font-semibold uppercase tracking-[0.18em] transition-colors cursor-pointer"
               >
-                {language === 'en' ? 'Browse All 18 Sets' : '১৮টি থ্রি-পিস দেখুন'}
+                {language === 'en'
+                  ? `Browse All ${farizaThreePieceSets.length} Sets`
+                  : `${farizaThreePieceSets.length}টি থ্রি-পিস দেখুন`}
               </button>
               <a
                 href={storeSettings.hotlineTel}
@@ -293,17 +294,17 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
 
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 bg-[#171719] translate-y-4">
               <img
-                src={lookbookModelSaree}
-                alt="Fariza's Territory Avant Jamdani Saree"
+                src="/assets/fariza/FS-D01_model.jpg"
+                alt="Fariza's Territory FS-D01 Golden Mustard Mirror Elegance"
                 className="w-full h-full object-cover object-top"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-transparent to-transparent opacity-80" />
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#B69A60]">
-                  Runway Couture
+                  Embroidery &amp; Mirror
                 </div>
                 <div className="font-serif-luxury text-lg text-[#F5F2EB]">
-                  Jamdani &amp; Tailored Blazers
+                  FS-D01 Golden Mustard Mirror
                 </div>
               </div>
             </div>
@@ -348,10 +349,10 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
             <div className="flex items-baseline justify-between mb-8">
               <div>
                 <span className="text-[11px] font-mono uppercase tracking-[0.22em] text-[#B69A60]">
-                  Fariza&apos;s Territory × Signature Couture
+                  Fariza&apos;s Territory × Atelier Drops
                 </span>
                 <h2 className="font-serif-luxury text-2xl sm:text-3xl font-light text-[#F5F2EB]">
-                  {language === 'en' ? 'Handloom Sarees & Architectural Blazers' : 'হ্যান্ডলুম শাড়ি ও আর্কিটেকচারাল ব্লেজার'}
+                  {language === 'en' ? 'Custom Women’s Editions' : 'কাস্টম উইমেন্স এডিশন'}
                 </h2>
               </div>
               <span className="text-xs font-mono text-[#77777D] tabular-nums">
@@ -463,8 +464,8 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
               </span>
               <h2 className="font-serif-luxury text-3xl sm:text-4xl font-light text-[#F5F2EB] mt-1">
                 {language === 'en'
-                  ? '18 Signature Three-Piece Ensembles'
-                  : '১৮টি সিগনেচার থ্রি-পিস এডিট'}
+                  ? `${farizaThreePieceSets.length} Signature Three-Piece Ensembles`
+                  : `${farizaThreePieceSets.length}টি সিগনেচার থ্রি-পিস এডিট`}
               </h2>
             </div>
 

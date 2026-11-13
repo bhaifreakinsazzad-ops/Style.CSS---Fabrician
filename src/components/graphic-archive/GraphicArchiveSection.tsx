@@ -127,9 +127,9 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   const handleAddToCart = (product: GraphicArchiveProduct, variant: GraphicArchiveVariant) => {
     const size = selectedSizes[product.id] || 'L';
     onAddToCart({
-      productId: variant.sku,
-      nameEn: `${product.name} Hoodie`,
-      nameBn: `${product.name} হুডি`,
+      productId: product.id,
+      nameEn: `${product.name} Hoodie (${variant.sku})`,
+      nameBn: `${product.name} হুডি (${variant.sku})`,
       priceBDT: variant.priceBdt,
       image: variant.previewImage,
       color: variant.color,
@@ -142,7 +142,11 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   };
 
   const categories = [
-    { id: 'all', labelEn: 'All Designs (11)', labelBn: 'সকল ডিজাইন (১১টি)' },
+    {
+      id: 'all',
+      labelEn: `All Designs (${liveGraphicArchiveProducts.length})`,
+      labelBn: `সকল ডিজাইন (${liveGraphicArchiveProducts.length}টি)`,
+    },
     { id: 'Bangla Heritage', labelEn: 'Bangla Heritage', labelBn: 'বাংলা হেরিটেজ' },
     { id: 'Anime Archive', labelEn: 'Anime Archive', labelBn: 'অ্যানিমে আর্কাইভ' },
     { id: 'Moto Culture', labelEn: 'Moto Culture', labelBn: 'মটো কালচার' },
@@ -584,17 +588,40 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
               </div>
 
               <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleAddToCart(activeLookbookSheet.product, activeLookbookSheet.variant);
-                    setActiveLookbookSheet(null);
-                  }}
-                  className="px-5 py-2 rounded-xl bg-[#F5F2EB] text-black font-semibold text-xs hover:bg-[#D5BA80] transition-colors flex items-center gap-2 cursor-pointer"
-                >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>{language === 'en' ? 'Add This Piece to Bag' : 'ব্যাগে যোগ করুন'}</span>
-                </button>
+                {(() => {
+                  const liveEntry = liveGraphicArchiveProducts.find(
+                    (g) => g.id === activeLookbookSheet.product.id
+                  );
+                  const sheetOutOfStock =
+                    liveEntry ? liveEntry.catalogStatus === 'out_of_stock' || liveEntry.stockCount <= 0 : false;
+                  return (
+                    <button
+                      type="button"
+                      disabled={sheetOutOfStock}
+                      onClick={() => {
+                        if (sheetOutOfStock) return;
+                        handleAddToCart(activeLookbookSheet.product, activeLookbookSheet.variant);
+                        setActiveLookbookSheet(null);
+                      }}
+                      className={`px-5 py-2 rounded-xl font-semibold text-xs transition-colors flex items-center gap-2 ${
+                        sheetOutOfStock
+                          ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                          : 'bg-[#F5F2EB] text-black hover:bg-[#D5BA80] cursor-pointer'
+                      }`}
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>
+                        {sheetOutOfStock
+                          ? language === 'en'
+                            ? 'Out of Stock'
+                            : 'স্টক শেষ'
+                          : language === 'en'
+                          ? 'Add This Piece to Bag'
+                          : 'ব্যাগে যোগ করুন'}
+                      </span>
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>
