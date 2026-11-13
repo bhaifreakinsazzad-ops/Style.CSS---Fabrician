@@ -220,7 +220,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     if (promoBrand && items.length > 0 && items.every(item =>
       unifiedCatalog.find(prod => prod.id === item.productId)?.brand === promoBrand
     )) {
-      setAppliedPromo(code);
+      setAppliedPromo(code as 'FARIZA10' | 'STARKIT10');
       setPromoInput(code);
       setPromoMessage(
         language === 'en' ? `${code}: 10% Extra Off Applied!` : `${code}: অতিরিক্ত ১০% ছাড় কার্যকর হয়েছে!`
