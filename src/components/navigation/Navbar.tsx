@@ -112,16 +112,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {language === 'en' ? 'StarkiT' : 'স্টারকিট'}
             </a>
-            <button
-              onClick={() => handleBrandClick('farizas-territory')}
-              className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] ${
+            <a
+              href="/farizas-territory"
+              onClick={(e) => {
+                if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                  e.preventDefault();
+                  handleBrandClick('farizas-territory');
+                }
+              }}
+              className={`font-fariza transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#60A5FA] font-semibold ${
                 viewMode === 'farizas-territory'
-                  ? 'text-[#D5BA80] font-semibold border-b border-[#B69A60] pb-0.5'
-                  : 'text-[#D5BA80] hover:text-[#F5F2EB] font-semibold'
+                  ? 'text-[#60A5FA] border-b border-[#0866FF] pb-0.5'
+                  : 'text-[#F5F2EB] hover:text-[#60A5FA]'
               }`}
             >
               {language === 'en' ? "Fariza's Territory" : 'ফারিজাস টেরিটরি'}
-            </button>
+            </a>
             <span className="text-white/15 select-none">|</span>
             <button
               onClick={() => handleLinkClick('lookbook')}
@@ -317,19 +323,42 @@ export const Navbar: React.FC<NavbarProps> = ({
                     : '৩৩০–৪৮০ জিএসএম ফ্লিস ও ১১টি হুডি'}
                 </div>
               </a>
-              <button
-                onClick={() => handleBrandClick('farizas-territory')}
-                className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
+              <a
+                href="/farizas-territory"
+                onClick={(e) => {
+                  if (!e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+                    e.preventDefault();
+                    handleBrandClick('farizas-territory');
+                  }
+                }}
+                className={`block w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
                   viewMode === 'farizas-territory'
-                    ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
-                    : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
+                    ? 'bg-[#0866FF] border-[#0866FF] text-white'
+                    : 'bg-[#F0F2F5] border-[#050505]/15 text-[#050505] hover:border-[#0866FF]'
                 }`}
               >
-                <div className="font-serif-luxury text-lg tracking-wider">Fariza&apos;s Territory × FABRICIAN</div>
-                <div className="text-[11px] font-mono text-[#D5BA80]">
-                  {language === 'en' ? "Women's Couture & 18 Three-Piece Sets" : 'উইমেনস কুট্যুর ও ১৮টি থ্রি-পিস'}
+                <div className="flex items-center justify-between">
+                  <div className="font-fariza text-lg font-bold tracking-wide">
+                    Fariza&apos;s Territory
+                  </div>
+                  <span
+                    className={`text-[10px] font-mono ${
+                      viewMode === 'farizas-territory' ? 'text-white/90' : 'text-[#0866FF]'
+                    }`}
+                  >
+                    /farizas-territory
+                  </span>
                 </div>
-              </button>
+                <div
+                  className={`text-[11px] font-mono ${
+                    viewMode === 'farizas-territory' ? 'text-white/85' : 'text-[#196B2C]'
+                  }`}
+                >
+                  {language === 'en'
+                    ? 'Style · Trendy Fashion · Community (18 Sets)'
+                    : 'হস্তশিল্প ও ১৮টি থ্রি-পিস (/farizas-territory)'}
+                </div>
+              </a>
             </div>
 
           <div className="flex flex-col gap-5 text-lg font-serif-luxury tracking-widest text-[#F5F2EB] border-b border-white/10 pb-8">

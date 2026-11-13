@@ -20,6 +20,7 @@ interface CapiContentEntry {
 }
 
 interface CapiRequestBody {
+  pixelId?: string;
   eventName?: string;
   eventId?: string;
   eventSourceUrl?: string;
@@ -115,7 +116,22 @@ function resolveClientIp(req: CapiRequest): string | undefined {
   return req.socket?.remoteAddress;
 }
 
-function resolveAccessToken(): string {
+const ALLOWED_PIXEL_IDS = new Set(['1390081606323661', '1657670575734647']);
+
+function resolveAccessToken(pixelId: string): string {
+  if (pixelId === '1657670575734647') {
+    return (
+      process.env.FARIZA_META_CAPI_ACCESS_TOKEN ||
+      process.env.FARIZA_META_PIXEL_ACCESS_TOKEN ||
+      process.env.META_CAPI_ACCESS_TOKEN ||
+      process.env.META_PIXEL_ACCESS_TOKEN ||
+      process.env.META_ACCESS_TOKEN ||
+      process.env.FB_CAPI_ACCESS_TOKEN ||
+      process.env.FACEBOOK_CAPI_ACCESS_TOKEN ||
+      process.env.FACEBOOK_ACCESS_TOKEN ||
+      ''
+    ).trim();
+  }
   return (
     process.env.META_CAPI_ACCESS_TOKEN ||
     process.env.META_PIXEL_ACCESS_TOKEN ||
@@ -130,15 +146,17 @@ function resolveAccessToken(): string {
 export default async function handler(req: CapiRequest, res: CapiResponse): Promise<void> {
   res.setHeader('Cache-Control', 'no-store');
 
-  const pixelId = (process.env.META_PIXEL_ID || '1390081606323661').trim();
-  const accessToken = resolveAccessToken();
+  const defaultPixelId = (process.env.META_PIXEL_ID || '1390081606323661').trim();
   const testEventCode = (process.env.META_TEST_EVENT_CODE || '').trim();
 
   if (req.method === 'GET') {
+    const accessToken = resolveAccessToken(defaultPixelId);
     res.status(200).json({
       ok: true,
-      pixelId,
+      pixelId: defaultPixelId,
+      supportedPixelIds: Array.from(ALLOWED_PIXEL_IDS),
       capiConfigured: Boolean(accessToken),
+      farizaCapiConfigured: Boolean(resolveAccessToken('1657670575734647')),
       testMode: Boolean(testEventCode),
     });
     return;
@@ -161,6 +179,12 @@ export default async function handler(req: CapiRequest, res: CapiResponse): Prom
     return;
   }
 
+  const requestedPixelId = (body.pixelId || '').trim();
+  const pixelId = ALLOWED_PIXEL_IDS.has(requestedPixelId)
+    ? requestedPixelId
+    : defaultPixelId;
+  const accessToken = resolveAccessToken(pixelId);
+
   const eventName = (body.eventName || '').trim();
   if (!ALLOWED_EVENTS.has(eventName)) {
     res.status(400).json({ ok: false, error: 'Unsupported Meta CAPI eventName' });
@@ -170,6 +194,7 @@ export default async function handler(req: CapiRequest, res: CapiResponse): Prom
   if (!accessToken) {
     res.status(202).json({
       ok: false,
+      pixelId,
       skipped: true,
       reason: 'META_CAPI_ACCESS_TOKEN is not configured in environment',
     });

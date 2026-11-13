@@ -54,7 +54,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
               }
               className={`group relative rounded-xl overflow-hidden bg-[#171719] border transition-colors duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl will-change-transform ${
                 col.brand === "Fariza's Territory"
-                  ? 'border-[#C2185B]/35 hover:border-[#E91E63]'
+                  ? 'border-[#0866FF]/45 hover:border-[#0866FF]'
                   : 'border-white/25 hover:border-white'
               }`}
             >
@@ -79,7 +79,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                   <div
                     className={`w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white transition-colors ${
                       col.brand === "Fariza's Territory"
-                        ? 'group-hover:bg-[#C2185B] group-hover:text-white'
+                        ? 'group-hover:bg-[#0866FF] group-hover:text-white'
                         : 'group-hover:bg-white group-hover:text-[#170000]'
                     }`}
                   >
@@ -90,7 +90,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                 <div>
                   <div
                     className={`text-[10px] font-mono uppercase tracking-[0.2em] mb-1 ${
-                      col.brand === "Fariza's Territory" ? 'text-[#F48FB1]' : 'text-[#FFFFFF]'
+                      col.brand === "Fariza's Territory" ? 'text-[#60A5FA]' : 'text-[#FFFFFF]'
                     }`}
                   >
                     {col.brand} · /{col.brandRoute}

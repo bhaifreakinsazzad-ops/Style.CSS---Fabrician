@@ -19,9 +19,15 @@ import { ThreePieceItem } from '../../data/threePieceCatalog';
 import { LiveThreePieceItem } from '../../types/store';
 import { CartItem, Language, Product } from '../../types';
 import { useStoreData } from '../../context/StoreDataContext';
+import type { FarizaChestSize } from '../../data/farizaBrandData';
+import {
+  trackFarizaCustomizeProduct,
+  trackFarizaSearch,
+  trackFarizaViewContent,
+} from '../../services/metaPixel';
 
 const TAILORING_SURCHARGE_BDT = 450;
-const CHEST_SIZES = ['34"', '36"', '38"', '40"', '42"', '44"'] as const;
+const CHEST_SIZES: readonly FarizaChestSize[] = ['34"', '36"', '38"', '40"', '42"', '44"'];
 
 export const toThreePieceProduct = (item: ThreePieceItem): Product => ({
   id: item.id,
@@ -47,7 +53,6 @@ interface EditMeta {
   labelEn: string;
   labelBn: string;
   accentHex: string;
-  pillBg: string;
   fabricTag: string;
 }
 
@@ -56,48 +61,42 @@ const EDIT_METADATA: EditMeta[] = [
     id: 'All',
     labelEn: 'All 18 Styles',
     labelBn: 'সকল ১৮ ডিজাইন',
-    accentHex: '#C2185B',
-    pillBg: 'bg-[#C2185B]',
+    accentHex: '#0866FF',
     fabricTag: 'Complete Capsule',
   },
   {
     id: 'Magenta & Plum',
     labelEn: 'Magenta & Plum',
     labelBn: 'ম্যাজেন্টা ও প্লাম',
-    accentHex: '#A21CAF',
-    pillBg: 'bg-[#A21CAF]',
+    accentHex: '#050505',
     fabricTag: 'Printed Cotton Lawn',
   },
   {
     id: 'Alfi Boutique',
     labelEn: 'Alfi Boutique',
     labelBn: 'আলফি বুটিক',
-    accentHex: '#0D7A5F',
-    pillBg: 'bg-[#0D7A5F]',
+    accentHex: '#31A24C',
     fabricTag: 'Wax-Resist Batik',
   },
   {
     id: 'Mome Boutique',
     labelEn: 'Mome Boutique',
     labelBn: 'মোমে বুটিক',
-    accentHex: '#C84B31',
-    pillBg: 'bg-[#C84B31]',
+    accentHex: '#0866FF',
     fabricTag: 'Tie-Dye & Sprig',
   },
   {
     id: 'Zam Zam Swiss Lawn',
     labelEn: 'Zam Zam Swiss Lawn',
     labelBn: 'জমজম সুইস লন',
-    accentHex: '#1D4ED8',
-    pillBg: 'bg-[#1D4ED8]',
+    accentHex: '#050505',
     fabricTag: 'Swiss Lawn',
   },
   {
     id: 'Embroidery & Mirror',
     labelEn: 'Embroidery & Mirror',
     labelBn: 'মিরর এমব্রয়ডারি',
-    accentHex: '#B45309',
-    pillBg: 'bg-[#B45309]',
+    accentHex: '#31A24C',
     fabricTag: 'Shisha & Resham',
   },
 ];
@@ -117,50 +116,48 @@ export const FarizaPromoBar: React.FC<{ language: Language }> = ({ language }) =
   };
 
   return (
-    <div className="rounded-2xl bg-gradient-to-r from-[#880E4F] via-[#AD1457] to-[#0D7A5F] p-[1px] shadow-lg mb-8">
-      <div className="rounded-[15px] bg-[#FFFDF9] px-4 py-3.5 sm:px-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#2B1F24]">
-          <div className="flex items-center gap-2 font-semibold">
-            <Tag className="w-4 h-4 text-[#C2185B] shrink-0" />
-            <span>
-              {language === 'en'
-                ? 'Unlock 10% Extra Off with Code'
-                : 'কোড ব্যবহারে পাচ্ছেন অতিরিক্ত ১০% ছাড়'}
+    <div className="rounded-2xl bg-white border border-[#050505]/15 shadow-sm mb-8 px-4 py-3.5 sm:px-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 font-fariza">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#050505]">
+        <div className="flex items-center gap-2 font-semibold">
+          <Tag className="w-4 h-4 text-[#0866FF] shrink-0" />
+          <span>
+            {language === 'en'
+              ? 'Unlock 10% Extra Off with Code'
+              : 'কোড ব্যবহারে পাচ্ছেন অতিরিক্ত ১০% ছাড়'}
+          </span>
+          <button
+            type="button"
+            onClick={handleCopyCode}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0866FF] hover:bg-[#0552D1] text-white font-mono text-[11px] font-bold transition-colors cursor-pointer"
+            title={language === 'en' ? 'Copy promo code FARIZA10' : 'কপি করুন FARIZA10'}
+          >
+            <span>FARIZA10</span>
+            {copiedPromo ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+          </button>
+          {copiedPromo && (
+            <span className="text-[11px] font-mono text-[#196B2C] font-semibold">
+              {language === 'en' ? 'Copied!' : 'কপি হয়েছে!'}
             </span>
-            <button
-              type="button"
-              onClick={handleCopyCode}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#C2185B]/10 hover:bg-[#C2185B] text-[#9D1148] hover:text-white border border-[#C2185B]/30 font-mono text-[11px] font-bold transition-colors cursor-pointer"
-              title={language === 'en' ? 'Copy promo code FARIZA10' : 'কপি করুন FARIZA10'}
-            >
-              <span>FARIZA10</span>
-              {copiedPromo ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            </button>
-            {copiedPromo && (
-              <span className="text-[11px] font-mono text-[#0D7A5F] font-semibold">
-                {language === 'en' ? 'Copied!' : 'কপি হয়েছে!'}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5 text-[#4E4347]">
-            <Layers className="w-3.5 h-3.5 text-[#B45309] shrink-0" />
-            <span className="tabular-nums">
-              {language === 'en'
-                ? `Stacks with ৳${storeSettings.bundle2DiscountBDT} (2 sets) / ৳${storeSettings.bundle3DiscountBDT} (3+ sets) Bundle Privilege`
-                : `২টি সেটে ৳${storeSettings.bundle2DiscountBDT} ও ৩টিতে ৳${storeSettings.bundle3DiscountBDT} বান্ডেল ছাড়`}
-            </span>
-          </div>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] font-mono text-[#0D7A5F] font-semibold shrink-0">
-          <Truck className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-1.5 text-[#374151]">
+          <Layers className="w-3.5 h-3.5 text-[#0866FF] shrink-0" />
           <span className="tabular-nums">
             {language === 'en'
-              ? `Free Pathao Delivery on ৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+`
-              : `৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+ অর্ডারে ফ্রি পাঠাও ডেলিভারি`}
+              ? `Stacks with ৳${storeSettings.bundle2DiscountBDT} (2 sets) · ৳${storeSettings.bundle3DiscountBDT} (3+ sets) Bundle Privilege`
+              : `২টি সেটে ৳${storeSettings.bundle2DiscountBDT} ও ৩টিতে ৳${storeSettings.bundle3DiscountBDT} বান্ডেল ছাড়`}
           </span>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 text-[11px] font-mono text-[#196B2C] font-semibold shrink-0">
+        <Truck className="w-4 h-4 text-[#31A24C] shrink-0" />
+        <span className="tabular-nums">
+          {language === 'en'
+            ? `Free Pathao Delivery on ৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+`
+            : `৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+ অর্ডারে ফ্রি পাঠাও ডেলিভারি`}
+        </span>
       </div>
     </div>
   );
@@ -175,6 +172,7 @@ interface FarizaCatalogGridProps {
   isWishlisted: (id: string) => boolean;
   onQuickView?: (product: Product) => void;
   onLaunch3D: (item: ThreePieceItem) => void;
+  recommendedChestSize?: FarizaChestSize | null;
   animateOnMount?: boolean;
 }
 
@@ -187,8 +185,10 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
   isWishlisted,
   onQuickView,
   onLaunch3D,
+  recommendedChestSize = null,
   animateOnMount = false,
 }) => {
+  const useSupabaseCommerce = import.meta.env.VITE_COMMERCE_BACKEND === 'supabase';
   const [activeSubEdit, setActiveSubEdit] = useState<'All' | ThreePieceItem['subCollection']>('All');
   const [globalViewMode, setGlobalViewMode] = useState<'flatlay' | 'model'>('flatlay');
   const [cardViewOverrides, setCardViewOverrides] = useState<Record<string, 'flatlay' | 'model'>>({});
@@ -199,9 +199,30 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
   const [selectedChestSize, setSelectedChestSize] = useState<Record<string, string>>({});
   const [selectedShade, setSelectedShade] = useState<Record<string, string>>({});
   const [addedItemCode, setAddedItemCode] = useState<string | null>(null);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
 
   const gridRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!recommendedChestSize || useSupabaseCommerce) return;
+    setSelectedChestSize(() => {
+      const next: Record<string, string> = {};
+      items.forEach((item) => {
+        next[item.id] = recommendedChestSize;
+      });
+      return next;
+    });
+  }, [recommendedChestSize, items, useSupabaseCommerce]);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackFarizaSearch(q);
+    }, 550);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
 
   const countByEdit = useMemo(() => {
     const map: Record<string, number> = { All: items.length };
@@ -249,8 +270,8 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
     animate(cards, {
       opacity: [0, 1],
       translateY: [18, 0],
-      delay: stagger(35, { start: 30 }),
-      duration: 450,
+      delay: stagger(30, { start: 25 }),
+      duration: 420,
       ease: 'outCubic',
     });
   }, [animateOnMount, activeSubEdit, priceTier, sortBy, searchQuery]);
@@ -260,7 +281,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
     const obj = { val: 0 };
     animate(obj, {
       val: filteredItems.length,
-      duration: 420,
+      duration: 400,
       ease: 'outExpo',
       onUpdate: () => {
         if (counterRef.current) {
@@ -271,8 +292,8 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
   }, [filteredItems.length]);
 
   const buildOrderPayload = (item: LiveThreePieceItem): Omit<CartItem, 'id'> => {
-    const isStitched = tailoringMode[item.id] === 'stitched';
-    const chest = selectedChestSize[item.id] || '38"';
+    const isStitched = !useSupabaseCommerce && tailoringMode[item.id] === 'stitched';
+    const chest = selectedChestSize[item.id] || recommendedChestSize || '38"';
     const activeColor = selectedShade[item.id] || item.colors[0]?.name || 'Signature Shade';
     const unitPrice = item.priceBDT + (isStitched ? TAILORING_SURCHARGE_BDT : 0);
 
@@ -286,6 +307,16 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
       size: isStitched ? `Custom Stitched (${chest})` : 'Unstitched Set',
       quantity: 1,
     };
+  };
+
+  const handleOpenQuickView = (item: LiveThreePieceItem) => {
+    trackFarizaViewContent({
+      id: item.id,
+      name: `${item.code} — ${item.nameEn}`,
+      category: item.subCollection,
+      valueBDT: item.priceBDT,
+    });
+    onQuickView?.(toThreePieceProduct(item));
   };
 
   const handleAddItem = (item: LiveThreePieceItem, e: React.MouseEvent) => {
@@ -311,7 +342,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
   const maxPrice = items.length ? Math.max(...items.map((i) => i.priceBDT)) : 2450;
 
   return (
-    <div>
+    <div className="font-fariza">
       {/* 5 Signature Edit Selector Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-6">
         {EDIT_METADATA.map((edit) => {
@@ -324,13 +355,13 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
               onClick={() => setActiveSubEdit(edit.id)}
               className={`group text-left p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden ${
                 isActive
-                  ? 'bg-[#171216] border-[#171216] text-[#FFFDF9] shadow-md'
-                  : 'bg-white border-[#E7DEC8] hover:border-[#C2185B]/50 text-[#171216]'
+                  ? 'bg-[#0866FF] border-[#0866FF] text-white shadow-md'
+                  : 'bg-white border-[#050505]/12 hover:border-[#0866FF] text-[#050505]'
               }`}
             >
               <span
                 className="block w-8 h-1 rounded-full mb-2 transition-all group-hover:w-12"
-                style={{ backgroundColor: edit.accentHex }}
+                style={{ backgroundColor: isActive ? '#FFFFFF' : edit.accentHex }}
               />
               <div className="flex items-baseline justify-between gap-1">
                 <span className="text-xs font-semibold leading-tight truncate">
@@ -338,7 +369,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                 </span>
                 <span
                   className={`font-mono text-[11px] font-bold tabular-nums shrink-0 ${
-                    isActive ? 'text-[#F5E4B7]' : 'text-[#6D5E63]'
+                    isActive ? 'text-white' : 'text-[#4B5563]'
                   }`}
                 >
                   {String(count).padStart(2, '0')}
@@ -346,7 +377,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
               </div>
               <div
                 className={`text-[10px] font-mono mt-0.5 truncate ${
-                  isActive ? 'text-[#D8D3C9]' : 'text-[#6D5E63]'
+                  isActive ? 'text-white/85' : 'text-[#4B5563]'
                 }`}
               >
                 {edit.fabricTag}
@@ -357,21 +388,21 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
       </div>
 
       {/* Discovery, View Mode, Budget & Search Controls */}
-      <div className="p-3 sm:p-4 rounded-2xl bg-white border border-[#E7DEC8] shadow-sm mb-8 space-y-3">
+      <div className="p-3 sm:p-4 rounded-2xl bg-white border border-[#050505]/12 shadow-sm mb-8 space-y-3">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           {/* Global Image View Segmented Toggle */}
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="p-1 bg-[#F4EEE1] border border-[#E7DEC8] rounded-lg inline-flex items-center gap-1 text-xs">
+            <div className="p-1 bg-[#F0F2F5] border border-[#050505]/12 rounded-xl inline-flex items-center gap-1 text-xs">
               <button
                 type="button"
                 onClick={() => {
                   setGlobalViewMode('flatlay');
                   setCardViewOverrides({});
                 }}
-                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
                   globalViewMode === 'flatlay'
-                    ? 'bg-[#171216] text-white shadow-sm'
-                    : 'text-[#4E4347] hover:text-[#171216]'
+                    ? 'bg-[#050505] text-white shadow-sm'
+                    : 'text-[#374151] hover:text-[#050505]'
                 }`}
               >
                 {language === 'en' ? 'Original Fabric' : 'আসল ফ্যাব্রিক'}
@@ -382,10 +413,10 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                   setGlobalViewMode('model');
                   setCardViewOverrides({});
                 }}
-                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
                   globalViewMode === 'model'
-                    ? 'bg-[#C2185B] text-white shadow-sm'
-                    : 'text-[#4E4347] hover:text-[#171216]'
+                    ? 'bg-[#0866FF] text-white shadow-sm'
+                    : 'text-[#374151] hover:text-[#050505]'
                 }`}
               >
                 {language === 'en' ? 'Model / Detail' : 'মডেল / ডিটেইল'}
@@ -406,8 +437,8 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                   onClick={() => setPriceTier(tier.id as typeof priceTier)}
                   className={`px-2.5 py-1.5 rounded-lg border transition-colors cursor-pointer tabular-nums ${
                     priceTier === tier.id
-                      ? 'bg-[#0D7A5F] border-[#0D7A5F] text-white font-bold'
-                      : 'bg-[#FBF7EF] border-[#E7DEC8] text-[#4E4347] hover:border-[#0D7A5F]/50'
+                      ? 'bg-[#31A24C] border-[#31A24C] text-white font-bold'
+                      : 'bg-[#F0F2F5] border-[#050505]/12 text-[#374151] hover:border-[#0866FF]/60'
                   }`}
                 >
                   {language === 'en' ? tier.en : tier.bn}
@@ -419,7 +450,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
           {/* SKU Search + Sort */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             <div className="relative w-full sm:w-64">
-              <Search className="w-3.5 h-3.5 text-[#6D5E63] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-[#4B5563] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
@@ -429,7 +460,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                     ? 'Search code, color (ZSL-01, Plum)...'
                     : 'কোড বা রঙ খুঁজুন (ZSL-01)...'
                 }
-                className="w-full bg-[#FBF7EF] border border-[#E7DEC8] rounded-lg pl-8 pr-3 py-2 text-xs text-[#171216] placeholder:text-[#6D5E63] focus:outline-none focus:border-[#C2185B]"
+                className="w-full bg-[#F0F2F5] border border-[#050505]/15 rounded-lg pl-8 pr-3 py-2 text-xs text-[#050505] placeholder:text-[#6B7280] focus:outline-none focus:border-[#0866FF]"
               />
             </div>
 
@@ -437,7 +468,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
               aria-label={language === 'en' ? 'Sort designs' : 'ডিজাইন সাজান'}
-              className="bg-[#FBF7EF] border border-[#E7DEC8] rounded-lg px-3 py-2 text-xs font-mono text-[#171216] focus:outline-none focus:border-[#C2185B] cursor-pointer"
+              className="bg-[#F0F2F5] border border-[#050505]/15 rounded-lg px-3 py-2 text-xs font-mono text-[#050505] focus:outline-none focus:border-[#0866FF] cursor-pointer"
             >
               <option value="featured">
                 {language === 'en' ? 'Sort: Curated Order' : 'নির্বাচিত ক্রম'}
@@ -454,10 +485,10 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
       </div>
 
       {/* Live Counter & Range Strip */}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#4E4347] uppercase tracking-wider mb-7 pb-3 border-b border-[#E7DEC8]">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#374151] uppercase tracking-wider mb-7 pb-3 border-b border-[#050505]/12">
         <div className="flex items-center gap-2">
           <span>{language === 'en' ? 'Showing' : 'দেখানো হচ্ছে'}</span>
-          <span ref={counterRef} className="text-[#C2185B] font-bold tabular-nums text-sm">
+          <span ref={counterRef} className="text-[#0866FF] font-bold tabular-nums text-sm">
             {String(filteredItems.length).padStart(2, '0')}
           </span>
           <span>
@@ -466,7 +497,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
               : `টি (মোট ${items.length} আসল ডিজাইন)`}
           </span>
         </div>
-        <span className="tabular-nums text-[#0D7A5F] font-semibold">
+        <span className="tabular-nums text-[#196B2C] font-semibold">
           {language === 'en'
             ? `Direct Factory Price: ৳${minPrice.toLocaleString()} — ৳${maxPrice.toLocaleString()}`
             : `সরাসরি বুটিক মূল্য: ৳${minPrice.toLocaleString()} — ৳${maxPrice.toLocaleString()}`}
@@ -475,13 +506,13 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
 
       {/* Product Grid */}
       {filteredItems.length === 0 ? (
-        <div className="py-16 text-center rounded-2xl border border-[#E7DEC8] bg-white">
-          <p className="font-serif-luxury text-2xl text-[#171216] mb-2">
+        <div className="py-16 text-center rounded-2xl border border-[#050505]/12 bg-white">
+          <p className="font-fariza-display text-2xl font-bold text-[#050505] mb-2">
             {language === 'en'
               ? 'No matching three-piece sets found'
               : 'কোনো থ্রি-পিস ডিজাইন পাওয়া যায়নি'}
           </p>
-          <p className="text-xs text-[#6D5E63] mb-4">
+          <p className="text-xs text-[#4B5563] mb-4">
             {language === 'en'
               ? 'Try resetting filters or searching another SKU code.'
               : 'অন্য কোড দিয়ে খুঁজুন অথবা ফিল্টার রিসেট করুন।'}
@@ -494,7 +525,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
               setSearchQuery('');
               setSortBy('featured');
             }}
-            className="px-5 py-2.5 rounded-lg bg-[#C2185B] hover:bg-[#9D1148] text-white text-xs font-mono font-semibold uppercase tracking-wider cursor-pointer transition-colors"
+            className="px-5 py-2.5 rounded-xl bg-[#0866FF] hover:bg-[#0552D1] text-white text-xs font-mono font-semibold uppercase tracking-wider cursor-pointer transition-colors"
           >
             {language === 'en' ? 'Reset All Filters' : 'সব ফিল্টার রিসেট করুন'}
           </button>
@@ -508,47 +539,51 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
             const cardMode = cardViewOverrides[item.id] || globalViewMode;
             const displayImage = cardMode === 'flatlay' ? item.flatLayImage : item.modelImage;
             const mappedProduct = toThreePieceProduct(item);
-            const isStitched = tailoringMode[item.id] === 'stitched';
-            const chestSize = selectedChestSize[item.id] || '38"';
+            const isStitched = !useSupabaseCommerce && tailoringMode[item.id] === 'stitched';
+            const chestSize = selectedChestSize[item.id] || recommendedChestSize || '38"';
             const activeShade = selectedShade[item.id] || item.colors[0]?.name || 'Standard';
             const finalUnitPrice = item.priceBDT + (isStitched ? TAILORING_SURCHARGE_BDT : 0);
-            const editColor =
-              EDIT_METADATA.find((e) => e.id === item.subCollection)?.accentHex || '#C2185B';
+            const isBroken = brokenImages[item.id];
 
             return (
               <div
                 key={item.id}
-                onClick={() => onQuickView?.(mappedProduct)}
-                className="fariza-product-card group relative bg-white border border-[#E7DEC8] hover:border-[#C2185B]/60 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl cursor-pointer"
+                onClick={() => handleOpenQuickView(item)}
+                className="fariza-product-card group relative bg-white border border-[#050505]/12 hover:border-[#0866FF] rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl cursor-pointer"
               >
-                {/* Top Jewel Accent Bar */}
-                <div
-                  className="h-1 w-full"
-                  style={{ backgroundColor: editColor }}
-                />
-
                 {/* Uniform 4:5 Media Stage */}
-                <div className="relative aspect-[4/5] overflow-hidden bg-[#F4EEE1]">
-                  <img
-                    src={displayImage}
-                    alt={`${item.code} ${item.nameEn}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      const img = e.currentTarget;
-                      if (img.src !== item.flatLayImage) {
-                        img.src = item.flatLayImage;
-                      }
-                    }}
-                    className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out ${
-                      isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
-                    }`}
-                  />
+                <div className="relative aspect-[4/5] overflow-hidden bg-[#F0F2F5]">
+                  {isBroken ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#F0F2F5] text-[#050505]">
+                      <span className="font-mono text-sm font-bold text-[#0866FF] mb-1">
+                        {item.code}
+                      </span>
+                      <span className="text-xs font-semibold">{item.nameEn}</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={displayImage}
+                      alt={`${item.code} ${item.nameEn}`}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        const img = e.currentTarget;
+                        if (img.src !== item.flatLayImage && !img.src.endsWith(item.flatLayImage)) {
+                          img.src = item.flatLayImage;
+                        } else {
+                          setBrokenImages((prev) => ({ ...prev, [item.id]: true }));
+                        }
+                      }}
+                      className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out ${
+                        isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
+                      }`}
+                    />
+                  )}
 
                   {/* Top SKU & Action Buttons */}
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-[11px] font-bold text-white bg-[#171216]/90 px-2.5 py-1 rounded-md shadow">
+                      <span className="font-mono text-[11px] font-bold text-white bg-[#050505]/90 px-2.5 py-1 rounded-md shadow">
                         {item.styleNo ? `${item.styleNo} · ` : ''}
                         {item.code}
                       </span>
@@ -565,9 +600,9 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            onQuickView(mappedProduct);
+                            handleOpenQuickView(item);
                           }}
-                          className="p-2 bg-white/95 hover:bg-[#171216] text-[#171216] hover:text-white rounded-full shadow-md transition-colors cursor-pointer"
+                          className="p-2 bg-white/95 hover:bg-[#050505] text-[#050505] hover:text-white rounded-full shadow-md transition-colors cursor-pointer"
                           title={language === 'en' ? 'Quick View & Reviews' : 'বিস্তারিত দেখুন'}
                           aria-label={`Quick view ${item.code}`}
                         >
@@ -579,9 +614,15 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
+                          trackFarizaViewContent({
+                            id: item.id,
+                            name: `${item.code} — ${item.nameEn}`,
+                            category: `${item.subCollection} (3D Studio)`,
+                            valueBDT: item.priceBDT,
+                          });
                           onLaunch3D(item);
                         }}
-                        className="p-2 bg-white/95 hover:bg-[#0D7A5F] text-[#0D7A5F] hover:text-white rounded-full shadow-md transition-colors cursor-pointer"
+                        className="p-2 bg-white/95 hover:bg-[#0866FF] text-[#0866FF] hover:text-white rounded-full shadow-md transition-colors cursor-pointer"
                         title={language === 'en' ? '3D Fabric Studio' : '৩ডি ফ্যাব্রিক স্টুডিও'}
                         aria-label={`Inspect ${item.code} in 3D`}
                       >
@@ -596,8 +637,8 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                         }}
                         className={`p-2 rounded-full shadow-md transition-colors cursor-pointer ${
                           isWish
-                            ? 'bg-[#C2185B] text-white'
-                            : 'bg-white/95 text-[#4E4347] hover:text-[#C2185B]'
+                            ? 'bg-[#0866FF] text-white'
+                            : 'bg-white/95 text-[#374151] hover:text-[#0866FF]'
                         }`}
                         aria-label="Toggle wishlist"
                       >
@@ -617,24 +658,24 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                           [item.id]: cardMode === 'flatlay' ? 'model' : 'flatlay',
                         }));
                       }}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#171216]/85 hover:bg-[#C2185B] text-white text-[10px] font-mono backdrop-blur-sm transition-colors cursor-pointer shadow"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#050505]/85 hover:bg-[#0866FF] text-white text-[10px] font-mono backdrop-blur-sm transition-colors cursor-pointer shadow"
                     >
                       <RefreshCw className="w-3 h-3" />
                       <span>
                         {cardMode === 'flatlay'
                           ? language === 'en'
                             ? item.hasModelConcept
-                              ? 'Switch to Model Look'
-                              : 'Close-Up Texture'
-                            : 'মডেল লুক দেখুন'
+                              ? 'Model Look'
+                              : 'Close-Up'
+                            : 'মডেল লুক'
                           : language === 'en'
-                          ? 'Original Flat-Lay'
+                          ? 'Flat-Lay'
                           : 'আসল ফ্যাব্রিক'}
                       </span>
                     </button>
 
                     {(item.hasMirror || item.hasTassels) && (
-                      <span className="px-2 py-1 rounded-md bg-white/95 text-[#171216] text-[10px] font-mono font-semibold shadow-sm">
+                      <span className="px-2 py-1 rounded-md bg-white/95 text-[#050505] text-[10px] font-mono font-semibold shadow-sm">
                         {item.hasMirror
                           ? language === 'en'
                             ? 'Shisha Mirror'
@@ -648,13 +689,14 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                 </div>
 
                 {/* Card Body */}
-                <div className="p-5 flex flex-col justify-between flex-1 text-[#171216]">
+                <div className="p-5 flex flex-col justify-between flex-1 text-[#050505]">
                   <div>
+                    {/* Single-Line Clean Metadata (Zero Pill Cluster) */}
                     <div className="flex items-center justify-between gap-2 text-[11px] font-mono uppercase tracking-wider mb-1">
-                      <span style={{ color: editColor }} className="font-bold truncate">
+                      <span className="text-[#0866FF] font-bold truncate">
                         {item.subCollection}
                       </span>
-                      <span className="text-[#0D7A5F] font-semibold shrink-0 tabular-nums">
+                      <span className="text-[#196B2C] font-semibold shrink-0 tabular-nums">
                         {isOutOfStock
                           ? language === 'en'
                             ? 'Restocking'
@@ -665,12 +707,12 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                       </span>
                     </div>
 
-                    <h3 className="font-serif-luxury text-xl sm:text-2xl text-[#171216] font-semibold leading-snug group-hover:text-[#C2185B] transition-colors mb-1">
+                    <h3 className="font-fariza-display text-xl sm:text-2xl text-[#050505] font-bold leading-snug group-hover:text-[#0866FF] transition-colors mb-1">
                       {language === 'en' ? item.nameEn : item.nameBn}
                     </h3>
 
                     {item.taglineBn && (
-                      <p className="font-bengali text-xs text-[#6D5E63] mb-2">
+                      <p className="font-bengali text-xs text-[#4B5563] mb-2">
                         {item.taglineBn}
                       </p>
                     )}
@@ -692,7 +734,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                               aria-label={`Select colorway ${c.name}`}
                               className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
                                 isSelected
-                                  ? 'scale-115 ring-2 ring-[#C2185B] ring-offset-1 border-white'
+                                  ? 'scale-115 ring-2 ring-[#0866FF] ring-offset-1 border-white'
                                   : 'border-black/20 hover:scale-105'
                               }`}
                               style={{ backgroundColor: c.hex }}
@@ -700,118 +742,145 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                           );
                         })}
                       </div>
-                      <span className="text-[11px] font-mono text-[#4E4347] truncate">
+                      <span className="text-[11px] font-mono text-[#374151] truncate">
                         {activeShade}
                       </span>
                     </div>
 
-                    {/* 3-Piece Detailed Specifications Box */}
-                    <div className="p-3 rounded-xl bg-[#F8F3E8] border border-[#E7DEC8] space-y-1 text-[11px] mb-3.5">
+                    {/* 3-Piece Compact Specifications List */}
+                    <div className="py-2.5 px-3 rounded-xl bg-[#F0F2F5] space-y-1 text-[11px] mb-3.5">
                       <div className="flex gap-2">
-                        <span className="font-mono font-bold text-[#9D1148] shrink-0">KAMEEZ:</span>
-                        <span className="text-[#2B1F24] truncate">
+                        <span className="font-mono font-bold text-[#050505] shrink-0">KAMEEZ:</span>
+                        <span className="text-[#374151] truncate">
                           {language === 'en' ? item.kameezEn : item.kameezBn}
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <span className="font-mono font-bold text-[#0D7A5F] shrink-0">SALWAR:</span>
-                        <span className="text-[#2B1F24] truncate">
+                        <span className="font-mono font-bold text-[#050505] shrink-0">SALWAR:</span>
+                        <span className="text-[#374151] truncate">
                           {language === 'en' ? item.salwarEn : item.salwarBn}
                         </span>
                       </div>
                       <div className="flex gap-2">
-                        <span className="font-mono font-bold text-[#B45309] shrink-0">DUPATTA:</span>
-                        <span className="text-[#2B1F24] truncate">
+                        <span className="font-mono font-bold text-[#050505] shrink-0">DUPATTA:</span>
+                        <span className="text-[#374151] truncate">
                           {language === 'en' ? item.dupattaEn : item.dupattaBn}
                         </span>
                       </div>
                     </div>
 
-                    {/* Direct Fit Mode Selector: Unstitched vs Custom Tailored */}
+                    {/* Direct Fit Mode Selector */}
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="mb-4 p-2.5 rounded-xl bg-[#FBF7EF] border border-[#E7DEC8] space-y-2"
+                      className="mb-4 p-2.5 rounded-xl bg-[#F0F2F5] space-y-2"
                     >
-                      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#4E4347]">
-                        <span className="inline-flex items-center gap-1 font-semibold">
-                          <Scissors className="w-3 h-3 text-[#C2185B]" />
-                          {language === 'en' ? 'Tailoring Option' : 'সেলাই অপশন'}
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#374151]">
+                        <span className="inline-flex items-center gap-1 font-semibold text-[#050505]">
+                          <Scissors className="w-3 h-3 text-[#0866FF]" />
+                          {language === 'en' ? 'Tailoring' : 'সেলাই অপশন'}
                         </span>
-                        <span className="text-[#0D7A5F] font-semibold">
-                          {isStitched ? '+৳450 Tailored' : '3-Piece Fabric'}
+                        <span className="text-[#196B2C] font-semibold">
+                          {isStitched ? '+৳450 Stitched' : 'Unstitched Fabric'}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setTailoringMode((prev) => ({ ...prev, [item.id]: 'unstitched' }))
-                          }
-                          className={`py-1.5 px-2 rounded-lg border font-semibold transition-colors cursor-pointer ${
-                            !isStitched
-                              ? 'bg-[#171216] border-[#171216] text-white'
-                              : 'bg-white border-[#E7DEC8] text-[#4E4347] hover:border-[#171216]/40'
-                          }`}
-                        >
-                          {language === 'en' ? 'Unstitched' : 'আনস্টিচড'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setTailoringMode((prev) => ({ ...prev, [item.id]: 'stitched' }))
-                          }
-                          className={`py-1.5 px-2 rounded-lg border font-semibold transition-colors cursor-pointer ${
-                            isStitched
-                              ? 'bg-[#C2185B] border-[#C2185B] text-white'
-                              : 'bg-white border-[#E7DEC8] text-[#4E4347] hover:border-[#C2185B]/50'
-                          }`}
-                        >
-                          {language === 'en' ? 'Stitched +৳450' : 'স্টিচড +৳৪৫০'}
-                        </button>
-                      </div>
-
-                      {isStitched && (
-                        <div className="flex items-center justify-between gap-1 pt-1">
-                          <span className="text-[10px] font-mono text-[#6D5E63] shrink-0">
-                            {language === 'en' ? 'Chest:' : 'বডি:'}
-                          </span>
-                          <div className="flex flex-wrap gap-1">
-                            {CHEST_SIZES.map((sz) => (
-                              <button
-                                key={sz}
-                                type="button"
-                                onClick={() =>
-                                  setSelectedChestSize((prev) => ({ ...prev, [item.id]: sz }))
-                                }
-                                className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
-                                  chestSize === sz
-                                    ? 'bg-[#171216] text-white font-bold'
-                                    : 'bg-white border border-[#E7DEC8] text-[#4E4347] hover:border-[#171216]'
-                                }`}
-                              >
-                                {sz}
-                              </button>
-                            ))}
-                          </div>
+                      {useSupabaseCommerce ? (
+                        <div className="text-[11px] font-mono text-[#050505] bg-white rounded-lg px-2.5 py-1.5 border border-[#050505]/12 font-semibold text-center">
+                          {language === 'en'
+                            ? 'Unstitched Set · Ready to Dispatch'
+                            : 'আনস্টিচড সেট · রেডি স্টক'}
                         </div>
+                      ) : (
+                        <>
+                          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setTailoringMode((prev) => ({
+                                  ...prev,
+                                  [item.id]: 'unstitched',
+                                }))
+                              }
+                              className={`py-1.5 px-2 rounded-lg border font-semibold transition-colors cursor-pointer ${
+                                !isStitched
+                                  ? 'bg-[#050505] border-[#050505] text-white'
+                                  : 'bg-white border-[#050505]/15 text-[#374151] hover:border-[#050505]'
+                              }`}
+                            >
+                              {language === 'en' ? 'Unstitched' : 'আনস্টিচড'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTailoringMode((prev) => ({
+                                  ...prev,
+                                  [item.id]: 'stitched',
+                                }));
+                                trackFarizaCustomizeProduct(
+                                  `Tailoring Enabled: ${chestSize}`,
+                                  item.id
+                                );
+                              }}
+                              className={`py-1.5 px-2 rounded-lg border font-semibold transition-colors cursor-pointer ${
+                                isStitched
+                                  ? 'bg-[#0866FF] border-[#0866FF] text-white'
+                                  : 'bg-white border-[#050505]/15 text-[#374151] hover:border-[#0866FF]'
+                              }`}
+                            >
+                              {language === 'en' ? 'Stitched +৳450' : 'স্টিচড +৳৪৫০'}
+                            </button>
+                          </div>
+
+                          {isStitched && (
+                            <div className="flex items-center justify-between gap-1 pt-1">
+                              <span className="text-[10px] font-mono text-[#4B5563] shrink-0">
+                                {language === 'en' ? 'Chest:' : 'বডি:'}
+                              </span>
+                              <div className="flex flex-wrap gap-1">
+                                {CHEST_SIZES.map((sz) => (
+                                  <button
+                                    key={sz}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedChestSize((prev) => ({
+                                        ...prev,
+                                        [item.id]: sz,
+                                      }));
+                                      trackFarizaCustomizeProduct(
+                                        `Chest Size ${sz}`,
+                                        item.id
+                                      );
+                                    }}
+                                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                                      chestSize === sz
+                                        ? 'bg-[#0866FF] text-white font-bold'
+                                        : 'bg-white border border-[#050505]/15 text-[#374151] hover:border-[#0866FF]'
+                                    }`}
+                                  >
+                                    {sz}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
 
                   {/* Price & High-Conversion CTA Footer */}
-                  <div className="pt-3 border-t border-[#E7DEC8]">
+                  <div className="pt-3 border-t border-[#050505]/10">
                     <div className="flex items-baseline justify-between gap-2 mb-3">
                       <div>
-                        <div className="font-mono text-xl text-[#171216] font-bold tabular-nums">
+                        <div className="font-mono text-xl text-[#050505] font-bold tabular-nums">
                           ৳ {finalUnitPrice.toLocaleString()}
                         </div>
                         {(item.priceVerify || item.priceNote) && (
-                          <div className="text-[10px] font-mono text-[#B45309]">
+                          <div className="text-[10px] font-mono text-[#4B5563]">
                             {item.priceNote || 'Shade verified on confirm'}
                           </div>
                         )}
                       </div>
-                      <span className="text-[10px] font-mono text-[#6D5E63] truncate max-w-[140px]">
+                      <span className="text-[10px] font-mono text-[#4B5563] truncate max-w-[140px]">
                         {item.fabric}
                       </span>
                     </div>
@@ -823,10 +892,10 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                         disabled={isJustAdded || isOutOfStock}
                         className={`py-2.5 px-3 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
                           isOutOfStock
-                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                            ? 'bg-zinc-200 text-zinc-500 cursor-not-allowed'
                             : isJustAdded
-                            ? 'bg-[#0D7A5F] text-white cursor-pointer'
-                            : 'bg-[#171216] hover:bg-[#2F262C] text-white cursor-pointer'
+                            ? 'bg-[#31A24C] text-white cursor-pointer'
+                            : 'bg-[#050505] hover:bg-[#1F2937] text-white cursor-pointer'
                         }`}
                       >
                         {isOutOfStock ? (
@@ -850,8 +919,8 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                         disabled={isOutOfStock}
                         className={`py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm ${
                           isOutOfStock
-                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
-                            : 'bg-[#C2185B] hover:bg-[#9D1148] text-white cursor-pointer'
+                            ? 'bg-zinc-200 text-zinc-500 cursor-not-allowed'
+                            : 'bg-[#0866FF] hover:bg-[#0552D1] text-white cursor-pointer'
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5 fill-current" />

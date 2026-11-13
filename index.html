@@ -67,9 +67,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Readex+Pro:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Actor&family=Afacad+Flux:wght@400..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Readex+Pro:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Meta Pixel Code -->
+    <!-- Meta Pixel Code (Multi-Pixel: StarKiT 1390081606323661 + Fariza's Territory 1657670575734647) -->
     <script>
       !function(f,b,e,v,n,t,s)
       {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -80,19 +80,37 @@
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       (function(){
-        var pvId = 'pv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-        window.__STARKIT_PIXEL_INITIALIZED__ = true;
-        window.__STARKIT_INITIAL_PAGEVIEW__ = true;
-        window.__STARKIT_INITIAL_PAGEVIEW_ID__ = pvId;
-        window.__STARKIT_INITIAL_URL__ = window.location.pathname + window.location.search + window.location.hash;
-        fbq('init', '1390081606323661');
-        fbq('track', 'PageView', {}, { eventID: pvId });
+        var path = (window.location.pathname || '').replace(/\/+$/, '').toLowerCase();
+        var hash = (window.location.hash || '').toLowerCase();
+        var currentUrl = window.location.pathname + window.location.search + window.location.hash;
+        var isFarizaLanding =
+          path === '/farizas-territory' ||
+          hash === '#farizas-territory' ||
+          hash === '#three-piece-edit';
+
+        if (isFarizaLanding) {
+          var farizaPvId = 'fpv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+          window.__FARIZA_PIXEL_INITIALIZED__ = true;
+          window.__FARIZA_INITIAL_PAGEVIEW__ = true;
+          window.__FARIZA_INITIAL_PAGEVIEW_ID__ = farizaPvId;
+          window.__FARIZA_INITIAL_URL__ = currentUrl;
+          fbq('init', '1657670575734647');
+          fbq('trackSingle', '1657670575734647', 'PageView', {}, { eventID: farizaPvId });
+        } else {
+          var pvId = 'pv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+          window.__STARKIT_PIXEL_INITIALIZED__ = true;
+          window.__STARKIT_INITIAL_PAGEVIEW__ = true;
+          window.__STARKIT_INITIAL_PAGEVIEW_ID__ = pvId;
+          window.__STARKIT_INITIAL_URL__ = currentUrl;
+          fbq('init', '1390081606323661');
+          fbq('trackSingle', '1390081606323661', 'PageView', {}, { eventID: pvId });
+        }
       })();
     </script>
     <!-- End Meta Pixel Code -->
   </head>
   <body class="bg-[#09090B] text-[#F5F2EB] antialiased selection:bg-[#B69A60]/30 selection:text-white">
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1390081606323661&ev=PageView&noscript=1" alt="" /></noscript>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1390081606323661&ev=PageView&noscript=1" alt="" /><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1657670575734647&ev=PageView&noscript=1" alt="" /></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
