@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Language, CartItem, Product } from './types';
 import { FASHION_LOOKS } from './data/mockData';
 import { ThreePieceItem } from './data/threePieceCatalog';
+import { useStoreData } from './context/StoreDataContext';
 import { Navbar } from './components/navigation/Navbar';
 import { CinematicHero } from './components/hero/CinematicHero';
 import { InteractiveLookbook } from './components/lookbook/InteractiveLookbook';
@@ -21,6 +22,10 @@ import { SizeGuideModal } from './components/modals/SizeGuideModal';
 import { StyleQuizModal } from './components/style-intelligence/StyleQuizModal';
 import { TrackOrderModal } from './components/modals/TrackOrderModal';
 
+const AdminDashboard = React.lazy(() =>
+  import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
+);
+
 const STORAGE_LANG_KEY = 'fabrician_lang_v1';
 const STORAGE_CART_KEY = 'fabrician_cart_v1';
 const STORAGE_WISHLIST_KEY = 'fabrician_wishlist_v1';
@@ -35,6 +40,10 @@ function readStoredJson<T>(key: string, fallback: T): T {
 }
 
 export default function App() {
+  const { storeSettings } = useStoreData();
+  const [viewMode, setViewMode] = useState<'store' | 'admin'>(() =>
+    typeof window !== 'undefined' && window.location.hash === '#admin' ? 'admin' : 'store'
+  );
   const [language, setLanguage] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_LANG_KEY);
@@ -60,6 +69,28 @@ export default function App() {
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
   const [trackOrderId, setTrackOrderId] = useState('FAB-2026');
   const [external3DItem, setExternal3DItem] = useState<ThreePieceItem | null>(null);
+
+  useEffect(() => {
+    const syncFromHash = () => {
+      setViewMode(window.location.hash === '#admin' ? 'admin' : 'store');
+    };
+    window.addEventListener('hashchange', syncFromHash);
+    return () => window.removeEventListener('hashchange', syncFromHash);
+  }, []);
+
+  const navigateToAdmin = () => {
+    window.location.hash = 'admin';
+    setViewMode('admin');
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
+
+  const navigateToStore = () => {
+    if (window.location.hash === '#admin') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    setViewMode('store');
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
 
   useEffect(() => {
     try {
@@ -156,12 +187,39 @@ export default function App() {
     handleNavigateSection('essentials');
   };
 
+  if (viewMode === 'admin') {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#0B0D12] text-[#F5F2EB] flex items-center justify-center text-xs font-mono">
+            <div className="w-7 h-7 border-2 border-[#B69A60] border-t-transparent rounded-full animate-spin mr-3" />
+            <span>Loading Store Admin Console...</span>
+          </div>
+        }
+      >
+        <AdminDashboard onExitAdmin={navigateToStore} />
+      </Suspense>
+    );
+  }
+
   return (
     <div
       className={`min-h-screen bg-[#09090B] text-[#F5F2EB] ${
         language === 'bn' ? 'font-bengali' : 'font-sans-modern'
       }`}
     >
+      {storeSettings.announcementEnabled &&
+        (language === 'en'
+          ? storeSettings.announcementTextEn
+          : storeSettings.announcementTextBn) && (
+          <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-30 pointer-events-none">
+            <div className="pointer-events-auto px-4 py-2 rounded-lg bg-[#11141C]/95 backdrop-blur-md border border-[#B69A60]/40 text-[11px] font-mono text-[#D5BA80] shadow-xl">
+              {language === 'en'
+                ? storeSettings.announcementTextEn
+                : storeSettings.announcementTextBn}
+            </div>
+          </div>
+        )}
       {/* Top Navigation */}
       <Navbar
         language={language}
@@ -245,6 +303,7 @@ export default function App() {
         onNavigate={handleNavigateSection}
         onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
         onOpenTrackOrder={() => handleOpenTrackOrder()}
+        onOpenAdmin={navigateToAdmin}
       />
 
       {/* Slide-Over Modals & Drawers */}

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Cpu, Sparkles, ArrowRight, ShoppingBag, Check } from 'lucide-react';
 import { Language, Product, CartItem } from '../../types';
-import { FEATURED_PRODUCTS } from '../../data/mockData';
+import { useStoreData } from '../../context/StoreDataContext';
 import { translations } from '../../data/translations';
 
 interface StyleIntelligenceProps {
@@ -17,15 +17,24 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
   onQuickView,
   onOpenQuiz,
 }) => {
+  const { liveEssentialsProducts } = useStoreData();
   const [selectedAudience, setSelectedAudience] = useState<string>('All');
   const [selectedDirection, setSelectedDirection] = useState<'minimal' | 'urban' | 'heritage' | 'relaxed'>('minimal');
   const [selectedOccasion, setSelectedOccasion] = useState<string>('evening');
   const [addedId, setAddedId] = useState<string | null>(null);
   const t = translations[language];
 
+  const availableProducts = useMemo(
+    () =>
+      liveEssentialsProducts.filter(
+        (p) => p.status !== 'out_of_stock' && p.stockCount > 0
+      ),
+    [liveEssentialsProducts]
+  );
+
   // Deterministic recommendation algorithm based on user selection
   const recommendations = useMemo(() => {
-    return FEATURED_PRODUCTS.filter((product) => {
+    return availableProducts.filter((product) => {
       const matchAudience =
         selectedAudience === 'All' ||
         product.category === selectedAudience ||
@@ -36,10 +45,11 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
       const matchDirection = product.styleTag === selectedDirection;
       return matchAudience && matchDirection;
     }).slice(0, 3);
-  }, [selectedAudience, selectedDirection]);
+  }, [availableProducts, selectedAudience, selectedDirection]);
 
   // Fallback to ensure there's always an intelligent match
-  const displayResults = recommendations.length > 0 ? recommendations : FEATURED_PRODUCTS.slice(0, 3);
+  const displayResults =
+    recommendations.length > 0 ? recommendations : availableProducts.slice(0, 3);
 
   const handleAdd = (product: Product) => {
     onAddToCart({

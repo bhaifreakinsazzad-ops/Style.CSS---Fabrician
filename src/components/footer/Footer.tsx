@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, Sparkles, X, PhoneCall, MapPin, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Sparkles, X, PhoneCall, MapPin, ShieldCheck, Lock } from 'lucide-react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
-import { GRAPHIC_ARCHIVE_HOTLINE, GRAPHIC_ARCHIVE_HOTLINE_TEL } from '../../data/graphicArchiveCatalog';
+import { useStoreData } from '../../context/StoreDataContext';
+import { subscribeNewsletter } from '../../services/storeService';
 
 interface FooterProps {
   language: Language;
   onNavigate: (sectionId: string) => void;
   onOpenSizeGuide?: () => void;
   onOpenTrackOrder?: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -16,9 +18,13 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigate,
   onOpenSizeGuide,
   onOpenTrackOrder,
+  onOpenAdmin,
 }) => {
+  const { storeSettings } = useStoreData();
   const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subError, setSubError] = useState<string | null>(null);
   const [activeInfoModal, setActiveInfoModal] = useState<'contact' | 'legal' | null>(null);
   const t = translations[language];
 
@@ -31,11 +37,26 @@ export const Footer: React.FC<FooterProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeInfoModal]);
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-    setIsSubscribed(true);
-    setEmail('');
+    const trimmed = email.trim();
+    if (!trimmed || isSubscribing) return;
+
+    setIsSubscribing(true);
+    setSubError(null);
+    try {
+      await subscribeNewsletter(trimmed, language);
+      setIsSubscribed(true);
+      setEmail('');
+    } catch {
+      setSubError(
+        language === 'en'
+          ? 'Unable to save subscription right now. Please try again.'
+          : 'সাবস্ক্রিপশন সম্পন্ন করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।'
+      );
+    } finally {
+      setIsSubscribing(false);
+    }
   };
 
   return (
@@ -205,22 +226,30 @@ export const Footer: React.FC<FooterProps> = ({
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t.footer.newsletterPlaceholder}
-                  className="bg-black/50 border border-white/15 rounded px-3 py-2 text-xs text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60] flex-1"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] text-xs font-semibold uppercase tracking-wider rounded transition-colors cursor-pointer shrink-0"
-                >
-                  {t.footer.subscribe}
-                </button>
-              </form>
+              <div className="space-y-2">
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t.footer.newsletterPlaceholder}
+                    className="bg-black/50 border border-white/15 rounded px-3 py-2 text-xs text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60] flex-1"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubscribing}
+                    className="px-4 py-2 bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] text-xs font-semibold uppercase tracking-wider rounded transition-colors cursor-pointer shrink-0 disabled:opacity-50"
+                  >
+                    {isSubscribing
+                      ? language === 'en'
+                        ? 'Saving...'
+                        : 'সংরক্ষণ...'
+                      : t.footer.subscribe}
+                  </button>
+                </form>
+                {subError && <p className="text-[11px] text-red-400">{subError}</p>}
+              </div>
             )}
           </div>
         </div>
@@ -228,10 +257,19 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#77777D]">
           <p>© 2026 {t.footer.copyright}</p>
-          <div className="flex items-center gap-6 font-mono text-[11px]">
+          <div className="flex flex-wrap items-center gap-6 font-mono text-[11px]">
             <span>BDT (৳) Currency</span>
             <span>Dhaka Atelier</span>
-            <span>Nationwide &amp; Global Dispatch</span>
+            {onOpenAdmin && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="inline-flex items-center gap-1.5 text-[#D5BA80] hover:text-white transition-colors cursor-pointer"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Store Admin</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -273,9 +311,7 @@ export const Footer: React.FC<FooterProps> = ({
                     <div className="font-semibold text-[#F5F2EB] mb-0.5">
                       {language === 'en' ? 'Flagship Studio' : 'ফ্ল্যাগশিপ স্টুডিও'}
                     </div>
-                    <p className="text-[#9A9892]">
-                      Road 11, Banani, Dhaka 1213, Bangladesh · Open Sat–Thu, 11:00 AM – 8:30 PM
-                    </p>
+                    <p className="text-[#9A9892]">{storeSettings.atelierAddress}</p>
                   </div>
                 </div>
                 <div className="p-4 rounded-xl bg-black/40 border border-white/10 flex items-start gap-3">
@@ -285,10 +321,10 @@ export const Footer: React.FC<FooterProps> = ({
                       {language === 'en' ? 'Order & Bespoke Fitting Hotline' : 'অর্ডার ও ফিটিং হটলাইন'}
                     </div>
                     <a
-                      href={GRAPHIC_ARCHIVE_HOTLINE_TEL}
+                      href={storeSettings.hotlineTel}
                       className="font-mono text-[#D5BA80] hover:underline"
                     >
-                      {GRAPHIC_ARCHIVE_HOTLINE}
+                      {storeSettings.hotlineDisplay}
                     </a>
                   </div>
                 </div>

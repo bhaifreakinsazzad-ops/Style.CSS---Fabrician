@@ -1,0 +1,347 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Hardened Global Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Zero-lookup primary owner check safe for list queries (Cost-Optimization Clause)
+    function isPrimaryAdmin() {
+      return isVerified() && request.auth.token.email == 'sazzadsharifofficial@gmail.com';
+    }
+
+    // Full admin gate for single-document operations
+    function isAdmin() {
+      return isPrimaryAdmin() || (isVerified() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    function isNonEmptyString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    function isOptionalString(data, field, maxLen) {
+      return !(field in data) || (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    function isValidOrderStatus(s) {
+      return s in ['Pending', 'Picked', 'In_Transit', 'Out_for_Delivery', 'Delivered', 'Returned'];
+    }
+
+    // 3. Orders Validation Blueprints
+    function isValidOrderFields(data, orderId) {
+      return data.keys().hasAll([
+          'orderId', 'consignmentId', 'recipientName', 'recipientPhone',
+          'recipientAddress', 'division', 'paymentMethod', 'subtotalBDT',
+          'discountBDT', 'deliveryFeeBDT', 'totalBDT', 'itemsCount',
+          'itemsSummary', 'status', 'hubLocation', 'estimatedDelivery',
+          'trackingNote', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'orderId', 'consignmentId', 'recipientName', 'recipientPhone',
+          'recipientAddress', 'division', 'paymentMethod', 'subtotalBDT',
+          'discountBDT', 'deliveryFeeBDT', 'totalBDT', 'itemsCount',
+          'itemsSummary', 'status', 'hubLocation', 'riderName', 'riderPhone',
+          'estimatedDelivery', 'trackingNote', 'createdAt', 'updatedAt'
+        ])
+        && data.orderId == orderId
+        && isValidId(data.orderId)
+        && isNonEmptyString(data.consignmentId, 3, 64)
+        && isNonEmptyString(data.recipientName, 2, 120)
+        && isNonEmptyString(data.recipientPhone, 8, 32)
+        && isNonEmptyString(data.recipientAddress, 5, 300)
+        && isNonEmptyString(data.division, 2, 80)
+        && data.paymentMethod in ['cod', 'mfs']
+        && data.subtotalBDT is number && data.subtotalBDT >= 0 && data.subtotalBDT <= 10000000
+        && data.discountBDT is number && data.discountBDT >= 0 && data.discountBDT <= 1000000
+        && data.deliveryFeeBDT is number && data.deliveryFeeBDT >= 0 && data.deliveryFeeBDT <= 10000
+        && data.totalBDT is number && data.totalBDT >= 0 && data.totalBDT <= 10000000
+        && data.itemsCount is number && data.itemsCount >= 1 && data.itemsCount <= 200
+        && isNonEmptyString(data.itemsSummary, 1, 1200)
+        && isValidOrderStatus(data.status)
+        && isNonEmptyString(data.hubLocation, 2, 160)
+        && isOptionalString(data, 'riderName', 100)
+        && isOptionalString(data, 'riderPhone', 32)
+        && isNonEmptyString(data.estimatedDelivery, 2, 100)
+        && isNonEmptyString(data.trackingNote, 2, 300)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidOrderTrackingFields(data, orderId) {
+      return data.keys().hasAll([
+          'orderId', 'consignmentId', 'division', 'hubLocation',
+          'paymentMethod', 'amountToCollectBDT', 'currentStatus',
+          'estimatedDelivery', 'trackingNote', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'orderId', 'consignmentId', 'division', 'hubLocation', 'riderName',
+          'paymentMethod', 'amountToCollectBDT', 'currentStatus',
+          'estimatedDelivery', 'trackingNote', 'createdAt', 'updatedAt'
+        ])
+        && data.orderId == orderId
+        && isValidId(data.orderId)
+        && isNonEmptyString(data.consignmentId, 3, 64)
+        && isNonEmptyString(data.division, 2, 80)
+        && isNonEmptyString(data.hubLocation, 2, 160)
+        && isOptionalString(data, 'riderName', 100)
+        && data.paymentMethod in ['cod', 'mfs']
+        && data.amountToCollectBDT is number && data.amountToCollectBDT >= 0 && data.amountToCollectBDT <= 10000000
+        && isValidOrderStatus(data.currentStatus)
+        && isNonEmptyString(data.estimatedDelivery, 2, 100)
+        && isNonEmptyString(data.trackingNote, 2, 300)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // 4. Catalog Override Validation Blueprint
+    function isValidCatalogOverride(data, productId) {
+      return data.keys().hasAll([
+          'id', 'sourceCatalog', 'nameEn', 'nameBn', 'category',
+          'collection', 'priceBDT', 'stockCount', 'status', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'sourceCatalog', 'nameEn', 'nameBn', 'category',
+          'collection', 'priceBDT', 'compareAtPriceBDT', 'stockCount',
+          'status', 'image', 'fabricEn', 'fabricBn', 'fitEn', 'fitBn',
+          'isNew', 'isBestseller', 'updatedAt'
+        ])
+        && data.id == productId
+        && isValidId(data.id)
+        && data.sourceCatalog in ['essentials', 'three-piece', 'graphic-archive', 'custom']
+        && isNonEmptyString(data.nameEn, 1, 160)
+        && isNonEmptyString(data.nameBn, 1, 160)
+        && data.category in ['Men', 'Women', 'Unisex', 'Traditional', 'Streetwear']
+        && isNonEmptyString(data.collection, 1, 120)
+        && data.priceBDT is number && data.priceBDT >= 0 && data.priceBDT <= 10000000
+        && (!('compareAtPriceBDT' in data) || (data.compareAtPriceBDT is number && data.compareAtPriceBDT >= 0 && data.compareAtPriceBDT <= 10000000))
+        && data.stockCount is number && data.stockCount >= 0 && data.stockCount <= 100000
+        && data.status in ['active', 'out_of_stock', 'hidden']
+        && isOptionalString(data, 'image', 500)
+        && isOptionalString(data, 'fabricEn', 240)
+        && isOptionalString(data, 'fabricBn', 240)
+        && isOptionalString(data, 'fitEn', 120)
+        && isOptionalString(data, 'fitBn', 120)
+        && (!('isNew' in data) || data.isNew is bool)
+        && (!('isBestseller' in data) || data.isBestseller is bool)
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    // 5. Store Settings Validation Blueprint
+    function isValidStoreSettings(data) {
+      return data.keys().hasAll([
+          'hotlineDisplay', 'hotlineTel', 'atelierAddress',
+          'freeShippingThresholdBDT', 'dhakaShippingFeeBDT',
+          'outsideDhakaShippingFeeBDT', 'bundle2DiscountBDT',
+          'bundle3DiscountBDT', 'announcementEnabled',
+          'announcementTextEn', 'announcementTextBn', 'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'hotlineDisplay', 'hotlineTel', 'atelierAddress',
+          'freeShippingThresholdBDT', 'dhakaShippingFeeBDT',
+          'outsideDhakaShippingFeeBDT', 'bundle2DiscountBDT',
+          'bundle3DiscountBDT', 'announcementEnabled',
+          'announcementTextEn', 'announcementTextBn', 'updatedAt'
+        ])
+        && isNonEmptyString(data.hotlineDisplay, 5, 40)
+        && isNonEmptyString(data.hotlineTel, 5, 48)
+        && isNonEmptyString(data.atelierAddress, 5, 200)
+        && data.freeShippingThresholdBDT is number && data.freeShippingThresholdBDT >= 0 && data.freeShippingThresholdBDT <= 1000000
+        && data.dhakaShippingFeeBDT is number && data.dhakaShippingFeeBDT >= 0 && data.dhakaShippingFeeBDT <= 10000
+        && data.outsideDhakaShippingFeeBDT is number && data.outsideDhakaShippingFeeBDT >= 0 && data.outsideDhakaShippingFeeBDT <= 10000
+        && data.bundle2DiscountBDT is number && data.bundle2DiscountBDT >= 0 && data.bundle2DiscountBDT <= 100000
+        && data.bundle3DiscountBDT is number && data.bundle3DiscountBDT >= 0 && data.bundle3DiscountBDT <= 100000
+        && data.announcementEnabled is bool
+        && data.announcementTextEn is string && data.announcementTextEn.size() <= 200
+        && data.announcementTextBn is string && data.announcementTextBn.size() <= 200
+        && data.updatedAt is timestamp
+        && data.updatedAt == request.time;
+    }
+
+    // 6. Subscriber Validation Blueprint
+    function isValidSubscriber(data) {
+      return data.keys().hasAll(['email', 'language', 'subscribedAt'])
+        && data.keys().hasOnly(['email', 'language', 'subscribedAt'])
+        && isNonEmptyString(data.email, 5, 160)
+        && data.language in ['en', 'bn']
+        && data.subscribedAt is timestamp
+        && data.subscribedAt == request.time;
+    }
+
+    // 7. Review Validation Blueprint
+    function isValidReview(data, reviewId) {
+      return data.keys().hasAll([
+          'id', 'productId', 'author', 'location', 'rating',
+          'sizePurchased', 'fitFeedback', 'title', 'comment',
+          'status', 'helpfulCount', 'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'id', 'productId', 'author', 'location', 'rating',
+          'sizePurchased', 'fitFeedback', 'title', 'comment',
+          'status', 'helpfulCount', 'createdAt'
+        ])
+        && data.id == reviewId
+        && isValidId(data.id)
+        && isNonEmptyString(data.productId, 1, 80)
+        && isNonEmptyString(data.author, 1, 100)
+        && isNonEmptyString(data.location, 1, 100)
+        && data.rating is number && data.rating >= 1 && data.rating <= 5
+        && isNonEmptyString(data.sizePurchased, 1, 40)
+        && data.fitFeedback in ['Runs True to Size', 'Slightly Relaxed', 'Tailored & Snug']
+        && data.title is string && data.title.size() <= 160
+        && isNonEmptyString(data.comment, 2, 1000)
+        && data.status in ['approved', 'hidden']
+        && data.helpfulCount is number && data.helpfulCount >= 0 && data.helpfulCount <= 100000
+        && data.createdAt is timestamp;
+    }
+
+    // 8. Admin Allowlist Blueprint
+    function isValidAdminUser(data) {
+      return data.keys().hasAll(['email', 'role', 'createdAt'])
+        && data.keys().hasOnly(['email', 'role', 'createdAt'])
+        && isNonEmptyString(data.email, 5, 160)
+        && data.role in ['owner', 'manager']
+        && data.createdAt is timestamp;
+    }
+
+    // Collection Rules
+
+    // /orders/{orderId}: Private PII order records
+    match /orders/{orderId} {
+      allow get: if isAdmin() && isValidId(orderId);
+      allow list: if isPrimaryAdmin();
+      allow create: if isValidId(orderId)
+        && isValidOrderFields(incoming(), orderId)
+        && incoming().status == 'Pending'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(orderId)
+        && isValidOrderFields(incoming(), orderId)
+        && incoming().orderId == existing().orderId
+        && incoming().consignmentId == existing().consignmentId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'hubLocation', 'riderName', 'riderPhone',
+          'estimatedDelivery', 'trackingNote', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(orderId);
+    }
+
+    // /orderTracking/{orderId}: Non-PII public consignment lookup (atomic with /orders on create)
+    match /orderTracking/{orderId} {
+      allow get: if isValidId(orderId);
+      allow list: if isPrimaryAdmin();
+      allow create: if isValidId(orderId)
+        && isValidOrderTrackingFields(incoming(), orderId)
+        && incoming().currentStatus == 'Pending'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && existsAfter(/databases/$(database)/documents/orders/$(orderId));
+      allow update: if isAdmin()
+        && isValidId(orderId)
+        && isValidOrderTrackingFields(incoming(), orderId)
+        && incoming().orderId == existing().orderId
+        && incoming().consignmentId == existing().consignmentId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'currentStatus', 'hubLocation', 'riderName',
+          'estimatedDelivery', 'trackingNote', 'updatedAt'
+        ]);
+      allow delete: if isAdmin() && isValidId(orderId);
+    }
+
+    // /catalogOverrides/{productId}: Public readable storefront catalog state, admin editable
+    match /catalogOverrides/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow create, update: if isAdmin()
+        && isValidId(productId)
+        && isValidCatalogOverride(incoming(), productId);
+      allow delete: if isAdmin() && isValidId(productId);
+    }
+
+    // /storeSettings/{settingId}: Global store config ('main')
+    match /storeSettings/{settingId} {
+      allow get: if settingId == 'main' || isAdmin();
+      allow list: if isPrimaryAdmin();
+      allow create, update: if isAdmin()
+        && settingId == 'main'
+        && isValidStoreSettings(incoming());
+      allow delete: if false;
+    }
+
+    // /subscribers/{subscriberId}: Newsletter dispatch list (admin-only reads)
+    match /subscribers/{subscriberId} {
+      allow get: if isAdmin() && isValidId(subscriberId);
+      allow list: if isPrimaryAdmin();
+      allow create: if isValidId(subscriberId) && isValidSubscriber(incoming());
+      allow update: if false;
+      allow delete: if isAdmin() && isValidId(subscriberId);
+    }
+
+    // /reviews/{reviewId}: Customer reviews + admin moderation
+    match /reviews/{reviewId} {
+      allow get: if isValidId(reviewId) && (existing().status == 'approved' || isAdmin());
+      allow list: if resource.data.status == 'approved' || isPrimaryAdmin();
+      allow create: if isValidId(reviewId)
+        && isValidReview(incoming(), reviewId)
+        && incoming().status == 'approved'
+        && incoming().helpfulCount == 1
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(reviewId)
+        && isValidReview(incoming(), reviewId)
+        && incoming().id == existing().id
+        && incoming().productId == existing().productId
+        && incoming().createdAt == existing().createdAt
+        && (
+          isAdmin()
+          || (
+            existing().status == 'approved'
+            && incoming().diff(existing()).affectedKeys().hasOnly(['helpfulCount'])
+            && incoming().helpfulCount == existing().helpfulCount + 1
+          )
+        );
+      allow delete: if isAdmin() && isValidId(reviewId);
+    }
+
+    // /admins/{uid}: Store admin registry
+    match /admins/{uid} {
+      allow get: if isAdmin() && isValidId(uid);
+      allow list: if isPrimaryAdmin();
+      allow create: if isAdmin()
+        && isValidId(uid)
+        && isValidAdminUser(incoming())
+        && incoming().createdAt == request.time;
+      allow update: if isAdmin()
+        && isValidId(uid)
+        && isValidAdminUser(incoming())
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isAdmin() && isValidId(uid);
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingBag, Check, Eye } from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
-import { FEATURED_PRODUCTS } from '../../data/mockData';
+import { useStoreData } from '../../context/StoreDataContext';
 import { translations } from '../../data/translations';
 
 interface FeaturedEssentialsProps {
@@ -21,6 +21,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   onQuickView,
   selectedFilterCategory = null,
 }) => {
+  const { liveEssentialsProducts } = useStoreData();
   const [activeCategory, setActiveCategory] = useState<string>(selectedFilterCategory || 'All');
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const t = translations[language];
@@ -34,11 +35,12 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   const categories = ['All', 'Men', 'Women', 'Unisex', 'Traditional', 'Streetwear'];
 
   const filteredProducts = activeCategory === 'All'
-    ? FEATURED_PRODUCTS
-    : FEATURED_PRODUCTS.filter((p) => p.category === activeCategory);
+    ? liveEssentialsProducts
+    : liveEssentialsProducts.filter((p) => p.category === activeCategory);
 
-  const handleQuickAdd = (product: Product, e: React.MouseEvent) => {
+  const handleQuickAdd = (product: Product, isOutOfStock: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isOutOfStock) return;
     onAddToCart({
       productId: product.id,
       nameEn: product.nameEn,
@@ -90,6 +92,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
           {filteredProducts.map((product) => {
             const wish = isWishlisted(product.id);
             const isJustAdded = addedProductId === product.id;
+            const isOutOfStock = product.status === 'out_of_stock' || product.stockCount <= 0;
 
             return (
               <div
@@ -102,7 +105,9 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                   <img
                     src={product.image}
                     alt={product.nameEn}
-                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out ${
+                      isOutOfStock ? 'opacity-65 grayscale-[30%]' : ''
+                    }`}
                     referrerPolicy="no-referrer"
                   />
 
@@ -112,15 +117,23 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                   {/* Top Badges: Unboxed Text or Wishlist */}
                   <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {product.isNew && (
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#D5BA80] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-[#B69A60]/30">
-                          New Runway
+                      {isOutOfStock ? (
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-red-300 bg-black/85 backdrop-blur-sm px-2.5 py-1 rounded border border-red-500/40">
+                          {language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}
                         </span>
-                      )}
-                      {product.isBestseller && (
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#D8D3C9] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-white/10">
-                          Signature
-                        </span>
+                      ) : (
+                        <>
+                          {product.isNew && (
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-[#D5BA80] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-[#B69A60]/30">
+                              New Runway
+                            </span>
+                          )}
+                          {product.isBestseller && (
+                            <span className="text-[10px] font-mono uppercase tracking-wider text-[#D8D3C9] bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded border border-white/10">
+                              Signature
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
 
@@ -143,15 +156,19 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                   {/* Hover Quick Action Bar */}
                   <div className="absolute bottom-3 left-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <button
-                      onClick={(e) => handleQuickAdd(product, e)}
-                      disabled={isJustAdded}
-                      className={`flex-1 py-2 px-3 rounded text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-lg ${
-                        isJustAdded
-                          ? 'bg-[#B69A60] text-[#09090B]'
-                          : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80]'
+                      onClick={(e) => handleQuickAdd(product, isOutOfStock, e)}
+                      disabled={isJustAdded || isOutOfStock}
+                      className={`flex-1 py-2 px-3 rounded text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors shadow-lg ${
+                        isOutOfStock
+                          ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                          : isJustAdded
+                          ? 'bg-[#B69A60] text-[#09090B] cursor-pointer'
+                          : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] cursor-pointer'
                       }`}
                     >
-                      {isJustAdded ? (
+                      {isOutOfStock ? (
+                        <span>{language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}</span>
+                      ) : isJustAdded ? (
                         <>
                           <Check className="w-3.5 h-3.5" />
                           <span>{t.essentials.addedToBag}</span>

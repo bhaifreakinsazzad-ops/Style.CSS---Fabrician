@@ -1,0 +1,471 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "Private customer order with delivery PII and payment details.",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "consignmentId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "recipientName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "recipientPhone": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 32
+        },
+        "recipientAddress": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 300
+        },
+        "division": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["cod", "mfs"]
+        },
+        "subtotalBDT": {
+          "type": "number"
+        },
+        "discountBDT": {
+          "type": "number"
+        },
+        "deliveryFeeBDT": {
+          "type": "number"
+        },
+        "totalBDT": {
+          "type": "number"
+        },
+        "itemsCount": {
+          "type": "number"
+        },
+        "itemsSummary": {
+          "type": "string",
+          "maxLength": 1200
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Picked", "In_Transit", "Out_for_Delivery", "Delivered", "Returned"]
+        },
+        "hubLocation": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "riderName": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "riderPhone": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "estimatedDelivery": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "trackingNote": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "orderId",
+        "consignmentId",
+        "recipientName",
+        "recipientPhone",
+        "recipientAddress",
+        "division",
+        "paymentMethod",
+        "subtotalBDT",
+        "discountBDT",
+        "deliveryFeeBDT",
+        "totalBDT",
+        "itemsCount",
+        "itemsSummary",
+        "status",
+        "hubLocation",
+        "estimatedDelivery",
+        "trackingNote",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "OrderTracking": {
+      "title": "OrderTracking",
+      "description": "Public non-PII consignment status projection keyed by orderId.",
+      "type": "object",
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "consignmentId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "division": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "hubLocation": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "riderName": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["cod", "mfs"]
+        },
+        "amountToCollectBDT": {
+          "type": "number"
+        },
+        "currentStatus": {
+          "type": "string",
+          "enum": ["Pending", "Picked", "In_Transit", "Out_for_Delivery", "Delivered", "Returned"]
+        },
+        "estimatedDelivery": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "trackingNote": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "orderId",
+        "consignmentId",
+        "division",
+        "hubLocation",
+        "paymentMethod",
+        "amountToCollectBDT",
+        "currentStatus",
+        "estimatedDelivery",
+        "trackingNote",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CatalogOverride": {
+      "title": "CatalogOverride",
+      "description": "Admin-managed product pricing, stock, visibility, or custom catalog items.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 80,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sourceCatalog": {
+          "type": "string",
+          "enum": ["essentials", "three-piece", "graphic-archive", "custom"]
+        },
+        "nameEn": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "nameBn": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Men", "Women", "Unisex", "Traditional", "Streetwear"]
+        },
+        "collection": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "priceBDT": {
+          "type": "number"
+        },
+        "compareAtPriceBDT": {
+          "type": "number"
+        },
+        "stockCount": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "out_of_stock", "hidden"]
+        },
+        "image": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "fabricEn": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "fabricBn": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "fitEn": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "fitBn": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "isNew": {
+          "type": "boolean"
+        },
+        "isBestseller": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "sourceCatalog",
+        "nameEn",
+        "nameBn",
+        "category",
+        "collection",
+        "priceBDT",
+        "stockCount",
+        "status",
+        "updatedAt"
+      ]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global storefront operational and delivery settings managed by admin.",
+      "type": "object",
+      "properties": {
+        "hotlineDisplay": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "hotlineTel": {
+          "type": "string",
+          "maxLength": 48
+        },
+        "atelierAddress": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "freeShippingThresholdBDT": {
+          "type": "number"
+        },
+        "dhakaShippingFeeBDT": {
+          "type": "number"
+        },
+        "outsideDhakaShippingFeeBDT": {
+          "type": "number"
+        },
+        "bundle2DiscountBDT": {
+          "type": "number"
+        },
+        "bundle3DiscountBDT": {
+          "type": "number"
+        },
+        "announcementEnabled": {
+          "type": "boolean"
+        },
+        "announcementTextEn": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "announcementTextBn": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "hotlineDisplay",
+        "hotlineTel",
+        "atelierAddress",
+        "freeShippingThresholdBDT",
+        "dhakaShippingFeeBDT",
+        "outsideDhakaShippingFeeBDT",
+        "bundle2DiscountBDT",
+        "bundle3DiscountBDT",
+        "announcementEnabled",
+        "announcementTextEn",
+        "announcementTextBn",
+        "updatedAt"
+      ]
+    },
+    "Subscriber": {
+      "title": "Subscriber",
+      "description": "Newsletter dispatch email signup.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "language": {
+          "type": "string",
+          "enum": ["en", "bn"]
+        },
+        "subscribedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["email", "language", "subscribedAt"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Verified customer review with moderation status.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "maxLength": 80,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "productId": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "author": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "location": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "rating": {
+          "type": "number"
+        },
+        "sizePurchased": {
+          "type": "string",
+          "maxLength": 40
+        },
+        "fitFeedback": {
+          "type": "string",
+          "enum": ["Runs True to Size", "Slightly Relaxed", "Tailored & Snug"]
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "comment": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["approved", "hidden"]
+        },
+        "helpfulCount": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "productId",
+        "author",
+        "location",
+        "rating",
+        "sizePurchased",
+        "fitFeedback",
+        "title",
+        "comment",
+        "status",
+        "helpfulCount",
+        "createdAt"
+      ]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized store administrator entry.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "role": {
+          "type": "string",
+          "enum": ["owner", "manager"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["email", "role", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Customer orders containing full delivery PII, readable only by verified store admins."
+    },
+    "/orderTracking/{orderId}": {
+      "schema": { "$ref": "#/entities/OrderTracking" },
+      "description": "Non-PII order status lookup keyed by orderId for customer tracking."
+    },
+    "/catalogOverrides/{productId}": {
+      "schema": { "$ref": "#/entities/CatalogOverride" },
+      "description": "Live product pricing, inventory, visibility, and custom product definitions."
+    },
+    "/storeSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/StoreSettings" },
+      "description": "Global store settings document (main)."
+    },
+    "/subscribers/{subscriberId}": {
+      "schema": { "$ref": "#/entities/Subscriber" },
+      "description": "Newsletter subscribers list, readable and manageable only by admins."
+    },
+    "/reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Product customer reviews with admin moderation status."
+    },
+    "/admins/{uid}": {
+      "schema": { "$ref": "#/entities/AdminUser" },
+      "description": "Additional store admin UID allowlist."
+    }
+  }
+}

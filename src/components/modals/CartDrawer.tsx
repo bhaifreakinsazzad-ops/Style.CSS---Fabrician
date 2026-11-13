@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle2, Truck } from 'lucide-react';
 import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
-import { saveCustomerOrder } from '../../services/pathaoCourier';
+import { useStoreData } from '../../context/StoreDataContext';
+import { placeStoreOrder } from '../../services/storeService';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   language,
   onOpenTrackOrder,
 }) => {
+  const { storeSettings } = useStoreData();
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'checkout' | 'success'>('cart');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
@@ -41,11 +43,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [division, setDivision] = useState('Dhaka Division');
   const [paymentMethod, setPaymentMethod] = useState<'mfs' | 'cod'>('cod');
   const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderInfo | null>(null);
 
   const t = translations[language];
 
   const handleClose = () => {
+    if (isSubmitting) return;
     if (checkoutStep === 'success') {
       setCheckoutStep('cart');
       setConfirmedOrder(null);
@@ -61,28 +65,38 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, checkoutStep]);
+  }, [isOpen, checkoutStep, isSubmitting]);
 
   if (!isOpen) return null;
 
+  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => acc + item.priceBDT * item.quantity, 0);
-  const freeShippingThreshold = 5000;
-  const freeShippingUnlocked = subtotal >= freeShippingThreshold;
+  const bundleDiscount =
+    totalQuantity >= 3
+      ? storeSettings.bundle3DiscountBDT
+      : totalQuantity >= 2
+      ? storeSettings.bundle2DiscountBDT
+      : 0;
+  const discountedSubtotal = Math.max(0, subtotal - bundleDiscount);
+  const freeShippingThreshold = storeSettings.freeShippingThresholdBDT;
+  const freeShippingUnlocked = discountedSubtotal >= freeShippingThreshold && items.length > 0;
   const deliveryFee =
     items.length === 0 || freeShippingUnlocked
       ? 0
       : division === 'Dhaka Division'
-      ? 80
-      : 130;
-  const orderTotal = subtotal + deliveryFee;
+      ? storeSettings.dhakaShippingFeeBDT
+      : storeSettings.outsideDhakaShippingFeeBDT;
+  const orderTotal = discountedSubtotal + deliveryFee;
 
   const handleStartCheckout = () => {
     setFormError(null);
     setCheckoutStep('checkout');
   };
 
-  const handleConfirmOrder = (e: React.FormEvent) => {
+  const handleConfirmOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     const trimmedName = fullName.trim();
     const digitsOnlyPhone = phone.replace(/\D/g, '');
     const trimmedAddress = address.trim();
@@ -113,32 +127,52 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     }
 
     setFormError(null);
-    const orderId = `FAB-${Math.floor(1000 + Math.random() * 9000)}`;
-    const savedRecord = saveCustomerOrder({
-      orderId,
-      recipientName: trimmedName,
-      recipientPhone: phone.trim(),
-      recipientAddress: trimmedAddress,
-      division,
-      paymentMethod,
-      totalBDT: orderTotal,
-    });
+    setIsSubmitting(true);
 
-    setConfirmedOrder({
-      orderId,
-      consignmentId: savedRecord.consignmentId,
-      recipientName: trimmedName,
-      recipientAddress: trimmedAddress,
-      division,
-      totalBDT: orderTotal,
-    });
-    onClearCart();
-    setCheckoutStep('success');
+    const orderId = `FAB-${Math.floor(1000 + Math.random() * 9000)}`;
+    const itemsSummary = items
+      .map((i) => `${i.nameEn} (${i.size}, ${i.color}) x${i.quantity}`)
+      .join(' | ');
+
+    try {
+      const result = await placeStoreOrder({
+        orderId,
+        recipientName: trimmedName,
+        recipientPhone: phone.trim(),
+        recipientAddress: trimmedAddress,
+        division,
+        paymentMethod,
+        subtotalBDT: subtotal,
+        discountBDT: bundleDiscount,
+        deliveryFeeBDT: deliveryFee,
+        totalBDT: orderTotal,
+        itemsCount: totalQuantity,
+        itemsSummary,
+      });
+
+      setConfirmedOrder({
+        orderId: result.orderId,
+        consignmentId: result.consignmentId,
+        recipientName: trimmedName,
+        recipientAddress: trimmedAddress,
+        division,
+        totalBDT: orderTotal,
+      });
+      onClearCart();
+      setCheckoutStep('success');
+    } catch {
+      setFormError(
+        language === 'en'
+          ? 'Could not submit order to server. Please check connection and try again.'
+          : 'অর্ডার জমা দেওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
       <div
         onClick={handleClose}
         className="absolute inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
@@ -154,7 +188,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 {t.cart.title}
               </h3>
               <span className="text-xs font-mono text-[#77777D] tabular-nums">
-                ({items.reduce((sum, item) => sum + item.quantity, 0)})
+                ({totalQuantity})
               </span>
             </div>
             <button
@@ -170,7 +204,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <div className="flex-1 overflow-y-auto p-6">
             {checkoutStep === 'cart' && (
               <>
-                {/* Free Shipping Meter */}
                 <div className="p-3 rounded-lg bg-black/40 border border-white/5 mb-6 text-xs">
                   <div className="flex justify-between mb-1.5 font-light">
                     <span className="text-[#D8D3C9]">
@@ -179,17 +212,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                           ? '✓ Complimentary delivery unlocked'
                           : '✓ ফ্রি ডেলিভারি আনলক হয়েছে'
                         : language === 'en'
-                        ? `Add ৳ ${(freeShippingThreshold - subtotal).toLocaleString()} for free delivery`
-                        : `ফ্রি ডেলিভারির জন্য আরও ৳ ${(freeShippingThreshold - subtotal).toLocaleString()} যোগ করুন`}
+                        ? `Add ৳ ${Math.max(0, freeShippingThreshold - discountedSubtotal).toLocaleString()} for free delivery`
+                        : `ফ্রি ডেলিভারির জন্য আরও ৳ ${Math.max(0, freeShippingThreshold - discountedSubtotal).toLocaleString()} যোগ করুন`}
                     </span>
                     <span className="text-[#B69A60] font-mono tabular-nums">
-                      {Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))}%
+                      {freeShippingThreshold > 0
+                        ? Math.min(100, Math.round((discountedSubtotal / freeShippingThreshold) * 100))
+                        : 100}
+                      %
                     </span>
                   </div>
                   <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
                     <div
                       className="bg-[#B69A60] h-full rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min(100, (subtotal / freeShippingThreshold) * 100)}%` }}
+                      style={{
+                        width: `${
+                          freeShippingThreshold > 0
+                            ? Math.min(100, (discountedSubtotal / freeShippingThreshold) * 100)
+                            : 100
+                        }%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -234,7 +276,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                             ৳ {(item.priceBDT * item.quantity).toLocaleString()}
                           </div>
 
-                          {/* Stepper */}
                           <div className="flex items-center gap-2 mt-2">
                             <div className="flex items-center border border-white/15 rounded bg-black/60">
                               <button
@@ -388,12 +429,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 </div>
 
-                {/* Order Breakdown */}
                 <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-1.5 font-mono text-[11px]">
                   <div className="flex justify-between text-[#D8D3C9]">
                     <span>{language === 'en' ? 'Subtotal' : 'সাবটোটাল'}</span>
                     <span className="tabular-nums">৳ {subtotal.toLocaleString()}</span>
                   </div>
+                  {bundleDiscount > 0 && (
+                    <div className="flex justify-between text-emerald-400">
+                      <span>{language === 'en' ? 'Bundle Privilege' : 'বান্ডেল ছাড়'}</span>
+                      <span className="tabular-nums">-৳ {bundleDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-[#D8D3C9]">
                     <span>{language === 'en' ? 'Pathao Courier' : 'পাঠাও ডেলিভারি'}</span>
                     <span className="tabular-nums">
@@ -409,16 +455,24 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 <div className="pt-2 flex gap-2">
                   <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={() => setCheckoutStep('cart')}
-                    className="w-1/3 py-2.5 border border-white/15 rounded hover:bg-white/5 uppercase tracking-wider font-medium text-xs cursor-pointer"
+                    className="w-1/3 py-2.5 border border-white/15 rounded hover:bg-white/5 uppercase tracking-wider font-medium text-xs cursor-pointer disabled:opacity-50"
                   >
                     {language === 'en' ? 'Back' : 'ফিরে যান'}
                   </button>
                   <button
                     type="submit"
-                    className="w-2/3 py-2.5 bg-[#B69A60] text-[#09090B] rounded font-semibold uppercase tracking-wider text-xs hover:bg-[#D5BA80] transition-colors cursor-pointer"
+                    disabled={isSubmitting}
+                    className="w-2/3 py-2.5 bg-[#B69A60] text-[#09090B] rounded font-semibold uppercase tracking-wider text-xs hover:bg-[#D5BA80] transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    {language === 'en' ? 'Place Order' : 'অর্ডার নিশ্চিত করুন'}
+                    {isSubmitting
+                      ? language === 'en'
+                        ? 'Registering Order...'
+                        : 'নিবন্ধন হচ্ছে...'
+                      : language === 'en'
+                      ? 'Place Order'
+                      : 'অর্ডার নিশ্চিত করুন'}
                   </button>
                 </div>
               </form>
@@ -479,12 +533,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {/* Drawer Footer */}
           {checkoutStep === 'cart' && items.length > 0 && (
             <div className="p-6 border-t border-white/10 bg-black/40">
+              {bundleDiscount > 0 && (
+                <div className="flex justify-between items-baseline text-xs font-mono text-emerald-400 mb-1.5">
+                  <span>{language === 'en' ? 'Bundle Savings' : 'বান্ডেল ছাড়'}</span>
+                  <span className="tabular-nums">-৳ {bundleDiscount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="flex justify-between items-baseline mb-2">
                 <span className="text-xs uppercase tracking-[0.2em] text-[#77777D]">
                   {t.cart.subtotal}
                 </span>
                 <span className="font-mono text-xl text-[#F5F2EB] font-bold tabular-nums">
-                  ৳ {subtotal.toLocaleString()}
+                  ৳ {discountedSubtotal.toLocaleString()}
                 </span>
               </div>
               <p className="text-[11px] text-[#77777D] mb-4">{t.cart.shippingNote}</p>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { Product, Language } from '../../types';
-import { FEATURED_PRODUCTS } from '../../data/mockData';
-import { THREE_PIECE_CATALOG } from '../../data/threePieceCatalog';
-import { GRAPHIC_ARCHIVE_PRODUCTS } from '../../data/graphicArchiveCatalog';
+import { useStoreData } from '../../context/StoreDataContext';
 import { translations } from '../../data/translations';
 
 interface SearchModalProps {
@@ -19,6 +17,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({
   onSelectProduct,
   language,
 }) => {
+  const { unifiedCatalog, liveEssentialsProducts } = useStoreData();
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const t = translations[language];
@@ -40,67 +39,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({
 
   const q = query.trim().toLowerCase();
 
-  // Search across all three catalogs
-  const standardResults: Product[] = FEATURED_PRODUCTS.filter(
+  const visibleCatalog = unifiedCatalog.filter((p) => p.status !== 'hidden');
+
+  const allMatches: Product[] = visibleCatalog.filter(
     (p) =>
+      p.id.toLowerCase().includes(q) ||
       p.nameEn.toLowerCase().includes(q) ||
       p.nameBn.includes(query) ||
       p.category.toLowerCase().includes(q) ||
+      p.collection.toLowerCase().includes(q) ||
       p.fabricEn.toLowerCase().includes(q)
   );
 
-  const threePieceResults: Product[] = THREE_PIECE_CATALOG.filter(
-    (tp) =>
-      tp.code.toLowerCase().includes(q) ||
-      tp.nameEn.toLowerCase().includes(q) ||
-      tp.nameBn.includes(query) ||
-      tp.subCollection.toLowerCase().includes(q) ||
-      tp.fabric.toLowerCase().includes(q)
-  ).map((tp) => ({
-    id: tp.id,
-    slug: tp.code.toLowerCase(),
-    nameEn: `[${tp.code}] ${tp.nameEn}`,
-    nameBn: `[${tp.code}] ${tp.nameBn}`,
-    category: 'Traditional' as const,
-    collection: tp.subCollection,
-    priceBDT: tp.priceBDT,
-    image: tp.flatLayImage,
-    colors: tp.colors,
-    sizes: ['Unstitched Set'],
-    fabricEn: tp.fabric,
-    fabricBn: tp.fabric,
-    fitEn: 'Custom Tailorable',
-    fitBn: 'কাস্টম টেইলরেবল',
-    styleTag: 'heritage' as const,
-  }));
-
-  const graphicArchiveResults: Product[] = GRAPHIC_ARCHIVE_PRODUCTS.filter(
-    (ga) =>
-      ga.id.toLowerCase().includes(q) ||
-      ga.name.toLowerCase().includes(q) ||
-      ga.category.toLowerCase().includes(q) ||
-      ga.descriptionEn.toLowerCase().includes(q) ||
-      ga.tags.some((tag) => tag.toLowerCase().includes(q))
-  ).map((ga) => ({
-    id: ga.id,
-    slug: ga.id.toLowerCase(),
-    nameEn: `${ga.name} Hoodie`,
-    nameBn: `${ga.name} হুডি`,
-    category: 'Streetwear' as const,
-    collection: `Graphic Archive · ${ga.category}`,
-    priceBDT: ga.variants[0].priceBdt,
-    image: ga.variants[0].previewImage,
-    colors: ga.variants.map((v) => ({ name: v.color, hex: v.colorHex })),
-    sizes: ['M', 'L', 'XL'],
-    fabricEn: ga.variants[0].fabric,
-    fabricBn: `${ga.variants[0].gsm} ওয়ান-সাইড ব্রাশড ফ্লিস`,
-    fitEn: ga.variants[0].fit,
-    fitBn: 'সমসাময়িক রিল্যাক্সড ড্রপ-শোল্ডার ফিট',
-    styleTag: 'urban' as const,
-  }));
-
-  const allMatches = [...standardResults, ...threePieceResults, ...graphicArchiveResults];
-  const results = q === '' ? FEATURED_PRODUCTS.slice(0, 4) : allMatches;
+  const results = q === '' ? liveEssentialsProducts.slice(0, 4) : allMatches;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4">

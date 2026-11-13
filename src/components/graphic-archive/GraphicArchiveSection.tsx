@@ -17,11 +17,10 @@ import {
 } from 'lucide-react';
 import {
   GRAPHIC_ARCHIVE_PRODUCTS,
-  GRAPHIC_ARCHIVE_HOTLINE,
-  GRAPHIC_ARCHIVE_HOTLINE_TEL,
   GraphicArchiveProduct,
   GraphicArchiveVariant,
 } from '../../data/graphicArchiveCatalog';
+import { useStoreData } from '../../context/StoreDataContext';
 import { Language, CartItem, Product } from '../../types';
 
 interface GraphicArchiveSectionProps {
@@ -62,12 +61,13 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   isWishlisted,
   onOpenQuickView,
 }) => {
+  const { liveGraphicArchiveProducts, storeSettings } = useStoreData();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, GraphicArchiveVariant>>(() => {
-    const initial: Record<string, GraphicArchiveVariant> = {};
+  const [selectedVariantSkus, setSelectedVariantSkus] = useState<Record<string, string>>(() => {
+    const initial: Record<string, string> = {};
     GRAPHIC_ARCHIVE_PRODUCTS.forEach((p) => {
-      initial[p.id] = p.variants[0];
+      initial[p.id] = p.variants[0]?.sku || '';
     });
     return initial;
   });
@@ -95,7 +95,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeLookbookSheet]);
 
-  const filteredProducts = GRAPHIC_ARCHIVE_PRODUCTS.filter((product) => {
+  const filteredProducts = liveGraphicArchiveProducts.filter((product) => {
     if (selectedCategory !== 'all' && product.category !== selectedCategory) {
       return false;
     }
@@ -107,9 +107,9 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   });
 
   const handleSelectColor = (productId: string, variant: GraphicArchiveVariant) => {
-    setSelectedVariants((prev) => ({
+    setSelectedVariantSkus((prev) => ({
       ...prev,
-      [productId]: variant,
+      [productId]: variant.sku,
     }));
   };
 
@@ -200,8 +200,10 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                 <p className="text-[11px] font-mono tracking-wider text-[#B69A60] uppercase">
                   {language === 'en' ? 'Bundle Privilege' : 'বান্ডেল ছাড়'}
                 </p>
-                <p className="text-xs font-semibold text-[#F5F2EB]">
-                  {language === 'en' ? 'Save ৳150 on 2 · Save ৳300 on 3' : '২টিতে ৳১৫০ ছাড় · ৩টিতে ৳৩০০ ছাড়'}
+                <p className="text-xs font-semibold text-[#F5F2EB] tabular-nums">
+                  {language === 'en'
+                    ? `Save ৳${storeSettings.bundle2DiscountBDT} on 2 · Save ৳${storeSettings.bundle3DiscountBDT} on 3`
+                    : `২টিতে ৳${storeSettings.bundle2DiscountBDT} ছাড় · ৩টিতে ৳${storeSettings.bundle3DiscountBDT} ছাড়`}
                 </p>
               </div>
             </div>
@@ -215,7 +217,9 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                   {language === 'en' ? 'Nationwide Delivery' : 'ডেলিভারি সুবিধা'}
                 </p>
                 <p className="text-xs font-semibold text-[#F5F2EB]">
-                  {language === 'en' ? 'Free on 2+ Pieces via Pathao' : 'পাঠাও কুরিয়ারে ২+ পিসে ফ্রি ডেলিভারি'}
+                  {language === 'en'
+                    ? `Free over ৳${storeSettings.freeShippingThresholdBDT.toLocaleString()} via Pathao`
+                    : `৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+ অর্ডারে পাঠাও ফ্রি`}
                 </p>
               </div>
             </div>
@@ -229,10 +233,10 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                   {language === 'en' ? 'Direct Order Hotline' : 'অর্ডার হটলাইন'}
                 </p>
                 <a
-                  href={GRAPHIC_ARCHIVE_HOTLINE_TEL}
+                  href={storeSettings.hotlineTel}
                   className="text-xs font-semibold text-[#F5F2EB] hover:text-[#D5BA80] transition-colors flex items-center gap-1 font-mono"
                 >
-                  {GRAPHIC_ARCHIVE_HOTLINE}
+                  {storeSettings.hotlineDisplay}
                 </a>
               </div>
             </div>
@@ -283,9 +287,12 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
         {/* Product Cards Grid: 11 Unique Designs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredProducts.map((product) => {
-            const currentVariant = selectedVariants[product.id] || product.variants[0];
+            const activeSku = selectedVariantSkus[product.id];
+            const currentVariant =
+              product.variants.find((v) => v.sku === activeSku) || product.variants[0];
             const currentSize = selectedSizes[product.id] || 'L';
             const isAdded = addedSku === currentVariant.sku;
+            const isOutOfStock = product.catalogStatus === 'out_of_stock' || product.stockCount <= 0;
             const mappedProduct = toArchiveProduct(product, currentVariant);
             const isWish = isWishlisted?.(product.id) ?? false;
 
@@ -299,16 +306,25 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                   <img
                     src={currentVariant.previewImage}
                     alt={`${product.name} - ${currentVariant.color}`}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                    className={`w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${
+                      isOutOfStock ? 'opacity-65 grayscale-[30%]' : ''
+                    }`}
                     loading="lazy"
                     referrerPolicy="no-referrer"
                   />
 
                   {/* Top Overlay Controls */}
                   <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
-                    <span className="px-2.5 py-1 rounded bg-black/85 backdrop-blur-md border border-white/15 text-[10px] font-mono tracking-wider text-[#D5BA80] uppercase pointer-events-none">
-                      {product.id} · {product.category}
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="px-2.5 py-1 rounded bg-black/85 backdrop-blur-md border border-white/15 text-[10px] font-mono tracking-wider text-[#D5BA80] uppercase pointer-events-none">
+                        {product.id} · {product.category}
+                      </span>
+                      {isOutOfStock && (
+                        <span className="px-2 py-1 rounded bg-black/90 border border-red-500/40 text-[10px] font-mono text-red-300 uppercase pointer-events-none">
+                          {language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}
+                        </span>
+                      )}
+                    </div>
 
                     <div className="flex items-center gap-1.5">
                       {onOpenQuickView && (
@@ -455,14 +471,19 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                   <div className="pt-3 border-t border-white/10 flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleAddToCart(product, currentVariant)}
-                      className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                        isAdded
-                          ? 'bg-emerald-500 text-white'
-                          : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80]'
+                      disabled={isOutOfStock}
+                      onClick={() => !isOutOfStock && handleAddToCart(product, currentVariant)}
+                      className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold tracking-wider flex items-center justify-center gap-2 transition-all ${
+                        isOutOfStock
+                          ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                          : isAdded
+                          ? 'bg-emerald-500 text-white cursor-pointer'
+                          : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] cursor-pointer'
                       }`}
                     >
-                      {isAdded ? (
+                      {isOutOfStock ? (
+                        <span>{language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}</span>
+                      ) : isAdded ? (
                         <>
                           <Check className="w-3.5 h-3.5" />
                           <span>{language === 'en' ? 'Added to Bag' : 'ব্যাগে যোগ হয়েছে'}</span>
@@ -476,7 +497,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                     </button>
 
                     <a
-                      href={GRAPHIC_ARCHIVE_HOTLINE_TEL}
+                      href={storeSettings.hotlineTel}
                       title={language === 'en' ? 'Call order concierge' : 'হটলাইনে কল করুন'}
                       aria-label="Call Fabrician order concierge"
                       className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-[#D5BA80] hover:bg-white/10 transition-colors shrink-0"

@@ -71,10 +71,12 @@ export function saveCustomerOrder(order: {
   division: string;
   paymentMethod: 'mfs' | 'cod';
   totalBDT: number;
+  consignmentId?: string;
 }): PathaoTrackingData {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  const consignmentId = `PTH-DH-${Math.floor(100000 + Math.random() * 900000)}`;
+  const consignmentId =
+    order.consignmentId || `PTH-DH-${Math.floor(100000 + Math.random() * 900000)}`;
   const isDhaka = order.division.toLowerCase().includes('dhaka');
 
   const record: PathaoTrackingData = {
@@ -272,10 +274,51 @@ export async function trackPathaoOrder(
     }
   }
 
-  // Simulated latency for realistic response
-  await new Promise((resolve) => setTimeout(resolve, 350));
+  // Check live Firestore orderTracking first (admin-updated status across devices)
+  try {
+    const { fetchLiveOrderTracking } = await import('./storeService');
+    const liveTrack = await fetchLiveOrderTracking(cleanId);
+    if (liveTrack) {
+      const updatedTime = new Date(liveTrack.updatedAtMs).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+      return {
+        consignmentId: liveTrack.consignmentId,
+        orderId: liveTrack.orderId,
+        recipientName: 'Verified Fabrician Client',
+        recipientPhone: '',
+        recipientAddress: liveTrack.division,
+        hubLocation: liveTrack.hubLocation,
+        courierPartner: 'Pathao Courier',
+        riderName: liveTrack.riderName,
+        paymentType:
+          liveTrack.paymentMethod === 'cod'
+            ? 'Cash on Delivery (COD)'
+            : 'Prepaid via MFS (bKash/Nagad)',
+        amountToCollectBDT: liveTrack.amountToCollectBDT,
+        currentStatus: liveTrack.currentStatus,
+        estimatedDelivery: liveTrack.estimatedDelivery,
+        timeline: [
+          {
+            time: updatedTime,
+            status: liveTrack.currentStatus.replace(/_/g, ' '),
+            location: liveTrack.hubLocation,
+            note: liveTrack.trackingNote,
+          },
+        ],
+      };
+    }
+  } catch {
+    // fallback gracefully
+  }
 
-  // Check customer-placed orders saved in browser storage first
+  // Simulated latency for realistic response
+  await new Promise((resolve) => setTimeout(resolve, 250));
+
+  // Check customer-placed orders saved in browser storage
   const savedOrders = getSavedCustomerOrders();
   if (savedOrders[cleanId]) {
     return savedOrders[cleanId];

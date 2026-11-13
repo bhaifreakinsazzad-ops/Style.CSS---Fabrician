@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Star,
   CheckCircle2,
@@ -11,37 +11,24 @@ import {
 } from 'lucide-react';
 import { Product, Language } from '../../types';
 import { ReviewItem, INITIAL_REVIEWS } from '../../data/mockReviews';
+import { useStoreData } from '../../context/StoreDataContext';
+import { submitStoreReview, upvoteStoreReview } from '../../services/storeService';
 
 interface ProductReviewsModuleProps {
   product: Product;
   language: Language;
 }
 
-function loadReviewsForProduct(productId: string): ReviewItem[] {
-  try {
-    const saved = localStorage.getItem(`fabrician_reviews_${productId}`);
-    if (saved) return JSON.parse(saved);
-  } catch {
-    // fallback
-  }
-  return INITIAL_REVIEWS[productId] || INITIAL_REVIEWS['default'];
-}
-
 export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
   product,
   language,
 }) => {
-  const storageKey = `fabrician_reviews_${product.id}`;
-
-  const [reviews, setReviews] = useState<ReviewItem[]>(() => loadReviewsForProduct(product.id));
-
-  useEffect(() => {
-    setReviews(loadReviewsForProduct(product.id));
-  }, [product.id]);
+  const { approvedReviews } = useStoreData();
 
   const [isWritingReview, setIsWritingReview] = useState(false);
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [upvotedReviews, setUpvotedReviews] = useState<Record<string, boolean>>({});
+  const [seedHelpfulBonus, setSeedHelpfulBonus] = useState<Record<string, number>>({});
 
   // Review form state
   const [formRating, setFormRating] = useState<number>(5);
@@ -52,16 +39,41 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
   const [formFit, setFormFit] = useState<'Runs True to Size' | 'Slightly Relaxed' | 'Tailored & Snug'>('Runs True to Size');
   const [formTitle, setFormTitle] = useState('');
   const [formComment, setFormComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Sync to local storage on review list update
-  useEffect(() => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(reviews));
-    } catch {
-      // ignore quota errors
-    }
-  }, [reviews, storageKey]);
+  const firestoreReviewsForProduct = useMemo<ReviewItem[]>(() => {
+    return approvedReviews
+      .filter((r) => r.productId === product.id)
+      .map((r) => ({
+        id: r.id,
+        productId: r.productId,
+        author: r.author,
+        location: r.location,
+        rating: r.rating,
+        date: new Intl.DateTimeFormat('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }).format(new Date(r.createdAtMs)),
+        sizePurchased: r.sizePurchased,
+        fitFeedback: r.fitFeedback,
+        title: r.title,
+        comment: r.comment,
+        verifiedBuyer: true,
+        helpfulCount: r.helpfulCount,
+      }));
+  }, [approvedReviews, product.id]);
+
+  const reviews = useMemo<ReviewItem[]>(() => {
+    const seed = (INITIAL_REVIEWS[product.id] || INITIAL_REVIEWS['default']).map((r) => ({
+      ...r,
+      helpfulCount: r.helpfulCount + (seedHelpfulBonus[r.id] || 0),
+    }));
+    const existingIds = new Set(firestoreReviewsForProduct.map((r) => r.id));
+    return [...firestoreReviewsForProduct, ...seed.filter((r) => !existingIds.has(r.id))];
+  }, [firestoreReviewsForProduct, product.id, seedHelpfulBonus]);
 
   // Calculations
   const totalReviews = reviews.length;
@@ -82,43 +94,58 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
     1: language === 'en' ? 'Needs Improvement' : 'উন্নতি প্রয়োজন',
   };
 
-  const handleHelpfulClick = (reviewId: string) => {
+  const handleHelpfulClick = async (reviewId: string) => {
     if (upvotedReviews[reviewId]) return;
     setUpvotedReviews((prev) => ({ ...prev, [reviewId]: true }));
-    setReviews((prev) =>
-      prev.map((r) => (r.id === reviewId ? { ...r, helpfulCount: r.helpfulCount + 1 } : r))
-    );
+
+    const isFirestoreReview = approvedReviews.some((r) => r.id === reviewId);
+    if (isFirestoreReview) {
+      try {
+        await upvoteStoreReview(reviewId);
+      } catch {
+        // revert silently on network failure
+      }
+    } else {
+      setSeedHelpfulBonus((prev) => ({ ...prev, [reviewId]: (prev[reviewId] || 0) + 1 }));
+    }
   };
 
-  const handleSubmitReview = (e: React.FormEvent) => {
+  const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formAuthor.trim() || !formComment.trim()) return;
+    if (!formAuthor.trim() || formComment.trim().length < 2 || isSubmitting) return;
 
-    const newReview: ReviewItem = {
-      id: `rev-user-${Date.now()}`,
-      productId: product.id,
-      author: formAuthor.trim(),
-      location: formLocation.trim() || 'Dhaka, Bangladesh',
-      rating: formRating,
-      date: 'Just now',
-      sizePurchased: formSize,
-      fitFeedback: formFit,
-      title: formTitle.trim() || (language === 'en' ? 'Verified Client Feedback' : 'যাচাইকৃত ক্রেতা মতামত'),
-      comment: formComment.trim(),
-      verifiedBuyer: true,
-      helpfulCount: 1,
-    };
-
-    setReviews([newReview, ...reviews]);
-    setFormSubmitted(true);
-    setTimeout(() => {
-      setFormSubmitted(false);
-      setIsWritingReview(false);
-      // Reset form
-      setFormTitle('');
-      setFormComment('');
-      setFormAuthor('');
-    }, 1400);
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      await submitStoreReview({
+        productId: product.id,
+        author: formAuthor.trim(),
+        location: formLocation.trim() || 'Dhaka, Bangladesh',
+        rating: formRating,
+        sizePurchased: formSize,
+        fitFeedback: formFit,
+        title:
+          formTitle.trim() ||
+          (language === 'en' ? 'Verified Client Feedback' : 'যাচাইকৃত ক্রেতা মতামত'),
+        comment: formComment.trim(),
+      });
+      setFormSubmitted(true);
+      setTimeout(() => {
+        setFormSubmitted(false);
+        setIsWritingReview(false);
+        setFormTitle('');
+        setFormComment('');
+        setFormAuthor('');
+      }, 1200);
+    } catch {
+      setSubmitError(
+        language === 'en'
+          ? 'Could not publish review right now. Please try again.'
+          : 'রিভিউ সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।'
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const filteredReviews = filterRating
@@ -327,18 +354,24 @@ export const ProductReviewsModule: React.FC<ProductReviewsModuleProps> = ({
             />
           </div>
 
+          {submitError && (
+            <p className="text-[11px] text-red-400">{submitError}</p>
+          )}
+
           {/* Submit Action */}
           <div className="flex items-center justify-between pt-2">
             <button
               type="submit"
-              disabled={formSubmitted}
-              className="px-6 py-2.5 bg-[#B69A60] hover:bg-[#D5BA80] text-[#09090B] font-semibold rounded-lg uppercase tracking-wider text-xs transition-colors cursor-pointer flex items-center gap-2"
+              disabled={formSubmitted || isSubmitting}
+              className="px-6 py-2.5 bg-[#B69A60] hover:bg-[#D5BA80] text-[#09090B] font-semibold rounded-lg uppercase tracking-wider text-xs transition-colors cursor-pointer flex items-center gap-2 disabled:opacity-60"
             >
               {formSubmitted ? (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Review Published!</span>
                 </>
+              ) : isSubmitting ? (
+                <span>Publishing...</span>
               ) : (
                 <span>Publish Verified Review</span>
               )}

@@ -4,7 +4,9 @@ import { Product, Language, CartItem } from '../../types';
 import { translations } from '../../data/translations';
 import { SizeGuideModal } from './SizeGuideModal';
 import { ProductReviewsModule } from '../reviews/ProductReviewsModule';
-import { INITIAL_REVIEWS, ReviewItem } from '../../data/mockReviews';
+import { INITIAL_REVIEWS } from '../../data/mockReviews';
+import { useStoreData } from '../../context/StoreDataContext';
+import { StoreReview } from '../../types/store';
 
 const GarmentTryOn3DModal = React.lazy(() =>
   import('./GarmentTryOn3DModal').then((m) => ({ default: m.GarmentTryOn3DModal }))
@@ -20,23 +22,21 @@ interface QuickViewModalProps {
   language: Language;
 }
 
-function getReviewSummary(productId: string): { avg: string; count: number } {
-  let reviews: ReviewItem[] = INITIAL_REVIEWS[productId] || INITIAL_REVIEWS['default'];
-  try {
-    const saved = localStorage.getItem(`fabrician_reviews_${productId}`);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        reviews = parsed;
-      }
-    }
-  } catch {
-    // ignore storage errors
-  }
-  const count = reviews.length;
+function getReviewSummary(
+  productId: string,
+  approvedReviews: StoreReview[]
+): { avg: string; count: number } {
+  const firestoreRatings = approvedReviews
+    .filter((r) => r.productId === productId)
+    .map((r) => r.rating);
+  const seedRatings = (INITIAL_REVIEWS[productId] || INITIAL_REVIEWS['default']).map(
+    (r) => r.rating
+  );
+  const allRatings = [...firestoreRatings, ...seedRatings];
+  const count = allRatings.length;
   const avg =
     count > 0
-      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / count).toFixed(1)
+      ? (allRatings.reduce((acc, r) => acc + r, 0) / count).toFixed(1)
       : '5.0';
   return { avg, count };
 }
@@ -50,6 +50,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   isWishlisted,
   language,
 }) => {
+  const { unifiedCatalog, approvedReviews } = useStoreData();
   const [selectedSize, setSelectedSize] = useState<string>('M');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [addedAnimation, setAddedAnimation] = useState(false);
@@ -57,6 +58,26 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const [isTryOnOpen, setIsTryOnOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'reviews'>('details');
   const t = translations[language];
+
+  const liveCatalogItem = product
+    ? unifiedCatalog.find((item) => item.id === product.id)
+    : undefined;
+  const resolvedProduct = liveCatalogItem
+    ? {
+        ...product!,
+        nameEn: liveCatalogItem.nameEn,
+        nameBn: liveCatalogItem.nameBn,
+        priceBDT: liveCatalogItem.priceBDT,
+        compareAtPriceBDT: liveCatalogItem.compareAtPriceBDT,
+        fabricEn: liveCatalogItem.fabricEn,
+        fabricBn: liveCatalogItem.fabricBn,
+        fitEn: liveCatalogItem.fitEn,
+        fitBn: liveCatalogItem.fitBn,
+      }
+    : product;
+  const isOutOfStock = liveCatalogItem
+    ? liveCatalogItem.status === 'out_of_stock' || liveCatalogItem.stockCount <= 0
+    : false;
 
   useEffect(() => {
     if (product) {
@@ -77,18 +98,22 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isSizeGuideOpen, isTryOnOpen, onClose]);
 
-  if (!isOpen || !product) return null;
+  if (!isOpen || !resolvedProduct) return null;
 
-  const activeColor = selectedColor || product.colors?.[0]?.name || 'Standard';
-  const { avg: averageRating, count: reviewCount } = getReviewSummary(product.id);
+  const activeColor = selectedColor || resolvedProduct.colors?.[0]?.name || 'Standard';
+  const { avg: averageRating, count: reviewCount } = getReviewSummary(
+    resolvedProduct.id,
+    approvedReviews
+  );
 
   const handleAdd = () => {
+    if (isOutOfStock) return;
     onAddToCart({
-      productId: product.id,
-      nameEn: product.nameEn,
-      nameBn: product.nameBn,
-      priceBDT: product.priceBDT,
-      image: product.image,
+      productId: resolvedProduct.id,
+      nameEn: resolvedProduct.nameEn,
+      nameBn: resolvedProduct.nameBn,
+      priceBDT: resolvedProduct.priceBDT,
+      image: resolvedProduct.image,
       color: activeColor,
       size: selectedSize,
       quantity: 1,
@@ -116,8 +141,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         {/* Product Media */}
         <div className="relative aspect-[3/4] md:aspect-auto md:h-full bg-black/40 overflow-hidden">
           <img
-            src={product.image}
-            alt={product.nameEn}
+            src={resolvedProduct.image}
+            alt={resolvedProduct.nameEn}
             className="w-full h-full object-cover object-top"
             referrerPolicy="no-referrer"
           />
@@ -128,7 +153,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         <div className="p-6 sm:p-8 flex flex-col justify-between md:overflow-y-auto md:max-h-[92vh]">
           <div>
             <div className="flex items-center justify-between text-xs font-mono text-[#B69A60] uppercase tracking-wider mb-2 pr-8">
-              <span className="truncate">{product.collection}</span>
+              <span className="truncate">{resolvedProduct.collection}</span>
               <button
                 type="button"
                 onClick={() => setActiveTab('reviews')}
@@ -148,16 +173,21 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             </div>
 
             <h3 className="font-serif-luxury text-2xl sm:text-3xl text-[#F5F2EB] font-light mb-2">
-              {language === 'en' ? product.nameEn : product.nameBn}
+              {language === 'en' ? resolvedProduct.nameEn : resolvedProduct.nameBn}
             </h3>
 
             <div className="flex items-baseline gap-3 mb-4">
               <span className="font-mono text-2xl text-[#D5BA80] font-semibold tabular-nums">
-                ৳ {product.priceBDT.toLocaleString()}
+                ৳ {resolvedProduct.priceBDT.toLocaleString()}
               </span>
-              {product.compareAtPriceBDT && (
+              {resolvedProduct.compareAtPriceBDT && (
                 <span className="font-mono text-sm text-[#77777D] line-through tabular-nums">
-                  ৳ {product.compareAtPriceBDT.toLocaleString()}
+                  ৳ {resolvedProduct.compareAtPriceBDT.toLocaleString()}
+                </span>
+              )}
+              {isOutOfStock && (
+                <span className="text-[11px] font-mono uppercase text-red-300 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded">
+                  {language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}
                 </span>
               )}
             </div>
@@ -196,13 +226,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   <div>
                     <span className="text-[#77777D] font-mono mr-2">FABRIC:</span>
                     <span className="text-[#D8D3C9]">
-                      {language === 'en' ? product.fabricEn : product.fabricBn}
+                      {language === 'en' ? resolvedProduct.fabricEn : resolvedProduct.fabricBn}
                     </span>
                   </div>
                   <div>
                     <span className="text-[#77777D] font-mono mr-2">SARTORIAL FIT:</span>
                     <span className="text-[#D8D3C9]">
-                      {language === 'en' ? product.fitEn : product.fitBn}
+                      {language === 'en' ? resolvedProduct.fitEn : resolvedProduct.fitBn}
                     </span>
                   </div>
                 </div>
@@ -214,7 +244,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                     <span className="text-[#F5F2EB] font-normal">{activeColor}</span>
                   </label>
                   <div className="flex items-center gap-2">
-                    {product.colors.map((c) => (
+                    {resolvedProduct.colors.map((c) => (
                       <button
                         key={c.name}
                         onClick={() => setSelectedColor(c.name)}
@@ -283,7 +313,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {product.sizes.map((s) => (
+                    {resolvedProduct.sizes.map((s) => (
                       <button
                         key={s}
                         onClick={() => setSelectedSize(s)}
@@ -303,7 +333,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
             {/* Tab 2: Reviews & Ratings Module */}
             {activeTab === 'reviews' && (
-              <ProductReviewsModule product={product} language={language} />
+              <ProductReviewsModule product={resolvedProduct} language={language} />
             )}
           </div>
 
@@ -311,14 +341,18 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           <div className="pt-4 border-t border-white/10 flex gap-3">
             <button
               onClick={handleAdd}
-              disabled={addedAnimation}
-              className={`flex-1 py-3 px-6 rounded font-semibold text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                addedAnimation
-                  ? 'bg-[#B69A60] text-[#09090B]'
-                  : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80]'
+              disabled={addedAnimation || isOutOfStock}
+              className={`flex-1 py-3 px-6 rounded font-semibold text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all ${
+                isOutOfStock
+                  ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                  : addedAnimation
+                  ? 'bg-[#B69A60] text-[#09090B] cursor-pointer'
+                  : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] cursor-pointer'
               }`}
             >
-              {addedAnimation ? (
+              {isOutOfStock ? (
+                <span>{language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}</span>
+              ) : addedAnimation ? (
                 <>
                   <Check className="w-4 h-4" />
                   <span>{t.essentials.addedToBag}</span>
@@ -332,7 +366,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             </button>
 
             <button
-              onClick={() => onToggleWishlist(product)}
+              onClick={() => onToggleWishlist(resolvedProduct)}
               className={`p-3 rounded border border-white/15 transition-colors cursor-pointer ${
                 isWishlisted
                   ? 'bg-[#B69A60] text-[#09090B]'
@@ -352,11 +386,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         onClose={() => setIsSizeGuideOpen(false)}
         language={language}
         defaultCategory={
-          product.nameEn.toLowerCase().includes('panjabi') || product.category === 'Traditional'
+          resolvedProduct.nameEn.toLowerCase().includes('panjabi') || resolvedProduct.category === 'Traditional'
             ? 'panjabi'
-            : product.sizes.includes('Unstitched Set') || product.sizes.includes('Free Size')
+            : resolvedProduct.sizes.includes('Unstitched Set') || resolvedProduct.sizes.includes('Free Size')
             ? 'unstitched'
-            : product.category === 'Women'
+            : resolvedProduct.category === 'Women'
             ? 'kameez'
             : 'streetwear'
         }
@@ -372,7 +406,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           }
         >
           <GarmentTryOn3DModal
-            product={product}
+            product={resolvedProduct}
             isOpen={isTryOnOpen}
             onClose={() => setIsTryOnOpen(false)}
             onAddToCart={onAddToCart}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { animate, stagger } from 'animejs';
 import { Sparkles, Box, ShoppingBag, Heart, Check, Eye, Search } from 'lucide-react';
-import { THREE_PIECE_CATALOG, ThreePieceItem } from '../../data/threePieceCatalog';
+import { ThreePieceItem } from '../../data/threePieceCatalog';
+import { LiveThreePieceItem } from '../../types/store';
+import { useStoreData } from '../../context/StoreDataContext';
 import { Language, CartItem, Product } from '../../types';
 
 const ThreePiece3DViewer = React.lazy(() =>
@@ -45,10 +47,13 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
   external3DItem = null,
   onClearExternal3D,
 }) => {
+  const { liveThreePieceItems } = useStoreData();
   const [activeSubEdit, setActiveSubEdit] = useState<string>('All');
   const [viewMode, setViewMode] = useState<'flatlay' | 'model'>('flatlay');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [active3DItem, setActive3DItem] = useState<ThreePieceItem | null>(THREE_PIECE_CATALOG[0]);
+  const [active3DItem, setActive3DItem] = useState<ThreePieceItem | null>(
+    liveThreePieceItems[0] || null
+  );
   const [show3DModal, setShow3DModal] = useState<boolean>(false);
   const [addedItemCode, setAddedItemCode] = useState<string | null>(null);
 
@@ -83,7 +88,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
     'Embroidery & Mirror',
   ];
 
-  const filteredItems = THREE_PIECE_CATALOG.filter((item) => {
+  const filteredItems = liveThreePieceItems.filter((item) => {
     const matchEdit = activeSubEdit === 'All' || item.subCollection === activeSubEdit;
     const matchQuery =
       searchQuery.trim() === '' ||
@@ -94,6 +99,13 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
       item.kameezEn.toLowerCase().includes(searchQuery.toLowerCase());
     return matchEdit && matchQuery;
   });
+
+  const minPrice = liveThreePieceItems.length
+    ? Math.min(...liveThreePieceItems.map((i) => i.priceBDT))
+    : 1650;
+  const maxPrice = liveThreePieceItems.length
+    ? Math.max(...liveThreePieceItems.map((i) => i.priceBDT))
+    : 2450;
 
   // Anime.js Staggered Card Entrance Animation
   useEffect(() => {
@@ -127,8 +139,9 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
     });
   }, [filteredItems.length]);
 
-  const handleQuickAdd = (item: ThreePieceItem, e: React.MouseEvent) => {
+  const handleQuickAdd = (item: LiveThreePieceItem, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (item.status === 'out_of_stock' || item.stockCount <= 0) return;
     onAddToCart({
       productId: item.id,
       nameEn: `${item.code} — ${item.nameEn}`,
@@ -259,9 +272,17 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
             <span ref={counterRef} className="text-[#D5BA80] font-bold tabular-nums">
               {String(filteredItems.length).padStart(2, '0')}
             </span>
-            <span>{language === 'en' ? 'of 18 Designs' : 'টি (মোট ১৮ ডিজাইন)'}</span>
+            <span>
+              {language === 'en'
+                ? `of ${liveThreePieceItems.length} Designs`
+                : `টি (মোট ${liveThreePieceItems.length} ডিজাইন)`}
+            </span>
           </div>
-          <span>{language === 'en' ? 'Price Range: ৳ 1,650 — ৳ 2,450' : 'মূল্য: ৳ ১,৬৫০ — ৳ ২,৪৫০'}</span>
+          <span className="tabular-nums">
+            {language === 'en'
+              ? `Price Range: ৳ ${minPrice.toLocaleString()} — ৳ ${maxPrice.toLocaleString()}`
+              : `মূল্য: ৳ ${minPrice.toLocaleString()} — ৳ ${maxPrice.toLocaleString()}`}
+          </span>
         </div>
 
         {/* 18-Product Responsive Grid */}
@@ -285,6 +306,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
             {filteredItems.map((item) => {
               const isWish = isWishlisted(item.id);
               const isJustAdded = addedItemCode === item.code;
+              const isOutOfStock = item.status === 'out_of_stock' || item.stockCount <= 0;
               const displayImage = viewMode === 'flatlay' ? item.flatLayImage : item.modelImage;
               const mappedProduct = toProduct(item);
 
@@ -301,15 +323,24 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
                     <img
                       src={displayImage}
                       alt={item.nameEn}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                      className={`w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out ${
+                        isOutOfStock ? 'opacity-65 grayscale-[30%]' : ''
+                      }`}
                       referrerPolicy="no-referrer"
                     />
 
                     {/* Top Badges */}
                     <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                      <span className="font-mono text-[11px] font-bold text-[#09090B] bg-[#D5BA80] px-2.5 py-0.5 rounded shadow">
-                        {item.code}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono text-[11px] font-bold text-[#09090B] bg-[#D5BA80] px-2.5 py-0.5 rounded shadow">
+                          {item.code}
+                        </span>
+                        {isOutOfStock && (
+                          <span className="font-mono text-[10px] font-semibold text-red-300 bg-black/85 border border-red-500/40 px-2 py-0.5 rounded">
+                            {language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}
+                          </span>
+                        )}
+                      </div>
 
                       <div className="flex items-center gap-2">
                         {onQuickView && (
@@ -413,14 +444,18 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
 
                       <button
                         onClick={(e) => handleQuickAdd(item, e)}
-                        disabled={isJustAdded}
-                        className={`py-2 px-3.5 rounded text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                          isJustAdded
-                            ? 'bg-[#B69A60] text-[#09090B]'
-                            : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80]'
+                        disabled={isJustAdded || isOutOfStock}
+                        className={`py-2 px-3.5 rounded text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
+                          isOutOfStock
+                            ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                            : isJustAdded
+                            ? 'bg-[#B69A60] text-[#09090B] cursor-pointer'
+                            : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] cursor-pointer'
                         }`}
                       >
-                        {isJustAdded ? (
+                        {isOutOfStock ? (
+                          <span>{language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}</span>
+                        ) : isJustAdded ? (
                           <>
                             <Check className="w-3.5 h-3.5" />
                             <span>{language === 'en' ? 'Added' : 'যুক্ত হয়েছে'}</span>
