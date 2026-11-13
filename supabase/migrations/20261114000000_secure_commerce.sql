@@ -1,6 +1,7 @@
 -- FABRICIAN isolated Supabase commerce schema (PostgreSQL 15+).
 -- Apply ONLY to the dedicated Fabrician project after approval; not PowerPointBD.
 -- Every public table has RLS, with deny-by-default and no direct order writes.
+create schema if not exists extensions;
 create extension if not exists pgcrypto with schema extensions;
 
 create table if not exists public.fabrician_products (
@@ -99,6 +100,13 @@ alter table public.fabrician_orders enable row level security;
 alter table public.fabrician_order_items enable row level security;
 alter table public.fabrician_subscribers enable row level security;
 alter table public.fabrician_reviews enable row level security;
+
+-- New Supabase projects can require explicit Data API grants (2026 behavior).
+grant usage on schema public to service_role;
+grant all on public.fabrician_products, public.fabrician_variants, public.fabrician_settings,
+  public.fabrician_orders, public.fabrician_order_items, public.fabrician_subscribers,
+  public.fabrician_reviews to service_role;
+grant usage, select on sequence public.fabrician_order_items_id_seq to service_role;
 
 -- Never expose order PII or stock mutations through the browser Data API.
 revoke all on public.fabrician_orders, public.fabrician_order_items, public.fabrician_subscribers from anon, authenticated;
