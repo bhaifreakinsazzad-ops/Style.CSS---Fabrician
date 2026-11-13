@@ -39,8 +39,11 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
       if (outcome === 'accepted') {
         setJustInstalled(true);
         setTimeout(() => setJustInstalled(false), 3000);
+        return;
       }
-      return;
+      if (outcome === 'dismissed') {
+        return;
+      }
     }
     setShowGuideModal(true);
   };
@@ -189,6 +192,148 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 className="mt-5 w-full py-2.5 rounded-lg bg-[#F5F2EB] hover:bg-[#D5BA80] text-[#09090B] font-semibold text-xs uppercase tracking-widest cursor-pointer transition-colors"
               >
                 {language === 'en' ? 'Got It' : 'বুঝেছি'}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+const MOBILE_BANNER_DISMISS_KEY = 'fabrician_mobile_pwa_banner_dismissed';
+
+export const MobilePWAInstallPrompt: React.FC<{ language: Language }> = ({ language }) => {
+  const { canPromptInstall, isInstalled, isIOS, promptInstall } = usePWAInstall();
+  const [dismissed, setDismissed] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem(MOBILE_BANNER_DISMISS_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
+
+  if (isInstalled || dismissed || (!canPromptInstall && !isIOS)) {
+    return null;
+  }
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    try {
+      sessionStorage.setItem(MOBILE_BANNER_DISMISS_KEY, '1');
+    } catch {
+      // ignore storage errors
+    }
+  };
+
+  const handleAction = async () => {
+    if (canPromptInstall) {
+      const outcome = await promptInstall();
+      if (outcome === 'accepted') {
+        handleDismiss();
+        return;
+      }
+    }
+    if (isIOS) {
+      setShowIOSGuide(true);
+    }
+  };
+
+  return (
+    <>
+      <div className="md:hidden fixed bottom-3 left-3 right-3 z-40">
+        <div className="bg-[#11141C]/95 backdrop-blur-md border border-[#B69A60]/45 rounded-xl p-3 shadow-2xl flex items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <img
+              src="/pwa-192x192.png"
+              alt="FABRICIAN App"
+              className="w-9 h-9 rounded-lg border border-[#B69A60]/40 shrink-0 object-cover"
+            />
+            <div className="min-w-0">
+              <div className="text-xs font-semibold text-[#F5F2EB] truncate">
+                {language === 'en' ? 'Install FABRICIAN App' : 'ফ্যাব্রিশিয়ান অ্যাপ ইনস্টল'}
+              </div>
+              <div className="text-[10px] font-mono text-[#D5BA80] truncate">
+                {isIOS
+                  ? language === 'en'
+                    ? 'Add to iPhone Home Screen'
+                    : 'হোম স্ক্রিনে যুক্ত করুন'
+                  : language === 'en'
+                  ? 'Fast app launch · Offline ready'
+                  : 'দ্রুত ও অফলাইন ব্রাউজিং'}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={handleAction}
+              className="px-3 py-1.5 rounded-lg bg-[#B69A60] hover:bg-[#D5BA80] text-[#09090B] text-[11px] font-bold uppercase tracking-wider cursor-pointer transition-colors"
+            >
+              {language === 'en' ? 'Install' : 'ইনস্টল'}
+            </button>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="p-1.5 text-[#9A9892] hover:text-white cursor-pointer"
+              aria-label="Dismiss install prompt"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {showIOSGuide && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/85"
+            onClick={() => setShowIOSGuide(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm bg-[#11141C] border border-[#B69A60]/40 rounded-2xl p-5 shadow-2xl text-[#F5F2EB]"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-serif-luxury text-lg text-[#F5F2EB]">
+                  {language === 'en' ? 'Add to Home Screen' : 'হোম স্ক্রিনে যুক্ত করুন'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowIOSGuide(false)}
+                  className="p-1 text-[#9A9892] hover:text-white cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <ol className="space-y-2.5 bg-[#09090B] border border-white/10 rounded-xl p-3.5 font-mono text-[11px] text-[#D8D3C9]">
+                <li className="flex items-center gap-2.5">
+                  <Share className="w-4 h-4 text-[#D5BA80] shrink-0" />
+                  <span>
+                    1. {language === 'en' ? 'Tap Share in Safari toolbar' : 'সাফারির Share বাটনে ট্যাপ করুন'}
+                  </span>
+                </li>
+                <li className="flex items-center gap-2.5">
+                  <PlusSquare className="w-4 h-4 text-[#D5BA80] shrink-0" />
+                  <span>
+                    2. {language === 'en' ? 'Tap "Add to Home Screen"' : '"Add to Home Screen" ট্যাপ করুন'}
+                  </span>
+                </li>
+              </ol>
+              <button
+                type="button"
+                onClick={() => setShowIOSGuide(false)}
+                className="mt-4 w-full py-2 rounded-lg bg-[#F5F2EB] text-[#09090B] text-xs font-semibold uppercase tracking-wider cursor-pointer"
+              >
+                {language === 'en' ? 'Done' : 'সম্পন্ন'}
               </button>
             </motion.div>
           </motion.div>

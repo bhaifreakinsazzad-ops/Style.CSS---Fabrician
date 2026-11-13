@@ -36,6 +36,7 @@ export default defineConfig(() => {
           scope: '/',
           start_url: '/',
           lang: 'en',
+          prefer_related_applications: false,
           categories: ['shopping', 'lifestyle', 'fashion'],
           icons: [
             {
@@ -89,6 +90,8 @@ export default defineConfig(() => {
         },
         workbox: {
           cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
           maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
           globIgnores: [

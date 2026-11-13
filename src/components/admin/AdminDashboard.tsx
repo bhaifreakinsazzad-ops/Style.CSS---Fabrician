@@ -217,6 +217,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
   // Subscribe to private admin collections once authenticated as owner
   useEffect(() => {
     if (!isAdmin || !db) {
+      setOrders([]);
+      setReviews([]);
+      setSubscribers([]);
+      setEditingOrder(null);
+      setEditingProduct(null);
+      setIsAddCustomOpen(false);
+      setConfirmDeleteOrderId(null);
+      setDataError(null);
       setOrdersLoading(false);
       setReviewsLoading(false);
       setSubscribersLoading(false);
@@ -321,6 +329,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       unsubOrders();
       unsubReviews();
       unsubSubscribers();
+      setOrders([]);
+      setReviews([]);
+      setSubscribers([]);
     };
   }, [isAdmin]);
 

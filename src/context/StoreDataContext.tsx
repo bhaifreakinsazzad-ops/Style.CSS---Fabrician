@@ -10,6 +10,7 @@ import {
 import {
   collection,
   doc,
+  getDoc,
   onSnapshot,
   query,
   where,
@@ -18,6 +19,7 @@ import {
 import {
   auth,
   db,
+  ensureAuthPersistence,
   googleProvider,
   PRIMARY_ADMIN_EMAIL,
   testFirestoreConnection,
@@ -84,6 +86,7 @@ const StoreDataContext = createContext<StoreDataContextValue | null>(null);
 export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [hasAdminRoleDoc, setHasAdminRoleDoc] = useState(false);
   const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
   const [catalogOverrides, setCatalogOverrides] = useState<Record<string, CatalogOverride>>({});
@@ -95,19 +98,70 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return;
     }
 
-    testFirestoreConnection();
+    let cancelled = false;
+    const authInstance = auth;
+    const dbInstance = db;
 
-    getRedirectResult(auth).catch((err) => {
-      const code = (err as { code?: string })?.code || '';
-      if (code && code !== 'auth/popup-closed-by-user') {
-        setAuthNotice(formatAuthErrorMessage(err));
+    void testFirestoreConnection();
+
+    const hydrateAuth = async () => {
+      await ensureAuthPersistence();
+      try {
+        const redirectResult = await getRedirectResult(authInstance);
+        if (!cancelled && redirectResult?.user) {
+          setUser(redirectResult.user);
+          setAuthNotice(null);
+        }
+      } catch (err) {
+        const code = (err as { code?: string })?.code || '';
+        if (!cancelled && code && code !== 'auth/popup-closed-by-user') {
+          setAuthNotice(formatAuthErrorMessage(err));
+        }
       }
-    });
+      try {
+        await authInstance.authStateReady();
+      } catch {
+        // Ignore if authStateReady rejects unexpectedly
+      }
+      if (!cancelled) {
+        const settledUser = authInstance.currentUser;
+        if (
+          settledUser &&
+          settledUser.emailVerified &&
+          settledUser.email?.toLowerCase() !== PRIMARY_ADMIN_EMAIL.toLowerCase()
+        ) {
+          try {
+            const adminSnap = await getDoc(doc(dbInstance, 'admins', settledUser.uid));
+            if (!cancelled) setHasAdminRoleDoc(adminSnap.exists());
+          } catch {
+            if (!cancelled) setHasAdminRoleDoc(false);
+          }
+        }
+        setAuthReady(true);
+      }
+    };
 
-    const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
+    void hydrateAuth();
+
+    const unsubAuth = onAuthStateChanged(authInstance, async (currentUser) => {
+      if (cancelled) return;
       setUser(currentUser);
       if (currentUser) setAuthNotice(null);
-      setAuthReady(true);
+
+      if (
+        currentUser &&
+        currentUser.emailVerified &&
+        currentUser.email?.toLowerCase() !== PRIMARY_ADMIN_EMAIL.toLowerCase()
+      ) {
+        try {
+          const adminSnap = await getDoc(doc(dbInstance, 'admins', currentUser.uid));
+          if (!cancelled) setHasAdminRoleDoc(adminSnap.exists());
+        } catch {
+          if (!cancelled) setHasAdminRoleDoc(false);
+        }
+      } else {
+        setHasAdminRoleDoc(false);
+      }
     });
 
     const unsubSettings = onSnapshot(
@@ -224,6 +278,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     );
 
     return () => {
+      cancelled = true;
       unsubAuth();
       unsubSettings();
       unsubCatalog();
@@ -231,15 +286,17 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, []);
 
-  const isAdmin = Boolean(
+  const isPrimaryOwner = Boolean(
     user && user.emailVerified && user.email?.toLowerCase() === PRIMARY_ADMIN_EMAIL.toLowerCase()
   );
+  const isAdmin = isPrimaryOwner || Boolean(user && user.emailVerified && hasAdminRoleDoc);
 
   const signInWithGoogle = async () => {
     if (!auth || !googleProvider) {
       throw new Error('Firebase Authentication is not configured. Set VITE_FIREBASE_API_KEY.');
     }
     setAuthNotice(null);
+    await ensureAuthPersistence();
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err) {
@@ -258,6 +315,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       throw new Error('Firebase Authentication is not configured. Set VITE_FIREBASE_API_KEY.');
     }
     setAuthNotice(null);
+    await ensureAuthPersistence();
     try {
       await signInWithRedirect(auth, googleProvider);
     } catch (err) {
@@ -266,6 +324,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const signOutAdmin = async () => {
+    setAuthNotice(null);
+    setHasAdminRoleDoc(false);
     if (!auth) return;
     await signOut(auth);
   };

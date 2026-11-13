@@ -11,15 +11,45 @@ declare global {
   }
 }
 
-export function usePWAInstall() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    return (
-      window.matchMedia('(display-mode: standalone)').matches ||
-      Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
-    );
+let sharedDeferredPrompt: BeforeInstallPromptEvent | null = null;
+let sharedIsInstalled = false;
+const promptSubscribers = new Set<(e: BeforeInstallPromptEvent | null) => void>();
+const installedSubscribers = new Set<(installed: boolean) => void>();
+
+function checkStandaloneDisplay(): boolean {
+  if (typeof window === 'undefined') return false;
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches ||
+    window.matchMedia('(display-mode: minimal-ui)').matches ||
+    Boolean((navigator as Navigator & { standalone?: boolean }).standalone)
+  );
+}
+
+if (typeof window !== 'undefined') {
+  sharedIsInstalled = checkStandaloneDisplay();
+
+  window.addEventListener('beforeinstallprompt', (e: BeforeInstallPromptEvent) => {
+    e.preventDefault();
+    sharedDeferredPrompt = e;
+    promptSubscribers.forEach((cb) => cb(e));
   });
+
+  window.addEventListener('appinstalled', () => {
+    sharedIsInstalled = true;
+    sharedDeferredPrompt = null;
+    promptSubscribers.forEach((cb) => cb(null));
+    installedSubscribers.forEach((cb) => cb(true));
+  });
+}
+
+export function usePWAInstall() {
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(
+    () => sharedDeferredPrompt
+  );
+  const [isInstalled, setIsInstalled] = useState<boolean>(
+    () => sharedIsInstalled || checkStandaloneDisplay()
+  );
   const [isIOS, setIsIOS] = useState<boolean>(false);
 
   useEffect(() => {
@@ -28,41 +58,48 @@ export function usePWAInstall() {
     const isMacTouch = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
     setIsIOS((isAppleTouch || isMacTouch) && !('MSStream' in window));
 
+    setDeferredPrompt(sharedDeferredPrompt);
+    setIsInstalled(sharedIsInstalled || checkStandaloneDisplay());
+
+    promptSubscribers.add(setDeferredPrompt);
+    installedSubscribers.add(setIsInstalled);
+
     const mediaQuery = window.matchMedia('(display-mode: standalone)');
     const handleDisplayChange = (e: MediaQueryListEvent) => {
-      if (e.matches) setIsInstalled(true);
+      if (e.matches) {
+        sharedIsInstalled = true;
+        setIsInstalled(true);
+      }
     };
     mediaQuery.addEventListener('change', handleDisplayChange);
 
-    const handleBeforeInstall = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-
-    const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
-    window.addEventListener('appinstalled', handleAppInstalled);
-
     return () => {
+      promptSubscribers.delete(setDeferredPrompt);
+      installedSubscribers.delete(setIsInstalled);
       mediaQuery.removeEventListener('change', handleDisplayChange);
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
-      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
   const promptInstall = useCallback(async (): Promise<'accepted' | 'dismissed' | 'unavailable'> => {
-    if (!deferredPrompt) return 'unavailable';
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
+    const activePrompt = deferredPrompt || sharedDeferredPrompt;
+    if (!activePrompt) return 'unavailable';
+    try {
+      await activePrompt.prompt();
+      const { outcome } = await activePrompt.userChoice;
+      if (outcome === 'accepted') {
+        sharedIsInstalled = true;
+        setIsInstalled(true);
+        installedSubscribers.forEach((cb) => cb(true));
+      }
+      return outcome;
+    } catch {
+      return 'unavailable';
+    } finally {
+      // Chromium consumes a BeforeInstallPromptEvent once prompt() is invoked
+      sharedDeferredPrompt = null;
       setDeferredPrompt(null);
-      setIsInstalled(true);
+      promptSubscribers.forEach((cb) => cb(null));
     }
-    return outcome;
   }, [deferredPrompt]);
 
   return {

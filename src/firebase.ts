@@ -1,5 +1,12 @@
-import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, Auth } from 'firebase/auth';
+import { initializeApp, getApp, getApps, FirebaseApp } from 'firebase/app';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  Auth,
+  setPersistence,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+} from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer, Firestore } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 
@@ -12,14 +19,28 @@ let app: FirebaseApp | null = null;
 export let db: Firestore | null = null;
 export let auth: Auth | null = null;
 export let googleProvider: GoogleAuthProvider | null = null;
+let persistencePromise: Promise<void> | null = null;
+
+export function ensureAuthPersistence(): Promise<void> {
+  if (!auth) return Promise.resolve();
+  if (!persistencePromise) {
+    persistencePromise = setPersistence(auth, indexedDBLocalPersistence)
+      .catch(() => setPersistence(auth!, browserLocalPersistence))
+      .catch(() => {});
+  }
+  return persistencePromise;
+}
 
 if (isFirebaseConfigured) {
-  app = initializeApp({
-    ...firebaseConfig,
-    apiKey: resolvedApiKey,
-  });
+  app = getApps().length
+    ? getApp()
+    : initializeApp({
+        ...firebaseConfig,
+        apiKey: resolvedApiKey,
+      });
   db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
   auth = getAuth(app);
+  void ensureAuthPersistence();
   googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({ prompt: 'select_account' });
 }

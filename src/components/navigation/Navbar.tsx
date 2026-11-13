@@ -150,9 +150,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Zone 3: Primary Actions (Install PWA, Track, Language, Search, Wishlist, Bag) */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Compact PWA Install Button */}
-            <PWAInstallButton language={language} variant="compact" className="hidden sm:flex" />
+            <PWAInstallButton language={language} variant="compact" />
 
             {/* Store Admin Console Trigger */}
             {onOpenAdmin && (

@@ -5,8 +5,11 @@ import { StoreDataProvider } from './context/StoreDataContext.tsx';
 import './index.css';
 
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  registerSW({
+  const updateSW = registerSW({
     immediate: true,
+    onNeedRefresh() {
+      updateSW(true).catch(() => {});
+    },
     onRegisteredSW(_swUrl, registration) {
       if (registration) {
         // Periodically check for deployed SW updates when active
@@ -14,6 +17,9 @@ if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
           registration.update().catch(() => {});
         }, 60 * 60 * 1000);
       }
+    },
+    onRegisterError(error) {
+      console.warn('Service worker registration error:', error);
     },
   });
 }
