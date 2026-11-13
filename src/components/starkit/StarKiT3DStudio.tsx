@@ -64,41 +64,31 @@ function createFrontCrestTexture(
   const ctx = canvas.getContext('2d')!;
 
   const isLightBody = variant.color === 'Cream';
-  const fg = isLightBody ? '#170000' : '#FFFFFF';
-  const subFg = isLightBody ? 'rgba(23,0,0,0.68)' : 'rgba(255,255,255,0.72)';
+  const plaqueBg = isLightBody ? '#170000' : '#FFFFFF';
+  const plaqueFg = isLightBody ? '#FFFFFF' : '#170000';
+  const subFg = isLightBody ? '#170000' : '#FFFFFF';
 
   ctx.clearRect(0, 0, 512, 512);
 
-  // Subtle architectural box frame
-  ctx.strokeStyle = fg;
-  ctx.lineWidth = 4;
-  ctx.strokeRect(48, 90, 416, 330);
+  // Official Horizontal Plaque Lockup
+  ctx.fillStyle = plaqueBg;
+  ctx.fillRect(64, 130, 384, 178);
 
-  // Top crimson kinetic strip
-  ctx.fillStyle = '#FF2E2E';
-  ctx.fillRect(48, 90, 416, 18);
-
-  // Arabic & Apex Wordmark
-  ctx.fillStyle = fg;
-  ctx.font = 'bold 42px sans-serif';
+  ctx.fillStyle = plaqueFg;
+  ctx.font = 'bold 58px sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('S T Λ R K I T', 256, 198);
+  ctx.fillText('ستاركيت', 256, 218);
 
-  ctx.fillStyle = '#FF2E2E';
-  ctx.font = 'bold 34px sans-serif';
-  ctx.fillText('ستاركيت', 256, 250);
+  ctx.font = '600 22px sans-serif';
+  ctx.fillText('S  T  Λ  R  K  I  T', 256, 274);
 
   // Drop & SKU stamp
   ctx.fillStyle = subFg;
-  ctx.font = 'bold 20px monospace';
-  ctx.fillText(product.stkCode || product.id, 256, 310);
+  ctx.font = '600 18px monospace';
+  ctx.fillText(`${product.stkCode || product.id} · ${product.name.toUpperCase()}`, 256, 355);
 
-  ctx.font = 'bold 18px sans-serif';
-  ctx.fillText(product.name.toUpperCase(), 256, 348);
-
-  ctx.fillStyle = '#FF2E2E';
-  ctx.font = 'bold 15px monospace';
-  ctx.fillText('WEAR YOUR WORLD // DROP 01', 256, 388);
+  ctx.font = '500 14px monospace';
+  ctx.fillText('COMMUNITY · STYLE · AUTHENTICITY', 256, 390);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -118,29 +108,29 @@ function createBackArtworkTexture(
 
   const isLightBody = variant.color === 'Cream';
   const fg = isLightBody ? '#170000' : '#FFFFFF';
-  const cardBg = isLightBody ? '#FFFFFF' : '#1F0B0B';
-  const borderColor = isLightBody ? '#170000' : 'rgba(255,255,255,0.85)';
+  const cardBg = isLightBody ? '#FFFFFF' : '#170000';
+  const borderColor = isLightBody ? '#170000' : '#FFFFFF';
+  const mutedLine = isLightBody ? 'rgba(23,0,0,0.45)' : 'rgba(255,255,255,0.45)';
 
   ctx.clearRect(0, 0, 768, 896);
 
-  // Editorial Back Graphic Poster Frame
+  // Editorial Back Graphic Frame
   ctx.fillStyle = cardBg;
   ctx.fillRect(56, 56, 656, 784);
   ctx.strokeStyle = borderColor;
   ctx.lineWidth = 6;
   ctx.strokeRect(56, 56, 656, 784);
 
-  // Diagonal Kinetic Speed Stripe
-  ctx.fillStyle = '#FF2E2E';
-  ctx.fillRect(56, 56, 656, 34);
+  // Top Monochrome Header Bar
+  ctx.fillStyle = fg;
+  ctx.fillRect(56, 56, 656, 44);
 
-  // Top meta bar
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = cardBg;
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`STARKIT ARCHIVE // ${product.stkCode || product.id}`, 78, 80);
+  ctx.fillText(`STΛRKIT ARCHIVE // ${product.stkCode || product.id}`, 78, 84);
   ctx.textAlign = 'right';
-  ctx.fillText(`${variant.gsm}`, 690, 80);
+  ctx.fillText(`${variant.gsm}`, 690, 84);
 
   // Center Motif Art Geometry driven by Product Category
   const cx = 384;
@@ -149,19 +139,19 @@ function createBackArtworkTexture(
   ctx.translate(cx, cy);
 
   if (product.category === 'Anime Archive') {
-    // Crimson sun + concentric orbital rings
-    ctx.fillStyle = '#FF2E2E';
+    ctx.strokeStyle = fg;
+    ctx.lineWidth = 10;
     ctx.beginPath();
     ctx.arc(0, 0, 128, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = fg;
-    ctx.lineWidth = 8;
-    ctx.beginPath();
-    ctx.arc(0, 0, 156, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.strokeStyle = isLightBody ? '#170000' : '#170000';
+    ctx.strokeStyle = mutedLine;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.arc(0, 0, 158, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = fg;
     ctx.lineWidth = 5;
     for (let r = 0; r < 6; r++) {
       const a = (r * Math.PI) / 3;
@@ -171,11 +161,10 @@ function createBackArtworkTexture(
       ctx.stroke();
     }
   } else if (product.category === 'Moto Culture') {
-    // Checkered apex shield + piston bars
     ctx.strokeStyle = fg;
     ctx.lineWidth = 10;
     ctx.strokeRect(-145, -125, 290, 250);
-    ctx.fillStyle = '#FF2E2E';
+    ctx.fillStyle = fg;
     for (let i = -3; i <= 3; i++) {
       ctx.fillRect(i * 38 - 14, -125, 24, 34);
       ctx.fillRect(-i * 38 - 10, 91, 24, 34);
@@ -185,9 +174,8 @@ function createBackArtworkTexture(
     ctx.textAlign = 'center';
     ctx.fillText('RPM', 0, 24);
   } else {
-    // Architectural Dhaka diamond rosette / Bengali folk grid
-    ctx.strokeStyle = '#FF2E2E';
-    ctx.lineWidth = 9;
+    ctx.strokeStyle = fg;
+    ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.moveTo(0, -155);
     ctx.lineTo(155, 0);
@@ -196,15 +184,15 @@ function createBackArtworkTexture(
     ctx.closePath();
     ctx.stroke();
 
-    ctx.strokeStyle = fg;
-    ctx.lineWidth = 6;
+    ctx.strokeStyle = mutedLine;
+    ctx.lineWidth = 5;
     ctx.beginPath();
     ctx.arc(0, 0, 96, 0, Math.PI * 2);
     ctx.stroke();
 
-    ctx.fillStyle = '#FF2E2E';
+    ctx.fillStyle = fg;
     ctx.beginPath();
-    ctx.arc(0, 0, 34, 0, Math.PI * 2);
+    ctx.arc(0, 0, 28, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.restore();
@@ -212,11 +200,11 @@ function createBackArtworkTexture(
   // Headline Typography
   ctx.fillStyle = fg;
   ctx.textAlign = 'center';
-  ctx.font = '900 46px sans-serif';
+  ctx.font = '700 44px sans-serif';
   ctx.fillText(product.name.toUpperCase(), 384, 608);
 
-  ctx.fillStyle = '#FF2E2E';
-  ctx.font = 'bold 24px monospace';
+  ctx.fillStyle = mutedLine;
+  ctx.font = 'bold 22px monospace';
   ctx.fillText(product.editorial, 384, 654);
 
   // Bottom Spec Seal
@@ -229,9 +217,9 @@ function createBackArtworkTexture(
 
   ctx.fillStyle = fg;
   ctx.font = 'bold 20px monospace';
-  ctx.fillText('DHAKA STREET CULTURE · COMMUNITY · STYLE', 384, 745);
-  ctx.font = 'bold 18px sans-serif';
-  ctx.fillText('STARKIT × FABRICIAN · ستاركيت', 384, 785);
+  ctx.fillText('DHAKA · COMMUNITY · STYLE · AUTHENTICITY', 384, 745);
+  ctx.font = 'bold 22px sans-serif';
+  ctx.fillText('ستاركيت  //  S T Λ R K I T', 384, 788);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -246,16 +234,16 @@ function createSleeveTexture(maxAniso: number): THREE.CanvasTexture {
   const ctx = canvas.getContext('2d')!;
 
   ctx.clearRect(0, 0, 256, 512);
-  ctx.fillStyle = '#FF2E2E';
-  ctx.fillRect(68, 40, 120, 432);
   ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(68, 40, 120, 432);
+  ctx.fillStyle = '#170000';
   ctx.save();
   ctx.translate(128, 256);
   ctx.rotate(-Math.PI / 2);
-  ctx.font = '900 34px monospace';
+  ctx.font = '900 32px sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('S T Λ R K I T // 26', 0, 0);
+  ctx.fillText('S T Λ R K I T', 0, 0);
   ctx.restore();
 
   const tex = new THREE.CanvasTexture(canvas);
@@ -405,9 +393,9 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     }
     scene.add(keyLight);
 
-    const crimsonRim = new THREE.DirectionalLight(0xff4a4a, 1.35);
-    crimsonRim.position.set(-2.8, 1.6, -2.5);
-    scene.add(crimsonRim);
+    const warmKeyRim = new THREE.DirectionalLight(0xf3efea, 1.35);
+    warmKeyRim.position.set(-2.8, 1.6, -2.5);
+    scene.add(warmKeyRim);
 
     const backFill = new THREE.DirectionalLight(0xdce8ff, 1.15);
     backFill.position.set(0.5, 1.4, -3.2);
@@ -601,11 +589,11 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     hoodieGroup.add(backDecal);
 
     // 9. Pedestal Base Ring & Ground Contact Shadow
-    const ringGeo = new THREE.RingGeometry(0.55, 0.62, 48);
+    const ringGeo = new THREE.RingGeometry(0.55, 0.61, 48);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0xff2e2e,
+      color: 0xffffff,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.35,
       side: THREE.DoubleSide,
     });
     geometries.push(ringGeo);
@@ -823,11 +811,11 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
       {/* Top Minimal Corner Telemetry (High-Contrast Solid Surface, No Backdrop-Blur over WebGL) */}
       <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
         <div className="px-3 py-1.5 rounded-lg bg-[#170000] border border-white/25 text-[11px] font-mono text-white flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#FF2E2E]" />
+          <span className="w-2 h-2 rounded-full bg-white" />
           <span className="font-bold">{activeProduct.stkCode || activeProduct.id}</span>
           <span className="text-white/30">·</span>
           <span>{activeProduct.name}</span>
-          <span className="hidden sm:inline text-white/50">· {gsmValue} GSM</span>
+          <span className="hidden sm:inline text-white/60">· {gsmValue} GSM</span>
         </div>
 
         <div className="flex items-center gap-2 pointer-events-auto">
@@ -858,16 +846,16 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
           <button
             type="button"
             onClick={() => setHudExpanded((v) => !v)}
-            className="px-3.5 py-1 rounded-t-lg bg-[#170000] border border-b-0 border-white/25 text-[10px] font-mono uppercase tracking-widest text-white hover:text-[#FF2E2E] flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-1 rounded-t-lg bg-[#170000] border border-b-0 border-white/25 text-[10px] font-mono uppercase tracking-widest text-white hover:text-[#C7C1BF] flex items-center gap-1.5 cursor-pointer"
           >
             {hudExpanded ? (
               <>
-                <ChevronDown className="w-3.5 h-3.5 text-[#FF2E2E]" />
+                <ChevronDown className="w-3.5 h-3.5 text-white" />
                 <span>{language === 'en' ? 'Hide 3D Dock' : 'কন্ট্রোল লুকান'}</span>
               </>
             ) : (
               <>
-                <ChevronUp className="w-3.5 h-3.5 text-[#FF2E2E]" />
+                <ChevronUp className="w-3.5 h-3.5 text-white" />
                 <span>{language === 'en' ? 'Customize Hoodie in 3D' : '৩ডি হুডি কাস্টমাইজ করুন'}</span>
               </>
             )}
@@ -889,7 +877,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                   id="starkit-3d-design-select"
                   value={activeProduct.id}
                   onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="bg-black border border-white/25 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#FF2E2E] cursor-pointer max-w-[230px]"
+                  className="bg-black border border-white/25 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white cursor-pointer max-w-[230px]"
                 >
                   {products.map((p) => (
                     <option key={p.id} value={p.id} className="bg-[#170000] text-white">
@@ -914,7 +902,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                     onClick={() => handleSelectPreset(item.id)}
                     className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase tracking-wider transition-colors cursor-pointer ${
                       preset === item.id
-                        ? 'bg-[#FF2E2E] text-white font-bold'
+                        ? 'bg-white text-[#170000] font-bold'
                         : 'bg-white/10 text-white/80 hover:bg-white/20'
                     }`}
                   >
@@ -938,7 +926,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                       aria-label={`Select colorway ${v.color}`}
                       className={`w-5 h-5 rounded-full border-2 cursor-pointer transition-transform ${
                         v.sku === activeVariant.sku
-                          ? 'border-[#FF2E2E] scale-115'
+                          ? 'border-white scale-115 ring-2 ring-white/40'
                           : 'border-white/35 hover:border-white'
                       }`}
                       style={{ backgroundColor: v.colorHex }}
@@ -956,7 +944,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                     value={gsmValue}
                     onChange={(e) => setGsmValue(Number(e.target.value))}
                     aria-label="Fleece GSM fabric density"
-                    className="w-20 h-1 bg-white/25 rounded appearance-none cursor-pointer accent-[#FF2E2E]"
+                    className="w-20 h-1 bg-white/25 rounded appearance-none cursor-pointer accent-white"
                   />
                 </div>
 
@@ -983,7 +971,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                 <button
                   type="button"
                   onClick={() => onAddToCart(buildCartPayload())}
-                  className="px-3 py-1.5 rounded-lg bg-white hover:bg-neutral-200 text-[#170000] text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/30 text-white text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>
@@ -994,7 +982,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                   <button
                     type="button"
                     onClick={() => onBuyNow(buildCartPayload())}
-                    className="px-3 py-1.5 rounded-lg bg-[#FF2E2E] hover:bg-red-600 text-white text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg bg-white hover:bg-[#ECEAEA] text-[#170000] text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <Zap className="w-3.5 h-3.5" />
                     <span>{language === 'en' ? 'Buy Now' : 'এখনই কিনুন'}</span>

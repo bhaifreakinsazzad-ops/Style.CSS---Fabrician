@@ -7,6 +7,7 @@ export const STARKIT_WHATSAPP_NUMBER = '8801931803462';
 export const STARKIT_WHATSAPP_DISPLAY = '+880 1931-803462';
 export const STARKIT_PROMO_CODE = 'STARKIT10';
 export const STARKIT_LOOKBOOK_PDF = '/assets/aistudio/StarkiT_Premium_Product_Catalog_2026_46a43cbd.pdf';
+export const STARKIT_BRAND_BOOK_PDF = '/assets/aistudio/starkit_brand_book_by_pomelli_f114d27f.pdf';
 
 export function buildStarKiTWhatsAppHref(message: string): string {
   return `https://wa.me/${STARKIT_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -56,47 +57,71 @@ export const STARKIT_SIZE_CHART: StarKiTSizeSpec[] = [
   },
 ];
 
+/**
+ * Exact Brand Book Specifications (Pages 1–7)
+ * Colors: Pure White #FFFFFF & Jet Black #170000
+ * Primary Typeface: Afacad Flux
+ */
 export const STARKIT_BRAND_BOOK = {
-  brandName: 'StarKiT',
+  brandName: 'StarkiT',
+  spacedWordmark: 'S T Λ R K I T',
   arabicName: 'ستاركيت',
   founder: 'Nafe Munawer',
   city: 'Dhaka, Bangladesh',
-  tagline: 'WEAR YOUR WORLD.',
-  taglineBn: 'তোমার পৃথিবী পরো নিজের স্টাইলে।',
-  philosophyEn:
-    'Rooted in Dhaka street culture by founder Nafe Munawer, StarKiT turns every heavyweight brushed fleece silhouette into an unfiltered canvas—fusing community, kinetic contrast, and original Bengali storytelling.',
-  philosophyBn:
-    'প্রতিষ্ঠাতা নাফে মুনাওয়ারের হাত ধরে ঢাকার স্ট্রিট কালচার থেকে জন্ম নেওয়া স্টারকিট প্রতিটি হেভিওয়েট ফ্লিস হুডিকে পরিণত করে নিজস্ব গল্প বলার ক্যানভাসে।',
+  quoteEn: '"Dhaka-based clothing brand by Nafe Munawer."',
+  overviewEn:
+    'StarkiT is a Dhaka-based clothing brand created by Nafe Munawer, operating primarily through its Facebook presence.',
+  overviewBn:
+    'স্টারকিট হলো নাফে মুনাওয়ার কর্তৃক প্রতিষ্ঠিত একটি ঢাকা-ভিত্তিক পোশাক ব্র্যান্ড।',
+  tagline: 'Community · Style · Authenticity',
+  taglineBn: 'কমিউনিটি · স্টাইল · স্বকীয়তা',
+  primaryTypeface: 'Afacad Flux',
+  colors: {
+    pureWhite: { name: 'Pure White', hex: '#FFFFFF', rgb: '255, 255, 255' },
+    jetBlack: { name: 'Jet Black', hex: '#170000', rgb: '23, 0, 0' },
+  },
+  aestheticTraits: [
+    { en: 'Urban Streetwear', bn: 'আরবান স্ট্রিটওয়্যার' },
+    { en: 'Youthful Dynamism', bn: 'তারুণ্যের গতিশীলতা' },
+    { en: 'Playful Tactility', bn: 'প্লেফুল ট্যাকটিলিটি' },
+    { en: 'Kinetic Energy', bn: 'কাইনেটিক এনার্জি' },
+    { en: 'Graphic Flair', bn: 'গ্রাফিক ফ্লেয়ার' },
+  ],
+  toneOfVoice: [
+    { en: 'Casual', bn: 'ক্যাজুয়াল' },
+    { en: 'Modern', bn: 'আধুনিক' },
+    { en: 'Approachable', bn: 'সহজবোধ্য' },
+  ],
   pillars: [
     {
       code: '01',
       titleEn: 'Community',
       titleBn: 'কমিউনিটি',
-      descEn: 'Built with local illustrators, moto clubs, and university crews across Bangladesh.',
-      descBn: 'বাংলাদেশের তরুণ শিল্পী, রাইডার এবং ক্যাম্পাস কমিউনিটির অনুপ্রেরণায় গড়া।',
+      descEn: 'Rooted in Dhaka youth culture, local illustrators, and Facebook community drops.',
+      descBn: 'ঢাকার তরুণ সমাজ, শিল্পী ও কমিউনিটি ড্রপের অনুপ্রেরণায় গড়া।',
     },
     {
       code: '02',
       titleEn: 'Style',
       titleBn: 'স্টাইল',
-      descEn: 'Architectural drop-shoulder cuts in Jet Black #170000, Pure White & earth tones.',
-      descBn: 'ড্রপ-শোল্ডার সিলুয়েট ও জেট ব্ল্যাক-পিওর হোয়াইট মনোক্রোম কনট্রাস্ট।',
+      descEn: 'Unapologetic Pure White #FFFFFF and Jet Black #170000 minimalist garment discipline.',
+      descBn: 'পিওর হোয়াইট (#FFFFFF) ও জেট ব্ল্যাক (#170000) মনোক্রোম মিনিমালিজম।',
     },
     {
       code: '03',
       titleEn: 'Authenticity',
       titleBn: 'স্বকীয়তা',
-      descEn: 'Dense 330–350 GSM brushed cotton fleece engineered to hold shape season after season.',
-      descBn: '৩৩০–৩৫০ জিএসএম প্রিমিয়াম কটন ফ্লিস—দীর্ঘস্থায়ী প্রিন্ট ও আরামের নিশ্চয়তা।',
+      descEn: 'Dense 330–350 GSM brushed cotton fleece built with Afacad Flux graphic precision.',
+      descBn: '৩৩০–৩৫০ জিএসএম প্রিমিয়াম কটন ফ্লিসে দীর্ঘস্থায়ী নিখুঁত গ্রাফিক।',
     },
   ],
 };
 
 export const STARKIT_FAQS = [
   {
-    qEn: 'How heavy is the StarKiT Drop 01 fleece fabric?',
+    qEn: 'How heavy is the StarkiT Drop 01 fleece fabric?',
     qBn: 'স্টারকিট ড্রপ ০১ হুডির কাপড় কেমন এবং কত জিএসএম?',
-    aEn: 'Every StarKiT Graphic Archive hoodie is stitched from 330–350 GSM one-side brushed cotton fleece—warm yet breathable for Dhaka evenings and highway rides.',
+    aEn: 'Every StarkiT Graphic Archive hoodie is stitched from 330–350 GSM one-side brushed cotton fleece—warm yet breathable for Dhaka evenings and highway rides.',
     aBn: 'প্রতিটি হুডি ৩৩০–৩৫০ জিএসএম ওয়ান-সাইড ব্রাশড কটন ফ্লিসে তৈরি, যা আরামদায়ক উষ্ণতা ও দীর্ঘস্থায়ী গঠন ধরে রাখে।',
   },
   {
@@ -106,7 +131,7 @@ export const STARKIT_FAQS = [
     aBn: 'ডেলিভারির ৪৮ ঘণ্টার মধ্যে সাইজ বা প্রিন্টে কোনো সমস্যা থাকলে আন-ওয়্যারড ও ট্যাগসহ আমাদের হোয়াটসঅ্যাপ ডেস্কে (+880 1931-803462) জানালেই দ্রুত এক্সচেঞ্জ করে দেওয়া হয়।',
   },
   {
-    qEn: 'How do StarKiT bundle discounts stack with promo STARKIT10?',
+    qEn: 'How do StarkiT bundle discounts stack with promo STARKIT10?',
     qBn: 'বান্ডেল ডিসকাউন্ট ও STARKIT10 প্রোমো কোড কি একসাথে পাওয়া যাবে?',
     aEn: 'Yes! Buying 2 pieces automatically deducts ৳150 and 3+ pieces deducts ৳300 plus unlocks complimentary Pathao delivery—and you can apply code STARKIT10 at checkout for an extra 10% off.',
     aBn: 'হ্যাঁ! ২টি নিলে ৳১৫০ ছাড় এবং ৩টি+ নিলে ৳৩০০ ছাড় ও ফ্রি ডেলিভারি স্বয়ংক্রিয়ভাবে যুক্ত হবে, সাথে চেকআউটে STARKIT10 কোডে আরও ১০% ছাড় পাবেন।',

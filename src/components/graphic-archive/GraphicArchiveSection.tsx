@@ -58,20 +58,20 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   return (
     <section
       id="graphic-archive"
-      className="scroll-mt-20 relative py-20 lg:py-28 bg-[#FAF9F6] text-[#170000] border-t-4 border-[#170000] overflow-hidden"
+      className="scroll-mt-20 relative py-20 lg:py-28 bg-[#ECEAEA] text-[#170000] border-t-4 border-[#170000] overflow-hidden"
     >
-      {/* Crisp Streetwear Dot Matrix Background */}
+      {/* Crisp Minimalist Architectural Dot Matrix Background */}
       <div className="absolute inset-0 bg-starkit-grid-light opacity-70 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Vibrant StarKiT Kinetic Monochrome Masthead Banner */}
-        <div className="rounded-3xl bg-[#170000] text-white border-2 border-[#170000] p-6 sm:p-10 mb-10 relative overflow-hidden shadow-[10px_10px_0px_#FF2E2E]">
+        {/* Authentic StarkiT Jet Black (#170000) & Pure White (#FFFFFF) Masthead */}
+        <div className="rounded-3xl bg-[#170000] text-white border-2 border-[#170000] p-6 sm:p-10 mb-10 relative overflow-hidden shadow-[10px_10px_0px_#C7C1BF]">
           <div className="absolute inset-0 bg-starkit-grid-dark opacity-45 pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-            <div className="max-w-2xl space-y-4">
+            <div className="max-w-2xl space-y-5">
               <div className="flex flex-wrap items-center gap-2.5">
-                <span className="px-3 py-1 rounded bg-[#FF2E2E] text-white text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
+                <span className="px-3 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase tracking-[0.2em]">
                   Drop 01 · 11 Designs · 15 Colorways
                 </span>
                 <span className="px-3 py-1 rounded bg-white/10 border border-white/20 text-[10px] font-mono uppercase tracking-wider text-white/90">
@@ -81,35 +81,35 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
 
               <StarKiTLogo variant="light-on-dark" size="lg" showTagline />
 
-              <h2 className="font-starkit text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[0.98] pt-1">
+              <h2 className="font-starkit text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-tight leading-[1.0] pt-1">
                 {language === 'en' ? (
                   <>
-                    {STARKIT_BRAND_BOOK.tagline}{' '}
-                    <span className="text-[#FF2E2E]">Graphic Archive</span>
+                    Community, Style, Authenticity —{' '}
+                    <span className="text-[#C7C1BF]">StarkiT Drop 01</span>
                   </>
                 ) : (
                   <>
                     নিজস্ব স্টাইলে{' '}
-                    <span className="text-[#FF2E2E]">স্টারকিট ড্রপ ০১</span>
+                    <span className="text-[#C7C1BF]">স্টারকিট ড্রপ ০১</span>
                   </>
                 )}
               </h2>
 
               <p className="text-xs sm:text-sm text-white/80 leading-relaxed max-w-xl">
                 {language === 'en'
-                  ? STARKIT_BRAND_BOOK.philosophyEn
-                  : STARKIT_BRAND_BOOK.philosophyBn}
+                  ? STARKIT_BRAND_BOOK.overviewEn
+                  : STARKIT_BRAND_BOOK.overviewBn}
               </p>
 
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1 text-[11px] font-mono text-white/80">
                 <span className="inline-flex items-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#FF2E2E]" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-white" />
                   {language === 'en'
                     ? '330–350 GSM One-Side Brushed Fleece'
                     : '৩৩০–৩৫০ জিএসএম প্রিমিয়াম ফ্লিস'}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-emerald-400" />
+                  <Truck className="w-3.5 h-3.5 text-[#C7C1BF]" />
                   {language === 'en'
                     ? '48-Hour Exchange · 64-District COD'
                     : '৪৮ ঘণ্টায় এক্সচেঞ্জ · ৬৪ জেলায় ডেলিভারি'}
@@ -124,7 +124,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                 onClick={() => handleLaunch3D(starKiTProducts[0])}
                 className="px-5 py-3 rounded-xl bg-white/10 hover:bg-white text-white hover:text-[#170000] border border-white/30 text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer"
               >
-                <Box className="w-4 h-4 text-[#FF2E2E]" />
+                <Box className="w-4 h-4" />
                 <span>{language === 'en' ? '3D Hoodie Studio' : '৩ডি হুডি স্টুডিও'}</span>
               </button>
 
@@ -132,7 +132,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                 <button
                   type="button"
                   onClick={onOpenBrandPage}
-                  className="px-5 py-3 rounded-xl bg-[#FF2E2E] hover:bg-white text-white hover:text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-lg"
+                  className="px-5 py-3 rounded-xl bg-white hover:bg-[#C7C1BF] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 transition-colors cursor-pointer shadow-lg"
                 >
                   <span>
                     {language === 'en'
@@ -170,17 +170,17 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
           <div className="relative z-10 w-full max-w-4xl bg-[#170000] border-2 border-white/25 rounded-3xl overflow-hidden shadow-2xl">
             <div className="p-4 border-b border-white/15 flex items-center justify-between text-white">
               <div className="flex items-center gap-3">
-                <Box className="w-4 h-4 text-[#FF2E2E]" />
+                <Box className="w-4 h-4 text-white" />
                 <span className="font-starkit text-lg font-bold uppercase tracking-wider">
                   {language === 'en'
-                    ? 'StarKiT 3D Hoodie & Artwork Studio'
+                    ? 'StarkiT 3D Hoodie & Artwork Studio'
                     : 'স্টারকিট ৩ডি হুডি স্টুডিও'}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowStudioModal(false)}
-                className="px-3 py-1 rounded bg-white/10 hover:bg-[#FF2E2E] text-white text-xs font-mono uppercase cursor-pointer transition-colors"
+                className="px-3 py-1 rounded bg-white/10 hover:bg-white hover:text-[#170000] text-white text-xs font-mono uppercase cursor-pointer transition-colors"
               >
                 {language === 'en' ? 'Close' : 'বন্ধ'}
               </button>
@@ -189,8 +189,8 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
             <Suspense
               fallback={
                 <div className="h-[560px] lg:h-[640px] flex flex-col items-center justify-center bg-[#170000] text-xs font-mono text-white">
-                  <div className="w-8 h-8 border-2 border-[#FF2E2E] border-t-transparent rounded-full animate-spin mb-3" />
-                  <span>Initializing StarKiT 3D Studio...</span>
+                  <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mb-3" />
+                  <span>Initializing StarkiT 3D Studio...</span>
                 </div>
               }
             >

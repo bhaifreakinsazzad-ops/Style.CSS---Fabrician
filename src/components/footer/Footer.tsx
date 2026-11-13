@@ -104,10 +104,10 @@ export const Footer: React.FC<FooterProps> = ({
                   <li>
                     <button
                       onClick={() => onSelectBrand('starkit')}
-                      className="text-white hover:text-[#FF2E2E] transition-colors cursor-pointer text-left font-medium"
+                      className="text-white hover:text-[#C7C1BF] transition-colors cursor-pointer text-left font-medium"
                     >
                       {language === 'en'
-                        ? 'StarKiT — Wear Your World (/starkit)'
+                        ? 'StarkiT — Graphic Archive (/starkit)'
                         : 'স্টারকিট — গ্রাফিক আর্কাইভ (/starkit)'}
                     </button>
                   </li>

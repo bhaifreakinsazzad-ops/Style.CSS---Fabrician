@@ -98,13 +98,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <nav className="hidden lg:flex items-center gap-4 xl:gap-5 text-[11px] xl:text-xs uppercase tracking-[0.16em] font-medium text-[#D8D3C9]">
             <button
               onClick={() => handleBrandClick('starkit')}
-              className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#FF2E2E] font-semibold ${
+              className={`font-starkit transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-white tracking-[0.22em] font-semibold ${
                 viewMode === 'starkit'
-                  ? 'text-[#FF2E2E] border-b border-[#FF2E2E] pb-0.5'
-                  : 'text-[#F5F2EB] hover:text-[#FF2E2E]'
+                  ? 'text-white border-b border-white pb-0.5'
+                  : 'text-[#F5F2EB] hover:text-[#C7C1BF]'
               }`}
             >
-              {language === 'en' ? 'StarKiT' : 'স্টারকিট'}
+              {language === 'en' ? 'StarkiT' : 'স্টারকিট'}
             </button>
             <button
               onClick={() => handleBrandClick('farizas-territory')}
@@ -279,19 +279,29 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => handleBrandClick('starkit')}
                 className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
                   viewMode === 'starkit'
-                    ? 'bg-[#FF2E2E]/15 border-[#FF2E2E] text-white'
-                    : 'bg-[#170000] border-white/15 text-white hover:border-[#FF2E2E]/60'
+                    ? 'bg-white border-white text-[#170000]'
+                    : 'bg-[#170000] border-white/25 text-white hover:border-white'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="font-starkit text-lg font-bold tracking-wider uppercase">
+                  <div className="font-starkit text-lg font-bold tracking-[0.2em] uppercase">
                     S T Λ R K I T · ستاركيت
                   </div>
-                  <span className="text-[10px] font-mono text-[#FF2E2E]">/starkit</span>
+                  <span
+                    className={`text-[10px] font-mono ${
+                      viewMode === 'starkit' ? 'text-[#170000]' : 'text-[#C7C1BF]'
+                    }`}
+                  >
+                    /starkit
+                  </span>
                 </div>
-                <div className="text-[11px] font-mono text-white/75">
+                <div
+                  className={`text-[11px] font-mono ${
+                    viewMode === 'starkit' ? 'text-[#170000]/75' : 'text-white/75'
+                  }`}
+                >
                   {language === 'en'
-                    ? '330–480 GSM Fleece & 11 Graphic Hoodies'
+                    ? 'Community · Style · Authenticity (/starkit)'
                     : '৩৩০–৪৮০ জিএসএম ফ্লিস ও ১১টি হুডি'}
                 </div>
               </button>

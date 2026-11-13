@@ -24,6 +24,7 @@ import { CartItem, Language, Product } from '../../types';
 import { useStoreData } from '../../context/StoreDataContext';
 import {
   buildStarKiTWhatsAppHref,
+  STARKIT_BRAND_BOOK_PDF,
   STARKIT_LOOKBOOK_PDF,
   STARKIT_PROMO_CODE,
   STARKIT_SIZE_CHART,
@@ -68,19 +69,19 @@ export const StarKiTPromoBanner: React.FC<{ language: Language }> = ({ language 
   };
 
   return (
-    <div className="mb-10 rounded-2xl border-2 border-[#170000] bg-[#FFFFFF] text-[#170000] p-4 sm:p-5 shadow-[6px_6px_0px_#FF2E2E]">
+    <div className="mb-10 rounded-2xl border-2 border-[#170000] bg-[#FFFFFF] text-[#170000] p-4 sm:p-5 shadow-[6px_6px_0px_#170000]">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
         {/* Promo Code Box */}
         <div className="lg:col-span-5 flex items-center justify-between gap-3 pb-3 lg:pb-0 lg:pr-4 border-b lg:border-b-0 lg:border-r border-[#170000]/15">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#170000] text-white flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4 text-[#FF2E2E]" />
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="text-[10px] font-starkit-tech uppercase tracking-widest text-[#FF2E2E] font-bold">
+              <div className="text-[10px] font-starkit-tech uppercase tracking-widest text-[#524B4B] font-bold">
                 {language === 'en' ? 'Extra 10% Drop Privilege' : 'অতিরিক্ত ১০% ড্রপ ছাড়'}
               </div>
-              <div className="text-xs sm:text-sm font-bold text-[#170000]">
+              <div className="font-starkit text-sm sm:text-base font-bold text-[#170000]">
                 {language === 'en'
                   ? 'Apply code at Express Checkout'
                   : 'চেকআউটে কোড ব্যবহার করুন'}
@@ -91,7 +92,7 @@ export const StarKiTPromoBanner: React.FC<{ language: Language }> = ({ language 
           <button
             type="button"
             onClick={handleCopy}
-            className="px-3 py-1.5 rounded-lg bg-[#170000] hover:bg-[#FF2E2E] text-white font-mono text-xs font-bold tracking-wider inline-flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+            className="px-3 py-1.5 rounded-lg bg-[#170000] hover:bg-[#331A1A] text-white font-mono text-xs font-bold tracking-wider inline-flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
           >
             <span>{STARKIT_PROMO_CODE}</span>
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -99,8 +100,8 @@ export const StarKiTPromoBanner: React.FC<{ language: Language }> = ({ language 
         </div>
 
         {/* Bundle Savings */}
-        <div className="lg:col-span-4 flex items-center gap-3 pb-3 lg:pb-0 lg:pr-4 border-b lg:border-b-0 lg:border-r border-[#170000]/15">
-          <div className="w-10 h-10 rounded-xl bg-[#F5F2EB] border border-[#170000]/15 text-[#170000] flex items-center justify-center shrink-0">
+        <div className="lg:col-span-3 flex items-center gap-3 pb-3 lg:pb-0 lg:pr-4 border-b lg:border-b-0 lg:border-r border-[#170000]/15">
+          <div className="w-10 h-10 rounded-xl bg-[#ECEAEA] border border-[#170000]/15 text-[#170000] flex items-center justify-center shrink-0">
             <Layers className="w-4 h-4" />
           </div>
           <div>
@@ -109,21 +110,21 @@ export const StarKiTPromoBanner: React.FC<{ language: Language }> = ({ language 
             </div>
             <div className="text-xs font-bold text-[#170000] tabular-nums">
               {language === 'en'
-                ? `2 Pcs: -৳${storeSettings.bundle2DiscountBDT} · 3+ Pcs: -৳${storeSettings.bundle3DiscountBDT} + Free Delivery`
-                : `২টিতে -৳${storeSettings.bundle2DiscountBDT} · ৩টিতে -৳${storeSettings.bundle3DiscountBDT} + ফ্রি ডেলিভারি`}
+                ? `2 Pcs: -৳${storeSettings.bundle2DiscountBDT} · 3+: -৳${storeSettings.bundle3DiscountBDT}`
+                : `২টিতে -৳${storeSettings.bundle2DiscountBDT} · ৩টিতে -৳${storeSettings.bundle3DiscountBDT}`}
             </div>
           </div>
         </div>
 
-        {/* Direct WhatsApp + Lookbook PDF */}
-        <div className="lg:col-span-3 flex flex-wrap items-center justify-start lg:justify-end gap-2">
+        {/* Direct WhatsApp + Lookbook PDF + Brand Book PDF */}
+        <div className="lg:col-span-4 flex flex-wrap items-center justify-start lg:justify-end gap-2">
           <a
             href={buildStarKiTWhatsAppHref(
-              'Assalamu Alaikum StarKiT Desk! I have a query about Drop 01 hoodies.'
+              'Assalamu Alaikum StarkiT Desk! I have a query about Drop 01 hoodies.'
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-2 rounded-lg bg-[#128C7E] hover:bg-[#0E7266] text-white text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-colors"
+            className="px-3 py-2 rounded-lg bg-[#170000] hover:bg-neutral-800 text-white text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-colors"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             <span>{STARKIT_WHATSAPP_DISPLAY}</span>
@@ -132,11 +133,21 @@ export const StarKiTPromoBanner: React.FC<{ language: Language }> = ({ language 
             href={STARKIT_LOOKBOOK_PDF}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-2 rounded-lg border border-[#170000]/30 hover:border-[#170000] text-[#170000] text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-colors"
+            className="px-3 py-2 rounded-lg border border-[#170000]/30 hover:border-[#170000] hover:bg-[#ECEAEA] text-[#170000] text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-colors"
             title="Download 2026 Lookbook Catalog PDF"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>PDF</span>
+            <span>Catalog PDF</span>
+          </a>
+          <a
+            href={STARKIT_BRAND_BOOK_PDF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-2 rounded-lg bg-[#C7C1BF] hover:bg-[#170000] text-[#170000] hover:text-white text-[11px] font-mono font-bold inline-flex items-center gap-1.5 transition-colors"
+            title="Open StarkiT Brand Book PDF"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Brand Book</span>
           </a>
         </div>
       </div>
@@ -189,7 +200,6 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
     return initial;
   });
 
-  // Track whether card shows preview photo or lookbook spec sheet image
   const [sheetPreviewIds, setSheetPreviewIds] = useState<Record<string, boolean>>({});
   const [addedSku, setAddedSku] = useState<string | null>(null);
   const [activeSheetModal, setActiveSheetModal] = useState<{
@@ -197,7 +207,6 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
     variant: GraphicArchiveVariant;
   } | null>(null);
 
-  // When Fit Calculator picks a size, broadcast it across all cards
   useEffect(() => {
     if (!recommendedSize) return;
     setSelectedSizes((prev) => {
@@ -256,7 +265,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
     size: StarKiTSize
   ): Omit<CartItem, 'id'> => ({
     productId: product.id,
-    nameEn: `StarKiT ${product.name} Hoodie (${product.stkCode || variant.sku})`,
+    nameEn: `StarkiT ${product.name} Hoodie (${product.stkCode || variant.sku})`,
     nameBn: `স্টারকিট ${product.name} হুডি (${product.stkCode || variant.sku})`,
     priceBDT: variant.priceBdt,
     image: variant.previewImage,
@@ -287,10 +296,10 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
     <div>
       {/* Filter Toolbar */}
       <div
-        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 rounded-2xl border mb-8 ${
+        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 rounded-2xl border-2 mb-8 ${
           isLight
             ? 'bg-white border-[#170000]/15 shadow-sm'
-            : 'bg-[#210707] border-white/15'
+            : 'bg-[#170000] border-white/20'
         }`}
       >
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 lg:pb-0">
@@ -303,10 +312,12 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-starkit-tech uppercase tracking-wider whitespace-nowrap transition-colors cursor-pointer ${
                   active
-                    ? 'bg-[#170000] text-white font-bold border border-[#FF2E2E]'
+                    ? isLight
+                      ? 'bg-[#170000] text-white font-bold border border-[#170000]'
+                      : 'bg-white text-[#170000] font-bold border border-white'
                     : isLight
-                    ? 'bg-[#F5F2EB] text-[#170000] hover:bg-[#170000]/10 border border-transparent'
-                    : 'bg-white/5 text-white/80 hover:bg-white/15 border border-white/10'
+                    ? 'bg-[#ECEAEA] text-[#170000] hover:bg-[#C7C1BF]/60 border border-transparent'
+                    : 'bg-white/5 text-white/80 hover:bg-white/15 border border-white/15'
                 }`}
               >
                 {language === 'en' ? cat.en : cat.bn}
@@ -332,8 +343,8 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
               }
               className={`w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs focus:outline-none ${
                 isLight
-                  ? 'bg-[#FAF9F6] border-[#170000]/20 text-[#170000] placeholder:text-[#777] focus:border-[#170000]'
-                  : 'bg-black/50 border-white/20 text-white placeholder:text-white/40 focus:border-[#FF2E2E]'
+                  ? 'bg-[#ECEAEA]/60 border-[#170000]/20 text-[#170000] placeholder:text-[#777] focus:border-[#170000]'
+                  : 'bg-black/50 border-white/20 text-white placeholder:text-white/40 focus:border-white'
               }`}
             />
           </div>
@@ -342,15 +353,15 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
           <div
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs ${
               isLight
-                ? 'bg-[#FAF9F6] border-[#170000]/20 text-[#170000]'
+                ? 'bg-[#ECEAEA]/60 border-[#170000]/20 text-[#170000]'
                 : 'bg-black/50 border-white/20 text-white'
             }`}
           >
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#FF2E2E]" />
+            <SlidersHorizontal className="w-3.5 h-3.5" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              aria-label="Sort StarKiT Drop 01"
+              aria-label="Sort StarkiT Drop 01"
               className="bg-transparent text-xs font-mono focus:outline-none cursor-pointer"
             >
               <option value="featured" className="bg-[#170000] text-white">
@@ -373,11 +384,11 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
           className={`py-14 rounded-2xl border text-center text-sm font-mono ${
             isLight
               ? 'bg-white border-[#170000]/15 text-[#524B4B]'
-              : 'bg-[#210707] border-white/15 text-white/70'
+              : 'bg-[#170000] border-white/15 text-white/70'
           }`}
         >
           {language === 'en'
-            ? 'No StarKiT Drop 01 hoodie matches this filter.'
+            ? 'No StarkiT Drop 01 hoodie matches this filter.'
             : 'কোনো স্টারকিট হুডি খুঁজে পাওয়া যায়নি।'}
         </div>
       ) : (
@@ -397,7 +408,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
             const mappedProduct = toStarKiTQuickViewProduct(product, currentVariant);
             const wish = isWishlisted?.(product.id) ?? false;
 
-            const waMessage = `Assalamu Alaikum StarKiT! I want to order/ask about ${
+            const waMessage = `Assalamu Alaikum StarkiT! I want to order/ask about ${
               product.stkCode || product.id
             } (${product.name}) — Color: ${currentVariant.color}, Size: ${currentSize}, Price: ৳${currentVariant.priceBdt}`;
 
@@ -406,12 +417,12 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                 key={product.id}
                 className={`group rounded-2xl overflow-hidden flex flex-col border-2 transition-all duration-300 ${
                   isLight
-                    ? 'bg-white border-[#170000]/15 hover:border-[#170000] hover:shadow-[8px_8px_0px_#170000]'
-                    : 'bg-[#1D0505] border-white/15 hover:border-white hover:shadow-[8px_8px_0px_#FF2E2E]'
+                    ? 'bg-white border-[#170000]/20 hover:border-[#170000] hover:shadow-[8px_8px_0px_#170000]'
+                    : 'bg-[#170000] border-white/20 hover:border-white hover:shadow-[8px_8px_0px_#C7C1BF]'
                 }`}
               >
                 {/* Visual Aspect 4:5 */}
-                <div className="relative aspect-[4/5] bg-[#120404] overflow-hidden">
+                <div className="relative aspect-[4/5] bg-[#170000] overflow-hidden">
                   <img
                     src={showSheet ? currentVariant.catalogPageImage : currentVariant.previewImage}
                     alt={`${product.name} (${currentVariant.color})`}
@@ -431,11 +442,11 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                         {product.stkCode || product.id}
                       </span>
                       {isOutOfStock ? (
-                        <span className="px-2 py-1 rounded bg-[#FF2E2E] text-[10px] font-mono font-bold text-white uppercase">
+                        <span className="px-2 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase border border-[#170000]">
                           {language === 'en' ? 'Sold Out' : 'স্টক শেষ'}
                         </span>
                       ) : isLowStock ? (
-                        <span className="px-2 py-1 rounded bg-[#FF2E2E] text-[10px] font-mono font-bold text-white uppercase tabular-nums">
+                        <span className="px-2 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase tabular-nums border border-[#170000]">
                           {language === 'en'
                             ? `${product.stockCount} Left`
                             : `মাত্র ${product.stockCount}টি`}
@@ -448,7 +459,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                         <button
                           type="button"
                           onClick={() => onLaunch3D(product)}
-                          className="p-2 rounded-full bg-[#170000]/90 hover:bg-[#FF2E2E] text-white border border-white/25 transition-colors cursor-pointer"
+                          className="p-2 rounded-full bg-[#170000]/90 hover:bg-white hover:text-[#170000] text-white border border-white/30 transition-colors cursor-pointer"
                           title={language === 'en' ? 'Inspect in 3D Studio' : '৩ডি স্টুডিওতে দেখুন'}
                           aria-label={`Inspect ${product.name} in 3D`}
                         >
@@ -459,7 +470,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                         <button
                           type="button"
                           onClick={() => onOpenQuickView(mappedProduct)}
-                          className="p-2 rounded-full bg-[#170000]/90 hover:bg-white hover:text-[#170000] text-white border border-white/25 transition-colors cursor-pointer"
+                          className="p-2 rounded-full bg-[#170000]/90 hover:bg-white hover:text-[#170000] text-white border border-white/30 transition-colors cursor-pointer"
                           title={language === 'en' ? 'Quick View & Reviews' : 'বিস্তারিত'}
                           aria-label={`Quick view ${product.name}`}
                         >
@@ -472,8 +483,8 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                           onClick={() => onToggleWishlist(mappedProduct)}
                           className={`p-2 rounded-full border transition-colors cursor-pointer ${
                             wish
-                              ? 'bg-[#FF2E2E] border-[#FF2E2E] text-white'
-                              : 'bg-[#170000]/90 border-white/25 text-white hover:bg-white hover:text-[#170000]'
+                              ? 'bg-white border-white text-[#170000]'
+                              : 'bg-[#170000]/90 border-white/30 text-white hover:bg-white hover:text-[#170000]'
                           }`}
                           aria-label={`Toggle wishlist for ${product.name}`}
                         >
@@ -498,7 +509,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                             [product.id]: !prev[product.id],
                           }))
                         }
-                        className="px-2.5 py-1 rounded bg-white hover:bg-[#FF2E2E] text-[#170000] hover:text-white text-[10px] font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer shadow"
+                        className="px-2.5 py-1 rounded bg-white hover:bg-[#C7C1BF] text-[#170000] text-[10px] font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer shadow"
                       >
                         {showSheet
                           ? language === 'en'
@@ -511,7 +522,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       <button
                         type="button"
                         onClick={() => setActiveSheetModal({ product, variant: currentVariant })}
-                        className="p-1.5 rounded bg-[#170000]/90 hover:bg-white text-white hover:text-[#170000] border border-white/25 transition-colors cursor-pointer"
+                        className="p-1.5 rounded bg-[#170000]/90 hover:bg-white text-white hover:text-[#170000] border border-white/30 transition-colors cursor-pointer"
                         title="Expand Full Lookbook Sheet"
                         aria-label="Expand Full Lookbook Sheet"
                       >
@@ -525,7 +536,11 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-[10px] font-starkit-tech font-bold uppercase tracking-[0.2em] text-[#FF2E2E]">
+                      <span
+                        className={`text-[10px] font-starkit-tech font-bold uppercase tracking-[0.2em] ${
+                          isLight ? 'text-[#524B4B]' : 'text-[#C7C1BF]'
+                        }`}
+                      >
                         {product.category} · {product.editorial}
                       </span>
                     </div>
@@ -583,7 +598,9 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                                 title={`${v.color} · ${v.stkSku || v.sku}`}
                                 className={`w-6 h-6 rounded-full border-2 transition-transform cursor-pointer relative ${
                                   selected
-                                    ? 'border-[#FF2E2E] scale-110'
+                                    ? isLight
+                                      ? 'border-[#170000] ring-2 ring-[#170000]/30 scale-110'
+                                      : 'border-white ring-2 ring-white/30 scale-110'
                                     : isLight
                                     ? 'border-[#170000]/30 hover:border-[#170000]'
                                     : 'border-white/30 hover:border-white'
@@ -623,9 +640,11 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                                 }
                                 className={`px-2 py-1 rounded text-[10px] font-mono font-bold transition-colors cursor-pointer ${
                                   active
-                                    ? 'bg-[#170000] text-white border border-[#FF2E2E]'
+                                    ? isLight
+                                      ? 'bg-[#170000] text-white border border-[#170000]'
+                                      : 'bg-white text-[#170000] border border-white'
                                     : isLight
-                                    ? 'bg-[#F3F0EA] text-[#170000] hover:bg-[#170000]/10 border border-transparent'
+                                    ? 'bg-[#ECEAEA] text-[#170000] hover:bg-[#C7C1BF]/60 border border-transparent'
                                     : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/10'
                                 }`}
                               >
@@ -641,33 +660,33 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                     <div
                       className={`rounded-lg px-2.5 py-2 mb-4 text-[10px] font-mono flex items-center justify-between gap-2 ${
                         isLight
-                          ? 'bg-[#FAF8F4] border border-[#170000]/10 text-[#474040]'
+                          ? 'bg-[#ECEAEA]/70 border border-[#170000]/10 text-[#170000]'
                           : 'bg-black/40 border border-white/10 text-white/75'
                       }`}
                     >
                       <span>{currentVariant.gsm} Brushed Fleece</span>
-                      <span className="inline-flex items-center gap-1 text-[#0D7A5F] font-semibold">
+                      <span className="inline-flex items-center gap-1 font-semibold">
                         <Truck className="w-3 h-3" />
                         COD 64-Dist.
                       </span>
                     </div>
                   </div>
 
-                  {/* High-Conversion Actions */}
+                  {/* High-Conversion Monochrome Actions */}
                   <div className="pt-3 border-t border-current/10 space-y-2">
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         disabled={isOutOfStock}
                         onClick={() => !isOutOfStock && handleAdd(product, currentVariant)}
-                        className={`py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
+                        className={`py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border-2 transition-colors ${
                           isOutOfStock
-                            ? 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                            ? 'bg-neutral-300 border-neutral-300 text-neutral-500 cursor-not-allowed'
                             : isAdded
-                            ? 'bg-emerald-600 text-white cursor-pointer'
+                            ? 'bg-[#170000] border-[#170000] text-white cursor-pointer'
                             : isLight
-                            ? 'bg-[#170000] hover:bg-neutral-800 text-white cursor-pointer'
-                            : 'bg-white hover:bg-neutral-200 text-[#170000] cursor-pointer'
+                            ? 'bg-white hover:bg-[#ECEAEA] border-[#170000] text-[#170000] cursor-pointer'
+                            : 'bg-transparent hover:bg-white/10 border-white text-white cursor-pointer'
                         }`}
                       >
                         {isAdded ? (
@@ -690,7 +709,9 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                         className={`py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
                           isOutOfStock
                             ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
-                            : 'bg-[#FF2E2E] hover:bg-red-700 text-white cursor-pointer shadow-sm'
+                            : isLight
+                            ? 'bg-[#170000] hover:bg-neutral-800 text-white cursor-pointer shadow-sm'
+                            : 'bg-white hover:bg-[#C7C1BF] text-[#170000] cursor-pointer shadow-sm'
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5" />
@@ -704,14 +725,14 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       rel="noopener noreferrer"
                       className={`w-full py-1.5 px-3 rounded-lg border text-[11px] font-mono font-semibold flex items-center justify-center gap-1.5 transition-colors ${
                         isLight
-                          ? 'border-[#128C7E]/40 text-[#0E7266] hover:bg-[#128C7E] hover:text-white'
-                          : 'border-emerald-400/40 text-emerald-300 hover:bg-emerald-600 hover:text-white'
+                          ? 'border-[#170000]/25 text-[#170000] hover:bg-[#170000] hover:text-white'
+                          : 'border-white/25 text-white hover:bg-white hover:text-[#170000]'
                       }`}
                     >
                       <MessageCircle className="w-3.5 h-3.5" />
                       <span>
                         {language === 'en'
-                          ? `Ask on StarKiT WhatsApp (${product.stkCode || product.id})`
+                          ? `Ask on StarkiT WhatsApp (${product.stkCode || product.id})`
                           : `হোয়াটসঅ্যাপে অর্ডার / প্রশ্ন (${product.stkCode || product.id})`}
                       </span>
                     </a>
@@ -731,9 +752,9 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
             <div className="p-4 border-b border-white/15 flex items-center justify-between text-white">
               <div>
                 <h3 className="font-starkit text-xl font-bold">
-                  {activeSheetModal.product.name} — StarKiT Spec Sheet
+                  {activeSheetModal.product.name} — StarkiT Spec Sheet
                 </h3>
-                <p className="text-[11px] font-mono text-[#FF2E2E] tabular-nums">
+                <p className="text-[11px] font-mono text-[#C7C1BF] tabular-nums">
                   {activeSheetModal.product.stkCode || activeSheetModal.variant.sku} ·{' '}
                   {activeSheetModal.variant.color} · ৳
                   {activeSheetModal.variant.priceBdt.toLocaleString()}
@@ -742,13 +763,13 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
               <button
                 type="button"
                 onClick={() => setActiveSheetModal(null)}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#FF2E2E] text-white cursor-pointer"
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white hover:text-[#170000] text-white cursor-pointer transition-colors"
                 aria-label="Close spec sheet"
               >
                 ✕
               </button>
             </div>
-            <div className="p-4 overflow-y-auto flex-1 flex justify-center bg-black">
+            <div className="p-4 overflow-y-auto flex-1 flex justify-center bg-[#170000]">
               <img
                 src={activeSheetModal.variant.catalogPageImage}
                 alt={`${activeSheetModal.product.name} Lookbook Spec Sheet`}
