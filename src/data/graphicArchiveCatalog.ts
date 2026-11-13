@@ -7,6 +7,7 @@ import { BrandPartner } from '../types';
 
 export interface GraphicArchiveVariant {
   sku: string;
+  stkSku?: string;
   color: 'Cream' | 'Black' | 'Maroon' | 'Chocolate Brown';
   colorHex: string;
   priceBdt: number;
@@ -23,6 +24,8 @@ export interface GraphicArchiveVariant {
 
 export interface GraphicArchiveProduct {
   id: string;
+  stkCode?: string;
+  sourceDesignName?: string;
   brand: BrandPartner;
   name: string;
   editorial: string;
@@ -54,6 +57,8 @@ export const BUNDLE_PROMOTIONS = {
 export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   {
     id: 'FAB-H001',
+    stkCode: 'STK-H001',
+    sourceDesignName: 'The Shinobi Legacy',
     brand: 'StarKiT',
     name: 'Naruto Legacy',
     editorial: 'THE SHINOBI LEGACY',
@@ -62,7 +67,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Cream', 'Black'],
     descriptionEn: 'A striking crimson-sun graphic on a statement fleece silhouette with authentic front, back, and sleeve artwork.',
     descriptionBn: 'অ্যানিমে-অনুপ্রাণিত সাহসী গ্রাফিক, সামনে মিনিমাল এবং পেছনে স্টেটমেন্ট লুক। স্পেশাল স্লিভ আর্টওয়ার্ক অন্তর্ভুক্ত।',
-    tags: ['anime', 'graphic', 'red sun', 'sleeve print', 'shinobi'],
+    tags: ['anime', 'graphic', 'red sun', 'sleeve print', 'shinobi', 'stk-h001'],
     feature: 'Front + Back + Sleeve Art',
     priority: 3,
     rightsNote: 'Third-party character and logo: written commercial licensing required before paid promotion.',
@@ -71,6 +76,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H001-CRM',
+        stkSku: 'STK-H001-CRM',
         color: 'Cream',
         colorHex: '#F3EFE6',
         priceBdt: 1590,
@@ -86,6 +92,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
       },
       {
         sku: 'FAB-H001-BLK',
+        stkSku: 'STK-H001-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1590,
@@ -103,6 +110,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H002',
+    stkCode: 'STK-H002',
+    sourceDesignName: 'Good Vibes. No Noise.',
     brand: 'StarKiT',
     name: 'Peace Bro Cat',
     editorial: 'GOOD VIBES. NO NOISE.',
@@ -111,7 +120,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'A playful, bold graphic built for effortless everyday streetwear styling with high-contrast feline illustration.',
     descriptionBn: 'মজার ক্যাট গ্রাফিক এবং কনট্রাস্ট রঙের ক্যাজুয়াল স্ট্রিটওয়্যার লুক। প্রতিদিনের সহজ আরামদায়ক আউটফিট।',
-    tags: ['cat', 'fun', 'graphic', 'street', 'peace'],
+    tags: ['cat', 'fun', 'graphic', 'street', 'peace', 'stk-h002'],
     feature: 'Bold Back Graphic',
     priority: 1,
     rightsNote: 'Originality and artwork ownership under routine review. Eligible for commercial release.',
@@ -120,6 +129,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H002-BLK',
+        stkSku: 'STK-H002-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1290,
@@ -137,6 +147,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H003',
+    stkCode: 'STK-H003',
+    sourceDesignName: 'The Road Is Culture',
     brand: 'StarKiT',
     name: 'Folk Art Bus',
     editorial: 'THE ROAD IS CULTURE.',
@@ -145,7 +157,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'A colorful tribute to the craft, vibrant typography, and unstoppable rhythm of Bangladeshi highways.',
     descriptionBn: 'বাংলাদেশের রঙিন লোকশিল্প এবং বাস আর্টকে কেন্দ্র করে তৈরি ঐতিহ্যবাহী স্ট্রিটওয়্যার ডিজাইন।',
-    tags: ['bangladesh', 'folk-art', 'bus', 'heritage', 'typography'],
+    tags: ['bangladesh', 'folk-art', 'bus', 'heritage', 'typography', 'stk-h003'],
     feature: 'Multicolor Heritage Art',
     priority: 1,
     rightsNote: 'Bengali folk cultural motif; eligible for commercial distribution.',
@@ -154,6 +166,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H003-BLK',
+        stkSku: 'STK-H003-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1390,
@@ -171,6 +184,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H004',
+    stkCode: 'STK-H004',
+    sourceDesignName: 'Built For The Long Ride',
     brand: 'StarKiT',
     name: 'Royal Enfield Rider',
     editorial: 'BUILT FOR THE LONG RIDE.',
@@ -179,7 +194,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Maroon'],
     descriptionEn: 'Deep maroon fleece carrying vintage motorcycle attitude, piston typography, and an intricate full-sleeve graphic.',
     descriptionBn: 'মেরুন বেসে মোটরসাইকেল থিমের ডিটেইলড ব্যাক ও স্লিভ গ্রাফিক। লং রাইড ও উইন্টার আর্মার।',
-    tags: ['moto', 'rider', 'maroon', 'motorcycle', 'vintage'],
+    tags: ['moto', 'rider', 'maroon', 'motorcycle', 'vintage', 'stk-h004'],
     feature: 'Large Graphic + Sleeve Detail',
     priority: 3,
     rightsNote: 'Royal Enfield trademark and motorcycle insignia: commercial authorization required.',
@@ -188,6 +203,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H004-MRN',
+        stkSku: 'STK-H004-MRN',
         color: 'Maroon',
         colorHex: '#58111A',
         priceBdt: 1690,
@@ -205,6 +221,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H005',
+    stkCode: 'STK-H005',
+    sourceDesignName: 'One Hero. One Moon.',
     brand: 'StarKiT',
     name: 'One Punch Moon',
     editorial: 'ONE HERO. ONE MOON.',
@@ -213,7 +231,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'Moonlit monochrome anime artwork with sharp planetary detail on an ultra-deep black base.',
     descriptionBn: 'চাঁদের আবহে অ্যানিমে-গ্রাফিক এবং মিনিমাল ব্ল্যাক বেস। গভীর কনট্রাস্টে নিপুণ শৈল্পিক ছাপ।',
-    tags: ['anime', 'moon', 'one punch', 'graphic', 'monochrome'],
+    tags: ['anime', 'moon', 'one punch', 'graphic', 'monochrome', 'stk-h005'],
     feature: 'Lunar Centerpiece Print',
     priority: 3,
     rightsNote: 'Third-party character and title: written commercial licensing required.',
@@ -222,6 +240,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H005-BLK',
+        stkSku: 'STK-H005-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1590,
@@ -239,6 +258,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H006',
+    stkCode: 'STK-H006',
+    sourceDesignName: 'The Silver Screen Chronicles',
     brand: 'StarKiT',
     name: 'Bangla Cinema',
     editorial: 'THE SILVER SCREEN CHRONICLES',
@@ -247,7 +268,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'A nostalgic celebration of the golden era of Bengali cinema, featuring vintage movie poster typography and frame grain.',
     descriptionBn: 'বাংলা সিনেমার নস্টালজিয়া, ক্লাসিক ভিজ্যুয়াল এবং রেট্রো টাইপোগ্রাফি নিয়ে তৈরি ড্রপ।',
-    tags: ['bangla', 'cinema', 'retro', 'culture', 'nostalgia'],
+    tags: ['bangla', 'cinema', 'retro', 'culture', 'nostalgia', 'stk-h006'],
     feature: 'Vintage Poster Typography',
     priority: 2,
     rightsNote: 'Actor likenesses and film title graphics: verification of public domain/clearance.',
@@ -256,6 +277,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H006-BLK',
+        stkSku: 'STK-H006-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1490,
@@ -273,6 +295,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H007',
+    stkCode: 'STK-H007',
+    sourceDesignName: 'Old Lanes. New Stories.',
     brand: 'StarKiT',
     name: 'Aesthetic Dhaka',
     editorial: 'OLD LANES. NEW STORIES.',
@@ -281,7 +305,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Chocolate Brown'],
     descriptionEn: 'Old Dhaka alleyways, vintage chai stalls, and rickshaw serenity presented over a rich warm chocolate cocoa base.',
     descriptionBn: 'পুরান ঢাকার পরিচিত নস্টালজিয়া, রিকশা এবং শহরের গল্প নিয়ে তৈরি প্রিমিয়াম চকোলেট ব্রাউন লুক।',
-    tags: ['dhaka', 'brown', 'rickshaw', 'city', 'old-dhaka'],
+    tags: ['dhaka', 'brown', 'rickshaw', 'city', 'old-dhaka', 'stk-h007'],
     feature: 'Warm Cocoa City Graphic',
     priority: 1,
     rightsNote: 'Original photographic/illustrative work; eligible for full commercial release.',
@@ -290,6 +314,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H007-BRN',
+        stkSku: 'STK-H007-BRN',
         color: 'Chocolate Brown',
         colorHex: '#3D281E',
         priceBdt: 1490,
@@ -307,6 +332,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H008',
+    stkCode: 'STK-H008',
+    sourceDesignName: 'Voice Of The Generation',
     brand: 'StarKiT',
     name: 'Student Movement Emblem',
     editorial: 'VOICE OF THE GENERATION',
@@ -315,7 +342,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black', 'Maroon', 'Chocolate Brown', 'Cream'],
     descriptionEn: 'Available across four signature colorways with powerful commemorative Bengali emblem and calligraphic balance.',
     descriptionBn: 'ঐতিহাসিক ছাত্র আন্দোলনের স্মৃতিবাহী প্রতীক—ব্ল্যাক, মেরুন, ব্রাউন ও ক্রিম ৪টি নান্দনিক ভ্যারিয়েন্টে।',
-    tags: ['statement', 'bengali', 'student', 'movement', 'emblem'],
+    tags: ['statement', 'bengali', 'student', 'movement', 'emblem', 'stk-h008'],
     feature: '4-Colorway Commemorative Crest',
     priority: 3,
     rightsNote: 'Organization name & emblem: written authorization and sales-policy compliance required.',
@@ -324,6 +351,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H008-BLK',
+        stkSku: 'STK-H008-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1390,
@@ -339,6 +367,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
       },
       {
         sku: 'FAB-H008-MRN',
+        stkSku: 'STK-H008-MRN',
         color: 'Maroon',
         colorHex: '#58111A',
         priceBdt: 1390,
@@ -354,6 +383,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
       },
       {
         sku: 'FAB-H008-BRN',
+        stkSku: 'STK-H008-BRN',
         color: 'Chocolate Brown',
         colorHex: '#3D281E',
         priceBdt: 1390,
@@ -369,6 +399,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
       },
       {
         sku: 'FAB-H008-CRM',
+        stkSku: 'STK-H008-CRM',
         color: 'Cream',
         colorHex: '#F3EFE6',
         priceBdt: 1390,
@@ -386,6 +417,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H009',
+    stkCode: 'STK-H009',
+    sourceDesignName: 'Floral Heritage At Full Speed',
     brand: 'StarKiT',
     name: 'Rickshaw Bloom',
     editorial: 'FLORAL HERITAGE AT FULL SPEED',
@@ -394,7 +427,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'Dhaka rickshaw-art floral geometry with enamel neon brilliance rendered on premium black fleece.',
     descriptionBn: 'বাংলাদেশের ঐতিহ্যবাহী রিকশা আর্টের ফুলের মোটিফ আধুনিক স্ট্রিটওয়্যারে ফুটিয়ে তোলা হয়েছে।',
-    tags: ['rickshaw', 'floral', 'folk-art', 'dhaka', 'bloom'],
+    tags: ['rickshaw', 'floral', 'folk-art', 'dhaka', 'bloom', 'stk-h009'],
     feature: 'Enamel Floral Back Graphic',
     priority: 1,
     rightsNote: 'Bengali folk cultural motif; eligible for commercial distribution.',
@@ -403,6 +436,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H009-BLK',
+        stkSku: 'STK-H009-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1490,
@@ -420,6 +454,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H010',
+    stkCode: 'STK-H010',
+    sourceDesignName: 'Chase Never Ends',
     brand: 'StarKiT',
     name: 'Tom & Jerry Cheese Club',
     editorial: 'CHASE NEVER ENDS',
@@ -428,7 +464,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'Nostalgic cartoon chemistry on an easy-to-style black hoodie with playful chest and back storytelling.',
     descriptionBn: 'টম অ্যান্ড জেরি-অনুপ্রাণিত প্লেফুল চেস্ট, ব্যাক ও স্লিভ আর্টওয়ার্ক। চিরচেনা বন্ধুত্বের মজা।',
-    tags: ['cartoon', 'tom and jerry', 'cheese', 'fun', 'retro'],
+    tags: ['cartoon', 'tom and jerry', 'cheese', 'fun', 'retro', 'stk-h010'],
     feature: 'Chest & Back Comic Graphic',
     priority: 3,
     rightsNote: 'Tom & Jerry characters and trademark: written commercial licensing required.',
@@ -437,6 +473,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H010-BLK',
+        stkSku: 'STK-H010-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1390,
@@ -454,6 +491,8 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
   },
   {
     id: 'FAB-H011',
+    stkCode: 'STK-H011',
+    sourceDesignName: 'Accelerate Into The Dark',
     brand: 'StarKiT',
     name: 'Hot Wheels Night Circuit',
     editorial: 'ACCELERATE INTO THE DARK',
@@ -462,7 +501,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     availableColors: ['Black'],
     descriptionEn: 'High-octane neon speed lines, racing car liveries, and checkered flags crafted for midnight cruisers.',
     descriptionBn: 'মোটরস্পোর্ট থিমের রেসিং কার, চেকার্ড ডিটেইল ও কালারফুল নাইট রেসিং প্রিন্ট।',
-    tags: ['racing', 'hot wheels', 'cars', 'motorsport', 'speed'],
+    tags: ['racing', 'hot wheels', 'cars', 'motorsport', 'speed', 'stk-h011'],
     feature: 'Night Racing Neon Livery',
     priority: 3,
     rightsNote: 'Hot Wheels trademark and logos: written commercial licensing required.',
@@ -471,6 +510,7 @@ export const GRAPHIC_ARCHIVE_PRODUCTS: GraphicArchiveProduct[] = [
     variants: [
       {
         sku: 'FAB-H011-BLK',
+        stkSku: 'STK-H011-BLK',
         color: 'Black',
         colorHex: '#121212',
         priceBdt: 1590,

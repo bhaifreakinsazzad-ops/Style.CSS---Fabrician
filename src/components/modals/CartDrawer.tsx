@@ -92,7 +92,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderInfo | null>(null);
   const [promoInput, setPromoInput] = useState('');
-  const [appliedPromo, setAppliedPromo] = useState<'FARIZA10' | null>(null);
+  const [appliedPromo, setAppliedPromo] = useState<'FARIZA10' | 'STARKIT10' | null>(null);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
   const [copiedReceipt, setCopiedReceipt] = useState(false);
 
@@ -197,7 +197,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       : 0;
   const afterBundleSubtotal = Math.max(0, subtotal - bundleDiscount);
   const promoDiscount =
-    appliedPromo === 'FARIZA10' && afterBundleSubtotal > 0
+    (appliedPromo === 'FARIZA10' || appliedPromo === 'STARKIT10') && afterBundleSubtotal > 0
       ? Math.round(afterBundleSubtotal * 0.1)
       : 0;
   const totalDiscount = Math.min(subtotal, bundleDiscount + promoDiscount);
@@ -214,18 +214,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const handleApplyPromo = (codeOverride?: string) => {
     const code = (codeOverride ?? promoInput).trim().toUpperCase();
-    if (code === 'FARIZA10') {
-      setAppliedPromo('FARIZA10');
-      setPromoInput('FARIZA10');
+    if (code === 'FARIZA10' || code === 'STARKIT10') {
+      setAppliedPromo(code);
+      setPromoInput(code);
       setPromoMessage(
-        language === 'en' ? '10% Extra Off Applied!' : 'অতিরিক্ত ১০% ছাড় কার্যকর হয়েছে!'
+        language === 'en' ? `${code}: 10% Extra Off Applied!` : `${code}: অতিরিক্ত ১০% ছাড় কার্যকর হয়েছে!`
       );
     } else if (!code) {
       setAppliedPromo(null);
       setPromoMessage(null);
     } else {
       setPromoMessage(
-        language === 'en' ? 'Invalid code. Try FARIZA10' : 'সঠিক কোড দিন (FARIZA10)'
+        language === 'en'
+          ? 'Invalid code. Try STARKIT10 or FARIZA10'
+          : 'সঠিক কোড দিন (STARKIT10 বা FARIZA10)'
       );
     }
   };
@@ -731,13 +733,22 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       {language === 'en' ? 'Promo Code' : 'প্রোমো কোড'}
                     </span>
                     {!appliedPromo && (
-                      <button
-                        type="button"
-                        onClick={() => handleApplyPromo('FARIZA10')}
-                        className="text-[10px] underline hover:text-white cursor-pointer"
-                      >
-                        {language === 'en' ? 'Apply FARIZA10 (10% Off)' : 'FARIZA10 (১০% ছাড়)'}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPromo('STARKIT10')}
+                          className="text-[10px] underline hover:text-white cursor-pointer"
+                        >
+                          STARKIT10
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleApplyPromo('FARIZA10')}
+                          className="text-[10px] underline hover:text-white cursor-pointer"
+                        >
+                          FARIZA10
+                        </button>
+                      </div>
                     )}
                   </div>
                   <div className="flex gap-2">
@@ -745,7 +756,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       type="text"
                       value={promoInput}
                       onChange={(e) => setPromoInput(e.target.value)}
-                      placeholder="FARIZA10"
+                      placeholder="STARKIT10 / FARIZA10"
                       className="flex-1 bg-black/50 border border-white/15 rounded px-2.5 py-1.5 text-xs font-mono uppercase text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
                     />
                     <button

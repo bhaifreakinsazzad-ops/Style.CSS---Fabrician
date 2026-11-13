@@ -55,7 +55,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
               className={`group relative rounded-xl overflow-hidden bg-[#171719] border transition-colors duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl will-change-transform ${
                 col.brand === "Fariza's Territory"
                   ? 'border-[#C2185B]/35 hover:border-[#E91E63]'
-                  : 'border-white/10 hover:border-[#B69A60]/50'
+                  : 'border-[#FF2E2E]/30 hover:border-[#FF2E2E]'
               }`}
             >
               {/* Image with subtle zoom on hover */}
@@ -80,7 +80,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                     className={`w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white transition-colors ${
                       col.brand === "Fariza's Territory"
                         ? 'group-hover:bg-[#C2185B] group-hover:text-white'
-                        : 'group-hover:bg-[#B69A60] group-hover:text-[#09090B]'
+                        : 'group-hover:bg-[#FF2E2E] group-hover:text-white'
                     }`}
                   >
                     <ArrowUpRight className="w-4 h-4" />
@@ -90,12 +90,12 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                 <div>
                   <div
                     className={`text-[10px] font-mono uppercase tracking-[0.2em] mb-1 ${
-                      col.brand === "Fariza's Territory" ? 'text-[#F48FB1]' : 'text-[#D5BA80]'
+                      col.brand === "Fariza's Territory" ? 'text-[#F48FB1]' : 'text-[#FF6B6B]'
                     }`}
                   >
-                    {col.brand}
+                    {col.brand} · /{col.brandRoute}
                   </div>
-                  <h3 className="font-serif-luxury text-2xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-1">
+                  <h3 className="font-serif-luxury text-2xl text-[#F5F2EB] font-light group-hover:text-white transition-colors mb-1">
                     {language === 'en' ? col.nameEn : col.nameBn}
                   </h3>
                   <p className="text-xs text-[#D8D3C9] font-light leading-relaxed mb-3">

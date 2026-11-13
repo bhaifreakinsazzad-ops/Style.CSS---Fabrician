@@ -55,6 +55,26 @@
   background-position: 0 0, 14px 14px;
 }
 
+/* StarKiT Kinetic Monochrome typography & dot-matrix street grids */
+.font-starkit {
+  font-family: 'Afacad Flux', 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-starkit-tech {
+  font-family: 'Space Grotesk', 'JetBrains Mono', sans-serif;
+}
+
+.bg-starkit-grid-dark {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 46, 46, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px, 72px 72px;
+}
+
+.bg-starkit-grid-light {
+  background-image: radial-gradient(rgba(23, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
 /* Subtle fabric thread line divider */
 .thread-line {
   background: linear-gradient(90deg, transparent 0%, rgba(182, 154, 96, 0.35) 50%, transparent 100%);

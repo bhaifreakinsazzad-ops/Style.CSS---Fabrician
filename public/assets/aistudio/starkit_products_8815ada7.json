@@ -1,0 +1,860 @@
+{
+  "schema_version": "2.0.0",
+  "generated_on": "2026-11-13",
+  "brand": {
+    "name": "StarkiT",
+    "display_name": "StarkiT",
+    "brand_book": "starkit_brand_book_by_pomelli.pdf",
+    "source": "user-uploaded brand book, 7 pages",
+    "tagline": "WEAR YOUR WORLD.",
+    "values": [
+      "Community",
+      "Style",
+      "Authenticity"
+    ],
+    "primary_typeface": "Afacad Flux",
+    "palette": {
+      "jet_black": "#170000",
+      "pure_white": "#FFFFFF"
+    },
+    "aesthetic": [
+      "Urban Streetwear",
+      "Youthful Dynamism",
+      "Playful Tactility",
+      "Kinetic Energy",
+      "Graphic Flair"
+    ],
+    "voice": [
+      "Casual",
+      "Modern",
+      "Approachable"
+    ],
+    "market": "Bangladesh",
+    "support_phone": "01778307704",
+    "support_phone_status": "Provided in earlier seller copy; reconfirm before publication",
+    "collection": "DROP 01 / THE GRAPHIC ARCHIVE",
+    "reference_image_count": 13,
+    "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (seller-provided, not independently verified)",
+    "delivery": "Bangladesh nationwide, rates and courier arrangements to be confirmed",
+    "payment": "Cash on Delivery — confirm active acceptance before launch",
+    "license_notice": "All illustrations/marks require artwork ownership or commercial use clearance before publication."
+  },
+  "totals": {
+    "products": 11,
+    "variants": 15,
+    "original_images": 13
+  },
+  "product_catalog": [
+    {
+      "id": "STK-H001",
+      "legacy_product_id": "FAB-H001",
+      "name": "SHINOBI SUNSET",
+      "source_design_name": "Naruto Legacy",
+      "brand": "StarkiT",
+      "collection": "Anime Archive",
+      "drop": "DROP 01",
+      "editorial": "THE SHINOBI LEGACY",
+      "price_bdt": 1590,
+      "currency": "BDT",
+      "copy_en": "Bold Japanese-inspired storytelling meets a dramatic crimson-sun composition.",
+      "copy_bn": "ক্রিমসন সান, শক্তিশালী ব্যাক আর্ট ও স্লিভ ডিটেইলে স্টেটমেন্ট লুক।",
+      "front_back_detail": "Front + Back + Sleeve Art",
+      "colors": [
+        "Cream",
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Cream",
+          "sku": "STK-H001-CRM",
+          "legacy_sku": "FAB-H001-CRM",
+          "image": "assets/1000150954.webp",
+          "thumbnail": "assets/1000150954-thumb.webp",
+          "original_image": "1000150954.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        },
+        {
+          "color": "Black",
+          "sku": "STK-H001-BLK",
+          "legacy_sku": "FAB-H001-BLK",
+          "image": "assets/1000150926.webp",
+          "thumbnail": "assets/1000150926-thumb.webp",
+          "original_image": "1000150926.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "anime",
+        "graphic",
+        "red sun",
+        "sleeve print"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Third-party character and logo: written commercial licensing required",
+      "third_party_ip_review": true,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150954.jpg"
+    },
+    {
+      "id": "STK-H002",
+      "legacy_product_id": "FAB-H002",
+      "name": "PEACE BRO CLUB",
+      "source_design_name": "Peace Bro Cat",
+      "brand": "StarkiT",
+      "collection": "Playful Street",
+      "drop": "DROP 01",
+      "editorial": "GOOD VIBES ONLY",
+      "price_bdt": 1290,
+      "currency": "BDT",
+      "copy_en": "A laid-back graphic with unmistakable street energy.",
+      "copy_bn": "অল-ব্ল্যাক বেসে প্লেফুল ক্যাট আর্ট—ক্যাজুয়াল ডেইলি স্টাইলের জন্য।",
+      "front_back_detail": "Bold Back Graphic",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H002-BLK",
+          "legacy_sku": "FAB-H002-BLK",
+          "image": "assets/1000150953.webp",
+          "thumbnail": "assets/1000150953-thumb.webp",
+          "original_image": "1000150953.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "cat",
+        "fun",
+        "graphic",
+        "street"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Originality and artwork ownership to be confirmed",
+      "third_party_ip_review": false,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": true,
+      "original_reference_image": "1000150953.jpg"
+    },
+    {
+      "id": "STK-H003",
+      "legacy_product_id": "FAB-H003",
+      "name": "FOLK ROUTE",
+      "source_design_name": "Folk Art Bus",
+      "brand": "StarkiT",
+      "collection": "Bangla Heritage",
+      "drop": "DROP 01",
+      "editorial": "THE ROAD IS CULTURE",
+      "price_bdt": 1390,
+      "currency": "BDT",
+      "copy_en": "A celebration of the colors, craft and character of Bangladesh’s iconic painted transport.",
+      "copy_bn": "বাংলাদেশের রঙিন বাস আর্টকে নতুন স্ট্রিটওয়্যার ক্যানভাসে আনা হয়েছে।",
+      "front_back_detail": "Multicolor Heritage Art",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H003-BLK",
+          "legacy_sku": "FAB-H003-BLK",
+          "image": "assets/1000150952.webp",
+          "thumbnail": "assets/1000150952-thumb.webp",
+          "original_image": "1000150952.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "bangladesh",
+        "folk-art",
+        "bus",
+        "heritage"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Originality and artwork ownership to be confirmed",
+      "third_party_ip_review": false,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": true,
+      "original_reference_image": "1000150952.jpg"
+    },
+    {
+      "id": "STK-H004",
+      "legacy_product_id": "FAB-H004",
+      "name": "THE RIDER CODE",
+      "source_design_name": "Royal Enfield Rider",
+      "brand": "StarkiT",
+      "collection": "Moto Culture",
+      "drop": "DROP 01",
+      "editorial": "RIDE YOUR OWN LINE",
+      "price_bdt": 1690,
+      "currency": "BDT",
+      "copy_en": "A detailed moto-led statement with a rich maroon silhouette.",
+      "copy_bn": "মেরুন রঙে মোটরসাইকেল-অনুপ্রাণিত গ্রাফিক ও সাহসী স্লিভ ডিটেইল।",
+      "front_back_detail": "Large Graphic + Sleeve Detail",
+      "colors": [
+        "Maroon"
+      ],
+      "variants": [
+        {
+          "color": "Maroon",
+          "sku": "STK-H004-MRN",
+          "legacy_sku": "FAB-H004-MRN",
+          "image": "assets/1000150947.webp",
+          "thumbnail": "assets/1000150947-thumb.webp",
+          "original_image": "1000150947.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "moto",
+        "rider",
+        "maroon",
+        "motorcycle"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Royal Enfield trademark / motorcycle imagery: authorization required",
+      "third_party_ip_review": true,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150947.jpg"
+    },
+    {
+      "id": "STK-H005",
+      "legacy_product_id": "FAB-H005",
+      "name": "MOONLIT HERO",
+      "source_design_name": "One Punch Moon",
+      "brand": "StarkiT",
+      "collection": "Anime Archive",
+      "drop": "DROP 01",
+      "editorial": "NO LIMITS. NO NOISE.",
+      "price_bdt": 1590,
+      "currency": "BDT",
+      "copy_en": "Monochrome atmosphere, cinematic moonlight and graphic storytelling.",
+      "copy_bn": "ব্ল্যাক বেসে চাঁদের আবহ আর সিনেমাটিক গ্রাফিকের মিশেল।",
+      "front_back_detail": "Cinematic Back Artwork",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H005-BLK",
+          "legacy_sku": "FAB-H005-BLK",
+          "image": "assets/1000150948.webp",
+          "thumbnail": "assets/1000150948-thumb.webp",
+          "original_image": "1000150948.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "anime",
+        "moon",
+        "one punch",
+        "graphic"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Third-party character and title: written commercial licensing required",
+      "third_party_ip_review": true,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150948.jpg"
+    },
+    {
+      "id": "STK-H006",
+      "legacy_product_id": "FAB-H006",
+      "name": "CELLULOID NIGHTS",
+      "source_design_name": "Bangla Cinema",
+      "brand": "StarkiT",
+      "collection": "Bangla Heritage",
+      "drop": "DROP 01",
+      "editorial": "STORIES WE WEAR",
+      "price_bdt": 1490,
+      "currency": "BDT",
+      "copy_en": "A retro tribute to Bangla cinema and the visual language of classic posters.",
+      "copy_bn": "বাংলা সিনেমার নস্টালজিয়া, ফিল্ম রিল ও রেট্রো পোস্টার-স্টাইল।",
+      "front_back_detail": "Retro Back Graphic",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H006-BLK",
+          "legacy_sku": "FAB-H006-BLK",
+          "image": "assets/1000150951.webp",
+          "thumbnail": "assets/1000150951-thumb.webp",
+          "original_image": "1000150951.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "bangla",
+        "cinema",
+        "retro",
+        "culture"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Confirm rights to any identifiable actor likenesses / artwork",
+      "third_party_ip_review": true,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150951.jpg"
+    },
+    {
+      "id": "STK-H007",
+      "legacy_product_id": "FAB-H007",
+      "name": "DHAKA AFTERGLOW",
+      "source_design_name": "Aesthetic Dhaka",
+      "brand": "StarkiT",
+      "collection": "City Stories",
+      "drop": "DROP 01",
+      "editorial": "OUR CITY. OUR STORY.",
+      "price_bdt": 1490,
+      "currency": "BDT",
+      "copy_en": "Rickshaw colors and city memories captured in warm cocoa tones.",
+      "copy_bn": "রিকশা, নগর স্মৃতি এবং পুরোনো ঢাকার অনুভূতি—চকলেট ব্রাউন বেসে।",
+      "front_back_detail": "Cityscape + Heritage Print",
+      "colors": [
+        "Chocolate Brown"
+      ],
+      "variants": [
+        {
+          "color": "Chocolate Brown",
+          "sku": "STK-H007-BRN",
+          "legacy_sku": "FAB-H007-BRN",
+          "image": "assets/1000150946.webp",
+          "thumbnail": "assets/1000150946-thumb.webp",
+          "original_image": "1000150946.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "dhaka",
+        "brown",
+        "rickshaw",
+        "city"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Originality and artwork ownership to be confirmed",
+      "third_party_ip_review": false,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": true,
+      "original_reference_image": "1000150946.jpg"
+    },
+    {
+      "id": "STK-H008",
+      "legacy_product_id": "FAB-H008",
+      "name": "COLLECTIVE VOICE",
+      "source_design_name": "Student Movement Emblem",
+      "brand": "StarkiT",
+      "collection": "Statement Graphics",
+      "drop": "DROP 01",
+      "editorial": "A SYMBOLIC STATEMENT",
+      "price_bdt": 1390,
+      "currency": "BDT",
+      "copy_en": "A bold statement graphic shown across four color directions.",
+      "copy_bn": "চারটি কালারওয়েতে বাংলা টাইপোগ্রাফি ও সংগঠনের প্রতীকসংবলিত গ্রাফিক।",
+      "front_back_detail": "Four Colorways",
+      "colors": [
+        "Black",
+        "Maroon",
+        "Chocolate Brown",
+        "Cream"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H008-BLK",
+          "legacy_sku": "FAB-H008-BLK",
+          "image": "assets/1000150944.webp",
+          "thumbnail": "assets/1000150944-thumb.webp",
+          "original_image": "1000150944.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        },
+        {
+          "color": "Maroon",
+          "sku": "STK-H008-MRN",
+          "legacy_sku": "FAB-H008-MRN",
+          "image": "assets/1000150944.webp",
+          "thumbnail": "assets/1000150944-thumb.webp",
+          "original_image": "1000150944.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        },
+        {
+          "color": "Chocolate Brown",
+          "sku": "STK-H008-BRN",
+          "legacy_sku": "FAB-H008-BRN",
+          "image": "assets/1000150944.webp",
+          "thumbnail": "assets/1000150944-thumb.webp",
+          "original_image": "1000150944.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        },
+        {
+          "color": "Cream",
+          "sku": "STK-H008-CRM",
+          "legacy_sku": "FAB-H008-CRM",
+          "image": "assets/1000150943.webp",
+          "thumbnail": "assets/1000150943-thumb.webp",
+          "original_image": "1000150943.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "statement",
+        "bengali",
+        "political-organization",
+        "emblem"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Political organization name/emblem: written authorization and sales-policy review required",
+      "third_party_ip_review": true,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150944.jpg"
+    },
+    {
+      "id": "STK-H009",
+      "legacy_product_id": "FAB-H009",
+      "name": "RICKSHAW BLOOM",
+      "source_design_name": "Rickshaw Bloom",
+      "brand": "StarkiT",
+      "collection": "Bangla Heritage",
+      "drop": "DROP 01",
+      "editorial": "ROOTED IN COLOR",
+      "price_bdt": 1490,
+      "currency": "BDT",
+      "copy_en": "A joyful expression of floral rickshaw art, inspired by local craft.",
+      "copy_bn": "রঙিন রিকশাচিত্র, ফুলের নকশা ও ঐতিহ্যের প্রাণবন্ত প্রকাশ।",
+      "front_back_detail": "Colorful Back + Sleeve Flowers",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H009-BLK",
+          "legacy_sku": "FAB-H009-BLK",
+          "image": "assets/1000150940.webp",
+          "thumbnail": "assets/1000150940-thumb.webp",
+          "original_image": "1000150940.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "rickshaw",
+        "floral",
+        "folk-art",
+        "dhaka"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Originality and artwork ownership to be confirmed",
+      "third_party_ip_review": false,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": true,
+      "original_reference_image": "1000150940.jpg"
+    },
+    {
+      "id": "STK-H010",
+      "legacy_product_id": "FAB-H010",
+      "name": "CHEESE CHASE",
+      "source_design_name": "Tom & Jerry Cheese Club",
+      "brand": "StarkiT",
+      "collection": "Playful Street",
+      "drop": "DROP 01",
+      "editorial": "FOREVER PLAYFUL",
+      "price_bdt": 1390,
+      "currency": "BDT",
+      "copy_en": "Playful cartoon nostalgia with a bold back graphic.",
+      "copy_bn": "কার্টুন-অনুপ্রাণিত নস্টালজিয়ায় মজার ফ্রন্ট ও ব্যাক ডিজাইন।",
+      "front_back_detail": "Front + Back Cartoon Art",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H010-BLK",
+          "legacy_sku": "FAB-H010-BLK",
+          "image": "assets/1000150931.webp",
+          "thumbnail": "assets/1000150931-thumb.webp",
+          "original_image": "1000150931.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "cartoon",
+        "tom and jerry",
+        "cheese",
+        "fun"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Tom & Jerry characters and title: written commercial licensing required",
+      "third_party_ip_review": false,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150931.jpg"
+    },
+    {
+      "id": "STK-H011",
+      "legacy_product_id": "FAB-H011",
+      "name": "NIGHT CIRCUIT",
+      "source_design_name": "Hot Wheels Night Circuit",
+      "brand": "StarkiT",
+      "collection": "Moto Culture",
+      "drop": "DROP 01",
+      "editorial": "BUILT FOR THE THRILL",
+      "price_bdt": 1590,
+      "currency": "BDT",
+      "copy_en": "A high-energy racing graphic with checkerboard and flame details.",
+      "copy_bn": "রেসিং কার, চেকারবোর্ড ও ফ্লেম-অনুপ্রাণিত স্ট্রিটওয়্যার ডিজাইন।",
+      "front_back_detail": "Car Racing + Sleeve Graphics",
+      "colors": [
+        "Black"
+      ],
+      "variants": [
+        {
+          "color": "Black",
+          "sku": "STK-H011-BLK",
+          "legacy_sku": "FAB-H011-BLK",
+          "image": "assets/1000150930.webp",
+          "thumbnail": "assets/1000150930-thumb.webp",
+          "original_image": "1000150930.jpg",
+          "stock_quantity": null,
+          "sizes": [],
+          "availability": "unconfirmed",
+          "approved_for_publication": false
+        }
+      ],
+      "tags": [
+        "racing",
+        "hot wheels",
+        "cars",
+        "motorsport"
+      ],
+      "fabric_claim": "One-side brushed fleece; combed compact cotton; 330–350 GSM (unverified seller claims)",
+      "fit": "Fit not verified; refer to actual garment measurements",
+      "size_chart": "Pending actual measurement",
+      "print_method": "Pending supplier confirmation",
+      "rights_assessment": "Hot Wheels trademark / logos: written commercial licensing required",
+      "third_party_ip_review": true,
+      "rights_verified": false,
+      "stock_verified": false,
+      "commercial_terms_verified": false,
+      "publication_status": "DRAFT",
+      "featured": false,
+      "original_reference_image": "1000150930.jpg"
+    }
+  ],
+  "variant_index": [
+    {
+      "sku": "STK-H001-CRM",
+      "legacy_sku": "FAB-H001-CRM",
+      "product_id": "STK-H001",
+      "color": "Cream",
+      "retail_price_bdt": 1590,
+      "image_file": "assets/1000150954.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150954.jpg"
+    },
+    {
+      "sku": "STK-H001-BLK",
+      "legacy_sku": "FAB-H001-BLK",
+      "product_id": "STK-H001",
+      "color": "Black",
+      "retail_price_bdt": 1590,
+      "image_file": "assets/1000150926.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150926.jpg"
+    },
+    {
+      "sku": "STK-H002-BLK",
+      "legacy_sku": "FAB-H002-BLK",
+      "product_id": "STK-H002",
+      "color": "Black",
+      "retail_price_bdt": 1290,
+      "image_file": "assets/1000150953.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150953.jpg"
+    },
+    {
+      "sku": "STK-H003-BLK",
+      "legacy_sku": "FAB-H003-BLK",
+      "product_id": "STK-H003",
+      "color": "Black",
+      "retail_price_bdt": 1390,
+      "image_file": "assets/1000150952.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150952.jpg"
+    },
+    {
+      "sku": "STK-H004-MRN",
+      "legacy_sku": "FAB-H004-MRN",
+      "product_id": "STK-H004",
+      "color": "Maroon",
+      "retail_price_bdt": 1690,
+      "image_file": "assets/1000150947.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150947.jpg"
+    },
+    {
+      "sku": "STK-H005-BLK",
+      "legacy_sku": "FAB-H005-BLK",
+      "product_id": "STK-H005",
+      "color": "Black",
+      "retail_price_bdt": 1590,
+      "image_file": "assets/1000150948.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150948.jpg"
+    },
+    {
+      "sku": "STK-H006-BLK",
+      "legacy_sku": "FAB-H006-BLK",
+      "product_id": "STK-H006",
+      "color": "Black",
+      "retail_price_bdt": 1490,
+      "image_file": "assets/1000150951.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150951.jpg"
+    },
+    {
+      "sku": "STK-H007-BRN",
+      "legacy_sku": "FAB-H007-BRN",
+      "product_id": "STK-H007",
+      "color": "Chocolate Brown",
+      "retail_price_bdt": 1490,
+      "image_file": "assets/1000150946.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150946.jpg"
+    },
+    {
+      "sku": "STK-H008-BLK",
+      "legacy_sku": "FAB-H008-BLK",
+      "product_id": "STK-H008",
+      "color": "Black",
+      "retail_price_bdt": 1390,
+      "image_file": "assets/1000150944.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150944.jpg"
+    },
+    {
+      "sku": "STK-H008-MRN",
+      "legacy_sku": "FAB-H008-MRN",
+      "product_id": "STK-H008",
+      "color": "Maroon",
+      "retail_price_bdt": 1390,
+      "image_file": "assets/1000150944.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150944.jpg"
+    },
+    {
+      "sku": "STK-H008-BRN",
+      "legacy_sku": "FAB-H008-BRN",
+      "product_id": "STK-H008",
+      "color": "Chocolate Brown",
+      "retail_price_bdt": 1390,
+      "image_file": "assets/1000150944.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150944.jpg"
+    },
+    {
+      "sku": "STK-H008-CRM",
+      "legacy_sku": "FAB-H008-CRM",
+      "product_id": "STK-H008",
+      "color": "Cream",
+      "retail_price_bdt": 1390,
+      "image_file": "assets/1000150943.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150943.jpg"
+    },
+    {
+      "sku": "STK-H009-BLK",
+      "legacy_sku": "FAB-H009-BLK",
+      "product_id": "STK-H009",
+      "color": "Black",
+      "retail_price_bdt": 1490,
+      "image_file": "assets/1000150940.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150940.jpg"
+    },
+    {
+      "sku": "STK-H010-BLK",
+      "legacy_sku": "FAB-H010-BLK",
+      "product_id": "STK-H010",
+      "color": "Black",
+      "retail_price_bdt": 1390,
+      "image_file": "assets/1000150931.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150931.jpg"
+    },
+    {
+      "sku": "STK-H011-BLK",
+      "legacy_sku": "FAB-H011-BLK",
+      "product_id": "STK-H011",
+      "color": "Black",
+      "retail_price_bdt": 1590,
+      "image_file": "assets/1000150930.webp",
+      "stock_quantity": null,
+      "size_chart_verified": false,
+      "artwork_rights_verified": false,
+      "publication_status": "DRAFT",
+      "source_reference": "1000150930.jpg"
+    }
+  ],
+  "publication_rules": {
+    "initial_mode": "INTERNAL_PREVIEW",
+    "may_publish_only_if": [
+      "artwork_rights_verified",
+      "stock_quantity_confirmed",
+      "product_specifications_verified",
+      "size_chart_confirmed",
+      "business_terms_approved"
+    ],
+    "note": "No product currently marked public; launch gating intentionally not bypassed."
+  },
+  "note": "Retail prices are proposed, cost estimates from old workbook not brought forward as verified."
+}

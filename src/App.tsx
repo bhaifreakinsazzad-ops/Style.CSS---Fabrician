@@ -114,29 +114,29 @@ export default function App() {
 
   const navigateToBrand = (brand: 'store' | 'starkit' | 'farizas-territory') => {
     if (brand === 'store') {
-      const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
-      if (
-        path === '/admin' ||
-        path.startsWith('/admin/') ||
-        path === '/starkit' ||
-        path === '/farizas-territory'
-      ) {
-        window.history.replaceState(null, '', '/' + window.location.search);
-      } else if (
-        window.location.hash === '#admin' ||
-        window.location.hash.startsWith('#admin/') ||
-        window.location.hash === '#starkit' ||
-        window.location.hash === '#farizas-territory'
-      ) {
-        window.history.replaceState(null, '', window.location.pathname + window.location.search);
-      }
+      window.history.pushState(null, '', '/' + window.location.search);
       setViewMode('store');
+    } else if (brand === 'starkit') {
+      window.history.pushState(null, '', '/starkit' + window.location.search);
+      setViewMode('starkit');
     } else {
-      window.location.hash = brand;
-      setViewMode(brand);
+      window.history.pushState(null, '', '/farizas-territory' + window.location.search);
+      setViewMode('farizas-territory');
     }
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   };
+
+  useEffect(() => {
+    if (viewMode === 'starkit') {
+      document.title = 'StarKiT (ستاركيت) — Wear Your World | FABRICIAN';
+    } else if (viewMode === 'farizas-territory') {
+      document.title = "Fariza's Territory — Three-Piece Couture | FABRICIAN";
+    } else if (viewMode === 'admin') {
+      document.title = 'Store Admin Console | FABRICIAN';
+    } else {
+      document.title = 'FABRICIAN — The Intelligent Fashion Universe | Made in Bangladesh';
+    }
+  }, [viewMode]);
 
   const navigateToStore = () => {
     navigateToBrand('store');
@@ -371,6 +371,7 @@ export default function App() {
           onBackHome={navigateToStore}
           onSwitchBrand={(b) => navigateToBrand(b)}
           onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
           onToggleWishlist={handleToggleWishlist}
           isWishlisted={isWishlisted}
           onQuickView={(p) => setQuickViewProduct(p)}
@@ -424,6 +425,7 @@ export default function App() {
           <GraphicArchiveSection
             language={language}
             onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
             onToggleWishlist={handleToggleWishlist}
             isWishlisted={isWishlisted}
             onOpenQuickView={(p) => setQuickViewProduct(p)}

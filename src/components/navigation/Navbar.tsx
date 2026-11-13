@@ -98,10 +98,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <nav className="hidden lg:flex items-center gap-4 xl:gap-5 text-[11px] xl:text-xs uppercase tracking-[0.16em] font-medium text-[#D8D3C9]">
             <button
               onClick={() => handleBrandClick('starkit')}
-              className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80] ${
+              className={`transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#FF2E2E] font-semibold ${
                 viewMode === 'starkit'
-                  ? 'text-[#D5BA80] font-semibold border-b border-[#B69A60] pb-0.5'
-                  : 'text-[#F5F2EB] hover:text-[#D5BA80]'
+                  ? 'text-[#FF2E2E] border-b border-[#FF2E2E] pb-0.5'
+                  : 'text-[#F5F2EB] hover:text-[#FF2E2E]'
               }`}
             >
               {language === 'en' ? 'StarKiT' : 'স্টারকিট'}
@@ -279,13 +279,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => handleBrandClick('starkit')}
                 className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
                   viewMode === 'starkit'
-                    ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
-                    : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
+                    ? 'bg-[#FF2E2E]/15 border-[#FF2E2E] text-white'
+                    : 'bg-[#170000] border-white/15 text-white hover:border-[#FF2E2E]/60'
                 }`}
               >
-                <div className="font-serif-luxury text-lg tracking-wider">StarKiT × FABRICIAN</div>
-                <div className="text-[11px] font-mono text-[#D5BA80]">
-                  {language === 'en' ? '330–350 GSM Fleece & 11 Graphic Hoodies' : '৩৩০–৩৫০ জিএসএম ফ্লিস ও ১১টি হুডি'}
+                <div className="flex items-center justify-between">
+                  <div className="font-starkit text-lg font-bold tracking-wider uppercase">
+                    S T Λ R K I T · ستاركيت
+                  </div>
+                  <span className="text-[10px] font-mono text-[#FF2E2E]">/starkit</span>
+                </div>
+                <div className="text-[11px] font-mono text-white/75">
+                  {language === 'en'
+                    ? '330–480 GSM Fleece & 11 Graphic Hoodies'
+                    : '৩৩০–৪৮০ জিএসএম ফ্লিস ও ১১টি হুডি'}
                 </div>
               </button>
               <button

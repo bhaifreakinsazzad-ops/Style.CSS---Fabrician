@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StarkiT (ستاركيت) | S T Λ R K I T — The Graphic Archive</title>
+  <meta name="description" content="StarkiT Drop 01 — Urban streetwear, graphic flair, and kinetic energy. Dhaka, Bangladesh." />
+
+  <!-- Google Fonts: Afacad Flux & Noto Sans Bengali -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Afacad+Flux:wght@300;400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            jet: '#170000',
+            pure: '#FFFFFF',
+            accent: '#FF2E2E',
+            maroon: '#4C141E',
+            obsidian: '#0A0A0B',
+          },
+          fontFamily: {
+            display: ['"Afacad Flux"', '"Noto Sans Bengali"', 'sans-serif'],
+            sans: ['"Afacad Flux"', '"Noto Sans Bengali"', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Animation Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+
+  <style>
+    body {
+      background-color: #170000;
+      color: #FFFFFF;
+      font-family: 'Afacad Flux', 'Noto Sans Bengali', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #170000; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #FFFFFF; }
+
+    /* Hide scrollbar for carousels but allow scrolling */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="selection:bg-accent selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // --- CATALOG DATA ---
+    const DROP01_PRODUCTS = [
+      { id: "STK-H001", name: "SHINOBI SUNSET", collection: "Anime Archive", colors: ["Cream", "Black"], price: 1590 },
+      { id: "STK-H002", name: "PEACE BRO CLUB", collection: "Playful Street", colors: ["Black"], price: 1290 },
+      { id: "STK-H003", name: "FOLK ROUTE", collection: "Bangla Heritage", colors: ["Black"], price: 1390 },
+      { id: "STK-H004", name: "THE RIDER CODE", collection: "Moto Culture", colors: ["Maroon"], price: 1690 },
+      { id: "STK-H005", name: "MOONLIT HERO", collection: "Anime Archive", colors: ["Black"], price: 1590 },
+      { id: "STK-H006", name: "CELLULOID NIGHTS", collection: "Bangla Heritage", colors: ["Black"], price: 1490 },
+      { id: "STK-H007", name: "DHAKA AFTERGLOW", collection: "City Stories", colors: ["Chocolate Brown"], price: 1490 },
+      { id: "STK-H008", name: "COLLECTIVE VOICE", collection: "Statement Graphics", colors: ["Black", "Maroon", "Chocolate Brown", "Cream"], price: 1390 },
+      { id: "STK-H009", name: "RICKSHAW BLOOM", collection: "Bangla Heritage", colors: ["Black"], price: 1490 },
+      { id: "STK-H010", name: "CHEESE CHASE", collection: "Playful Street", colors: ["Black"], price: 1390 },
+      { id: "STK-H011", name: "NIGHT CIRCUIT", collection: "Moto Culture", colors: ["Black"], price: 1590 }
+    ];
+
+    const COLOR_HEX_MAP = {
+      "Black": "#111113",
+      "Cream": "#D9D0C5",
+      "Maroon": "#4A1C24",
+      "Chocolate Brown": "#3B251D"
+    };
+
+    // --- SVG GENERATOR FOR PLACEHOLDERS (No external requests/CORS issues) ---
+    const generateSvgPlaceholder = (product, colorHex) => {
+      const textColor = colorHex === '#D9D0C5' ? '#170000' : '#FFFFFF';
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+          <rect width="400" height="500" fill="${colorHex}" />
+          <rect x="20" y="20" width="360" height="460" fill="none" stroke="${textColor}" stroke-width="2" opacity="0.15" />
+          <text x="200" y="230" font-family="sans-serif" font-size="28" font-weight="900" fill="${textColor}" text-anchor="middle" opacity="0.9">${product.name}</text>
+          <text x="200" y="270" font-family="sans-serif" font-size="14" fill="${textColor}" text-anchor="middle" opacity="0.6">${product.collection}</text>
+          <text x="200" y="440" font-family="monospace" font-size="14" font-weight="bold" fill="${textColor}" text-anchor="middle" opacity="0.4">${product.id}</text>
+        </svg>
+      `;
+      return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+    };
+
+    // --- THREE.JS CAROUSEL COMPONENT ---
+    const ThreeCarousel = ({ products }) => {
+      const mountRef = useRef(null);
+
+      useEffect(() => {
+        const container = mountRef.current;
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog('#170000', 5, 25);
+        
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 12;
+        camera.position.y = 0;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // optimize performance
+        container.appendChild(renderer.domElement);
+
+        const carouselGroup = new THREE.Group();
+        scene.add(carouselGroup);
+
+        // Generate dynamic Canvas Textures
+        const radius = 6.5;
+        const itemsCount = products.length;
+        const createdTextures = [];
+        const createdGeometries = [];
+        const createdMaterials = [];
+        
+        products.forEach((prod, i) => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 512;
+          canvas.height = 768;
+          const ctx = canvas.getContext('2d');
+
+          const bgColor = COLOR_HEX_MAP[prod.colors[0]] || '#333333';
+          const textColor = prod.colors[0] === 'Cream' ? '#170000' : '#FFFFFF';
+
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, 512, 768);
+
+          ctx.strokeStyle = textColor;
+          ctx.globalAlpha = 0.2;
+          ctx.lineWidth = 4;
+          ctx.strokeRect(24, 24, 464, 720);
+          ctx.globalAlpha = 1.0;
+
+          ctx.textAlign = 'center';
+          ctx.fillStyle = textColor;
+          
+          ctx.font = '600 20px sans-serif';
+          ctx.letterSpacing = '4px';
+          ctx.fillText(prod.collection.toUpperCase(), 256, 120);
+          
+          ctx.font = '800 48px sans-serif';
+          const words = prod.name.split(' ');
+          if (words.length > 2) {
+            ctx.fillText(words.slice(0, 2).join(' '), 256, 360);
+            ctx.fillText(words.slice(2).join(' '), 256, 420);
+          } else {
+            ctx.fillText(prod.name, 256, 380);
+          }
+
+          ctx.font = '700 28px monospace';
+          ctx.fillText(`BDT ${prod.price.toLocaleString()}`, 256, 620);
+          
+          ctx.font = '400 20px monospace';
+          ctx.globalAlpha = 0.5;
+          ctx.fillText(`SKU: ${prod.id}`, 256, 670);
+
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+          createdTextures.push(texture);
+
+          const geo = new THREE.PlaneGeometry(3.5, 5.25);
+          createdGeometries.push(geo);
+
+          const mat = new THREE.MeshBasicMaterial({ 
+            map: texture, 
+            side: THREE.DoubleSide
+          });
+          createdMaterials.push(mat);
+          
+          const mesh = new THREE.Mesh(geo, mat);
+          
+          const theta = (i / itemsCount) * Math.PI * 2;
+          mesh.position.x = Math.sin(theta) * radius;
+          mesh.position.z = Math.cos(theta) * radius;
+          mesh.rotation.y = theta;
+          
+          carouselGroup.add(mesh);
+        });
+
+        // Touch / Mouse interaction
+        let isDragging = false;
+        let previousX = 0;
+        let velocity = 0.003; // Base auto-rotation
+        
+        const onDown = (e) => {
+          isDragging = true;
+          previousX = e.touches ? e.touches[0].clientX : e.clientX;
+        };
+        
+        const onMove = (e) => {
+          if (!isDragging) return;
+          const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+          const deltaX = currentX - previousX;
+          velocity = deltaX * 0.005;
+          carouselGroup.rotation.y += velocity;
+          previousX = currentX;
+        };
+        
+        const onUp = () => {
+          isDragging = false;
+        };
+
+        const canvasEl = renderer.domElement;
+        canvasEl.addEventListener('mousedown', onDown);
+        canvasEl.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        canvasEl.addEventListener('touchstart', onDown, {passive: true});
+        canvasEl.addEventListener('touchmove', onMove, {passive: true});
+        window.addEventListener('touchend', onUp);
+
+        // Animation loop
+        const animate = () => {
+          requestAnimationFrame(animate);
+          if (!isDragging) {
+            velocity *= 0.95; // friction
+            carouselGroup.rotation.y += velocity + 0.002; // momentum + persistent auto-rotation
+          }
+          
+          // Subtle floating effect
+          carouselGroup.position.y = Math.sin(Date.now() * 0.001) * 0.2;
+          
+          renderer.render(scene, camera);
+        };
+        animate();
+
+        const handleResize = () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        };
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          canvasEl.removeEventListener('mousedown', onDown);
+          canvasEl.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+          canvasEl.removeEventListener('touchstart', onDown);
+          canvasEl.removeEventListener('touchmove', onMove);
+          window.removeEventListener('touchend', onUp);
+          window.removeEventListener('resize', handleResize);
+          container.removeChild(renderer.domElement);
+          createdTextures.forEach(t => t.dispose());
+          createdGeometries.forEach(g => g.dispose());
+          createdMaterials.forEach(m => m.dispose());
+        };
+      }, [products]);
+
+      return <div ref={mountRef} className="absolute inset-0 z-0 cursor-grab active:cursor-grabbing" style={{ touchAction: 'none' }} />;
+    };
+
+    // --- MAIN APP COMPONENT ---
+    const App = () => {
+      const [selectedProduct, setSelectedProduct] = useState(null);
+      const gridRef = useRef(null);
+
+      // WhatsApp Forwarding Logic
+      const orderViaWhatsApp = (product, color, size) => {
+        const waNumber = "8801931803462";
+        const message = `✦ STARKIT (ستاركيت) — DIRECT ORDER ✦\n\nSKU: ${product.id}\nDesign: ${product.name}\nColorway: ${color}\nSize: ${size}\nListed Price: BDT ${product.price.toLocaleString()}\n\nHello StarkiT Team! I would like to order this piece. Please confirm availability and exact measurements.`;
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+      };
+
+      // Anime.js Staggered Grid Reveal & Hero Animations
+      useEffect(() => {
+        anime({
+          targets: '.hero-element',
+          translateY: [30, 0],
+          opacity: [0, 1],
+          delay: anime.stagger(200, { start: 200 }),
+          duration: 1000,
+          easing: 'easeOutExpo'
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting) {
+            anime({
+              targets: '.starkit-product-card',
+              translateY: [60, 0],
+              opacity: [0, 1],
+              delay: anime.stagger(100),
+              easing: 'easeOutExpo',
+              duration: 1000
+            });
+            observer.disconnect();
+          }
+        }, { threshold: 0.1 });
+
+        if (gridRef.current) observer.observe(gridRef.current);
+        return () => observer.disconnect();
+      }, []);
+
+      return (
+        <div className="relative min-h-screen bg-jet font-sans selection:bg-accent selection:text-white">
+          {/* Header */}
+          <header className="fixed top-0 w-full z-40 bg-jet/80 backdrop-blur-md border-b border-white/10">
+            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold tracking-widest uppercase">S T Λ R K I T</span>
+                <span className="text-xs text-white/50 tracking-widest text-right -mt-1 font-bengali">ستاركيت</span>
+              </div>
+              <div className="flex items-center gap-6 text-sm uppercase tracking-widest font-semibold text-white/70">
+                <a href="#drop-01" className="hover:text-white transition">Drop 01</a>
+                <a href="https://wa.me/8801931803462" target="_blank" className="text-accent hover:text-red-400 transition flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                  WhatsApp Desk
+                </a>
+              </div>
+            </div>
+          </header>
+
+          {/* Hero Section */}
+          <section className="relative h-screen flex items-center justify-center overflow-hidden bg-jet">
+            <ThreeCarousel products={DROP01_PRODUCTS} />
+            <div className="absolute inset-0 bg-gradient-to-b from-jet/40 via-transparent to-jet pointer-events-none z-10" />
+            
+            <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pointer-events-none mt-40">
+              <div className="hero-element opacity-0 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-mono uppercase tracking-[0.2em] mb-6">
+                <span>StarkiT Presents / Drop 01</span>
+              </div>
+              
+              <h1 className="hero-element opacity-0 text-6xl md:text-8xl font-extrabold tracking-tighter leading-[0.9] mb-6">
+                WEAR YOUR<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-500">WORLD.</span>
+              </h1>
+
+              <p className="hero-element opacity-0 text-lg md:text-xl text-white/70 font-light max-w-2xl mx-auto mb-10">
+                Swipe to explore the 3D Graphic Archive.<br/>
+                Dhaka-born urban streetwear. Graphic flair meets kinetic energy.
+              </p>
+
+              <a href="#drop-01" className="hero-element opacity-0 pointer-events-auto inline-block px-8 py-4 bg-white text-jet font-bold uppercase tracking-widest hover:bg-gray-200 transition-transform hover:scale-105">
+                Explore Catalog
+              </a>
+            </div>
+          </section>
+
+          {/* Product Grid Section */}
+          <section id="drop-01" className="relative py-32 z-20 bg-jet">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="mb-16 border-b border-white/10 pb-8 flex flex-col md:flex-row justify-between items-end gap-4">
+                <div>
+                  <h2 className="text-4xl md:text-5xl font-extrabold uppercase tracking-tight">The Graphic Archive</h2>
+                  <p className="text-white/50 mt-2 font-mono uppercase tracking-widest text-sm">11 Original Designs · Drop 01 / 2026</p>
+                </div>
+                <div className="text-sm font-mono text-white/40 uppercase tracking-widest">
+                  StarkiT (ستاركيت)
+                </div>
+              </div>
+
+              <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {DROP01_PRODUCTS.map((product) => (
+                  <div 
+                    key={product.id} 
+                    className="starkit-product-card opacity-0 bg-obsidian border border-white/10 rounded-2xl overflow-hidden hover:border-white/30 transition-colors group cursor-pointer"
+                    onClick={() => setSelectedProduct(product)}
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#0A0A0B] flex items-center justify-center">
+                      <div className="absolute top-4 left-4 z-10 px-2.5 py-1 bg-jet/80 backdrop-blur-sm border border-white/20 rounded font-mono text-[10px] uppercase font-bold tracking-widest">
+                        {product.id}
+                      </div>
+                      <img 
+                        src={generateSvgPlaceholder(product, COLOR_HEX_MAP[product.colors[0]] || '#333')} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-90 group-hover:opacity-100"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-6 flex flex-col justify-between">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-xl font-extrabold leading-tight">{product.name}</h3>
+                        <span className="font-mono font-bold whitespace-nowrap ml-4">৳ {product.price.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-4">
+                        {product.colors.map(c => (
+                          <div 
+                            key={c} 
+                            title={c}
+                            className="w-4 h-4 rounded-full border border-white/30" 
+                            style={{ backgroundColor: COLOR_HEX_MAP[c] || '#000' }}
+                          />
+                        ))}
+                        <span className="text-[10px] font-mono uppercase text-white/50 ml-2">{product.colors.length} Colorway{product.colors.length > 1 ? 's' : ''}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Product Quick View Modal */}
+          {selectedProduct && (
+            <ProductModal 
+              product={selectedProduct} 
+              onClose={() => setSelectedProduct(null)} 
+              onCheckout={orderViaWhatsApp}
+              svgGenerator={generateSvgPlaceholder}
+            />
+          )}
+
+          {/* Footer */}
+          <footer className="bg-obsidian border-t border-white/10 py-16 text-center">
+            <div className="max-w-4xl mx-auto px-6 flex flex-col items-center">
+              <span className="text-3xl font-bold tracking-widest uppercase mb-2">S T Λ R K I T</span>
+              <span className="text-lg text-white/50 tracking-widest font-bengali mb-8">ستاركيت</span>
+              <p className="text-white/60 text-sm max-w-md mb-8">
+                Dhaka-based streetwear identity built around community, style, and authenticity. Graphic flair meets urban energy.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://wa.me/8801931803462" target="_blank" className="px-6 py-3 border border-white/20 hover:border-white transition uppercase text-xs tracking-widest font-bold font-mono rounded">
+                  WhatsApp Concierge
+                </a>
+              </div>
+              <p className="mt-16 text-white/30 text-[10px] font-mono uppercase tracking-[0.2em]">© 2026 StarkiT. All Rights Reserved. Dhaka, BD.</p>
+            </div>
+          </footer>
+        </div>
+      );
+    };
+
+    // --- PRODUCT MODAL COMPONENT ---
+    const ProductModal = ({ product, onClose, onCheckout, svgGenerator }) => {
+      const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+      const [selectedSize, setSelectedSize] = useState('L');
+      const modalRef = useRef(null);
+      const sizes = ['M', 'L', 'XL', 'XXL'];
+
+      useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        anime({
+          targets: modalRef.current,
+          translateY: [50, 0],
+          opacity: [0, 1],
+          scale: [0.95, 1],
+          duration: 600,
+          easing: 'easeOutElastic(1, .8)'
+        });
+        return () => { document.body.style.overflow = 'auto'; };
+      }, []);
+
+      const handleClose = () => {
+        anime({
+          targets: modalRef.current,
+          translateY: [0, 20],
+          opacity: [1, 0],
+          scale: [1, 0.95],
+          duration: 300,
+          easing: 'easeInQuad',
+          complete: onClose
+        });
+      };
+
+      return (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md"
+          onClick={handleClose}
+        >
+          <div 
+            ref={modalRef}
+            className="relative w-full max-w-5xl max-h-[90vh] bg-obsidian border border-white/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row opacity-0"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={handleClose}
+              className="absolute top-4 right-4 z-50 p-2 bg-jet/50 hover:bg-jet text-white/50 hover:text-white border border-white/10 rounded-full transition-colors"
+              aria-label="Close modal"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            {/* Image Section */}
+            <div className="md:w-1/2 relative min-h-[300px] md:min-h-full bg-[#0A0A0B] border-b md:border-b-0 md:border-r border-white/10 flex items-center justify-center p-8">
+              <img src={svgGenerator(product, COLOR_HEX_MAP[selectedColor] || '#333')} alt={product.name} className="w-full h-full max-h-[600px] object-contain shadow-2xl rounded-xl" />
+            </div>
+
+            {/* Content Section */}
+            <div className="md:w-1/2 p-6 md:p-10 flex flex-col justify-between overflow-y-auto">
+              <div>
+                <div className="text-accent font-mono text-[10px] uppercase font-bold tracking-[0.2em] mb-2">{product.collection}</div>
+                <h2 className="text-4xl md:text-5xl font-extrabold leading-none tracking-tight uppercase mb-4">{product.name}</h2>
+                <div className="text-3xl font-mono font-bold mb-8">BDT {product.price.toLocaleString()}</div>
+                
+                <p className="text-white/70 text-sm leading-relaxed mb-8">
+                  Premium heavyweight 330-350 GSM one-side brushed fleece. Engineered in Dhaka for urban comfort and graphic longevity. Statement prints, double-lined hood, and drop-shoulder silhouette.
+                </p>
+
+                {/* Color Selector */}
+                <div className="mb-6">
+                  <div className="text-xs font-mono uppercase tracking-widest text-white/50 mb-3">1. Select Colorway</div>
+                  <div className="flex gap-3">
+                    {product.colors.map(color => (
+                      <button 
+                        key={color}
+                        onClick={() => setSelectedColor(color)}
+                        className={`group relative w-10 h-10 rounded-full border-2 transition-all ${selectedColor === color ? 'border-white scale-110' : 'border-white/20 hover:border-white/50'}`}
+                        style={{ backgroundColor: COLOR_HEX_MAP[color] || '#000' }}
+                        title={color}
+                      >
+                        {selectedColor === color && (
+                          <span className="absolute -inset-1 border border-white rounded-full animate-ping opacity-50"></span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-sm font-bold mt-2">{selectedColor}</div>
+                </div>
+
+                {/* Size Selector */}
+                <div className="mb-10">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-xs font-mono uppercase tracking-widest text-white/50">2. Select Size</span>
+                    <span className="text-[10px] font-mono text-white/40 underline cursor-pointer hover:text-white">Size Guide</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {sizes.map(size => (
+                      <button 
+                        key={size}
+                        onClick={() => setSelectedSize(size)}
+                        className={`py-3 rounded font-mono font-bold text-sm transition-all ${selectedSize === size ? 'bg-white text-jet border border-white' : 'bg-transparent border border-white/20 text-white hover:border-white/60'}`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Checkout Action */}
+              <div className="pt-6 border-t border-white/10 mt-6">
+                <button 
+                  onClick={() => onCheckout(product, selectedColor, selectedSize)}
+                  className="w-full py-4 bg-[#25D366] hover:bg-[#1DA851] text-jet font-bold uppercase tracking-widest rounded flex items-center justify-center gap-3 transition-colors shadow-[0_0_20px_rgba(37,211,102,0.3)]"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                  Forward Order to WhatsApp
+                </button>
+                <div className="text-center text-[10px] font-mono text-white/40 mt-3 uppercase tracking-widest">
+                  Live Dispatch · Fast Tracked via Pathao / RedX
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // Render the App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

@@ -104,17 +104,21 @@ export const Footer: React.FC<FooterProps> = ({
                   <li>
                     <button
                       onClick={() => onSelectBrand('starkit')}
-                      className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer text-left font-medium"
+                      className="text-white hover:text-[#FF2E2E] transition-colors cursor-pointer text-left font-medium"
                     >
-                      {language === 'en' ? 'StarKiT (Menswear & Hoodies)' : 'স্টারকিট (মেন্সওয়্যার ও হুডি)'}
+                      {language === 'en'
+                        ? 'StarKiT — Wear Your World (/starkit)'
+                        : 'স্টারকিট — গ্রাফিক আর্কাইভ (/starkit)'}
                     </button>
                   </li>
                   <li>
                     <button
                       onClick={() => onSelectBrand('farizas-territory')}
-                      className="text-[#D5BA80] hover:text-[#F5F2EB] transition-colors cursor-pointer text-left font-medium"
+                      className="text-[#F48FB1] hover:text-[#F5F2EB] transition-colors cursor-pointer text-left font-medium"
                     >
-                      {language === 'en' ? "Fariza's Territory (Women)" : 'ফারিজাস টেরিটরি (উইমেনস)'}
+                      {language === 'en'
+                        ? "Fariza's Territory (/farizas-territory)"
+                        : 'ফারিজাস টেরিটরি (/farizas-territory)'}
                     </button>
                   </li>
                 </>
