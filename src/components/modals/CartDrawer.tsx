@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import {
   X,
@@ -95,8 +95,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [appliedPromo, setAppliedPromo] = useState<'FARIZA10' | 'STARKIT10' | null>(null);
   const [promoMessage, setPromoMessage] = useState<string | null>(null);
   const [copiedReceipt, setCopiedReceipt] = useState(false);
+  const checkoutRequestRef = useRef<{requestId: string; lookupToken: string} | null>(null);
 
   const t = translations[language];
+  useEffect(() => { checkoutRequestRef.current = null; }, [items, fullName, phone, address, division, appliedPromo]);
 
   useEffect(() => {
     if (isOpen && checkoutStep !== 'success') {
@@ -214,7 +216,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const handleApplyPromo = (codeOverride?: string) => {
     const code = (codeOverride ?? promoInput).trim().toUpperCase();
-    if (code === 'FARIZA10' || code === 'STARKIT10') {
+    const promoBrand = code === 'FARIZA10' ? "Fariza's Territory" : code === 'STARKIT10' ? 'StarKiT' : null;
+    if (promoBrand && items.length > 0 && items.every(item =>
+      unifiedCatalog.find(prod => prod.id === item.productId)?.brand === promoBrand
+    )) {
       setAppliedPromo(code);
       setPromoInput(code);
       setPromoMessage(
@@ -280,15 +285,20 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     const itemsSummary = (
       appliedPromo ? `${baseItemsSummary} [Promo: ${appliedPromo}]` : baseItemsSummary
     ).slice(0, 1200);
-    const trimmedRef = mfsReference.trim();
-    const combinedAddress =
-      paymentMethod === 'mfs' && trimmedRef
-        ? `${trimmedAddress} [MFS Ref: ${trimmedRef}]`.slice(0, 300)
-        : trimmedAddress.slice(0, 300);
+    const combinedAddress = trimmedAddress.slice(0, 300);
 
     try {
+      if (!checkoutRequestRef.current) {
+        const bytes = crypto.getRandomValues(new Uint8Array(32));
+        checkoutRequestRef.current = { requestId: crypto.randomUUID(),
+          lookupToken: Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('') };
+      }
       const result = await placeStoreOrder({
         orderId,
+        requestId: checkoutRequestRef.current.requestId,
+        lookupToken: checkoutRequestRef.current.lookupToken,
+        promoCode: appliedPromo,
+        items: items.map(i => ({ productId: i.productId, color: i.color, size: i.size, quantity: i.quantity })),
         recipientName: trimmedName,
         recipientPhone: phone.trim(),
         recipientAddress: combinedAddress,
@@ -302,13 +312,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         itemsSummary,
       });
 
+      checkoutRequestRef.current = null;
       setConfirmedOrder({
         orderId: result.orderId,
         consignmentId: result.consignmentId,
         recipientName: trimmedName,
         recipientAddress: combinedAddress,
         division,
-        totalBDT: orderTotal,
+        totalBDT: result.totalBDT ?? orderTotal,
       });
       onClearCart();
       setMfsReference('');
@@ -698,9 +709,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         type="radio"
                         name="pay"
                         checked={paymentMethod === 'mfs'}
+                        disabled
                         onChange={() => setPaymentMethod('mfs')}
                       />
-                      <span>bKash / Nagad</span>
+                      <span>bKash / Nagad (Coming soon)</span>
                     </label>
                   </div>
                   {paymentMethod === 'mfs' && (
@@ -844,12 +856,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 </h4>
                 <p className="text-xs text-[#D8D3C9] leading-relaxed max-w-xs mx-auto mb-4">
                   {language === 'en'
-                    ? `Thank you, ${confirmedOrder.recipientName}. Your consignment has been registered with Pathao Courier for priority delivery to ${confirmedOrder.recipientAddress}, ${confirmedOrder.division}.`
-                    : `ধন্যবাদ, ${confirmedOrder.recipientName}। আপনার পার্সেলটি ${confirmedOrder.recipientAddress}, ${confirmedOrder.division} ঠিকানায় ডেলিভারির জন্য পাঠাও কুরিয়ারে নিবন্ধিত হয়েছে।`}
+                    ? `Thank you, ${confirmedOrder.recipientName}. Your order was received for ${confirmedOrder.recipientAddress}, ${confirmedOrder.division}. Courier booking will be confirmed separately.`
+                    : `ধন্যবাদ, ${confirmedOrder.recipientName}। আপনার অর্ডার গ্রহণ করা হয়েছে। কুরিয়ার বুকিং নিশ্চিত হলে জানানো হবে।`}
                 </p>
 
                 <div className="max-w-xs mx-auto p-3 rounded-xl bg-black/50 border border-white/10 text-[11px] font-mono text-[#D5BA80] mb-6 space-y-1">
-                  <div>Consignment ID: {confirmedOrder.consignmentId}</div>
+                  <div>Dispatch reference: {confirmedOrder.consignmentId}</div>
                   <div className="text-[#77777D] tabular-nums">
                     Total: ৳ {confirmedOrder.totalBDT.toLocaleString()}
                   </div>
@@ -868,8 +880,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <Truck className="w-4 h-4" />
                       <span>
                         {language === 'en'
-                          ? 'Track Delivery with Pathao'
-                          : 'পাঠাও কুরিয়ারে ট্র্যাক করুন'}
+                          ? 'Track Order Status'
+                          : 'অর্ডার স্ট্যাটাস দেখুন'}
                       </span>
                     </button>
                   )}
@@ -979,7 +991,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <div className="flex items-center justify-center gap-2 mt-3 text-[10px] text-[#77777D]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#B69A60]" />
-                <span>Encrypted · Cash on Delivery &amp; MFS Available in BD</span>
+                <span>Cash on Delivery available · Prepaid payments require verification</span>
               </div>
             </div>
           )}
