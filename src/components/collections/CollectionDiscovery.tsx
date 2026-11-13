@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
 import { COLLECTIONS } from '../../data/mockData';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
@@ -21,7 +22,13 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
     <section id="collections" className="scroll-mt-20 py-20 lg:py-28 bg-[#09090B] border-t border-white/5 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#B69A60] mb-2 font-medium">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{t.collections.kicker}</span>
@@ -30,17 +37,22 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
             {t.collections.title}
           </h2>
           <div className="w-24 mx-auto thread-line opacity-50" />
-        </div>
+        </motion.div>
 
         {/* Asymmetrical Collection Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {COLLECTIONS.map((col, idx) => (
-            <div
+            <motion.div
               key={col.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -5 }}
+              viewport={{ once: true, amount: 0.12 }}
+              transition={{ duration: 0.5, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
               onClick={() =>
                 onSelectBrand ? onSelectBrand(col.brandRoute) : onSelectCategory(col.category)
               }
-              className="group relative rounded-xl overflow-hidden bg-[#171719] border border-white/10 hover:border-[#B69A60]/50 transition-all duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl"
+              className="group relative rounded-xl overflow-hidden bg-[#171719] border border-white/10 hover:border-[#B69A60]/50 transition-colors duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl will-change-transform"
             >
               {/* Image with subtle zoom on hover */}
               <img
@@ -85,7 +97,7 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

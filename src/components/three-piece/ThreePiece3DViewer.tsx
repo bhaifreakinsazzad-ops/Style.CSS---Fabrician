@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { motion } from 'motion/react';
 import { Sparkles, ChevronUp, ChevronDown, RotateCcw, Wind } from 'lucide-react';
 import { ThreePieceItem } from '../../data/threePieceCatalog';
+import { createTextileBumpMap } from '../../utils/threeTextiles';
 
 interface ThreePiece3DViewerProps {
   selectedItem: ThreePieceItem;
@@ -261,12 +263,21 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
     rotationGroup.add(baseMesh);
 
     // B. Draped Kameez Front Fabric Mesh with Subdivision for Vertex Wave Physics
+    const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     const fabricTex = createProceduralTexture(selectedItem, activeFinish);
+    fabricTex.anisotropy = maxAniso;
+    const bumpTex = createTextileBumpMap(activeFinish, maxAniso);
+
     const fabricMat = new THREE.MeshPhysicalMaterial({
       map: fabricTex,
-      roughness: activeFinish === 'mirror' ? 0.2 : 0.65,
-      metalness: activeFinish === 'mirror' ? 0.4 : 0.05,
-      clearcoat: activeFinish === 'mirror' ? 0.8 : 0.15,
+      bumpMap: bumpTex,
+      bumpScale: activeFinish === 'mirror' ? 0.028 : 0.016,
+      roughness: activeFinish === 'mirror' ? 0.22 : 0.62,
+      metalness: activeFinish === 'mirror' ? 0.38 : 0.06,
+      clearcoat: activeFinish === 'mirror' ? 0.78 : 0.16,
+      sheen: 0.45,
+      sheenRoughness: 0.5,
+      sheenColor: new THREE.Color(0xd5ba80),
       side: THREE.DoubleSide,
     });
     fabricMaterialRef.current = fabricMat;
@@ -346,9 +357,19 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       isDragging.current = false;
     };
 
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      targetCameraPos.current.z = THREE.MathUtils.clamp(
+        targetCameraPos.current.z + e.deltaY * 0.0022,
+        1.25,
+        3.8
+      );
+    };
+
     const dom = renderer.domElement;
     dom.addEventListener('mousedown', handlePointerDown);
     dom.addEventListener('mousemove', handlePointerMove);
+    dom.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('mouseup', handlePointerUp);
     dom.addEventListener('touchstart', handlePointerDown, { passive: true });
     dom.addEventListener('touchmove', handlePointerMove, { passive: true });
@@ -362,17 +383,35 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
     const originalDupattaPositions = dupattaGeo.attributes.position.clone();
 
     const animate = () => {
-      const elapsedTime = clock.getElapsedTime();
+      const delta = Math.min(clock.getDelta(), 0.05);
+      const elapsedTime = clock.elapsedTime;
       const currentSpeed = waveSpeedRef.current;
 
       // Idle smooth auto-rotation when user is not dragging
       if (!isDragging.current && rotationGroupRef.current) {
-        rotationGroupRef.current.rotation.y += 0.003;
+        rotationGroupRef.current.rotation.y += delta * 0.22;
       }
 
-      // Smooth camera position damping
+      // Frame-rate independent camera damping
       if (cameraRef.current) {
-        cameraRef.current.position.lerp(targetCameraPos.current, 0.05);
+        cameraRef.current.position.x = THREE.MathUtils.damp(
+          cameraRef.current.position.x,
+          targetCameraPos.current.x,
+          6,
+          delta
+        );
+        cameraRef.current.position.y = THREE.MathUtils.damp(
+          cameraRef.current.position.y,
+          targetCameraPos.current.y,
+          6,
+          delta
+        );
+        cameraRef.current.position.z = THREE.MathUtils.damp(
+          cameraRef.current.position.z,
+          targetCameraPos.current.z,
+          6,
+          delta
+        );
       }
 
       // Procedural Fabric Wave Dynamics
@@ -431,6 +470,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       dom.removeEventListener('webglcontextrestored', handleContextRestored);
       dom.removeEventListener('mousedown', handlePointerDown);
       dom.removeEventListener('mousemove', handlePointerMove);
+      dom.removeEventListener('wheel', handleWheel);
       window.removeEventListener('mouseup', handlePointerUp);
       dom.removeEventListener('touchstart', handlePointerDown);
       dom.removeEventListener('touchmove', handlePointerMove);
@@ -446,6 +486,7 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
       baseGeo.dispose();
       shadowGeo.dispose();
       fabricTex.dispose();
+      bumpTex.dispose();
       fabricMat.dispose();
       dupattaMat.dispose();
       torsoMat.dispose();
@@ -557,13 +598,20 @@ export const ThreePiece3DViewer: React.FC<ThreePiece3DViewerProps> = ({
                 <button
                   key={p.id}
                   onClick={() => handleSetPreset(p.id as 'front' | 'macro' | 'shoulder' | 'flat')}
-                  className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                  className={`relative px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                     activeViewPreset === p.id
-                      ? 'bg-[#B69A60] text-[#09090B] font-bold shadow'
+                      ? 'text-[#09090B] font-bold'
                       : 'bg-white/5 text-[#D8D3C9] hover:bg-white/10 border border-white/5'
                   }`}
                 >
-                  {p.label}
+                  {activeViewPreset === p.id && (
+                    <motion.span
+                      layoutId="tp-preset-pill"
+                      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                      className="absolute inset-0 rounded bg-[#B69A60] shadow -z-0"
+                    />
+                  )}
+                  <span className="relative z-10">{p.label}</span>
                 </button>
               ))}
             </div>

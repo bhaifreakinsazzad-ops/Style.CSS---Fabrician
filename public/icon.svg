@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#09090B" />
+  <rect x="28" y="28" width="456" height="456" rx="92" stroke="#B69A60" stroke-opacity="0.35" stroke-width="3" />
+  <g stroke="#D5BA80" stroke-width="2" stroke-opacity="0.25">
+    <path d="M256 54L276 74L256 94L236 74Z" />
+    <path d="M256 418L276 438L256 458L236 438Z" />
+    <path d="M54 256L74 236L94 256L74 276Z" />
+    <path d="M418 256L438 236L458 256L438 276Z" />
+  </g>
+  <defs>
+    <linearGradient id="fabGold" x1="140" y1="100" x2="380" y2="412" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F5E4B7" />
+      <stop offset="48%" stop-color="#D5BA80" />
+      <stop offset="100%" stop-color="#9B7E46" />
+    </linearGradient>
+  </defs>
+  <path
+    d="M174 128H352V162H222V238H324V272H222V384H174V128Z"
+    fill="url(#fabGold)"
+  />
+  <path
+    d="M150 282C186 226 264 202 356 190C312 232 238 264 150 282Z"
+    fill="#B69A60"
+    fill-opacity="0.88"
+  />
+</svg>

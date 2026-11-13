@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Search, ShoppingBag, Heart, Menu, X, Globe, Truck } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { Language } from '../../types';
 import { translations } from '../../data/translations';
+import { PWAInstallButton } from '../pwa/PWAInstallControls';
 
 interface NavbarProps {
   language: Language;
@@ -145,8 +147,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          {/* Zone 3: Primary Actions (Search, Wishlist, Bag, Language Switcher) */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
+          {/* Zone 3: Primary Actions (Install PWA, Track, Language, Search, Wishlist, Bag) */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Compact PWA Install Button */}
+            <PWAInstallButton language={language} variant="compact" className="hidden sm:flex" />
+
             {/* Track Order Trigger */}
             <button
               onClick={onOpenTrackOrder}
@@ -185,23 +190,41 @@ export const Navbar: React.FC<NavbarProps> = ({
               aria-label={t.nav.wishlist}
             >
               <Heart className="w-4 h-4" />
-              {wishlistCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-[#B69A60] text-[#09090B] text-[10px] font-bold rounded-full flex items-center justify-center tabular-nums">
-                  {wishlistCount}
-                </span>
-              )}
+              <AnimatePresence>
+                {wishlistCount > 0 && (
+                  <motion.span
+                    key={wishlistCount}
+                    initial={{ scale: 0.5, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.5, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+                    className="absolute top-1 right-1 w-4 h-4 bg-[#B69A60] text-[#09090B] text-[10px] font-bold rounded-full flex items-center justify-center tabular-nums"
+                  >
+                    {wishlistCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
 
             {/* Bag Trigger */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={onOpenCart}
               className="relative flex items-center gap-2 px-3 py-1.5 bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] transition-colors rounded text-xs font-semibold tracking-wider uppercase cursor-pointer"
               aria-label={t.nav.bag}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">{t.nav.bag}</span>
-              <span className="tabular-nums font-mono font-bold">({cartCount})</span>
-            </button>
+              <motion.span
+                key={cartCount}
+                initial={{ scale: 1.25 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 450, damping: 22 }}
+                className="tabular-nums font-mono font-bold"
+              >
+                ({cartCount})
+              </motion.span>
+            </motion.button>
 
             {/* Mobile Menu Toggle Button */}
             <button
@@ -216,40 +239,52 @@ export const Navbar: React.FC<NavbarProps> = ({
       </header>
 
       {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-30 lg:hidden bg-[#09090B]/98 backdrop-blur-xl flex flex-col pt-24 px-6 pb-8 overflow-y-auto transition-all">
-          {/* Collab Brand Showcases */}
-          <div className="mb-6 pb-6 border-b border-white/10 space-y-3">
-            <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#B69A60]">
-              {language === 'en' ? 'Partner Brand Houses' : 'পার্টনার ব্র্যান্ড শোরুম'}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="fixed inset-0 z-30 lg:hidden bg-[#09090B]/98 backdrop-blur-xl flex flex-col pt-24 px-6 pb-8 overflow-y-auto"
+          >
+            {/* Mobile App Install Prompt */}
+            <div className="mb-5">
+              <PWAInstallButton language={language} variant="drawer" />
             </div>
-            <button
-              onClick={() => handleBrandClick('starkit')}
-              className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
-                viewMode === 'starkit'
-                  ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
-                  : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
-              }`}
-            >
-              <div className="font-serif-luxury text-lg tracking-wider">StarKiT × FABRICIAN</div>
-              <div className="text-[11px] font-mono text-[#D5BA80]">
-                {language === 'en' ? 'Menswear, Panjabis & 11 Graphic Hoodies' : 'মেন্সওয়্যার, পাঞ্জাবি ও ১১টি হুডি'}
+
+            {/* Collab Brand Showcases */}
+            <div className="mb-6 pb-6 border-b border-white/10 space-y-3">
+              <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#B69A60]">
+                {language === 'en' ? 'Partner Brand Houses' : 'পার্টনার ব্র্যান্ড শোরুম'}
               </div>
-            </button>
-            <button
-              onClick={() => handleBrandClick('farizas-territory')}
-              className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
-                viewMode === 'farizas-territory'
-                  ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
-                  : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
-              }`}
-            >
-              <div className="font-serif-luxury text-lg tracking-wider">Fariza&apos;s Territory × FABRICIAN</div>
-              <div className="text-[11px] font-mono text-[#D5BA80]">
-                {language === 'en' ? "Women's Couture & 18 Three-Piece Sets" : 'উইমেনস কুট্যুর ও ১৮টি থ্রি-পিস'}
-              </div>
-            </button>
-          </div>
+              <button
+                onClick={() => handleBrandClick('starkit')}
+                className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
+                  viewMode === 'starkit'
+                    ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
+                    : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
+                }`}
+              >
+                <div className="font-serif-luxury text-lg tracking-wider">StarKiT × FABRICIAN</div>
+                <div className="text-[11px] font-mono text-[#D5BA80]">
+                  {language === 'en' ? 'Menswear, Panjabis & 11 Graphic Hoodies' : 'মেন্সওয়্যার, পাঞ্জাবি ও ১১টি হুডি'}
+                </div>
+              </button>
+              <button
+                onClick={() => handleBrandClick('farizas-territory')}
+                className={`w-full text-left p-3.5 rounded-xl border transition-colors cursor-pointer ${
+                  viewMode === 'farizas-territory'
+                    ? 'bg-[#B69A60]/15 border-[#B69A60] text-[#F5F2EB]'
+                    : 'bg-[#171719] border-white/10 text-[#F5F2EB] hover:border-[#B69A60]/50'
+                }`}
+              >
+                <div className="font-serif-luxury text-lg tracking-wider">Fariza&apos;s Territory × FABRICIAN</div>
+                <div className="text-[11px] font-mono text-[#D5BA80]">
+                  {language === 'en' ? "Women's Couture & 18 Three-Piece Sets" : 'উইমেনস কুট্যুর ও ১৮টি থ্রি-পিস'}
+                </div>
+              </button>
+            </div>
 
           <div className="flex flex-col gap-5 text-lg font-serif-luxury tracking-widest text-[#F5F2EB] border-b border-white/10 pb-8">
             <button
@@ -310,8 +345,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>{t.brand.originBadge}</span>
             <span>{t.brand.origin}</span>
           </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

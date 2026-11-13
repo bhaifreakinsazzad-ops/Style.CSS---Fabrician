@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, ShoppingBag, Check, Eye, ArrowUpRight } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Product, Language, CartItem, BrandPartner } from '../../types';
 import { useStoreData } from '../../context/StoreDataContext';
 import { translations } from '../../data/translations';
@@ -81,13 +82,22 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                 <button
                   key={brandOpt}
                   onClick={() => setActiveBrand(brandOpt)}
-                  className={`px-3 py-1.5 text-xs font-mono rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`relative px-3 py-1.5 text-xs font-mono rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeBrand === brandOpt
-                      ? 'bg-[#B69A60] text-[#09090B] font-semibold'
+                      ? 'text-[#09090B] font-semibold'
                       : 'text-[#D8D3C9] hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {brandOpt === 'All' ? (language === 'en' ? 'All Brands' : 'সব ব্র্যান্ড') : brandOpt}
+                  {activeBrand === brandOpt && (
+                    <motion.span
+                      layoutId="ess-brand-pill"
+                      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                      className="absolute inset-0 rounded-md bg-[#B69A60] -z-0"
+                    />
+                  )}
+                  <span className="relative z-10">
+                    {brandOpt === 'All' ? (language === 'en' ? 'All Brands' : 'সব ব্র্যান্ড') : brandOpt}
+                  </span>
                 </button>
               ))}
             </div>
@@ -98,13 +108,20 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
+                  className={`relative px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap cursor-pointer ${
                     activeCategory === cat
-                      ? 'bg-[#F5F2EB] text-[#09090B] shadow-sm font-semibold'
+                      ? 'text-[#09090B] font-semibold'
                       : 'text-[#D8D3C9] hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {cat === 'All' ? t.essentials.all : cat}
+                  {activeCategory === cat && (
+                    <motion.span
+                      layoutId="ess-cat-pill"
+                      transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                      className="absolute inset-0 rounded-md bg-[#F5F2EB] shadow-sm -z-0"
+                    />
+                  )}
+                  <span className="relative z-10">{cat === 'All' ? t.essentials.all : cat}</span>
                 </button>
               ))}
             </div>
@@ -148,10 +165,13 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
             const isOutOfStock = product.status === 'out_of_stock' || product.stockCount <= 0;
 
             return (
-              <div
+              <motion.div
                 key={product.id}
+                layout
+                whileHover={{ y: -4 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 26 }}
                 onClick={() => onQuickView(product)}
-                className="group relative bg-[#171719] border border-white/10 hover:border-white/20 rounded-xl overflow-hidden transition-all duration-300 flex flex-col justify-between cursor-pointer"
+                className="group relative bg-[#171719] border border-white/10 hover:border-[#B69A60]/35 rounded-xl overflow-hidden transition-colors duration-300 flex flex-col justify-between cursor-pointer will-change-transform"
               >
                 {/* Product Image Stage */}
                 <div className="relative aspect-[3/4] overflow-hidden bg-black/40">
@@ -293,7 +313,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

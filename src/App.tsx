@@ -1,8 +1,10 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import { MotionConfig, motion, useScroll, useSpring } from 'motion/react';
 import { Language, CartItem, Product } from './types';
 import { FASHION_LOOKS } from './data/mockData';
 import { ThreePieceItem } from './data/threePieceCatalog';
 import { useStoreData } from './context/StoreDataContext';
+import { OfflineIndicator } from './components/pwa/PWAInstallControls';
 import { Navbar } from './components/navigation/Navbar';
 import { CinematicHero } from './components/hero/CinematicHero';
 import { InteractiveLookbook } from './components/lookbook/InteractiveLookbook';
@@ -54,6 +56,8 @@ function readStoredJson<T>(key: string, fallback: T): T {
 
 export default function App() {
   const { storeSettings } = useStoreData();
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 220, damping: 30, restDelta: 0.001 });
   const [viewMode, setViewMode] = useState<AppViewMode>(() => getViewModeFromHash());
   const [language, setLanguage] = useState<Language>(() => {
     try {
@@ -237,11 +241,21 @@ export default function App() {
   }
 
   return (
-    <div
-      className={`min-h-screen bg-[#09090B] text-[#F5F2EB] ${
-        language === 'bn' ? 'font-bengali' : 'font-sans-modern'
-      }`}
-    >
+    <MotionConfig reducedMotion="user">
+      <div
+        className={`min-h-screen bg-[#09090B] text-[#F5F2EB] ${
+          language === 'bn' ? 'font-bengali' : 'font-sans-modern'
+        }`}
+      >
+        {/* Scroll-linked Gold Atelier Thread Indicator */}
+        <motion.div
+          aria-hidden="true"
+          style={{ scaleX }}
+          className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#B69A60] via-[#F5E4B7] to-[#B69A60] origin-left z-50 pointer-events-none"
+        />
+
+        {/* PWA Offline Notice */}
+        <OfflineIndicator language={language} />
       {storeSettings.announcementEnabled &&
         (language === 'en'
           ? storeSettings.announcementTextEn
@@ -438,6 +452,7 @@ export default function App() {
         language={language}
         initialOrderId={trackOrderId}
       />
-    </div>
+      </div>
+    </MotionConfig>
   );
 }

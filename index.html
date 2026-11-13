@@ -2,16 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>FABRICIAN — The Intelligent Fashion Universe | Made in Bangladesh</title>
     <meta name="description" content="Luxury AI-inspired interactive fashion brand from Bangladesh. Contemporary tailoring, interactive model lookbook, and crafted heritage." />
-    <link rel="icon" type="image/png" href="/assets/aistudio/Untitled_design_a468bd14.png" />
+
+    <!-- Progressive Web App & Platform Icons -->
+    <meta name="theme-color" content="#09090B" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FABRICIAN" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Social OpenGraph & Twitter Cards -->
     <meta property="og:title" content="FABRICIAN — The Intelligent Fashion Universe" />
     <meta property="og:description" content="Contemporary fashion. Intelligent expression. Made in Bangladesh." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/assets/aistudio/Untitled_design_a468bd14.png" />
+    <meta property="og:image" content="/pwa-512x512.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="/assets/aistudio/Untitled_design_a468bd14.png" />
+    <meta name="twitter:image" content="/pwa-512x512.png" />
+
+    <!-- Preload Optimized LCP Hero Campaign Visual -->
+    <link rel="preload" as="image" type="image/webp" href="/assets/hero-campaign-1920.webp" media="(min-width: 768px)" />
+    <link rel="preload" as="image" type="image/webp" href="/assets/hero-campaign-960.webp" media="(max-width: 767px)" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Bengali:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -21,4 +37,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

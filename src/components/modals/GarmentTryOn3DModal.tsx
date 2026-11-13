@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { motion } from 'motion/react';
 import { 
   X, 
   RotateCcw, 
@@ -12,6 +13,7 @@ import {
   Check
 } from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
+import { createTextileBumpMap } from '../../utils/threeTextiles';
 
 interface GarmentTryOn3DModalProps {
   product: Product | null;
@@ -301,14 +303,22 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     rotationGroup.add(garmentGroup);
     garmentGroupRef.current = garmentGroup;
 
+    const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
     const fabricTex = createProductTexture(product, fabricWeave);
+    fabricTex.anisotropy = maxAniso;
+    const bumpTex = createTextileBumpMap(fabricWeave, maxAniso);
     const isLustrous = fabricWeave === 'silk' || fabricWeave === 'brocade';
 
     const garmentMat = new THREE.MeshPhysicalMaterial({
       map: fabricTex,
+      bumpMap: bumpTex,
+      bumpScale: isLustrous ? 0.024 : 0.015,
       roughness: isLustrous ? 0.25 : 0.65,
       metalness: isLustrous ? 0.35 : 0.05,
       clearcoat: isLustrous ? 0.75 : 0.1,
+      sheen: 0.45,
+      sheenRoughness: 0.5,
+      sheenColor: new THREE.Color(0xd5ba80),
       side: THREE.DoubleSide,
     });
 
@@ -407,9 +417,19 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       isDragging.current = false;
     };
 
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      targetCameraPos.current.z = THREE.MathUtils.clamp(
+        targetCameraPos.current.z + e.deltaY * 0.0022,
+        1.25,
+        4.0
+      );
+    };
+
     const dom = renderer.domElement;
     dom.addEventListener('mousedown', handlePointerDown);
     dom.addEventListener('mousemove', handlePointerMove);
+    dom.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('mouseup', handlePointerUp);
     dom.addEventListener('touchstart', handlePointerDown, { passive: true });
     dom.addEventListener('touchmove', handlePointerMove, { passive: true });
@@ -422,15 +442,33 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
     const originalDupattaPos = dupattaGeo ? dupattaGeo.attributes.position.clone() : null;
 
     const animate = () => {
-      const elapsedTime = clock.getElapsedTime();
+      const delta = Math.min(clock.getDelta(), 0.05);
+      const elapsedTime = clock.elapsedTime;
       const currentSpeed = waveSpeedRef.current;
 
       if (cameraRef.current) {
-        cameraRef.current.position.lerp(targetCameraPos.current, 0.06);
+        cameraRef.current.position.x = THREE.MathUtils.damp(
+          cameraRef.current.position.x,
+          targetCameraPos.current.x,
+          6,
+          delta
+        );
+        cameraRef.current.position.y = THREE.MathUtils.damp(
+          cameraRef.current.position.y,
+          targetCameraPos.current.y,
+          6,
+          delta
+        );
+        cameraRef.current.position.z = THREE.MathUtils.damp(
+          cameraRef.current.position.z,
+          targetCameraPos.current.z,
+          6,
+          delta
+        );
       }
 
       if (!isDragging.current && rotationGroupRef.current) {
-        rotationGroupRef.current.rotation.y += 0.0025;
+        rotationGroupRef.current.rotation.y += delta * 0.2;
       }
 
       if (fabricMeshRef.current) {
@@ -487,6 +525,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       dom.removeEventListener('webglcontextrestored', handleContextRestored);
       dom.removeEventListener('mousedown', handlePointerDown);
       dom.removeEventListener('mousemove', handlePointerMove);
+      dom.removeEventListener('wheel', handleWheel);
       window.removeEventListener('mouseup', handlePointerUp);
       dom.removeEventListener('touchstart', handlePointerDown);
       dom.removeEventListener('touchmove', handlePointerMove);
@@ -504,6 +543,7 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
       shadowGeo.dispose();
       collarGeo.dispose();
       fabricTex.dispose();
+      bumpTex.dispose();
       garmentMat.dispose();
       if (dupattaMat) dupattaMat.dispose();
       mannequinMat.dispose();
@@ -696,13 +736,20 @@ export const GarmentTryOn3DModal: React.FC<GarmentTryOn3DModalProps> = ({
                     <button
                       key={p.id}
                       onClick={() => handleSetPreset(p.id as 'full' | 'collar' | 'shoulder' | 'side')}
-                      className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
+                      className={`relative px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer ${
                         activePreset === p.id
-                          ? 'bg-[#B69A60] text-[#09090B] font-bold shadow'
+                          ? 'text-[#09090B] font-bold'
                           : 'bg-white/5 text-[#D8D3C9] hover:bg-white/10 border border-white/5'
                       }`}
                     >
-                      {p.label}
+                      {activePreset === p.id && (
+                        <motion.span
+                          layoutId="tryon-preset-pill"
+                          transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                          className="absolute inset-0 rounded bg-[#B69A60] shadow -z-0"
+                        />
+                      )}
+                      <span className="relative z-10">{p.label}</span>
                     </button>
                   ))}
                 </div>

@@ -12,6 +12,7 @@ import {
   Layers, 
   ShieldCheck
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { FashionLook, Language, CartItem, LookGarment } from '../../types';
 import { translations } from '../../data/translations';
 import { SizeGuideModal } from '../modals/SizeGuideModal';
@@ -375,26 +376,32 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
                             </button>
 
                             {/* Floating Tooltip Card */}
-                            {(hoveredHotspot?.id === garment.id || isSelected) && (
-                              <div
-                                className={`hidden sm:block absolute top-1/2 -translate-y-1/2 w-52 p-3 rounded-xl bg-black/95 border border-[#B69A60]/40 shadow-2xl text-left pointer-events-none z-40 animate-fadeIn ${
-                                  hotspot.x > 60 ? 'right-9' : 'left-9'
-                                }`}
-                              >
-                                <span className="text-[10px] font-mono text-[#B69A60] uppercase tracking-wider block mb-0.5">
-                                  {garment.type}
-                                </span>
-                                <h5 className="font-serif-luxury text-sm text-[#F5F2EB] font-medium leading-tight">
-                                  {language === 'en' ? garment.nameEn : garment.nameBn}
-                                </h5>
-                                <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-white/10 font-mono text-xs">
-                                  <span className="text-[#D5BA80] font-semibold tabular-nums">
-                                    ৳ {garment.priceBDT.toLocaleString()}
+                            <AnimatePresence>
+                              {(hoveredHotspot?.id === garment.id || isSelected) && (
+                                <motion.div
+                                  initial={{ opacity: 0, scale: 0.94, y: 6 }}
+                                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                                  exit={{ opacity: 0, scale: 0.94, y: 6 }}
+                                  transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+                                  className={`hidden sm:block absolute top-1/2 -translate-y-1/2 w-52 p-3 rounded-xl bg-black/95 border border-[#B69A60]/40 shadow-2xl text-left pointer-events-none z-40 ${
+                                    hotspot.x > 60 ? 'right-9' : 'left-9'
+                                  }`}
+                                >
+                                  <span className="text-[10px] font-mono text-[#B69A60] uppercase tracking-wider block mb-0.5">
+                                    {garment.type}
                                   </span>
-                                  <span className="text-[10px] text-[#77777D] truncate max-w-[95px]">{garment.fabric}</span>
-                                </div>
-                              </div>
-                            )}
+                                  <h5 className="font-serif-luxury text-sm text-[#F5F2EB] font-medium leading-tight">
+                                    {language === 'en' ? garment.nameEn : garment.nameBn}
+                                  </h5>
+                                  <div className="flex items-center justify-between mt-2 pt-1.5 border-t border-white/10 font-mono text-xs">
+                                    <span className="text-[#D5BA80] font-semibold tabular-nums">
+                                      ৳ {garment.priceBDT.toLocaleString()}
+                                    </span>
+                                    <span className="text-[10px] text-[#77777D] truncate max-w-[95px]">{garment.fabric}</span>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
                           </div>
                         </div>
                       );
