@@ -35,7 +35,7 @@ export interface PathaoTrackingData {
   recipientPhone: string;
   recipientAddress: string;
   hubLocation: string;
-  courierPartner: 'Pathao Courier';
+  courierPartner: 'Pathao Courier' | 'Fabrician Fulfillment';
   riderName?: string;
   riderPhone?: string;
   paymentType: 'Cash on Delivery (COD)' | 'Prepaid via MFS (bKash/Nagad)';
@@ -48,7 +48,7 @@ export interface PathaoTrackingData {
 // Default Configuration (Ready for live access token)
 export const pathaoConfig: PathaoCourierConfig = {
   baseUrl: 'https://api-hermes.pathao.com/aladdin/api/v1',
-  accessToken: import.meta.env?.VITE_PATHAO_ACCESS_TOKEN || '',
+  accessToken: '', // Merchant secrets must only exist server-side
   isSandbox: false,
 };
 
@@ -233,6 +233,31 @@ export async function trackPathaoOrder(
   const token = userToken || pathaoConfig.accessToken;
   const cleanId = orderIdOrConsignment.trim().toUpperCase();
 
+  if (import.meta.env.VITE_COMMERCE_BACKEND === 'supabase') {
+    const lookupToken = localStorage.getItem(`fabrician_order_lookup_${cleanId}`);
+    if (!lookupToken) throw new Error('ORDER_NOT_FOUND');
+    const response = await fetch('/api/order-status', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: cleanId, lookupToken }),
+    });
+    if (!response.ok) throw new Error(response.status === 404 ? 'ORDER_NOT_FOUND' : 'TRACKING_UNAVAILABLE');
+    const data = await response.json();
+    const statusMap: Record<string, PathaoDeliveryStatus> = {
+      pending: 'Pending', confirmed: 'Pending', packed: 'Picked', shipped: 'In_Transit',
+      delivered: 'Delivered', cancelled: 'Returned', returned: 'Returned',
+    };
+    const status = statusMap[data.status] || 'Pending';
+    return {
+      orderId: data.orderId, consignmentId: data.consignmentId || 'Awaiting courier booking',
+      recipientName: 'Fabrician customer', recipientPhone: '', recipientAddress: '',
+      courierPartner: 'Fabrician Fulfillment', hubLocation: 'Awaiting dispatch',
+      paymentType: 'Cash on Delivery (COD)', amountToCollectBDT: data.totalBDT,
+      currentStatus: status, estimatedDelivery: 'Awaiting confirmation',
+      timeline: [{ time: data.updatedAt, status: status.replace(/_/g, ' '),
+        location: 'Fabrician dispatch', note: 'Store-reported status; courier status appears after booking.' }],
+    };
+  }
+
   // If a live token is set, attempt live Hermes Pathao API call
   if (token) {
     try {
@@ -325,7 +350,7 @@ export async function trackPathaoOrder(
   }
 
   // Check known sample records
-  if (MOCK_PATHAO_ORDERS[cleanId]) {
+  if (import.meta.env.DEV && MOCK_PATHAO_ORDERS[cleanId]) {
     return MOCK_PATHAO_ORDERS[cleanId];
   }
 

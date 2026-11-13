@@ -17,7 +17,6 @@ import { Product, Language, CartItem } from '../../types';
 import { translations } from '../../data/translations';
 import { SizeGuideModal } from './SizeGuideModal';
 import { ProductReviewsModule } from '../reviews/ProductReviewsModule';
-import { INITIAL_REVIEWS } from '../../data/mockReviews';
 import { useStoreData } from '../../context/StoreDataContext';
 import { StoreReview } from '../../types/store';
 import { isStarKiTProduct, trackStarKiTViewContent } from '../../services/metaPixel';
@@ -44,15 +43,12 @@ function getReviewSummary(
   const firestoreRatings = approvedReviews
     .filter((r) => r.productId === productId)
     .map((r) => r.rating);
-  const seedRatings = (INITIAL_REVIEWS[productId] || INITIAL_REVIEWS['default']).map(
-    (r) => r.rating
-  );
-  const allRatings = [...firestoreRatings, ...seedRatings];
+  const allRatings = firestoreRatings;
   const count = allRatings.length;
   const avg =
     count > 0
       ? (allRatings.reduce((acc, r) => acc + r, 0) / count).toFixed(1)
-      : '5.0';
+      : '0.0';
   return { avg, count };
 }
 

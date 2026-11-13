@@ -53,6 +53,14 @@ function resolveGraphicStyleTag(
   return 'urban';
 }
 
+const USE_SUPABASE_COMMERCE = import.meta.env.VITE_COMMERCE_BACKEND === 'supabase';
+
+type SupabaseVariant = { sku: string; product_id: string; color: string; size: string; price_bdt: number; stock_count: number };
+type SupabaseProduct = {
+  id: string; brand: string; nameEn: string; nameBn: string; category: string;
+  image: string; status: 'active'; variants: SupabaseVariant[];
+};
+
 const CURATED_SIGNATURE_IDS = new Set([
   'FAB-H001',
   'FAB-H003',
@@ -93,8 +101,66 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
   const [catalogOverrides, setCatalogOverrides] = useState<Record<string, CatalogOverride>>({});
   const [approvedReviews, setApprovedReviews] = useState<StoreReview[]>([]);
+  const [supabaseVariants, setSupabaseVariants] = useState<Record<string, SupabaseVariant>>({});
 
   useEffect(() => {
+    if (!USE_SUPABASE_COMMERCE) return;
+    let cancelled = false;
+    const loadCatalog = async () => {
+      try {
+        const response = await fetch('/api/catalog', { cache: 'no-store' });
+        if (!response.ok) throw new Error('CATALOG_UNAVAILABLE');
+        const payload = await response.json() as {
+          products?: SupabaseProduct[];
+          settings?: Partial<StoreSettings> | null;
+        };
+        if (!Array.isArray(payload.products)) throw new Error('INVALID_CATALOG');
+        const next: Record<string, CatalogOverride> = {};
+        const variants: Record<string, SupabaseVariant> = {};
+        for (const product of payload.products) {
+          const isThreePiece = THREE_PIECE_CATALOG.some(p => p.id === product.id);
+          const isHoodie = GRAPHIC_ARCHIVE_PRODUCTS.some(p => p.id === product.id);
+          if ((!isThreePiece && !isHoodie) || !Array.isArray(product.variants)) continue;
+          const usable = product.variants.filter(v => Number.isInteger(v.price_bdt) && v.price_bdt > 0 &&
+            Number.isInteger(v.stock_count) && v.stock_count >= 0);
+          if (usable.length === 0) continue;
+          for (const variant of usable) variants[variant.sku] = variant;
+          const stock = usable.reduce((sum, v) => sum + v.stock_count, 0);
+          next[product.id] = {
+            id: product.id,
+            sourceCatalog: isThreePiece ? 'three-piece' : 'graphic-archive',
+            brand: isThreePiece ? "Fariza's Territory" : 'StarKiT',
+            nameEn: product.nameEn,
+            nameBn: product.nameBn,
+            category: isThreePiece ? 'Women' : 'Streetwear',
+            collection: product.category,
+            priceBDT: Math.min(...usable.map(v => v.price_bdt)),
+            stockCount: stock,
+            status: stock > 0 ? 'active' : 'out_of_stock',
+            image: product.image,
+          };
+        }
+        if (cancelled) return;
+        setCatalogOverrides(next);
+        setSupabaseVariants(variants);
+        if (payload.settings) setStoreSettings(prev => ({ ...prev, ...payload.settings }));
+      } catch {
+        // Fail closed: remove all published catalog items when cloud data cannot be read.
+        if (!cancelled) { setCatalogOverrides({}); setSupabaseVariants({}); }
+      }
+    };
+    void loadCatalog();
+    const interval = window.setInterval(() => void loadCatalog(), 60000);
+    return () => { cancelled = true; window.clearInterval(interval); };
+  }, []);
+
+
+  useEffect(() => {
+    if (USE_SUPABASE_COMMERCE) {
+      // Legacy Firebase admin console must not mutate a Supabase-only store.
+      setAuthInitialized(true);
+      return;
+    }
     if (!auth || !db) {
       setAuthInitialized(true);
       return;
@@ -355,8 +421,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isNew: ov?.isNew,
         isBestseller: ov?.isBestseller,
         styleTag: resolveThreePieceStyleTag(tp.subCollection),
-        stockCount: ov ? ov.stockCount : 14,
-        status: ov ? ov.status : 'active',
+        stockCount: ov ? ov.stockCount : USE_SUPABASE_COMMERCE ? 0 : 14,
+        status: ov ? ov.status : USE_SUPABASE_COMMERCE ? 'hidden' : 'active',
         sourceCatalog: 'three-piece',
         hasOverride: Boolean(ov),
       };
@@ -384,8 +450,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         isNew: ov?.isNew,
         isBestseller: ov?.isBestseller,
         styleTag: resolveGraphicStyleTag(ga.category),
-        stockCount: ov ? ov.stockCount : 24,
-        status: ov ? ov.status : 'active',
+        stockCount: ov ? ov.stockCount : USE_SUPABASE_COMMERCE ? 0 : 24,
+        status: ov ? ov.status : USE_SUPABASE_COMMERCE ? 'hidden' : 'active',
         sourceCatalog: 'graphic-archive',
         hasOverride: Boolean(ov),
       };
@@ -433,7 +499,9 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       unifiedCatalog.filter(
         (p) =>
           (p.sourceCatalog === 'custom' || CURATED_SIGNATURE_IDS.has(p.id)) &&
-          p.status !== 'hidden'
+          p.status !== 'hidden' &&
+          (p.sourceCatalog !== 'graphic-archive' || GRAPHIC_ARCHIVE_PRODUCTS.some(g =>
+            g.id === p.id && g.status === 'APPROVED' && !g.isLicensingRequired))
       ),
     [unifiedCatalog]
   );
@@ -450,8 +518,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           flatLayImage: ov?.image || tp.flatLayImage,
           fabric: ov?.fabricEn || tp.fabric,
           priceBDT: ov ? ov.priceBDT : tp.priceBDT,
-          stockCount: ov ? ov.stockCount : 14,
-          status: ov ? ov.status : 'active',
+          stockCount: ov ? ov.stockCount : USE_SUPABASE_COMMERCE ? 0 : 14,
+          status: ov ? ov.status : USE_SUPABASE_COMMERCE ? 'hidden' : 'active',
         };
       }).filter((item) => item.status !== 'hidden'),
     [catalogOverrides]
@@ -466,16 +534,21 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           brand: ov?.brand || ga.brand || 'StarKiT',
           name: ov?.nameEn ? ov.nameEn.replace(/\s+Hoodie$/i, '') : ga.name,
           basePrice: ov ? ov.priceBDT : ga.basePrice,
-          variants: ga.variants.map((v, idx) => ({
+          variants: ga.variants.filter(v => !USE_SUPABASE_COMMERCE ||
+            ['M', 'L', 'XL'].some(size => Boolean(supabaseVariants[`${v.sku}-${size}`]))
+          ).map((v, idx) => ({
             ...v,
-            priceBdt: ov ? ov.priceBDT : v.priceBdt,
+            priceBdt: USE_SUPABASE_COMMERCE
+              ? (['M', 'L', 'XL'].map(size => supabaseVariants[`${v.sku}-${size}`])
+                  .find(Boolean)?.price_bdt ?? v.priceBdt)
+              : ov ? ov.priceBDT : v.priceBdt,
             previewImage: idx === 0 && ov?.image ? ov.image : v.previewImage,
           })),
-          stockCount: ov ? ov.stockCount : 24,
-          catalogStatus: ov ? ov.status : 'active',
+          stockCount: ov ? ov.stockCount : USE_SUPABASE_COMMERCE ? 0 : 24,
+          catalogStatus: ov ? ov.status : USE_SUPABASE_COMMERCE ? 'hidden' : 'active',
         };
-      }).filter((item) => item.catalogStatus !== 'hidden'),
-    [catalogOverrides]
+      }).filter((item) => item.catalogStatus !== 'hidden' && item.status === 'APPROVED' && !item.isLicensingRequired),
+    [catalogOverrides, supabaseVariants]
   );
 
   const value: StoreDataContextValue = {

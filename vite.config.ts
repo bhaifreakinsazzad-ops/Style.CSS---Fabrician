@@ -69,21 +69,21 @@ export default defineConfig(() => {
               name: "Fariza's Territory — Women's Couture",
               short_name: "Fariza's Edit",
               description: "Explore all 18 curated women's three-piece designs",
-              url: '/#farizas-territory',
+              url: '/farizas-territory',
               icons: [{ src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
             {
               name: 'StarKiT — Menswear & Hoodies',
               short_name: 'StarKiT',
               description: 'Explore 11 graphic archive 330–350 GSM brushed fleece hoodies',
-              url: '/#starkit',
+              url: '/starkit',
               icons: [{ src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
             {
               name: 'Store Admin Console',
               short_name: 'Admin Console',
               description: 'Manage orders, Pathao dispatch, and live inventory',
-              url: '/#admin',
+              url: '/admin',
               icons: [{ src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png' }],
             },
           ],
@@ -93,7 +93,7 @@ export default defineConfig(() => {
           clientsClaim: true,
           skipWaiting: true,
           maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+          globPatterns: ['**/*.{js,css,html,ico,svg,woff2}'],
           globIgnores: [
             '**/assets/aistudio/**/*.pdf',
             '**/assets/aistudio/**/*.mp4',
@@ -107,7 +107,7 @@ export default defineConfig(() => {
             '**/assets/aistudio/test_page_*',
           ],
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/__\/auth/, /^\/__\/firebase/],
+          navigateFallbackDenylist: [/^\/api\//, /^\/__\/auth/, /^\/__\/firebase/],
           runtimeCaching: [
             {
               urlPattern: ({ url }) =>

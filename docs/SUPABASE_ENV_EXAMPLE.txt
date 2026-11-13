@@ -1,0 +1,8 @@
+# Production commerce: ONLY enable after Supabase migration and stock/rights approval.
+# Vercel server-only (never VITE_ prefix):
+# SUPABASE_URL=https://<dedicated-fabrician-project>.supabase.co
+# SUPABASE_SERVICE_ROLE_KEY=<secret - NEVER COMMIT>
+# Browser build flag, set only after end-to-end verification:
+# VITE_COMMERCE_BACKEND=supabase
+
+# Legacy Firebase variables continue until cutover and backup is confirmed.

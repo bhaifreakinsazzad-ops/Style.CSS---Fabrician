@@ -70,6 +70,7 @@ function readStoredJson<T>(key: string, fallback: T): T {
 
 export default function App() {
   const { storeSettings, unifiedCatalog } = useStoreData();
+  const useSupabaseCommerce = import.meta.env.VITE_COMMERCE_BACKEND === 'supabase';
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 220, damping: 30, restDelta: 0.001 });
   const [viewMode, setViewMode] = useState<AppViewMode>(() => getViewModeFromLocation());
@@ -201,12 +202,20 @@ export default function App() {
   };
 
   const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
+    if (useSupabaseCommerce) {
+      const published = unifiedCatalog.find(p => p.id === item.productId);
+      if (!published || published.status !== 'active' || published.stockCount <= 0) return;
+    }
     upsertCartItem(item);
     setCartInitialStep('cart');
     setIsCartOpen(true);
   };
 
   const handleBuyNow = (item: Omit<CartItem, 'id'>) => {
+    if (useSupabaseCommerce) {
+      const published = unifiedCatalog.find(p => p.id === item.productId);
+      if (!published || published.status !== 'active' || published.stockCount <= 0) return;
+    }
     upsertCartItem(item);
     setCartInitialStep('checkout');
     setIsCartOpen(true);
@@ -290,6 +299,17 @@ export default function App() {
       : 0;
   const bagNetSubtotal = Math.max(0, bagSubtotal - bagDiscount);
 
+  if (viewMode === 'admin' && useSupabaseCommerce) {
+    return (
+      <div className="min-h-screen bg-[#09090B] text-[#F5F2EB] flex items-center justify-center p-6">
+        <div className="max-w-xl text-center space-y-5">
+          <h1 className="font-serif-luxury text-3xl">Supabase Commerce Administration</h1>
+          <p>During database migration, manage products, inventory, and orders from your authenticated Supabase dashboard. The legacy Firebase admin console is disabled for Supabase checkout.</p>
+          <button className="px-5 py-3 border border-white/30 rounded" onClick={navigateToStore}>Return to store</button>
+        </div>
+      </div>
+    );
+  }
   if (viewMode === 'admin') {
     return (
       <Suspense
