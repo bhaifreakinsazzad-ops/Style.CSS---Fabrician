@@ -1,0 +1,1138 @@
+# FABRICIAN — ULTIMATE E-COMMERCE BUILD & CATALOG INTEGRATION MASTER PROMPT
+
+## YOUR ROLE
+
+Act as an elite multidisciplinary team consisting of:
+
+- Senior E-Commerce Solutions Architect
+- Principal Full-Stack Engineer
+- Award-Winning UI/UX Designer
+- Premium Fashion Brand Creative Director
+- Conversion Rate Optimization Specialist
+- Motion Design & Interaction Engineer
+- E-Commerce Database Architect
+- Technical SEO & Performance Engineer
+- Quality Assurance & Deployment Specialist
+
+Your mission is to transform my **EXISTING FABRICIAN e-commerce project** into a fully functional, premium, visually distinctive, conversion-optimized online fashion store by integrating the complete attached product catalog.
+
+**IMPORTANT: THIS IS AN IMPLEMENTATION TASK, NOT A WEBSITE CONCEPT OR DESIGN PROPOSAL.**
+
+Inspect the existing application, understand its architecture, and implement the requirements directly into the current project.
+
+Do not create a disconnected second website, replace working infrastructure unnecessarily, or provide only mockups.
+
+---
+
+# PHASE 01 — PROJECT INTELLIGENCE & SOURCE ANALYSIS
+
+## 1.1 Inspect the Existing Store
+
+Before changing anything:
+
+1. Analyze the current project structure.
+2. Identify the frontend framework and backend.
+3. Inspect the database schema.
+4. Identify the existing product and order models.
+5. Inspect authentication, cart, and checkout functionality.
+6. Identify the existing design system.
+7. Inspect available environment variables and integrations without exposing secrets.
+8. Identify current deployment configuration.
+9. Check mobile responsiveness and performance.
+10. Identify functionality that must be preserved.
+
+Create a lightweight implementation checklist based on the actual project.
+
+**Preserve all existing functional components unless modification is necessary.**
+
+Use the existing technology stack whenever technically feasible.
+
+Do not introduce unnecessary dependencies, expensive third-party services, or incompatible architectural changes.
+
+## 1.2 Analyze All Uploaded Catalog Files
+
+The attached package contains:
+
+- `Fabrician_Premium_Master_Catalog_2026.pdf`
+- `Fabrician_Master_Product_Database.xlsx`
+- `Fabrician_Product_Knowledge_Base.json`
+- `Fabrician_Product_Variants.csv`
+- `IMAGE_ASSET_MAP.csv`
+- `START_HERE_BN.md`
+- `assets/` containing 13 original reference images
+
+Read and understand all available sources.
+
+Use the following source hierarchy:
+
+1. JSON: normalized product information and descriptions.
+2. Excel: pricing, operational records, editable assumptions, and launch checks.
+3. CSV: product variant data and SKU mapping.
+4. IMAGE_ASSET_MAP.csv: authoritative mapping between products and image filenames.
+5. Original image assets: visual source material.
+6. PDF: brand presentation, visual direction, and customer-facing catalog structure.
+7. START_HERE_BN.md: operational instructions and unresolved launch requirements.
+
+If two sources conflict, do not silently choose an arbitrary value. Check the source context, preserve confirmed data, and flag unresolved differences.
+
+Distinguish confirmed product data, proposed commercial terms, illustrative costs, and unverified supplier claims.
+
+Do not interpret illustrative production costs as actual supplier quotations.
+
+---
+
+# PHASE 02 — PRODUCT DATABASE & COMPLETE CATALOG IMPORT
+
+## 2.1 Product Import Requirements
+
+Import all:
+
+**11 unique product designs and 15 SKU-level color variants.**
+
+Reference product information:
+
+| Product ID | Product Name | Colors | Selling Price |
+|---|---|---|---|
+| FAB-H001 | Naruto Legacy | Cream, Black | BDT 1,590 |
+| FAB-H002 | Peace Bro Cat | Black | BDT 1,290 |
+| FAB-H003 | Folk Art Bus | Black | BDT 1,390 |
+| FAB-H004 | Royal Enfield Rider | Maroon | BDT 1,690 |
+| FAB-H005 | One Punch Moon | Black | BDT 1,590 |
+| FAB-H006 | Bangla Cinema | Black | BDT 1,490 |
+| FAB-H007 | Aesthetic Dhaka | Chocolate Brown | BDT 1,490 |
+| FAB-H008 | Student Movement Emblem | Black, Maroon, Chocolate Brown, Cream | BDT 1,390 |
+| FAB-H009 | Rickshaw Bloom | Black | BDT 1,490 |
+| FAB-H010 | Tom & Jerry Cheese Club | Black | BDT 1,390 |
+| FAB-H011 | Hot Wheels Night Circuit | Black | BDT 1,590 |
+
+Use exact variant-level SKUs from the uploaded database.
+
+All prices must be stored numerically in BDT.
+
+Do not invent additional colors, sizes, product specifications, inventory quantities, or price reductions.
+
+## 2.2 Database Requirements
+
+Reuse the existing data model where possible.
+
+Each product should support:
+
+- Unique product ID
+- Product name
+- SEO-friendly URL slug
+- Category and collection
+- Description in Bangla
+- Description in English
+- Current selling price
+- Currency
+- Color variants
+- Size variants, when verified
+- Product images
+- Front and back visual references
+- Feature highlights
+- Fabric information
+- GSM information
+- Fit information
+- SKU
+- Inventory quantity
+- Stock status
+- Product tags
+- SEO metadata
+- Related products
+- Featured status
+- Product publication status
+- Commercial artwork rights status
+- Product verification status
+- Creation and update timestamps
+
+Implement a relational or platform-native product/variant structure, depending on the existing store.
+
+Preserve original SKU identifiers.
+
+The import must be repeatable without creating duplicate products.
+
+Implement upsert behavior using unique IDs or SKUs.
+
+Provide a product import report showing created, updated, skipped, and failed records.
+
+## 2.3 Product Status & Publication Safety
+
+Every imported product must initially retain its existing draft or unverified status.
+
+Implement publication states such as:
+
+- Draft
+- Pending Verification
+- Ready for Publishing
+- Published
+- Archived
+
+Treat rights verification, stock confirmation, and product authenticity as separate requirements.
+
+Products featuring third-party anime characters, cartoon characters, corporate logos, identifiable actor artwork, or organizational emblems must not be publicly sold or promoted until the required commercial rights are verified.
+
+This applies to Naruto, One Punch Man, Royal Enfield, Tom & Jerry, Hot Wheels, and the organization-branded designs.
+
+Other designs also require artwork ownership verification before commercial publication.
+
+The product database should contain all imported products, but the public store must display only products explicitly approved for publication.
+
+Do not automatically activate any product that is still marked unverified.
+
+---
+
+# PHASE 03 — PREMIUM FABRICIAN BRAND EXPERIENCE
+
+## 3.1 Brand Positioning
+
+Brand name: **FABRICIAN**
+
+Collection name: **DROP 01 / THE GRAPHIC ARCHIVE**
+
+Brand direction:
+
+Premium Streetwear × Contemporary Minimalism × Cultural Storytelling.
+
+Create a fashion-forward shopping experience that feels like a premium independent streetwear brand, not a generic marketplace template.
+
+Visual characteristics:
+
+- Premium editorial layouts
+- Confident, oversized typography
+- Refined visual hierarchy
+- High-quality product imagery
+- Strong whitespace management
+- Immersive visual storytelling
+- Restrained visual effects
+- Smooth transitions
+- Elegant micro-interactions
+- Clean, conversion-focused components
+
+## 3.2 Suggested Design Tokens
+
+Use these as a starting direction, but adapt them intelligently to the existing brand identity.
+
+Primary background: `#F6F3EE`
+
+Primary text: `#151515`
+
+Secondary surface: `#FFFFFF`
+
+Muted text: `#777570`
+
+Borders: `#E7E2DA`
+
+Primary accent: `#8E2228`
+
+Contrast surface: `#171717`
+
+Typography direction:
+
+- Modern grotesk or geometric sans-serif for English headings
+- High-quality readable Bengali font
+- Strong typographic contrast
+- Editorial heading sizes
+- Generous but controlled spacing
+
+Use optimized webfont loading and avoid unnecessary font weights.
+
+Brand presentation must remain consistent across desktop and mobile.
+
+---
+
+# PHASE 04 — INTERACTIVE PRODUCT COLLECTION EXPERIENCE
+
+Create a premium shopping collection within the existing store.
+
+Preferred route structure:
+
+`/collections/graphic-archive`
+
+`/shop`
+
+`/products/[product-slug]`
+
+Adapt these routes if the current platform uses a different convention.
+
+## 4.1 Collection Landing Experience
+
+Build the following sections:
+
+### SECTION A — Cinematic Collection Introduction
+
+Create a visually powerful collection header featuring:
+
+**FABRICIAN**
+
+**THE GRAPHIC ARCHIVE**
+
+**DROP 01 / 2026**
+
+Suggested tagline:
+
+"WEAR THE STORY. OWN THE MOMENT."
+
+Use layered typography, tasteful image composition, and responsive motion.
+
+Add a prominent:
+
+**EXPLORE COLLECTION**
+
+CTA.
+
+The CTA should smoothly navigate or scroll to the product collection.
+
+Keep the primary CTA immediately recognizable.
+
+### SECTION B — Scroll-Based Product Storytelling
+
+Create an immersive product showcase.
+
+On desktop:
+
+- Elegant scroll-triggered reveals
+- Sticky editorial headings
+- Product photography with subtle depth effects
+- Controlled image scaling
+- Smooth transitions between collection sections
+- Optional pinned storytelling where appropriate
+
+On mobile:
+
+- Natural vertical scrolling
+- Lightweight animation
+- Comfortable product browsing
+- Fast loading
+- No obstructive transitions
+
+Avoid aggressive scroll hijacking.
+
+Animations must enhance the shopping experience rather than interfere with navigation.
+
+### SECTION C — Dynamic Product Grid
+
+Implement a responsive product listing grid.
+
+Desktop: ideally 3–4 columns, depending on available width.
+
+Tablet: 2–3 columns.
+
+Mobile: 2 columns where readability permits; otherwise use a single-column layout for narrow screens.
+
+Product cards must support:
+
+1. Product image
+2. Product name
+3. Price in BDT
+4. Available color swatches
+5. Quick View
+6. Add to Cart when the variant is confirmed and purchasable
+7. Wishlist when supported by the current architecture
+8. Smooth hover and focus states
+9. Product detail navigation
+10. Status messaging for unavailable products
+
+Avoid fake discount badges, false scarcity, or unsupported bestseller claims.
+
+For products with real customer-facing images, support image switching.
+
+If only a composite mockup exists, do not pretend that its cropped sections represent independent product photographs.
+
+### SECTION D — Interactive Filters
+
+Implement:
+
+- Collection
+- Product category
+- Price range
+- Color
+- Availability
+- Size, once verified size data exists
+
+Provide sorting:
+
+- Featured
+- Price: Low to High
+- Price: High to Low
+- Newest
+- Popularity, only when actual data supports it
+
+On mobile, use an accessible filter drawer.
+
+Filters must update product results without unnecessary full-page reloads when supported by the current framework.
+
+Keep filter and sorting state synchronized with URL query parameters where appropriate.
+
+### SECTION E — Quick Product Preview
+
+Create a modern Quick View drawer or modal.
+
+Display:
+
+- Product image
+- Product title
+- Price
+- Color options
+- Available size options
+- Short description
+- Availability status
+- Add to Cart
+- View Full Details
+
+All selections must reflect actual product variants.
+
+If size, stock, or availability is unverified, prevent accidental checkout and show appropriate status.
+
+---
+
+# PHASE 05 — ADVANCED PRODUCT DETAIL PAGE
+
+Build a premium reusable product page template.
+
+All product detail pages must be data-driven.
+
+Avoid creating 11 unrelated hardcoded page components.
+
+## 5.1 Product Gallery
+
+Implement:
+
+- Large primary product image
+- Thumbnail navigation
+- Zoom or controlled lightbox
+- Front and back visual presentation where possible
+- Smooth image transitions
+- Swipe interactions on mobile
+- Lazy loading for secondary imagery
+
+Preserve original artwork proportions.
+
+Avoid distorting prints or changing colors artificially.
+
+Uploaded mockups may contain multiple views inside a single image.
+
+Where appropriate, intelligently separate clear image regions for gallery use without changing the original design, and preserve the complete source image.
+
+Do not create misleading alternate product views.
+
+For multi-color graphics presented in a combined reference image, do not generate false standalone color photographs.
+
+## 5.2 Product Information
+
+Display:
+
+- Product name
+- SKU
+- Price
+- Color selection
+- Size selection where available
+- Fabric description
+- Material information
+- GSM
+- Fit
+- Detailed description
+- Delivery information
+- Return and replacement information
+- Size guide
+- Care instructions only when confirmed
+- Related products
+
+Use expandable accordions to keep the interface clean.
+
+The supplier-provided 330–350 GSM and fabric claims must remain marked as requiring verification until independently confirmed.
+
+Do not claim 100% cotton, oversized fit, slim fit, print durability, or premium certification without confirmation.
+
+## 5.3 Conversion-Optimized Buying Experience
+
+Implement:
+
+- Clear selling price
+- Color and size selection
+- Variant-level availability
+- Quantity adjustment
+- Add to Cart
+- Buy Now
+- Cart confirmation
+- Related items
+- Delivery cost visibility
+
+On mobile, use a tasteful sticky purchase bar when the product is purchasable.
+
+The buying interface must never hide necessary price, stock, or delivery information.
+
+If the product is unavailable or awaiting verification, disable purchasing and display a truthful status.
+
+## 5.4 Related Product Recommendations
+
+Use relevant collection, category, tags, and price ranges.
+
+Examples:
+
+- Complete the Look
+- More from the Graphic Archive
+- Explore Similar Designs
+
+Avoid recommending draft or unauthorized products on public pages.
+
+---
+
+# PHASE 06 — REAL CART, CHECKOUT & ORDER MANAGEMENT
+
+This must be a real working commerce flow.
+
+Do not create a visual-only checkout experience.
+
+## 6.1 Shopping Cart
+
+Implement or improve the existing cart.
+
+Support:
+
+- Add product variants
+- Update quantities
+- Remove products
+- Correct subtotal
+- Shipping charge
+- Applied discounts
+- Final payable amount
+- Persistent cart state
+- Proper error handling
+- Stock and variant validation
+
+Prevent duplicate submission.
+
+Revalidate prices and availability on the server before creating orders.
+
+## 6.2 Bangladesh Checkout Experience
+
+Optimize checkout for Bangladeshi customers.
+
+Required fields:
+
+- Customer full name
+- Mobile number
+- Full delivery address
+- Area/city
+- District
+- Additional delivery instructions, optional
+
+Use appropriate Bangladesh mobile number validation.
+
+Support Cash on Delivery once the store owner confirms the payment and fulfillment arrangement.
+
+Payment provider integrations must only be activated when real merchant credentials and approved configurations are available.
+
+Never collect raw card details using an improvised payment form.
+
+## 6.3 Delivery Configuration
+
+Prepare delivery zones for:
+
+- Dhaka
+- Outside Dhaka
+
+Support configurable shipping rates.
+
+Do not hardcode invented courier charges.
+
+Use the existing delivery logic if one already exists and is valid.
+
+Courier options can be prepared for Pathao and RedX if the store supports their integrations.
+
+Do not claim live courier integration without working API credentials and successful integration tests.
+
+## 6.4 Discounts & Bundle Engine
+
+Prepare configurable promotional rules:
+
+- Buy 2: proposed BDT 150 total discount
+- Buy 3: proposed BDT 300 total discount
+- Free shipping for 2+ items: proposed
+
+These are proposals only.
+
+Do not activate them until margin and policy approval.
+
+Discount rules must be calculated correctly, including interactions between promotions.
+
+Avoid negative payable totals or unapproved discount stacking.
+
+## 6.5 Order Processing
+
+Create reliable order records.
+
+Support appropriate statuses such as:
+
+- Pending
+- Confirmed
+- Processing
+- Shipped
+- Delivered
+- Cancelled
+- Returned
+
+Use persistent storage.
+
+Maintain order item snapshots, including purchased SKU, unit price, selected variants, quantity, shipping charge, and total.
+
+Prevent duplicate orders on repeated checkout submissions.
+
+If payment gateways or webhooks exist, implement idempotent payment processing.
+
+Provide clear order confirmation.
+
+Never claim a successful order unless it has actually been saved.
+
+---
+
+# PHASE 07 — HIGH-END SCROLLING & MOTION DESIGN
+
+Build sophisticated motion without sacrificing usability.
+
+## 7.1 Required Interactions
+
+Use:
+
+- Scroll-triggered product reveals
+- Subtle image parallax
+- Smooth hover transitions
+- Card image scaling
+- Sticky section headings where useful
+- Product image crossfades
+- Micro-interactions on buttons
+- Refined loading skeletons
+- Cart update feedback
+- Filter transitions
+- Section entrance animations
+
+## 7.2 Technical Motion Rules
+
+Prefer lightweight CSS transforms and opacity transitions.
+
+Use an existing animation library if available.
+
+For React-based environments, Framer Motion/Motion or GSAP may be used when justified.
+
+Avoid installing a heavy animation stack solely for decorative effects.
+
+Use Intersection Observer where appropriate.
+
+Animate primarily GPU-friendly properties.
+
+Respect `prefers-reduced-motion`.
+
+Do not animate every product card continuously.
+
+Avoid expensive scroll event handlers, forced layouts, and excessive blur effects.
+
+Mobile browsing must always remain fast and responsive.
+
+**Priority: Conversion and performance over decorative animation.**
+
+---
+
+# PHASE 08 — IMAGE OPTIMIZATION & MEDIA PIPELINE
+
+Use every provided product reference image correctly.
+
+## Required Tasks
+
+1. Read the image asset mapping.
+2. Match each image to its product and variant.
+3. Preserve original images.
+4. Generate optimized web assets when supported.
+5. Generate responsive image sizes.
+6. Use WebP or AVIF where appropriate.
+7. Configure correct aspect ratios.
+8. Prevent cumulative layout shifts.
+9. Provide meaningful alt text.
+10. Lazy-load noncritical imagery.
+11. Prioritize the first visible product images.
+
+Use one consistent product photography presentation system.
+
+Avoid excessively compressed visuals.
+
+Maintain a premium look without sacrificing page speed.
+
+Do not add inaccurate visual details through AI-generated product modifications.
+
+Clearly distinguish supplier/reference mockups from actual photographed merchandise.
+
+---
+
+# PHASE 09 — MOBILE-FIRST CONVERSION OPTIMIZATION
+
+Assume a substantial share of traffic will come from mobile devices and social media.
+
+Prioritize:
+
+- Fast initial load
+- Readable typography
+- Easy thumb navigation
+- Clear pricing
+- Accessible purchase controls
+- Compact navigation
+- Mobile search
+- Efficient product filters
+- Sticky purchase actions
+- Simple checkout
+- Minimal unnecessary form fields
+- Visible order totals
+- Clear delivery information
+
+Use large enough touch targets.
+
+Avoid overwhelming mobile users with animations or full-screen popups.
+
+Keep navigation intuitive.
+
+Make product discovery possible within a few interactions.
+
+Do not require account registration for checkout unless genuinely necessary.
+
+---
+
+# PHASE 10 — SEO & DISCOVERABILITY
+
+Implement technical and on-page SEO.
+
+## 10.1 Product SEO
+
+Generate unique:
+
+- Page titles
+- Meta descriptions
+- SEO-friendly slugs
+- Product descriptions
+- Image alt text
+- Canonical URLs
+- Open Graph metadata
+
+Use accurate product names and descriptions.
+
+Avoid repetitive keyword stuffing.
+
+## 10.2 Structured Data
+
+Add valid Product structured data for public products when appropriate.
+
+Include only verified:
+
+- Price
+- Currency
+- Availability
+- Product identity
+- Reviews, when genuine
+
+Do not invent product ratings or review counts.
+
+## 10.3 Technical SEO
+
+Ensure:
+
+- Correct sitemap
+- Correct robots directives
+- Proper canonical tags
+- Semantic headings
+- Internal linking
+- Crawlable public product pages
+- Appropriate metadata for collection pages
+
+Exclude drafts and unapproved products from the public sitemap.
+
+Prevent indexing of unauthorized or unpublished products.
+
+---
+
+# PHASE 11 — ANALYTICS & CONVERSION MEASUREMENT
+
+Use existing analytics integrations where available.
+
+Prepare structured e-commerce events:
+
+- `view_item_list`
+- `select_item`
+- `view_item`
+- `add_to_cart`
+- `remove_from_cart`
+- `begin_checkout`
+- `purchase`
+
+Also track useful collection interactions such as:
+
+- Product search
+- Filter application
+- Quick View opening
+- Product variant selection
+
+Where appropriate, support GA4 and Meta Pixel through the existing infrastructure.
+
+Do not invent analytics IDs or pixel identifiers.
+
+Respect applicable consent requirements.
+
+Never expose sensitive customer information through analytics events.
+
+Ensure purchase events are not double-counted.
+
+Provide the administrator with a clear conversion measurement framework.
+
+---
+
+# PHASE 12 — ADMIN EXPERIENCE & PRODUCT MANAGEMENT
+
+Extend the current administration tools rather than creating unnecessary duplicate systems.
+
+The store administrator should be able to:
+
+1. View products.
+2. Edit names and descriptions.
+3. Update pricing.
+4. Update stock.
+5. Manage colors and sizes.
+6. Replace images.
+7. Manage publication status.
+8. Manage categories.
+9. Review orders.
+10. Configure delivery rates.
+11. Configure approved promotions.
+12. Manage featured products.
+13. Review product verification status.
+14. Review commercial artwork rights status.
+
+Keep internal production costs, supplier details, and unapproved assumptions private.
+
+Prevent customers from accessing administrative data or unpublished product records.
+
+Enforce authentication and authorization using the current platform's security model.
+
+---
+
+# PHASE 13 — PERFORMANCE & ACCESSIBILITY
+
+Target excellent real-world performance.
+
+Recommended optimization goals:
+
+- Mobile Lighthouse Performance: 90+
+- Accessibility: 90+
+- Best Practices: 90+
+- SEO: 90+
+- Largest Contentful Paint: 2.5 seconds or better at the 75th percentile
+- Cumulative Layout Shift: 0.1 or lower
+- Interaction to Next Paint: 200 ms or better at the 75th percentile
+
+Treat these as performance targets, not guaranteed results.
+
+Apply:
+
+- Code splitting
+- Lazy loading
+- Asset optimization
+- Efficient caching
+- Appropriate image preloading
+- Reduced JavaScript overhead
+- Minimal third-party scripts
+- Accessible focus states
+- Keyboard navigation
+- Sufficient color contrast
+- Semantic HTML
+- Screen-reader-friendly controls
+- Reduced-motion support
+
+Test under realistic mobile conditions.
+
+---
+
+# PHASE 14 — FUNCTIONAL QUALITY ASSURANCE
+
+Perform actual implementation testing.
+
+## Product Verification
+
+Check:
+
+- Exactly 11 unique product records imported
+- Exactly 15 expected SKU variants
+- Correct product IDs
+- Correct selling prices
+- Correct image mappings
+- Correct color assignments
+- No duplicate products
+- No missing required product relationships
+- No invented size or stock data
+
+## Storefront Verification
+
+Test:
+
+- Product listing
+- Category filtering
+- Price sorting
+- Product search
+- Quick View
+- Product details
+- Color selection
+- Mobile layouts
+- Gallery navigation
+- Loading states
+- Empty states
+- Error states
+
+## Commerce Verification
+
+Test using valid test data:
+
+- Add to Cart
+- Cart update
+- Remove from Cart
+- Checkout validation
+- Order creation
+- Total calculation
+- Shipping calculation
+- Promotion calculation
+- Stock validation
+- Order persistence
+- Duplicate order prevention
+
+For tests involving real customer orders or external services, use sandbox or test configurations where available.
+
+## Security Verification
+
+Check:
+
+- Product access rules
+- Draft-product protection
+- Admin authentication
+- Input validation
+- Unauthorized update prevention
+- Secure API boundaries
+- Sensitive data protection
+
+## Device Verification
+
+Check at least:
+
+- 360px mobile
+- 390px mobile
+- 768px tablet
+- 1024px small desktop
+- 1440px desktop
+
+Ensure the interface does not overflow or break.
+
+---
+
+# PHASE 15 — DEPLOYMENT READINESS
+
+Prepare the current application for deployment using its existing hosting platform.
+
+Do not migrate hosting providers unnecessarily.
+
+Required work:
+
+1. Validate production build.
+2. Resolve build errors.
+3. Resolve critical console errors.
+4. Verify database migrations.
+5. Verify asset references.
+6. Verify environment configuration.
+7. Verify product publication states.
+8. Verify checkout availability.
+9. Verify order persistence.
+10. Verify critical responsive layouts.
+11. Verify SEO output.
+12. Verify production routing.
+13. Verify security controls.
+14. Verify deployment compatibility.
+
+Create or maintain a staging preview where supported.
+
+Do not claim deployment succeeded without an actual successful deployment.
+
+Do not expose unapproved products during testing.
+
+Products must remain unpublished until all necessary commercial and operational approvals are complete.
+
+---
+
+# PHASE 16 — IMPLEMENTATION PRIORITY
+
+Optimize for minimum unnecessary cost and maximum customer-facing value.
+
+Execute in this order:
+
+**PRIORITY 1 — Essential Commerce**
+
+- Catalog import
+- Database integration
+- Product listing
+- Product details
+- Variant handling
+- Cart
+- Checkout
+- Order storage
+
+**PRIORITY 2 — Premium Brand Presentation**
+
+- Collection landing
+- Refined product cards
+- Premium typography
+- Image galleries
+- Responsive navigation
+
+**PRIORITY 3 — Conversion Enhancements**
+
+- Filtering
+- Quick View
+- Sticky purchase controls
+- Related products
+- Delivery information
+- Analytics events
+
+**PRIORITY 4 — Motion & Storytelling**
+
+- Scroll reveals
+- Parallax accents
+- Hover interactions
+- Editorial transitions
+- Polished loading behavior
+
+**PRIORITY 5 — Production Optimization**
+
+- SEO
+- Performance
+- Accessibility
+- QA
+- Publishing readiness
+
+Complete functional commerce infrastructure before investing heavily in decorative animations.
+
+---
+
+# PHASE 17 — EXPECTED EXECUTION BEHAVIOR
+
+Follow these rules strictly:
+
+1. Work inside my existing e-commerce project.
+2. Inspect before modifying.
+3. Read and use the uploaded catalog files.
+4. Implement actual working functionality.
+5. Preserve existing features.
+6. Use reusable, maintainable components.
+7. Prefer existing dependencies and services.
+8. Avoid unnecessary paid infrastructure.
+9. Do not invent product information.
+10. Do not fabricate testimonials, reviews, inventory, or discounts.
+11. Do not expose draft or unauthorized products.
+12. Do not replace real backend operations with mock behavior.
+13. Do not stop after generating a plan.
+14. Do not mark functionality complete unless implemented.
+15. Validate the result before reporting completion.
+
+If direct implementation is supported by the development environment, make the changes, run the project, and verify the result.
+
+If a tool limitation prevents an operation, describe the exact limitation and complete all remaining feasible work.
+
+Do not request information already available inside the existing project or uploaded catalog.
+
+For missing commercial information, prepare editable configuration and mark its verification status.
+
+Never invent merchant credentials, delivery rates, stock quantities, size measurements, or legal approvals.
+
+---
+
+# PHASE 18 — FINAL DELIVERY REQUIREMENTS
+
+After implementation, provide a concise structured report containing:
+
+## A. Completed Features
+
+List actually implemented storefront and commerce functionality.
+
+## B. Product Import Results
+
+Report:
+
+- Products imported
+- Variants imported
+- Media assets mapped
+- Draft products
+- Approved/published products
+- Any import failures
+
+## C. Design Improvements
+
+Describe implemented layout, interaction, animation, and responsive improvements.
+
+## D. Commerce Functionality
+
+Confirm which shopping, checkout, and administration features were tested successfully.
+
+## E. Verification & Testing
+
+Show build status, test results, major issues fixed, and any remaining limitations.
+
+## F. Unresolved Business Requirements
+
+Clearly identify missing:
+
+- Commercial artwork permissions
+- Verified inventory
+- Confirmed size chart
+- Verified material specifications
+- Shipping charges
+- Return policy
+- Merchant credentials
+- Business contact information
+
+## G. Deployment Status
+
+Clearly distinguish:
+
+- Implemented
+- Build passing
+- Staging preview available
+- Ready for commercial review
+- Approved for publication
+- Actually deployed and live
+
+Never confuse these states.
+
+## H. Final Preview
+
+Provide the available preview or deployment URL only if one actually exists.
+
+---
+
+# FINAL DESIGN & BUSINESS OBJECTIVE
+
+Build an online fashion shopping experience with the editorial quality of a premium streetwear label and the operational practicality of a conversion-focused Bangladesh e-commerce business.
+
+The result should feel:
+
+**PREMIUM. MODERN. FAST. INTERACTIVE. MOBILE-FIRST. CONVERSION-FOCUSED.**
+
+Every animation must serve usability or storytelling.
+
+Every product must be connected to real catalog data.
+
+Every purchase action must follow real commerce logic.
+
+Every mobile interaction must feel intentional.
+
+Every price and commercial claim must be accurate.
+
+The final experience must be prepared for genuine customers, not merely a design demonstration.
+
+**START NOW.**
+
+First inspect my existing store and the attached Fabrician catalog package.
+
+Then implement the full integration in prioritized phases.
+
+Build working features, verify the results, resolve issues within your capabilities, and provide a deploy-ready store with an explicit list of any remaining commercial approvals.
+
+**DO NOT DELIVER JUST A PLAN. IMPLEMENT THE STORE.**

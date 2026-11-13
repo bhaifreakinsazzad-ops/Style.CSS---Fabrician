@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-bengali: 'Noto Sans Bengali', sans-serif;
+    --color-obsidian: #09090b;
+    --color-charcoal: #171719;
+    --color-ivory: #f5f2eb;
+    --color-stone: #d8d3c9;
+    --color-gold: #b69a60;
+    --color-gold-light: #d5ba80;
+    --color-graphite: #77777d;
+    --color-violet: #756bff;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background-color: var(--color-obsidian);
+    color: var(--color-ivory);
+    overflow-x: hidden;
+  }
+}
+
+.font-serif-luxury {
+  font-family: var(--font-serif);
+}
+
+.font-sans-modern {
+  font-family: var(--font-sans);
+}
+
+.font-bengali {
+  font-family: var(--font-bengali);
+}
+
+/* Jamdani-inspired subtle geometric weave watermark pattern */
+.bg-jamdani-pattern {
+  background-image: radial-gradient(rgba(182, 154, 96, 0.08) 1px, transparent 1px),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px, 48px 48px;
+}
+
+/* Subtle fabric thread line divider */
+.thread-line {
+  background: linear-gradient(90deg, transparent 0%, rgba(182, 154, 96, 0.35) 50%, transparent 100%);
+  height: 1px;
+}
+
+/* Custom scrollbar for lookbook and drawer */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b69a60;
+}

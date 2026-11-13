@@ -1,0 +1,6 @@
+{
+  "name": "FABRICIAN — The Intelligent Fashion Universe",
+  "description": "Luxury AI-inspired interactive fashion e-commerce brand from Bangladesh. Contemporary tailoring, interactive model lookbook, and heritage craftsmanship.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

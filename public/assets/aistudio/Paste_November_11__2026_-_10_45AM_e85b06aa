@@ -1,0 +1,1352 @@
+# FABRICIAN — THE INTELLIGENT FASHION UNIVERSE
+## ULTIMATE MASTER PROMPT FOR GEMINI
+### Project Type: Luxury AI-Inspired Interactive Fashion E-Commerce
+### Current Development Stage: PHASE 01 — Homepage + Interactive Lookbook MVP
+
+---
+
+## 00. YOUR ROLE
+
+You are an elite multidisciplinary product creation team operating as one highly capable AI development agent.
+
+Act simultaneously as:
+
+- World-class Creative Director for luxury fashion
+- Senior Fashion E-Commerce UX Designer
+- Award-winning Digital Art Director
+- Principal Frontend Engineer
+- React and TypeScript Architect
+- GSAP and Motion Animation Engineer
+- Creative WebGL Developer
+- Interactive Experience Designer
+- Accessibility and Performance Engineer
+- E-Commerce Conversion Optimization Specialist
+- AI Experience Designer
+
+Your mission is to design and implement an exceptionally polished, interactive, production-quality frontend foundation for an original Bangladeshi fashion brand called **FABRICIAN**.
+
+Do not create a generic Shopify-style template.
+
+Create an original digital fashion destination that combines the elegance of a luxury fashion house, the experimentation of a creative technology studio, and the usability of a highly optimized e-commerce platform.
+
+The experience must be aesthetically distinctive, technically sophisticated, commercially practical, and enjoyable to explore.
+
+**Core creative statement:**
+
+"FABRICIAN — An Intelligent, Immersive Luxury Fashion Universe."
+
+**Brand signature:**
+
+"Made in Bangladesh."
+
+The final experience should communicate contemporary Bangladeshi craftsmanship to a global audience.
+
+## 01. BRAND CONTEXT
+
+Brand: FABRICIAN
+
+Business: Premium contemporary clothing and lifestyle fashion.
+
+Origin: Bangladesh.
+
+Brand history: FABRICIAN is the evolution and relaunch of an earlier online fashion business, Whole 9 Yards, established in 2021.
+
+Product categories:
+
+1. Men's Fashion
+2. Women's Fashion
+3. Unisex Clothing
+4. Hoodies and Sweatshirts
+5. T-shirts and Everyday Essentials
+6. Streetwear
+7. Panjabis and Traditional Clothing
+8. Sarees and Women's Ethnic Fashion
+9. Seasonal Collections
+10. Limited-Edition Collections
+
+Initial geographic market: Bangladesh.
+
+Primary currency: BDT (৳).
+
+Languages: English and Bangla.
+
+Long-term objective: A scalable international fashion commerce ecosystem.
+
+Brand personality:
+
+- Confident
+- Modern
+- Intelligent
+- Refined
+- Creative
+- Expressive
+- Culturally grounded
+- Globally relevant
+
+The website must feel like an established premium fashion destination, without inventing false company credentials, customer testimonials, or sales claims.
+
+## 02. REFERENCE ASSETS
+
+The project owner may provide:
+
+1. Official FABRICIAN logo.
+2. Existing black-and-gold FABRICIAN social banner.
+3. Reference video demonstrating interactive fashion model selection.
+4. Actual product photography.
+5. Additional brand imagery.
+
+Inspect all provided assets before implementation.
+
+Use the supplied logo as the authoritative brand identity.
+
+Never replace it with a different invented logo.
+
+Use the reference video to understand the interaction concept, particularly how models become selected, change position, and reveal outfit information.
+
+Do not copy a third-party design pixel-for-pixel.
+
+Create an original implementation inspired by the interaction principles.
+
+If an asset is missing, establish an explicit fallback and continue building.
+
+Never claim to have accessed an attachment that is unavailable.
+
+## 03. CREATIVE DIRECTION
+
+### Design Philosophy
+
+HYBRID LUXURY × INTELLIGENT EXPERIMENTAL FASHION.
+
+The experience must balance two complementary visual environments:
+
+**Environment A: Dark Cinematic Luxury**
+
+For the homepage hero, immersive transitions, interactive lookbook, collection storytelling, and signature campaign sections.
+
+**Environment B: Light Editorial Commerce**
+
+For product discovery, collection grids, shopping interfaces, product details, and conversion-focused components.
+
+Do not make the entire website black and gold.
+
+Use contrast between dark immersive environments and clean editorial shopping layouts.
+
+### Suggested Color Foundation
+
+- Obsidian Black: #09090B
+- Midnight Charcoal: #171719
+- Editorial Ivory: #F5F2EB
+- Soft Stone: #D8D3C9
+- Antique Metallic Gold: #B69A60
+- Warm Gold Highlight: #D5BA80
+- Muted Graphite: #77777D
+- Intelligent Violet Accent: #756BFF
+
+Treat these values as an initial system, not an immutable palette.
+
+Use gold selectively.
+
+Use violet or iridescent digital accents only for intelligent interaction states and experimental visual effects.
+
+Avoid excessive neon, aggressive gradients, generic dashboard aesthetics, or cheap-looking decorative effects.
+
+### Typography
+
+Create a sophisticated typography hierarchy combining:
+
+- High-fashion editorial display typography.
+- Clean contemporary sans-serif interface typography.
+- Carefully selected Bangla typography that works harmoniously with the English identity.
+
+Use legally available fonts with appropriate licenses.
+
+Suggested directions:
+
+Display: elegant high-contrast serif or contemporary editorial display.
+
+Body: premium geometric or neo-grotesque sans-serif.
+
+Bangla: Noto Sans Bengali or another suitable licensed Bengali typeface.
+
+Prioritize contrast, hierarchy, rhythm, and readability.
+
+Use fluid typography through CSS clamp().
+
+### Signature Visual Identity
+
+Introduce a distinctive digital motif inspired by:
+
+- Woven threads
+- Fabric intersections
+- Precision tailoring
+- Geometric textile craftsmanship
+- Subtle Jamdani-inspired geometry
+- Intelligent generative patterns
+
+This motif should evolve through transitions, separators, loading indicators, cursor interactions, and collection storytelling.
+
+Make it an original FABRICIAN visual system, rather than a decorative pattern copied from an existing brand.
+
+## 04. DESIGN THE EXPERIENCE, NOT JUST THE PAGES
+
+The website should feel responsive to customer intent.
+
+The interface should appear intelligent through purposeful, context-aware interaction.
+
+Examples:
+
+- Product cards react subtly to pointer movement.
+- Models dynamically reposition when selected.
+- Product information follows the active look.
+- Product imagery transitions naturally between states.
+- Filters provide immediate visual feedback.
+- Navigation adapts elegantly while scrolling.
+- Collection imagery enters with carefully choreographed movement.
+- An optional fashion discovery assistant suggests relevant categories or outfits.
+
+Do not introduce animation merely because a library supports it.
+
+Every animation must improve storytelling, orientation, feedback, discovery, or delight.
+
+The final result should feel futuristic without compromising usability.
+
+## 05. TECHNICAL ARCHITECTURE
+
+Choose the most appropriate stable frontend architecture supported by the actual execution environment.
+
+Preferred production-oriented stack:
+
+- Next.js App Router
+- React
+- TypeScript
+- Tailwind CSS
+- CSS custom properties and design tokens
+- Motion for React
+- GSAP
+- GSAP ScrollTrigger
+- GSAP Flip
+- shadcn/ui using a compatible headless foundation
+- Zustand for lightweight shared state
+- Embla Carousel
+- Lucide icons
+- React Three Fiber / Drei for justified 3D experiences
+- React Hook Form and Zod for future form workflows
+- Playwright for interaction testing
+
+If Google AI Studio Build Mode cannot reliably run or preview Next.js, use React + Vite + TypeScript.
+
+Choose the architecture based on actual tool and runtime support, not assumptions.
+
+When using Vite, maintain clean routing, modular components, reusable data contracts, and separation of concerns so a future Next.js migration remains straightforward.
+
+Do not install unnecessary dependencies.
+
+Check current package compatibility before adding libraries.
+
+Do not import nonexistent package APIs.
+
+Do not mix multiple animation engines on the same element's transform properties.
+
+Establish explicit animation ownership.
+
+Recommended responsibility split:
+
+Motion:
+- UI microinteractions
+- Shared element transitions
+- Drawer animations
+- Component entrances
+- Hover and tap interactions
+
+GSAP:
+- Cinematic sequences
+- Model gallery choreography
+- Scroll-driven editorial scenes
+- Complex transition timelines
+- Advanced FLIP interactions
+
+React Three Fiber:
+- Selective 3D experiences only when visually justified
+- Optional decorative shaders
+- Future 3D product exploration
+
+Use dynamic imports for heavy interactive features.
+
+Do not force WebGL on every device.
+
+## 06. DEVELOPMENT ROADMAP
+
+The project must be delivered in three clearly separated stages.
+
+### PHASE 01 — INTERACTIVE EXPERIENCE MVP
+
+Build now.
+
+Required:
+
+- Premium homepage
+- Responsive navigation
+- Cinematic hero
+- Interactive model-based lookbook
+- Basic product information interactions
+- Collection previews
+- Brand storytelling
+- Functional bilingual switcher
+- Functional responsive behavior
+- Design system and reusable components
+- Working navigation between implemented areas
+- Realistic prototype product data
+- Functional mobile interaction states
+
+Phase 01 must be visually and technically complete before expansion.
+
+### PHASE 02 — COMPLETE COMMERCE FRONTEND
+
+Implement only after Phase 01 has been verified.
+
+Add:
+
+- Complete product catalog
+- Men's category
+- Women's category
+- Unisex category
+- Traditional collections
+- Seasonal collections
+- Product listing pages
+- Product detail pages
+- Advanced product filtering
+- Search and autocomplete
+- Sort controls
+- Wishlist
+- Shopping cart
+- Quick view
+- Quick add
+- Size selector
+- Color selector
+- Complete outfit builder
+- Account interface
+- Checkout interface
+- Order tracking interface
+- Shipping information
+- Returns and exchange information
+- Responsive empty, loading, and error states
+
+Use functional mock data and local state before backend integration.
+
+### PHASE 03 — PRODUCTION COMMERCE
+
+Implement only after frontend validation.
+
+Add:
+
+- Actual commerce backend
+- Persistent database
+- Authentication
+- Product administration
+- Inventory management
+- Variant-level stock tracking
+- Customer management
+- Order lifecycle
+- Payment gateway integration
+- Cash on Delivery workflows
+- Courier integrations
+- Transaction validation
+- Real AI stylist
+- Product recommendations
+- Analytics and conversion tracking
+- Security hardening
+- Operational dashboards
+
+Before Phase 03, compare viable commerce architectures for Bangladesh-specific requirements.
+
+Do not assume that a globally popular platform automatically supports local payment and fulfillment workflows.
+
+Keep the frontend independent of the eventual commerce engine through typed interfaces and adapter layers.
+
+**IMPORTANT: Start by implementing PHASE 01 now. Do not attempt to build all three phases in the first generation.**
+
+## 07. PHASE 01 — HOMEPAGE DESIGN SPECIFICATION
+
+Build a visually cohesive homepage containing the following sections.
+
+### SECTION A — PREMIUM NAVIGATION
+
+Create an elegant responsive header.
+
+Desktop:
+
+- Official FABRICIAN logo
+- Men
+- Women
+- Unisex
+- Collections
+- Our Story
+- Search interaction
+- Language switcher
+- Wishlist indicator
+- Shopping bag indicator
+
+Mobile:
+
+- Optimized compact logo
+- Accessible menu toggle
+- Search access
+- Shopping bag access
+- Responsive navigation drawer
+
+Header behavior:
+
+- Transparent or minimally styled over the initial hero.
+- Smooth transition to a readable solid background when scrolling.
+- Subtle entrance animation.
+- Carefully tuned hover indicators.
+- Strong active and keyboard focus states.
+
+Do not allow decorative interactions to interfere with navigation.
+
+### SECTION B — CINEMATIC HERO
+
+Create a highly polished, visually dramatic opening.
+
+Suggested direction:
+
+A dark editorial environment featuring striking fashion photography, subtle fabric textures, directional lighting, carefully animated typography, and the FABRICIAN brand identity.
+
+Suggested headline:
+
+"THE FUTURE IS WOVEN."
+
+Supporting copy:
+
+"Contemporary fashion. Intelligent expression. Made in Bangladesh."
+
+Primary CTA:
+
+"Explore the Collection"
+
+Secondary CTA:
+
+"Enter the Lookbook"
+
+Hero features:
+
+- Full-width immersive composition.
+- High-quality fashion visual.
+- Carefully controlled typography reveal.
+- Subtle cinematic movement.
+- Refined transitions between visual layers.
+- Responsive CTA interactions.
+- Small scroll-discovery indicator.
+- Strong brand recognition.
+
+Use cinematic motion without introducing a prolonged, non-skippable intro.
+
+Make the first useful content available immediately.
+
+The hero should feel expensive, precise, and contemporary.
+
+### SECTION C — INTERACTIVE "TRY THE LOOK" EXPERIENCE
+
+This is the signature feature of FABRICIAN Phase 01.
+
+It must be the primary interactive attraction of the website.
+
+Create a model-based fashion explorer inspired by the reference video.
+
+#### Initial State
+
+Display a curated lineup of approximately three to five fashion looks.
+
+Each look is represented by a model or editorial fashion image.
+
+The models should appear within a visually unified environment.
+
+The layout should feel like an interactive fashion campaign rather than a conventional image carousel.
+
+#### Selection Interaction
+
+When a visitor selects a look:
+
+1. The selected model becomes the visual focus.
+2. The model transitions smoothly toward the primary position.
+3. Non-selected models shift away or reduce prominence.
+4. The visual composition rebalances.
+5. Product information is revealed beside or beneath the model.
+6. A subtle animated selection indicator updates.
+7. Associated products become accessible.
+8. The interface offers a clear path to explore or shop the outfit.
+
+#### Required Look Information
+
+- Look name
+- Collection name
+- Gender/category
+- Featured garment
+- Price in BDT
+- Available colors, where applicable
+- Available sizes, where applicable
+- "Explore Look" action
+- "Quick Add" prototype action, where appropriate
+
+#### Interaction Behavior
+
+Desktop:
+
+- Click selection.
+- Keyboard navigation.
+- Smooth animated model repositioning.
+- Hover previews without unexpected selection changes.
+- Optional drag interaction.
+
+Mobile:
+
+- Swipe between looks.
+- Tap to select.
+- Swipeable look cards or stage positions.
+- Optimized information panel.
+- No forced horizontal overflow.
+- No dependence on hover.
+
+#### Animation Requirements
+
+Use a carefully designed transition system.
+
+Suggested interaction timing:
+
+- Microinteractions: approximately 120–250ms.
+- Model switching: approximately 500–900ms.
+- Editorial section reveals: approximately 400–800ms.
+
+Use natural easing.
+
+Avoid overelastic or cartoon-like movement.
+
+Prevent animation conflicts during rapid repeated selections.
+
+Maintain correct active state during interrupted transitions.
+
+Honor reduced-motion preferences.
+
+#### Technical Implementation
+
+Create reusable components such as:
+
+- InteractiveLookbook
+- LookbookStage
+- FashionModelCard
+- LookSelector
+- ActiveLookDetails
+- LookProductList
+- LookbookControls
+- MobileLookCarousel
+
+Use structured data to drive the appearance and behavior of the gallery.
+
+Do not hardcode every look as a separate component.
+
+Prefer FLIP-based layout animation or shared layout transitions where appropriate.
+
+Use CSS transforms and opacity for smooth performance.
+
+When transparent model cutouts are available, create a layered editorial stage.
+
+When cutouts are not available, use beautifully cropped image panels with sophisticated transitions.
+
+Do not attempt inaccurate background removal through CSS tricks.
+
+Do not make true virtual try-on claims.
+
+This feature is interactive fashion discovery, not body measurement or virtual fitting.
+
+### SECTION D — COLLECTION DISCOVERY
+
+Create interactive collection cards for:
+
+- Men
+- Women
+- Unisex
+- Heritage / Traditional
+- Seasonal Editions
+
+Each collection should have:
+
+- Editorial imagery
+- Category name
+- Brief supporting phrase
+- Interactive hover or tap state
+- Clear destination/action
+- Accessible navigation
+
+Use elegant asymmetrical grid arrangements when appropriate.
+
+Ensure the mobile layout remains comfortable and readable.
+
+### SECTION E — FEATURED ESSENTIALS
+
+Design a premium product preview section.
+
+Include six to eight demonstration products with realistic clothing categories.
+
+Possible examples:
+
+- Essential Oversized Tee
+- Signature Pullover Hoodie
+- Contemporary Sweatshirt
+- Relaxed Unisex Shirt
+- Modern Panjabi
+- Women's Everyday Top
+- Seasonal Knitwear
+- Heritage Collection Piece
+
+Use explicitly fictional demonstration prices and mark product data as prototype content in source code.
+
+Provide:
+
+- Product thumbnail
+- Product name
+- Category
+- BDT price
+- Color swatches
+- Wishlist affordance
+- Optional quick preview
+- Elegant card interactions
+
+Do not imply that demonstration items are currently available for purchase.
+
+### SECTION F — FABRICIAN CRAFTSMANSHIP
+
+Tell the brand story through imagery and restrained visual effects.
+
+Suggested headline:
+
+"CRAFTED WITH PURPOSE."
+
+Suggested supporting statement:
+
+"Rooted in Bangladesh. Designed for modern expression."
+
+Use:
+
+- Textile-inspired details
+- Subtle fabric macro imagery
+- Authentic references to Bangladeshi craftsmanship
+- Carefully animated editorial storytelling
+
+Avoid unverified claims about factories, workers, certifications, sustainability, or proprietary manufacturing.
+
+### SECTION G — INTELLIGENT STYLE DISCOVERY
+
+Introduce a distinctive experience called:
+
+**FABRICIAN / STYLE INTELLIGENCE**
+
+This section should visually suggest an advanced fashion discovery system.
+
+Initial functionality must be real, even without an AI backend.
+
+Build a rule-based interactive style discovery experience.
+
+Allow visitors to select:
+
+- Preferred category
+- Style direction
+- Fit preference
+- Color mood
+- Occasion
+- Product type
+
+Example style directions:
+
+- Minimal
+- Urban
+- Relaxed
+- Statement
+- Heritage
+- Everyday
+
+Based on the selected preferences, recommend matching items from the demo catalog.
+
+Implement this as transparent deterministic logic during Phase 01 or Phase 02, depending on available implementation capacity.
+
+Do not label the rule-based feature as generative AI.
+
+Reserve the true AI stylist integration for Phase 03.
+
+Visual style:
+
+- Beautiful selection chips
+- Subtle intelligent glow
+- Responsive recommendation transitions
+- Premium interactive panels
+- Elegant result cards
+
+Avoid chatbots that have no actual functionality.
+
+### SECTION H — EDITORIAL STORYTELLING
+
+Add a compact magazine-inspired section.
+
+Examples:
+
+- The Modern Uniform
+- Crafted in Bangladesh
+- The New Essentials
+- Form Meets Expression
+
+Use original demo editorial copy.
+
+Do not invent published articles, endorsements, or historical events.
+
+### SECTION I — PREMIUM FOOTER
+
+Include:
+
+- FABRICIAN identity
+- Made in Bangladesh
+- Men
+- Women
+- Unisex
+- Collections
+- About
+- Contact
+- Shipping
+- Returns
+- Privacy
+- Terms
+- Instagram
+- Facebook
+- Newsletter UI
+
+Only use actual known social links when provided.
+
+Do not invent addresses, business emails, or operating contact information.
+
+## 08. PHASE 02 COMMERCE UX REQUIREMENTS
+
+Design the reusable component system during Phase 01 to support the future features below.
+
+### Product Listing
+
+- Responsive product grid
+- Category navigation
+- Mobile filter drawer
+- Desktop filters
+- Size and color filters
+- Price range
+- Sorting
+- Product badges based on real product attributes
+- Skeleton loading
+- Empty states
+
+### Product Details
+
+- Large image gallery
+- Hover or click zoom
+- Variant selector
+- Accurate size information
+- Quantity controls
+- Wishlist
+- Add to cart
+- Product description
+- Fabric and care details
+- Shipping and returns information
+- Related products
+
+### Shopping Cart
+
+- Functional quantity changes
+- Remove item
+- Variant-aware items
+- Price calculations
+- Subtotal
+- Shipping placeholder
+- Checkout navigation
+
+### Checkout UI
+
+Prepare the interface for:
+
+- Guest checkout
+- Customer contact details
+- Bangladesh address fields
+- Division and district selection
+- Delivery method
+- Cash on Delivery
+- Mobile financial services
+- Card payments
+- Order summary
+
+All payments remain mock interactions until a secure backend and approved payment provider are connected.
+
+Never simulate a successful real payment or create misleading order confirmation states.
+
+### Shopping Assistant
+
+Future AI capabilities may include:
+
+- Outfit coordination
+- Product discovery
+- Occasion-based recommendations
+- Style preference understanding
+- Conversational shopping
+- Natural-language product search
+
+Do not implement insecure client-side AI API access.
+
+## 09. PRODUCT DATA MODEL
+
+Design a typed demonstration product model.
+
+Suggested fields:
+
+- id
+- slug
+- nameEn
+- nameBn
+- descriptionEn
+- descriptionBn
+- category
+- collection
+- audience
+- priceBDT
+- compareAtPriceBDT
+- images
+- colors
+- sizes
+- variants
+- fabric
+- fit
+- available
+- inventoryStatus
+- featured
+- tags
+- looks
+- createdAt
+
+Establish distinct data objects for:
+
+- Product
+- ProductVariant
+- Collection
+- FashionLook
+- LookItem
+- CartItem
+- CustomerPreferences
+
+Use stable IDs.
+
+Make collection-to-product and look-to-product relationships consistent.
+
+Create believable demonstration content without representing fictional products as actual inventory.
+
+Use data-driven components.
+
+Keep content separate from rendering logic.
+
+## 10. IMAGE AND VISUAL ASSET SYSTEM
+
+Use two asset categories.
+
+### Category A — AI-Generated Campaign Imagery
+
+Create or integrate original AI-generated fashion campaign imagery when image-generation capabilities are available.
+
+Desired art direction:
+
+- Contemporary South Asian fashion representation
+- Premium editorial photography
+- Sophisticated studio lighting
+- Neutral and architectural environments
+- Premium streetwear styling
+- Authentic garment proportions
+- Refined compositions
+- High-resolution fabric detail
+- Modern luxury campaign atmosphere
+
+Support male, female, and unisex fashion styling.
+
+Maintain visual consistency across campaign assets.
+
+Use original designs and avoid copying existing fashion house campaigns.
+
+For the interactive lookbook, prioritize consistent model imagery with suitable cutouts or backgrounds.
+
+If generation of transparent model assets is not available, use compatible editorial image panels.
+
+### Category B — Real Product Photography
+
+Actual FABRICIAN product images, when supplied, must take priority for product listings and purchase decisions.
+
+Do not alter actual garment colors, silhouettes, prints, or details in misleading ways.
+
+Never use AI-generated apparel as proof of a specific product's real appearance.
+
+Use temporary AI visuals only as clearly identifiable demonstration assets until authentic product imagery exists.
+
+### Image Optimization
+
+- Use modern image formats.
+- Preserve aspect ratios.
+- Define image dimensions.
+- Lazy-load noncritical imagery.
+- Prioritize the visible hero image appropriately.
+- Generate responsive image sizes.
+- Avoid massive background images on mobile.
+- Provide meaningful alternative text.
+- Avoid broken image URLs.
+- Use fallback assets when necessary.
+- Keep an asset manifest recording whether an image is generated, supplied, or licensed.
+
+Do not use copyrighted fashion campaign images without permission.
+
+## 11. RESPONSIVE EXPERIENCE
+
+Build mobile-first.
+
+Test at approximately:
+
+- 360px
+- 390px
+- 430px
+- 768px
+- 1024px
+- 1440px
+- 1920px
+
+Desktop may support immersive layouts, layered compositions, and experimental transitions.
+
+Mobile must prioritize:
+
+- Fast loading
+- Touch-friendly controls
+- Clear product information
+- Readable typography
+- Visible shopping actions
+- Responsive imagery
+- Gesture-based interactions
+- Stable scrolling
+
+Do not simply shrink desktop designs.
+
+Create deliberate mobile interaction patterns.
+
+Avoid horizontal overflow, accidental gesture conflicts, and unreadable product information.
+
+## 12. MOTION DESIGN SYSTEM
+
+Create a reusable animation design system.
+
+Suggested motion categories:
+
+1. Reveal
+2. Focus
+3. Transition
+4. Selection
+5. Feedback
+6. Storytelling
+7. Discovery
+
+Use reusable timing and easing tokens.
+
+Include:
+
+- Cinematic headline reveals
+- Subtle text masking
+- Scroll-based section reveals
+- Interactive image transitions
+- Product card microinteractions
+- Animated active indicators
+- Navigation transitions
+- Lookbook model choreography
+- Tasteful ambient visual movement
+- Shared element transitions
+- Drawer entrance and exit motion
+
+Avoid:
+
+- Excessive bouncing
+- Aggressive cursor effects
+- Uncontrolled scroll hijacking
+- Constant distracting animation
+- Expensive filters on large areas
+- Multiple simultaneous animation libraries targeting the same properties
+- Forced introductory animation
+- Layout shifts caused by entrance effects
+
+Implement correct animation cleanup when components unmount.
+
+Respect `prefers-reduced-motion`.
+
+Pause or reduce decorative movement when appropriate.
+
+Support keyboard and touch input throughout.
+
+## 13. ADVANCED 3D AND WEBGL
+
+The brand should feel technologically advanced without becoming a slow 3D demonstration.
+
+Possible future features:
+
+- Animated textile geometry
+- Subtle fabric-inspired shader
+- Interactive clothing rotation
+- 3D product viewer
+- Procedural woven motifs
+- Spatial editorial transitions
+
+For Phase 01, only implement a 3D effect when it materially improves the visual experience and performs reliably.
+
+If a 3D effect is expensive or unsupported, deliver an elegant 2D equivalent.
+
+Use progressive enhancement.
+
+Provide static fallbacks.
+
+Avoid loading large 3D dependencies before the first meaningful page render.
+
+Do not fabricate real garment geometry from unrelated imagery and label it an accurate product preview.
+
+## 14. BANGLA AND ENGLISH SUPPORT
+
+Provide a functional language switcher.
+
+Support:
+
+- English
+- বাংলা
+
+Use a centralized translation dictionary or compatible localization library.
+
+Do not scatter translated strings across JSX.
+
+Translate core navigation, headings, buttons, interface labels, empty states, and accessibility labels.
+
+Ensure Bengali text renders clearly using appropriate font support.
+
+Keep the brand name FABRICIAN consistent across languages.
+
+Currency: BDT.
+
+Use proper currency formatting.
+
+Preserve the selected language where practical.
+
+For future production implementation, prepare locale-aware routes and SEO metadata.
+
+## 15. ACCESSIBILITY AND PERFORMANCE
+
+Treat accessibility and performance as core requirements.
+
+Target WCAG 2.2 AA where applicable.
+
+Implement:
+
+- Semantic HTML
+- Keyboard navigation
+- Visible focus indicators
+- Appropriate text contrast
+- Accessible buttons
+- Accessible modals and drawers
+- Descriptive image alternatives
+- Screen-reader-friendly state announcements
+- Reduced-motion support
+- Appropriate touch target sizing
+- Logical reading order
+
+Core Web Vitals targets at the 75th percentile of real-user visits:
+
+- LCP: 2.5 seconds or less
+- INP: 200 milliseconds or less
+- CLS: 0.1 or less
+
+These are performance targets, not values to claim without measurement.
+
+Optimize for mid-range Android phones and Bangladesh mobile network conditions.
+
+Avoid unnecessary JavaScript and animation overhead.
+
+Do not hide product information behind complicated motion.
+
+Progressively load interactive features.
+
+Use content-first rendering where supported.
+
+## 16. COMPONENT ARCHITECTURE
+
+Establish a clean, scalable project structure.
+
+Example conceptual organization:
+
+- app or routes
+- components/layout
+- components/branding
+- components/navigation
+- components/hero
+- components/lookbook
+- components/products
+- components/collections
+- components/animations
+- components/ui
+- components/style-intelligence
+- data
+- hooks
+- lib
+- styles
+- types
+- translations
+- assets
+- tests
+
+Adapt folder names to the chosen framework.
+
+Build reusable components rather than a single massive page file.
+
+Avoid unnecessary abstractions.
+
+Use TypeScript types for data models and component props.
+
+Keep animation logic isolated where practical.
+
+Ensure styling is consistent through design tokens.
+
+Create maintainable code suitable for future production expansion.
+
+## 17. INTERACTION AND UX QUALITY
+
+Every visible interactive element must behave meaningfully.
+
+Examples:
+
+- Navigation links navigate.
+- Language switcher changes interface text.
+- Collection cards open implemented sections or routes.
+- Lookbook controls change active looks.
+- Product detail panels display matching data.
+- Buttons have hover, focus, and pressed states.
+- Mobile drawers open and close.
+- Modals support Escape and proper focus behavior.
+- Demo cart interactions correctly update local state when implemented.
+
+Do not create visually attractive but nonfunctional buttons.
+
+Do not use `href="#"` as a substitute for actual behavior.
+
+If a feature is planned for a later phase, either omit its control, provide a clearly labeled preview, or implement a legitimate minimal prototype.
+
+Avoid fake social proof, fake reviews, fake discounts, fake scarcity, or invented stock levels.
+
+## 18. QUALITY ASSURANCE
+
+After implementation, verify:
+
+1. Application starts successfully.
+2. No TypeScript or build errors.
+3. No broken imports.
+4. No missing assets in the critical experience.
+5. No major console errors.
+6. Responsive navigation works.
+7. Hero CTA works.
+8. Lookbook selection works.
+9. Rapid look switching does not break state.
+10. Touch interaction works.
+11. Keyboard interaction works.
+12. Language switching works.
+13. Product information corresponds to the selected look.
+14. Animation cleanup works.
+15. Reduced-motion mode is usable.
+16. Mobile screens do not overflow horizontally.
+17. Typography remains readable.
+18. Layout remains stable during image loading.
+19. Core actions remain functional without decorative animation.
+20. The interface looks cohesive rather than assembled from unrelated templates.
+
+Where browser automation is available, perform visual and functional testing.
+
+Where automatic testing is unavailable, identify the unverified areas accurately.
+
+Never claim a feature was tested when it was not.
+
+## 19. DESIGN QUALITY STANDARD
+
+The website should resemble a bespoke digital flagship experience.
+
+Not:
+
+- A generic Shopify template
+- A standard SaaS landing page
+- A component-library demo
+- An excessive neon cyberpunk interface
+- A traditional black-and-gold jewelry website
+- A static fashion brochure
+- A collection of unrelated animation demos
+
+Instead:
+
+- Elegant editorial typography
+- Confident composition
+- Sophisticated negative space
+- Immersive visual storytelling
+- Premium fashion photography
+- Precise interaction design
+- Art-directed responsive layouts
+- Fluid animation choreography
+- Original identity
+- Clear shopping journeys
+
+Introduce meaningful creative surprises without reducing clarity.
+
+The design should feel like FABRICIAN has its own recognizable digital identity.
+
+## 20. EXECUTION INSTRUCTIONS
+
+You are responsible for implementing the actual application.
+
+Do not stop after producing a strategy document.
+
+Do not output only a design description.
+
+Do not provide generic pseudo-code instead of functional code.
+
+Proceed as follows.
+
+### Step 1 — Inspect
+
+Analyze the available reference images, video, requirements, and runtime.
+
+Identify the supported frontend environment.
+
+### Step 2 — Establish the Design System
+
+Create:
+
+- Color tokens
+- Typography system
+- Spacing system
+- Layout containers
+- Button styles
+- Motion tokens
+- Responsive rules
+- Component foundations
+
+### Step 3 — Scaffold the Project
+
+Initialize the most appropriate compatible application structure.
+
+Install only necessary dependencies.
+
+### Step 4 — Implement Phase 01
+
+Build:
+
+- Premium navigation
+- Cinematic homepage hero
+- Signature interactive lookbook
+- Collection previews
+- Featured product previews
+- Craftsmanship section
+- Style Intelligence preview
+- Editorial storytelling
+- Footer
+- English/Bangla switching
+- Responsive interactions
+
+### Step 5 — Refine the Experience
+
+Improve:
+
+- Visual consistency
+- Typography
+- Motion timing
+- Responsive composition
+- Image placement
+- Touch interactions
+- Accessibility
+- Loading behavior
+
+### Step 6 — Validate
+
+Run the application.
+
+Resolve errors.
+
+Test key interactions.
+
+Verify mobile and desktop layouts.
+
+Fix visual and functional issues.
+
+### Step 7 — Present the Result
+
+Provide:
+
+1. Working application preview, when supported.
+2. Brief implementation summary.
+3. Main technologies used.
+4. Key completed interactions.
+5. Known limitations.
+6. Any missing actual brand assets.
+7. Phase 01 verification status.
+8. Recommended next actions for Phase 02.
+
+Do not claim to have implemented Phase 02 or Phase 03 features that were not built.
+
+## 21. DEVELOPMENT PRIORITY
+
+When making trade-offs, prioritize in this order:
+
+1. Brand identity and visual quality
+2. Signature interactive lookbook
+3. Functional user interactions
+4. Responsive mobile experience
+5. Performance and accessibility
+6. Component architecture
+7. Supporting editorial sections
+8. Decorative 3D effects
+
+Never sacrifice critical usability for visual complexity.
+
+The core product experience should remain functional even if advanced animations or WebGL are unavailable.
+
+## 22. FINAL CREATIVE CHALLENGE
+
+Make FABRICIAN feel like a new generation of fashion commerce.
+
+The result should blend:
+
+Luxury fashion identity.
+
+Contemporary Bangladeshi craftsmanship.
+
+Digital experimentation.
+
+Intelligent product discovery.
+
+Cinematic interaction design.
+
+Precision frontend engineering.
+
+Create a distinctive experience that users can immediately understand, explore, and eventually shop.
+
+**Final instruction:**
+
+Begin implementing Phase 01 immediately.
+
+Build a real, responsive, interactive application with a visually exceptional homepage and a fully functional model-selection lookbook.
+
+Use the attached references when available.
+
+Make reasonable creative and technical decisions autonomously.
+
+Do not ask for unnecessary confirmation.
+
+Do not expand into the complete backend until the earlier phases are complete.
+
+Deliver the strongest working implementation supported by the actual development environment.
+
+**PROJECT: FABRICIAN**
+
+**IDENTITY: MADE IN BANGLADESH**
+
+**EXPERIENCE: THE INTELLIGENT FASHION UNIVERSE**
+
+**START BUILDING PHASE 01 NOW.**

@@ -1,0 +1,821 @@
+{
+  "schema_version": "1.0.0",
+  "generated_at": "2026-11-11",
+  "brand": {
+    "brand": "FABRICIAN",
+    "collection": "DROP 01 / THE GRAPHIC ARCHIVE",
+    "date": "2026-11-11",
+    "market": "Bangladesh",
+    "contact_phone": "+8801778307704",
+    "contact_phone_machine": "8801778307704",
+    "payment": "Cash on Delivery (seller-supplied; confirm before launch)",
+    "delivery_partners": [
+      "Pathao Courier",
+      "RedX Delivery"
+    ],
+    "delivery_policy_recommended": "Customer pays standard delivery on 1 piece; free delivery on orders of 2+ pieces. Show exact delivery charge before confirmation.",
+    "delivery_policy_status": "PROPOSED - approval required; differs from earlier all-orders-free claim",
+    "return_policy_recommended": "Report incorrect/defective items with photos within 48 hours of receipt; eligibility and carrier process to be confirmed; do not promise automatic approval.",
+    "return_policy_status": "PROPOSED - approval required",
+    "size_policy": "Provide exact current garment measurements before accepting an order; size chart not supplied",
+    "design_count": 11,
+    "color_variant_count": 15,
+    "image_reference_count": 13,
+    "rights_note": "Artwork and marks in some mockups may belong to third parties. Written commercial authorization is needed before paid advertising or sale.",
+    "image_note": "Uploaded images are mockups/reference visuals; actual fabric and print require sample verification.",
+    "pricing_note": "Retail price proposals based on visible print complexity and market references; no actual supplier unit-cost data was supplied."
+  },
+  "products": [
+    {
+      "id": "FAB-H001",
+      "name": "Naruto Legacy",
+      "editorial": "THE SHINOBI LEGACY",
+      "category": "Anime Archive",
+      "price": 1590,
+      "colors": [
+        "Cream",
+        "Black"
+      ],
+      "images": {
+        "Cream": "1000150954.jpg",
+        "Black": "1000150926.jpg"
+      },
+      "tone": "A striking crimson-sun graphic on a statement fleece silhouette.",
+      "bn": "অ্যানিমে-অনুপ্রাণিত সাহসী গ্রাফিক, সামনে মিনিমাল এবং পেছনে স্টেটমেন্ট লুক।",
+      "tags": [
+        "anime",
+        "graphic",
+        "red sun",
+        "sleeve print"
+      ],
+      "rights": "Third-party character and logo: written commercial licensing required",
+      "ads": "Hold until rights verified",
+      "cost": 720,
+      "feature": "Front + Back + Sleeve Art",
+      "priority": 3
+    },
+    {
+      "id": "FAB-H002",
+      "name": "Peace Bro Cat",
+      "editorial": "GOOD VIBES. NO NOISE.",
+      "category": "Playful Street",
+      "price": 1290,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150953.jpg"
+      },
+      "tone": "A playful, bold graphic built for effortless everyday styling.",
+      "bn": "মজার ক্যাট গ্রাফিক এবং কনট্রাস্ট রঙের ক্যাজুয়াল স্ট্রিটওয়্যার লুক।",
+      "tags": [
+        "cat",
+        "fun",
+        "graphic",
+        "street"
+      ],
+      "rights": "Originality and artwork ownership to be confirmed",
+      "ads": "Eligible after artwork review",
+      "cost": 610,
+      "feature": "Bold Back Graphic",
+      "priority": 1
+    },
+    {
+      "id": "FAB-H003",
+      "name": "Folk Art Bus",
+      "editorial": "THE ROAD IS CULTURE.",
+      "category": "Bangla Heritage",
+      "price": 1390,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150952.jpg"
+      },
+      "tone": "A colorful tribute to the craft and rhythm of Bangladeshi roads.",
+      "bn": "বাংলাদেশের রঙিন লোকশিল্প এবং বাস আর্টকে কেন্দ্র করে তৈরি ডিজাইন।",
+      "tags": [
+        "bangladesh",
+        "folk-art",
+        "bus",
+        "heritage"
+      ],
+      "rights": "Originality and artwork ownership to be confirmed",
+      "ads": "Eligible after artwork review",
+      "cost": 650,
+      "feature": "Multicolor Heritage Art",
+      "priority": 1
+    },
+    {
+      "id": "FAB-H004",
+      "name": "Royal Enfield Rider",
+      "editorial": "BUILT FOR THE LONG RIDE.",
+      "category": "Moto Culture",
+      "price": 1690,
+      "colors": [
+        "Maroon"
+      ],
+      "images": {
+        "Maroon": "1000150947.jpg"
+      },
+      "tone": "Maroon energy, vintage motorcycle attitude and a full-sleeve graphic.",
+      "bn": "মেরুন বেসে মোটরসাইকেল থিমের ডিটেইলড ব্যাক ও স্লিভ গ্রাফিক।",
+      "tags": [
+        "moto",
+        "rider",
+        "maroon",
+        "motorcycle"
+      ],
+      "rights": "Royal Enfield trademark / motorcycle imagery: authorization required",
+      "ads": "Hold until rights verified",
+      "cost": 760,
+      "feature": "Large Graphic + Sleeve Detail",
+      "priority": 3
+    },
+    {
+      "id": "FAB-H005",
+      "name": "One Punch Moon",
+      "editorial": "ONE HERO. ONE MOON.",
+      "category": "Anime Archive",
+      "price": 1590,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150948.jpg"
+      },
+      "tone": "Moonlit monochrome artwork with sharp anime details.",
+      "bn": "চাঁদের আবহে অ্যানিমে-গ্রাফিক এবং মিনিমাল ব্ল্যাক বেস।",
+      "tags": [
+        "anime",
+        "moon",
+        "one punch",
+        "graphic"
+      ],
+      "rights": "Third-party character and title: written commercial licensing required",
+      "ads": "Hold until rights verified",
+      "cost": 720,
+      "feature": "Cinematic Back Artwork",
+      "priority": 3
+    },
+    {
+      "id": "FAB-H006",
+      "name": "Bangla Cinema",
+      "editorial": "STORIES WE WEAR.",
+      "category": "Bangla Heritage",
+      "price": 1490,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150951.jpg"
+      },
+      "tone": "A nostalgic tribute to the timeless language of Bengali cinema.",
+      "bn": "বাংলা সিনেমার নস্টালজিয়া, ক্লাসিক ভিজ্যুয়াল এবং রেট্রো টাইপোগ্রাফি।",
+      "tags": [
+        "bangla",
+        "cinema",
+        "retro",
+        "culture"
+      ],
+      "rights": "Confirm rights to any identifiable actor likenesses / artwork",
+      "ads": "Eligible after artwork review",
+      "cost": 690,
+      "feature": "Retro Back Graphic",
+      "priority": 2
+    },
+    {
+      "id": "FAB-H007",
+      "name": "Aesthetic Dhaka",
+      "editorial": "THE CITY HAS A SOUL.",
+      "category": "City Stories",
+      "price": 1490,
+      "colors": [
+        "Chocolate Brown"
+      ],
+      "images": {
+        "Chocolate Brown": "1000150946.jpg"
+      },
+      "tone": "Old Dhaka imagery and rickshaw nostalgia on a warm cocoa backdrop.",
+      "bn": "ঢাকার পরিচিত নস্টালজিয়া, রিকশা এবং শহরের গল্প নিয়ে তৈরি প্রিমিয়াম লুক।",
+      "tags": [
+        "dhaka",
+        "brown",
+        "rickshaw",
+        "city"
+      ],
+      "rights": "Originality and artwork ownership to be confirmed",
+      "ads": "Eligible after artwork review",
+      "cost": 680,
+      "feature": "Cityscape + Heritage Print",
+      "priority": 1
+    },
+    {
+      "id": "FAB-H008",
+      "name": "Student Movement Emblem",
+      "editorial": "A DISTINCTIVE STATEMENT.",
+      "category": "Statement Graphics",
+      "price": 1390,
+      "colors": [
+        "Black",
+        "Maroon",
+        "Chocolate Brown",
+        "Cream"
+      ],
+      "images": {
+        "Black": "1000150944.jpg",
+        "Maroon": "1000150944.jpg",
+        "Chocolate Brown": "1000150944.jpg",
+        "Cream": "1000150943.jpg"
+      },
+      "tone": "Four colorways featuring a Bengali political-organization emblem.",
+      "bn": "একই প্রতীক ও লেখার ডিজাইন—ব্ল্যাক, মেরুন, ব্রাউন ও ক্রিম ভ্যারিয়েন্টে।",
+      "tags": [
+        "statement",
+        "bengali",
+        "political-organization",
+        "emblem"
+      ],
+      "rights": "Political organization name/emblem: written authorization and sales-policy review required",
+      "ads": "Do not run paid ads until permissions and platform policies reviewed",
+      "cost": 650,
+      "feature": "Four Colorways",
+      "priority": 3
+    },
+    {
+      "id": "FAB-H009",
+      "name": "Rickshaw Bloom",
+      "editorial": "ROOTED IN COLOR.",
+      "category": "Bangla Heritage",
+      "price": 1490,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150940.jpg"
+      },
+      "tone": "Dhaka rickshaw-art colors, floral geometry and a bold back motif.",
+      "bn": "বাংলাদেশের রিকশা আর্টকে আধুনিক স্ট্রিটওয়্যারে তুলে ধরা হয়েছে।",
+      "tags": [
+        "rickshaw",
+        "floral",
+        "folk-art",
+        "dhaka"
+      ],
+      "rights": "Originality and artwork ownership to be confirmed",
+      "ads": "Eligible after artwork review",
+      "cost": 680,
+      "feature": "Colorful Back + Sleeve Flowers",
+      "priority": 1
+    },
+    {
+      "id": "FAB-H010",
+      "name": "Tom & Jerry Cheese Club",
+      "editorial": "FOREVER PLAYFUL.",
+      "category": "Playful Street",
+      "price": 1390,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150931.jpg"
+      },
+      "tone": "Classic cartoon charm on an easy-to-style black hoodie.",
+      "bn": "টম অ্যান্ড জেরি-অনুপ্রাণিত প্লেফুল চেস্ট, ব্যাক ও স্লিভ আর্টওয়ার্ক।",
+      "tags": [
+        "cartoon",
+        "tom and jerry",
+        "cheese",
+        "fun"
+      ],
+      "rights": "Tom & Jerry characters and title: written commercial licensing required",
+      "ads": "Hold until rights verified",
+      "cost": 650,
+      "feature": "Front + Back Cartoon Art",
+      "priority": 3
+    },
+    {
+      "id": "FAB-H011",
+      "name": "Hot Wheels Night Circuit",
+      "editorial": "FULL THROTTLE STYLE.",
+      "category": "Moto Culture",
+      "price": 1590,
+      "colors": [
+        "Black"
+      ],
+      "images": {
+        "Black": "1000150930.jpg"
+      },
+      "tone": "Racing color, checkered detail and high-energy car graphics.",
+      "bn": "মোটরস্পোর্ট থিমের রেসিং কার, চেকার্ড ডিটেইল ও কালারফুল প্রিন্ট।",
+      "tags": [
+        "racing",
+        "hot wheels",
+        "cars",
+        "motorsport"
+      ],
+      "rights": "Hot Wheels trademark / logos: written commercial licensing required",
+      "ads": "Hold until rights verified",
+      "cost": 720,
+      "feature": "Car Racing + Sleeve Graphics",
+      "priority": 3
+    }
+  ],
+  "variants": [
+    {
+      "sku": "FAB-H001-CRM",
+      "product_id": "FAB-H001",
+      "product_name": "Naruto Legacy",
+      "collection": "Anime Archive",
+      "color": "Cream",
+      "retail_price_bdt": 1590,
+      "image_file": "1000150954.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "A striking crimson-sun graphic on a statement fleece silhouette.",
+      "description_bn": "অ্যানিমে-অনুপ্রাণিত সাহসী গ্রাফিক, সামনে মিনিমাল এবং পেছনে স্টেটমেন্ট লুক।",
+      "rights_clearance": "Third-party character and logo: written commercial licensing required",
+      "ads_review": "Hold until rights verified",
+      "estimated_unit_cost_bdt": 720,
+      "priority": 3,
+      "tags": [
+        "anime",
+        "graphic",
+        "red sun",
+        "sleeve print"
+      ]
+    },
+    {
+      "sku": "FAB-H001-BLK",
+      "product_id": "FAB-H001",
+      "product_name": "Naruto Legacy",
+      "collection": "Anime Archive",
+      "color": "Black",
+      "retail_price_bdt": 1590,
+      "image_file": "1000150926.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "A striking crimson-sun graphic on a statement fleece silhouette.",
+      "description_bn": "অ্যানিমে-অনুপ্রাণিত সাহসী গ্রাফিক, সামনে মিনিমাল এবং পেছনে স্টেটমেন্ট লুক।",
+      "rights_clearance": "Third-party character and logo: written commercial licensing required",
+      "ads_review": "Hold until rights verified",
+      "estimated_unit_cost_bdt": 720,
+      "priority": 3,
+      "tags": [
+        "anime",
+        "graphic",
+        "red sun",
+        "sleeve print"
+      ]
+    },
+    {
+      "sku": "FAB-H002-BLK",
+      "product_id": "FAB-H002",
+      "product_name": "Peace Bro Cat",
+      "collection": "Playful Street",
+      "color": "Black",
+      "retail_price_bdt": 1290,
+      "image_file": "1000150953.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "A playful, bold graphic built for effortless everyday styling.",
+      "description_bn": "মজার ক্যাট গ্রাফিক এবং কনট্রাস্ট রঙের ক্যাজুয়াল স্ট্রিটওয়্যার লুক।",
+      "rights_clearance": "Originality and artwork ownership to be confirmed",
+      "ads_review": "Eligible after artwork review",
+      "estimated_unit_cost_bdt": 610,
+      "priority": 1,
+      "tags": [
+        "cat",
+        "fun",
+        "graphic",
+        "street"
+      ]
+    },
+    {
+      "sku": "FAB-H003-BLK",
+      "product_id": "FAB-H003",
+      "product_name": "Folk Art Bus",
+      "collection": "Bangla Heritage",
+      "color": "Black",
+      "retail_price_bdt": 1390,
+      "image_file": "1000150952.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "A colorful tribute to the craft and rhythm of Bangladeshi roads.",
+      "description_bn": "বাংলাদেশের রঙিন লোকশিল্প এবং বাস আর্টকে কেন্দ্র করে তৈরি ডিজাইন।",
+      "rights_clearance": "Originality and artwork ownership to be confirmed",
+      "ads_review": "Eligible after artwork review",
+      "estimated_unit_cost_bdt": 650,
+      "priority": 1,
+      "tags": [
+        "bangladesh",
+        "folk-art",
+        "bus",
+        "heritage"
+      ]
+    },
+    {
+      "sku": "FAB-H004-MRN",
+      "product_id": "FAB-H004",
+      "product_name": "Royal Enfield Rider",
+      "collection": "Moto Culture",
+      "color": "Maroon",
+      "retail_price_bdt": 1690,
+      "image_file": "1000150947.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Maroon energy, vintage motorcycle attitude and a full-sleeve graphic.",
+      "description_bn": "মেরুন বেসে মোটরসাইকেল থিমের ডিটেইলড ব্যাক ও স্লিভ গ্রাফিক।",
+      "rights_clearance": "Royal Enfield trademark / motorcycle imagery: authorization required",
+      "ads_review": "Hold until rights verified",
+      "estimated_unit_cost_bdt": 760,
+      "priority": 3,
+      "tags": [
+        "moto",
+        "rider",
+        "maroon",
+        "motorcycle"
+      ]
+    },
+    {
+      "sku": "FAB-H005-BLK",
+      "product_id": "FAB-H005",
+      "product_name": "One Punch Moon",
+      "collection": "Anime Archive",
+      "color": "Black",
+      "retail_price_bdt": 1590,
+      "image_file": "1000150948.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Moonlit monochrome artwork with sharp anime details.",
+      "description_bn": "চাঁদের আবহে অ্যানিমে-গ্রাফিক এবং মিনিমাল ব্ল্যাক বেস।",
+      "rights_clearance": "Third-party character and title: written commercial licensing required",
+      "ads_review": "Hold until rights verified",
+      "estimated_unit_cost_bdt": 720,
+      "priority": 3,
+      "tags": [
+        "anime",
+        "moon",
+        "one punch",
+        "graphic"
+      ]
+    },
+    {
+      "sku": "FAB-H006-BLK",
+      "product_id": "FAB-H006",
+      "product_name": "Bangla Cinema",
+      "collection": "Bangla Heritage",
+      "color": "Black",
+      "retail_price_bdt": 1490,
+      "image_file": "1000150951.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "A nostalgic tribute to the timeless language of Bengali cinema.",
+      "description_bn": "বাংলা সিনেমার নস্টালজিয়া, ক্লাসিক ভিজ্যুয়াল এবং রেট্রো টাইপোগ্রাফি।",
+      "rights_clearance": "Confirm rights to any identifiable actor likenesses / artwork",
+      "ads_review": "Eligible after artwork review",
+      "estimated_unit_cost_bdt": 690,
+      "priority": 2,
+      "tags": [
+        "bangla",
+        "cinema",
+        "retro",
+        "culture"
+      ]
+    },
+    {
+      "sku": "FAB-H007-BRN",
+      "product_id": "FAB-H007",
+      "product_name": "Aesthetic Dhaka",
+      "collection": "City Stories",
+      "color": "Chocolate Brown",
+      "retail_price_bdt": 1490,
+      "image_file": "1000150946.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Old Dhaka imagery and rickshaw nostalgia on a warm cocoa backdrop.",
+      "description_bn": "ঢাকার পরিচিত নস্টালজিয়া, রিকশা এবং শহরের গল্প নিয়ে তৈরি প্রিমিয়াম লুক।",
+      "rights_clearance": "Originality and artwork ownership to be confirmed",
+      "ads_review": "Eligible after artwork review",
+      "estimated_unit_cost_bdt": 680,
+      "priority": 1,
+      "tags": [
+        "dhaka",
+        "brown",
+        "rickshaw",
+        "city"
+      ]
+    },
+    {
+      "sku": "FAB-H008-BLK",
+      "product_id": "FAB-H008",
+      "product_name": "Student Movement Emblem",
+      "collection": "Statement Graphics",
+      "color": "Black",
+      "retail_price_bdt": 1390,
+      "image_file": "1000150944.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Four colorways featuring a Bengali political-organization emblem.",
+      "description_bn": "একই প্রতীক ও লেখার ডিজাইন—ব্ল্যাক, মেরুন, ব্রাউন ও ক্রিম ভ্যারিয়েন্টে।",
+      "rights_clearance": "Political organization name/emblem: written authorization and sales-policy review required",
+      "ads_review": "Do not run paid ads until permissions and platform policies reviewed",
+      "estimated_unit_cost_bdt": 650,
+      "priority": 3,
+      "tags": [
+        "statement",
+        "bengali",
+        "political-organization",
+        "emblem"
+      ]
+    },
+    {
+      "sku": "FAB-H008-MRN",
+      "product_id": "FAB-H008",
+      "product_name": "Student Movement Emblem",
+      "collection": "Statement Graphics",
+      "color": "Maroon",
+      "retail_price_bdt": 1390,
+      "image_file": "1000150944.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Four colorways featuring a Bengali political-organization emblem.",
+      "description_bn": "একই প্রতীক ও লেখার ডিজাইন—ব্ল্যাক, মেরুন, ব্রাউন ও ক্রিম ভ্যারিয়েন্টে।",
+      "rights_clearance": "Political organization name/emblem: written authorization and sales-policy review required",
+      "ads_review": "Do not run paid ads until permissions and platform policies reviewed",
+      "estimated_unit_cost_bdt": 650,
+      "priority": 3,
+      "tags": [
+        "statement",
+        "bengali",
+        "political-organization",
+        "emblem"
+      ]
+    },
+    {
+      "sku": "FAB-H008-BRN",
+      "product_id": "FAB-H008",
+      "product_name": "Student Movement Emblem",
+      "collection": "Statement Graphics",
+      "color": "Chocolate Brown",
+      "retail_price_bdt": 1390,
+      "image_file": "1000150944.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Four colorways featuring a Bengali political-organization emblem.",
+      "description_bn": "একই প্রতীক ও লেখার ডিজাইন—ব্ল্যাক, মেরুন, ব্রাউন ও ক্রিম ভ্যারিয়েন্টে।",
+      "rights_clearance": "Political organization name/emblem: written authorization and sales-policy review required",
+      "ads_review": "Do not run paid ads until permissions and platform policies reviewed",
+      "estimated_unit_cost_bdt": 650,
+      "priority": 3,
+      "tags": [
+        "statement",
+        "bengali",
+        "political-organization",
+        "emblem"
+      ]
+    },
+    {
+      "sku": "FAB-H008-CRM",
+      "product_id": "FAB-H008",
+      "product_name": "Student Movement Emblem",
+      "collection": "Statement Graphics",
+      "color": "Cream",
+      "retail_price_bdt": 1390,
+      "image_file": "1000150943.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Four colorways featuring a Bengali political-organization emblem.",
+      "description_bn": "একই প্রতীক ও লেখার ডিজাইন—ব্ল্যাক, মেরুন, ব্রাউন ও ক্রিম ভ্যারিয়েন্টে।",
+      "rights_clearance": "Political organization name/emblem: written authorization and sales-policy review required",
+      "ads_review": "Do not run paid ads until permissions and platform policies reviewed",
+      "estimated_unit_cost_bdt": 650,
+      "priority": 3,
+      "tags": [
+        "statement",
+        "bengali",
+        "political-organization",
+        "emblem"
+      ]
+    },
+    {
+      "sku": "FAB-H009-BLK",
+      "product_id": "FAB-H009",
+      "product_name": "Rickshaw Bloom",
+      "collection": "Bangla Heritage",
+      "color": "Black",
+      "retail_price_bdt": 1490,
+      "image_file": "1000150940.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Dhaka rickshaw-art colors, floral geometry and a bold back motif.",
+      "description_bn": "বাংলাদেশের রিকশা আর্টকে আধুনিক স্ট্রিটওয়্যারে তুলে ধরা হয়েছে।",
+      "rights_clearance": "Originality and artwork ownership to be confirmed",
+      "ads_review": "Eligible after artwork review",
+      "estimated_unit_cost_bdt": 680,
+      "priority": 1,
+      "tags": [
+        "rickshaw",
+        "floral",
+        "folk-art",
+        "dhaka"
+      ]
+    },
+    {
+      "sku": "FAB-H010-BLK",
+      "product_id": "FAB-H010",
+      "product_name": "Tom & Jerry Cheese Club",
+      "collection": "Playful Street",
+      "color": "Black",
+      "retail_price_bdt": 1390,
+      "image_file": "1000150931.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Classic cartoon charm on an easy-to-style black hoodie.",
+      "description_bn": "টম অ্যান্ড জেরি-অনুপ্রাণিত প্লেফুল চেস্ট, ব্যাক ও স্লিভ আর্টওয়ার্ক।",
+      "rights_clearance": "Tom & Jerry characters and title: written commercial licensing required",
+      "ads_review": "Hold until rights verified",
+      "estimated_unit_cost_bdt": 650,
+      "priority": 3,
+      "tags": [
+        "cartoon",
+        "tom and jerry",
+        "cheese",
+        "fun"
+      ]
+    },
+    {
+      "sku": "FAB-H011-BLK",
+      "product_id": "FAB-H011",
+      "product_name": "Hot Wheels Night Circuit",
+      "collection": "Moto Culture",
+      "color": "Black",
+      "retail_price_bdt": 1590,
+      "image_file": "1000150930.jpg",
+      "fabric": "One-side brushed fleece (seller-provided; verify)",
+      "gsm": "330-350 GSM (seller-provided; verify)",
+      "material": "Combed compact cotton (seller claim; composition unverified)",
+      "fit": "Unverified: mockups appear relaxed; seller copy states slim",
+      "sizes": "Confirm current size chart before order",
+      "print_method": "Not supplied; confirm",
+      "stock": "Unconfirmed",
+      "status": "DRAFT - not live",
+      "currency": "BDT",
+      "description_en": "Racing color, checkered detail and high-energy car graphics.",
+      "description_bn": "মোটরস্পোর্ট থিমের রেসিং কার, চেকার্ড ডিটেইল ও কালারফুল প্রিন্ট।",
+      "rights_clearance": "Hot Wheels trademark / logos: written commercial licensing required",
+      "ads_review": "Hold until rights verified",
+      "estimated_unit_cost_bdt": 720,
+      "priority": 3,
+      "tags": [
+        "racing",
+        "hot wheels",
+        "cars",
+        "motorsport"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Jamidary - Gazipur Heritage Hoodie 350 GSM",
+      "url": "https://jamidary.com/product/gazipur-heritage-hoodie-%E2%80%93-350-gsm-premium-collection-435",
+      "observed": "Listed BDT 990 sale price (350 GSM; specific cut differs)",
+      "type": "Market anchor"
+    },
+    {
+      "title": "LEXZO BD Premium Black Hoodie 280-300 GSM",
+      "url": "https://www.lexzobd.com/",
+      "observed": "Listed BDT 1,490 for 280-300 GSM black hoodie (different product)",
+      "type": "Market anchor"
+    },
+    {
+      "title": "Pathao delivery prices May 2026",
+      "url": "https://help.pathao.com/what-is-the-delivery-charge-inside-or-outside-the-city/",
+      "observed": "Within Dhaka 0.5-1kg BDT 70; Dhaka to outside 0.5-1kg BDT 130; 1% COD; confirm merchant rate",
+      "type": "Fulfilment"
+    },
+    {
+      "title": "Pathao courier official",
+      "url": "https://pathao.com/courier/",
+      "observed": "Courier rates and COD terms vary by zone and weight; use current merchant panel",
+      "type": "Fulfilment"
+    }
+  ],
+  "operating_assumptions": {
+    "recommended_marketing_acquisition_per_order_bdt": 180,
+    "packaging_per_order_bdt": 35,
+    "reserve_per_order_bdt": 40,
+    "cod_fee_rate": 0.01,
+    "single_piece_merchant_shipping_subsidy_bdt": 0,
+    "2plus_order_shipping_offer": "Free shipping - proposal, check merchant economics",
+    "discount_2_pieces_bdt": 150,
+    "discount_3_pieces_bdt": 300,
+    "cost_basis": "Illustrative estimates only, edit in workbook with supplier quotations",
+    "no_discount_fake_mrp": "Never present invented struck-through reference prices"
+  },
+  "sales_templates": {
+    "bn_order": "FABRICIAN-এ অর্ডার করতে প্রোডাক্ট কোড, কালার, সাইজ, নাম, মোবাইল নম্বর ও সম্পূর্ণ ঠিকানা পাঠান। নিশ্চিত করার আগে স্টক, মাপ, মোট দাম ও ডেলিভারি চার্জ জানানো হবে।",
+    "en_order": "To order, send SKU, color, size, full name, mobile number and delivery address. We confirm stock, measurements, payable total and delivery charge before dispatch.",
+    "bn_fabric": "ওয়ান-সাইড ব্রাশড ফ্লিস, ৩৩০–৩৫০ GSM এবং কম্বড কমপ্যাক্ট কটন—সরবরাহকৃত বিবরণ; প্রোডাকশন স্যাম্পল যাচাই প্রয়োজন।",
+    "faq_sizes": "Exact garment measurement chart is pending supplier confirmation; do not invent chest/length in centimeters.",
+    "faq_free_delivery": "Proposed offer: free delivery for orders of 2+ hoodies; single-piece shipping calculated by zone before order confirmation."
+  }
+}

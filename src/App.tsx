@@ -1,0 +1,252 @@
+import React, { useState } from 'react';
+import { Language, CartItem, Product } from './types';
+import { FASHION_LOOKS, FEATURED_PRODUCTS } from './data/mockData';
+import { Navbar } from './components/navigation/Navbar';
+import { CinematicHero } from './components/hero/CinematicHero';
+import { InteractiveLookbook } from './components/lookbook/InteractiveLookbook';
+import { ThreePieceSection } from './components/three-piece/ThreePieceSection';
+import { CollectionDiscovery } from './components/collections/CollectionDiscovery';
+import { FeaturedEssentials } from './components/products/FeaturedEssentials';
+import { CraftsmanshipSection } from './components/craftsmanship/CraftsmanshipSection';
+import { StyleIntelligence } from './components/style-intelligence/StyleIntelligence';
+import { EditorialStories } from './components/editorial/EditorialStories';
+import { Footer } from './components/footer/Footer';
+import { CartDrawer } from './components/modals/CartDrawer';
+import { WishlistDrawer } from './components/modals/WishlistDrawer';
+import { SearchModal } from './components/modals/SearchModal';
+import { QuickViewModal } from './components/modals/QuickViewModal';
+import { SizeGuideModal } from './components/modals/SizeGuideModal';
+import { StyleQuizModal } from './components/style-intelligence/StyleQuizModal';
+import { TrackOrderModal } from './components/modals/TrackOrderModal';
+
+export default function App() {
+  const [language, setLanguage] = useState<Language>('en');
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    {
+      id: 'initial-cart-1',
+      productId: 'prod-01',
+      nameEn: 'Obsidian Tailored Panjabi',
+      nameBn: 'অবসিডিয়ান টেইলর্ড পাঞ্জাবি',
+      priceBDT: 6800,
+      image: '/src/assets/images/lookbook_model_panjabi_1794372401468.jpg',
+      color: 'Obsidian Black',
+      size: '40 / M',
+      quantity: 1,
+    },
+  ]);
+  const [wishlist, setWishlist] = useState<Product[]>([FEATURED_PRODUCTS[1]]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState<string | null>(null);
+  const [isGlobalSizeGuideOpen, setIsGlobalSizeGuideOpen] = useState(false);
+  const [isStyleQuizOpen, setIsStyleQuizOpen] = useState(false);
+  const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
+  const [trackOrderId, setTrackOrderId] = useState('FAB-2026');
+
+  const handleOpenTrackOrder = (orderId?: string) => {
+    if (orderId) setTrackOrderId(orderId);
+    setIsTrackOrderOpen(true);
+  };
+
+  // Cart Handlers
+  const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
+    setCartItems((prev) => {
+      const existing = prev.find(
+        (i) => i.productId === item.productId && i.size === item.size && i.color === item.color
+      );
+      if (existing) {
+        return prev.map((i) =>
+          i.id === existing.id ? { ...i, quantity: i.quantity + item.quantity } : i
+        );
+      }
+      return [...prev, { ...item, id: `cart-${Date.now()}-${Math.random()}` }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const handleUpdateQuantity = (id: string, delta: number) => {
+    setCartItems((prev) =>
+      prev
+        .map((item) => {
+          if (item.id === id) {
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter(Boolean) as CartItem[]
+    );
+  };
+
+  const handleRemoveFromCart = (id: string) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  // Wishlist Handlers
+  const handleToggleWishlist = (product: Product) => {
+    setWishlist((prev) => {
+      const exists = prev.some((p) => p.id === product.id);
+      if (exists) {
+        return prev.filter((p) => p.id !== product.id);
+      }
+      return [...prev, product];
+    });
+  };
+
+  const isWishlisted = (productId: string) => {
+    return wishlist.some((p) => p.id === productId);
+  };
+
+  // Navigation Smooth Scroll Handler
+  const handleNavigateSection = (sectionId: string) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleSelectCollection = (category: string) => {
+    setSelectedFilterCategory(category);
+    handleNavigateSection('essentials');
+  };
+
+  return (
+    <div className={`min-h-screen bg-[#09090B] text-[#F5F2EB] ${language === 'bn' ? 'font-bengali' : 'font-sans-modern'}`}>
+      {/* Top Navigation */}
+      <Navbar
+        language={language}
+        onToggleLanguage={() => setLanguage((l) => (l === 'en' ? 'bn' : 'en'))}
+        cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
+        wishlistCount={wishlist.length}
+        onOpenCart={() => setIsCartOpen(true)}
+        onOpenWishlist={() => setIsWishlistOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
+        onNavigateSection={handleNavigateSection}
+        onOpenTrackOrder={() => handleOpenTrackOrder()}
+      />
+
+      {/* SECTION B: Cinematic Hero */}
+      <CinematicHero
+        language={language}
+        onExploreCollections={() => handleNavigateSection('collections')}
+        onEnterLookbook={() => handleNavigateSection('lookbook')}
+      />
+
+      {/* SECTION C: Interactive Lookbook (Signature MVP Experience) */}
+      <InteractiveLookbook
+        looks={FASHION_LOOKS}
+        language={language}
+        onAddToCart={handleAddToCart}
+      />
+
+      {/* THE THREE-PIECE EDIT: 18 Curated Designs with Anime.js & Three.js 3D Studio */}
+      <ThreePieceSection
+        language={language}
+        onAddToCart={handleAddToCart}
+        onToggleWishlist={handleToggleWishlist}
+        isWishlisted={isWishlisted}
+      />
+
+      {/* SECTION D: Collection Discovery */}
+      <CollectionDiscovery
+        language={language}
+        onSelectCategory={handleSelectCollection}
+      />
+
+      {/* SECTION E: Featured Essentials */}
+      <FeaturedEssentials
+        language={language}
+        onAddToCart={handleAddToCart}
+        onToggleWishlist={handleToggleWishlist}
+        isWishlisted={isWishlisted}
+        onQuickView={(p) => setQuickViewProduct(p)}
+        selectedFilterCategory={selectedFilterCategory}
+      />
+
+      {/* SECTION F: Bangladeshi Craftsmanship & Heritage */}
+      <CraftsmanshipSection language={language} />
+
+      {/* SECTION G: Style Intelligence Engine */}
+      <StyleIntelligence
+        language={language}
+        onAddToCart={handleAddToCart}
+        onQuickView={(p) => setQuickViewProduct(p)}
+        onOpenQuiz={() => setIsStyleQuizOpen(true)}
+      />
+
+      {/* SECTION H: Editorial Magazine */}
+      <EditorialStories language={language} />
+
+      {/* SECTION I: Brand Footer */}
+      <Footer
+        language={language}
+        onNavigate={handleNavigateSection}
+        onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
+        onOpenTrackOrder={() => handleOpenTrackOrder()}
+      />
+
+      {/* Slide-Over Modals & Drawers */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveFromCart}
+        language={language}
+        onOpenTrackOrder={handleOpenTrackOrder}
+      />
+
+      <WishlistDrawer
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        items={wishlist}
+        onRemove={(id) => setWishlist((prev) => prev.filter((p) => p.id !== id))}
+        onAddToCart={handleAddToCart}
+        language={language}
+      />
+
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSelectProduct={(p) => setQuickViewProduct(p)}
+        language={language}
+      />
+
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={Boolean(quickViewProduct)}
+        onClose={() => setQuickViewProduct(null)}
+        onAddToCart={handleAddToCart}
+        language={language}
+        onToggleWishlist={handleToggleWishlist}
+        isWishlisted={quickViewProduct ? isWishlisted(quickViewProduct.id) : false}
+      />
+
+      {/* Global Size Guide Modal */}
+      <SizeGuideModal
+        isOpen={isGlobalSizeGuideOpen}
+        onClose={() => setIsGlobalSizeGuideOpen(false)}
+        language={language}
+        defaultCategory="panjabi"
+      />
+
+      {/* AI Style Discovery Quiz Modal */}
+      <StyleQuizModal
+        isOpen={isStyleQuizOpen}
+        onClose={() => setIsStyleQuizOpen(false)}
+        language={language}
+        onAddToCart={handleAddToCart}
+      />
+
+      {/* Pathao Courier Real-Time Delivery Tracking Modal */}
+      <TrackOrderModal
+        isOpen={isTrackOrderOpen}
+        onClose={() => setIsTrackOrderOpen(false)}
+        language={language}
+        initialOrderId={trackOrderId}
+      />
+    </div>
+  );
+}
