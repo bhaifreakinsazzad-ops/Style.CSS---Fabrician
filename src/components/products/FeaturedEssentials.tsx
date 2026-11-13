@@ -208,7 +208,7 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenBrandPage('farizas-territory')}
-                  className="px-3 py-1.5 rounded-lg bg-[#B69A60]/15 border border-[#B69A60]/40 hover:bg-[#B69A60] text-[#D5BA80] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-[#C2185B]/20 border border-[#C2185B]/55 hover:bg-[#C2185B] text-[#F9A8D4] hover:text-white font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>Fariza&apos;s Territory</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />

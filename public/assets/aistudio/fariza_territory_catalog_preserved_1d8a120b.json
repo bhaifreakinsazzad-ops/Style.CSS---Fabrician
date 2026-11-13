@@ -1,0 +1,603 @@
+{
+  "brand": "Fariza's Territory",
+  "source": "Embedded original PRODUCTS array in three identical user-supplied HTML files",
+  "note": "Source PDF/XLSX not supplied for independent verification; media images are illustrations unless a verified image URL is provided",
+  "products": [
+    {
+      "id": "CAT-001",
+      "styleNo": "STYLE 01",
+      "edit": "Magenta & Plum Edit",
+      "name": "Magenta & Plum Printed Three-Piece",
+      "bnName": "ম্যাজেন্টা ও প্লাম প্রিন্টেড থ্রি-পিস",
+      "price": 2350,
+      "priceVerify": false,
+      "tagline": "প্লাম ও ম্যাজেন্টার প্রাণবন্ত মেলবন্ধন",
+      "description": "গাঢ় প্লাম-পার্পল বেসে সাদা, গোলাপি ও ম্যাজেন্টা ফ্লোরাল-পেইসলি প্রিন্ট, সাজানো বর্ডার আর ট্যাসেলযুক্ত ওড়নায় একটি উজ্জ্বল এথনিক লুক। কনট্রাস্টে রয়েছে সলিড ফুশিয়া-পিংক সালোয়ারের কাপড়।",
+      "kameez": "কামিজে ফুল ও পাতার মোটিফ, আলাদা হাতার কাপড়সহ",
+      "salwar": "ফুশিয়া-পিংক সলিড কাপড়",
+      "dupatta": "ম্যাজেন্টা-প্লাম প্রিন্ট, ট্যাসেলযুক্ত",
+      "colors": [
+        "#5E1949",
+        "#E62288",
+        "#FFFFFF",
+        "#F7A8D0"
+      ],
+      "salwarColor": "#EE2A92",
+      "dupattaColors": [
+        "#E62288",
+        "#4A1238"
+      ],
+      "motif": "plum-paisley",
+      "fabric": "Printed Cotton Lawn with Tassel Dupatta",
+      "hasMirror": false,
+      "hasTassels": true
+    },
+    {
+      "id": "CAT-002",
+      "styleNo": "STYLE 02",
+      "edit": "Alfi Boutique",
+      "name": "Emerald Teal Batik",
+      "bnName": "এমেরাল্ড টিল বাটিক থ্রি-পিস",
+      "price": 2150,
+      "priceVerify": false,
+      "tagline": "টিল, চারকোল ও রাস্টের সাহসী সমন্বয়",
+      "description": "চারকোল-কালো বেসে আইভরি রঙের আবস্ট্রাক্ট বাটিক-অনুপ্রাণিত প্রিন্ট। টিল-সবুজ স্ট্রাইপড ওড়নায় রাস্ট বর্ডার এবং সলিড টেরাকোটা কাপড়ের কনট্রাস্ট পুরো সেটকে করেছে আলাদা।",
+      "kameez": "চারকোল বেসে আইভরি ফুলেল, বক্ররেখা ও জ্যামিতিক ছাপ",
+      "salwar": "সলিড রাস্ট-টেরাকোটা",
+      "dupatta": "টিল স্ট্রাইপ ও টাই-ডাই ধাঁচ, রাস্ট বর্ডার",
+      "colors": [
+        "#181D1B",
+        "#137A6E",
+        "#A8553A",
+        "#F5F1E3"
+      ],
+      "salwarColor": "#A8553A",
+      "dupattaColors": [
+        "#137A6E",
+        "#A7E8DF"
+      ],
+      "motif": "alfi-wax-batik",
+      "fabric": "Alfi Handcrafted Wax Batik Cotton",
+      "hasMirror": false,
+      "hasTassels": true
+    },
+    {
+      "id": "CAT-003",
+      "styleNo": "STYLE 03",
+      "edit": "Alfi Boutique",
+      "name": "Dusty Mauve Floral Batik",
+      "bnName": "ডাস্টি মভ ফ্লোরাল বাটিক থ্রি-পিস",
+      "price": 2050,
+      "priceVerify": false,
+      "tagline": "নরম মভে রুচিশীল ফ্লোরাল স্টেটমেন্ট",
+      "description": "ডাস্টি মভের শান্ত বেসে অফ-হোয়াইট ছোট ফুল আর বড় গোলাকার বাটিক-অনুপ্রাণিত নকশা। একই টোনের সলিড কাপড় ও ফুলেল ট্যাসেলযুক্ত ওড়না মিলে তৈরি হয় পরিমিত, কোমল সাজ।",
+      "kameez": "অফ-হোয়াইট ফুলেল ও বড় বৃত্তাকার মোটিফ",
+      "salwar": "সলিড ডাস্টি মভ",
+      "dupatta": "ম্যাচিং ফ্লোরাল প্রিন্ট ও ট্যাসেল",
+      "colors": [
+        "#8E5B6E",
+        "#966477",
+        "#FAF5F0",
+        "#5E3847"
+      ],
+      "salwarColor": "#966477",
+      "dupattaColors": [
+        "#8E5B6E",
+        "#B38294"
+      ],
+      "motif": "shibori-circle",
+      "fabric": "Alfi Boutique Shibori & Floral Batik",
+      "hasMirror": false,
+      "hasTassels": true
+    },
+    {
+      "id": "MB-BT-01",
+      "styleNo": "STYLE 04",
+      "edit": "Mome Boutique",
+      "name": "Forest Elegance",
+      "bnName": "ফরেস্ট এলিগ্যান্স",
+      "price": 1850,
+      "priceVerify": false,
+      "tagline": "মাটির রঙে বনসবুজের প্রশান্তি",
+      "description": "আর্থি ব্রাউন ও ফরেস্ট-গ্রিনের মধ্যে হলুদাভ বোটানিক্যাল মোটিফের স্বতন্ত্র ছাপ। কনট্রাস্ট প্যাটার্নের ওড়না, ব্রাউন সলিড কাপড় এবং ছোট ট্যাসেল পুরো সেটে এনেছে প্রকৃতির অনুভূতি।",
+      "kameez": "ব্রাউন-ফরেস্ট গ্রিন বোটানিক্যাল বাটিক-স্টাইল প্রিন্ট",
+      "salwar": "সলিড ব্রাউন",
+      "dupatta": "গ্রিন গ্রেডিয়েন্ট, বোটানিক্যাল মোটিফ ও ট্যাসেল",
+      "colors": [
+        "#1D5434",
+        "#B57E48",
+        "#E2C57E",
+        "#8C6249"
+      ],
+      "salwarColor": "#8C6249",
+      "dupattaColors": [
+        "#B57E48",
+        "#1D5434"
+      ],
+      "motif": "fern-botanical",
+      "fabric": "Mome Boutique Botanical Batik Cotton",
+      "hasMirror": false,
+      "hasTassels": true
+    },
+    {
+      "id": "MB-BT-02",
+      "styleNo": "STYLE 05",
+      "edit": "Mome Boutique",
+      "name": "Fuchsia Noir",
+      "bnName": "ফুশিয়া নোয়ার",
+      "price": 1700,
+      "priceVerify": false,
+      "tagline": "ফুশিয়া পিংকে বোল্ড বাটিক লুক",
+      "description": "কালো-চারকোল পটভূমিতে ফুশিয়া ও সাদার ফ্লোরাল স্ট্যাম্পের গাঢ় কনট্রাস্ট। উজ্জ্বল ফুশিয়া সালোয়ার কাপড় এবং গোলাপি থেকে চারকোল টোনে পরিবর্তিত প্রিন্টেড ওড়নায় প্রাণবন্ত স্টাইল।",
+      "kameez": "কালো বেসে ফুশিয়া-সাদা ফ্লোরাল বাটিক-স্টাইল প্রিন্ট",
+      "salwar": "সলিড ফুশিয়া",
+      "dupatta": "পিংক-চারকোল গ্রেডিয়েন্ট ও ফুলেল ছাপ",
+      "colors": [
+        "#232328",
+        "#E91E63",
+        "#FFFFFF",
+        "#4A2535"
+      ],
+      "salwarColor": "#E91E63",
+      "dupattaColors": [
+        "#E91E63",
+        "#2B252C"
+      ],
+      "motif": "noir-sprig",
+      "fabric": "Mome Boutique Artisanal Cotton",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "MB-BT-03",
+      "styleNo": "STYLE 06",
+      "edit": "Mome Boutique",
+      "name": "Mustard Noir",
+      "bnName": "মাস্টার্ড নোয়ার",
+      "price": 1650,
+      "priceVerify": false,
+      "tagline": "হলুদের উচ্ছ্বাসে ডার্ক চারকোল",
+      "description": "গাঢ় চারকোল বেসের ওপর হলুদ বোটানিক্যাল মোটিফের পুনরাবৃত্তি। উজ্জ্বল সলিড হলুদ সালোয়ার ও হলুদ-চারকোল টু-টোন ওড়নার সঙ্গে রয়েছে নরম কনট্রাস্টের সমন্বয়।",
+      "kameez": "চারকোল বেসে হলুদ বোটানিক্যাল মোটিফ",
+      "salwar": "সলিড উজ্জ্বল হলুদ",
+      "dupatta": "হলুদ-চারকোল গ্রেডিয়েন্ট ও ছোট মোটিফ",
+      "colors": [
+        "#2C2E2B",
+        "#F4C815",
+        "#E8C524",
+        "#4B4E3B"
+      ],
+      "salwarColor": "#F4C815",
+      "dupattaColors": [
+        "#F4C815",
+        "#2C2E2B"
+      ],
+      "motif": "damask-sprig",
+      "fabric": "Mome Boutique Artisanal Cotton",
+      "hasMirror": false,
+      "hasTassels": true
+    },
+    {
+      "id": "MB-BT-04",
+      "styleNo": "STYLE 07",
+      "edit": "Mome Boutique",
+      "name": "Burgundy Sunset",
+      "bnName": "বারগান্ডি সানসেট",
+      "price": 1750,
+      "priceVerify": false,
+      "tagline": "বার্গান্ডি ও সানসেট মাস্টার্ডের উষ্ণতা",
+      "description": "বার্গান্ডি-মেরুন ও সানসেট মাস্টার্ডের টাই-ডাই ধাঁচের বর্ণচ্ছটা। মারুনে হালকা স্ট্যাম্প মোটিফের কামিজ ও হলুদ-মেরুন প্রিন্টেড ওড়নায় উৎসবের রঙের অনুভূতি।",
+      "kameez": "মেরুন বেসে মাস্টার্ড রঙের বাটিক-ধাঁচের গোল মোটিফ",
+      "salwar": "মাস্টার্ড ও মেরুন টোনের কাপড়",
+      "dupatta": "সানসেট মাস্টার্ড-মেরুন টাই-ডাই",
+      "colors": [
+        "#6E1222",
+        "#F5A623",
+        "#FFFFFF",
+        "#941B2F"
+      ],
+      "salwarColor": "#F39C12",
+      "dupattaColors": [
+        "#6E1222",
+        "#F5A623"
+      ],
+      "motif": "sunburst-tiedye",
+      "fabric": "Mome Boutique Bandhani & Tie-Dye",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "ZSL-01",
+      "styleNo": "STYLE 08",
+      "edit": "Zam Zam Swiss Lawn",
+      "name": "Navy Royal Bloom",
+      "bnName": "নেভি রয়্যাল ব্লুম",
+      "price": 1750,
+      "priceVerify": true,
+      "tagline": "নেভির গাম্ভীর্যে রাজকীয় নকশা",
+      "description": "গাঢ় নেভি বেসে সাদা পেইসলি ও অলঙ্করণধর্মী কেন্দ্রীয় প্রিন্ট। লম্বা সজ্জিত বর্ডার এবং হলুদ-কালো ফুলেল ওড়নায় তৈরি একটি রাজকীয় কনট্রাস্ট।",
+      "kameez": "নেভি, সাদা কেন্দ্রীয় পেইসলি প্যানেল ও পার্শ্ব বর্ডার",
+      "salwar": "সলিড গাঢ় রঙের কাপড়",
+      "dupatta": "হলুদ-কালো বড় ফুলেল প্রিন্ট",
+      "colors": [
+        "#111C38",
+        "#F4CE24",
+        "#FFFFFF",
+        "#D81B60"
+      ],
+      "salwarColor": "#0B0F19",
+      "dupattaColors": [
+        "#F4CE24",
+        "#121212"
+      ],
+      "motif": "royal-navy-panel",
+      "fabric": "Original Zam Zam Swiss Lawn",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "ZSL-02",
+      "styleNo": "STYLE 09",
+      "edit": "Zam Zam Swiss Lawn",
+      "name": "Autumn Floral Elegance",
+      "bnName": "অটাম ফ্লোরাল এলিগ্যান্স",
+      "price": 1700,
+      "priceVerify": false,
+      "tagline": "শরতের ফুলে উষ্ণ রঙের কোমলতা",
+      "description": "হালকা স্টোন-বেইজের ওপর শরতের কমলা, লাল ও বাদামি ফুলের নরম ছাপ। সামনে সাজানো জ্যামিতিক ও ফুলেল প্যানেল, সঙ্গে রাস্ট-ব্রাউন সলিড কাপড় ও রঙিন বর্ডারযুক্ত ওড়না।",
+      "kameez": "স্টোন/বেইজ বেসে অটাম ফ্লোরাল ও কেন্দ্রীয় প্যানেল",
+      "salwar": "সলিড রাস্ট-ব্রাউন",
+      "dupatta": "বহুরঙা ফুল ও অলঙ্কৃত বর্ডার",
+      "colors": [
+        "#CFC3B4",
+        "#8B3A14",
+        "#E2A829",
+        "#C0392B"
+      ],
+      "salwarColor": "#8B3A14",
+      "dupattaColors": [
+        "#CFC3B4",
+        "#B03A2E"
+      ],
+      "motif": "autumn-placket",
+      "fabric": "Original Zam Zam Swiss Lawn",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "ZSL-03",
+      "styleNo": "STYLE 10",
+      "edit": "Zam Zam Swiss Lawn",
+      "name": "Midnight Teal Heritage",
+      "bnName": "মিডনাইট টিল হেরিটেজ",
+      "price": 1650,
+      "priceVerify": true,
+      "tagline": "ডার্ক হেরিটেজ প্যাটার্নে টিল কনট্রাস্ট",
+      "description": "ডিপ প্লাম-চারকোল বেসে উল্লম্ব মেডেলিয়ন ও অলঙ্কারধর্মী প্রিন্ট। হালকা অ্যাকোয়া-টিল সলিড কাপড় এবং গভীর টোনের নকশা করা ওড়নায় আধুনিক ঐতিহ্যের ছোঁয়া।",
+      "kameez": "ডার্ক বেসে লম্বালম্বি হেরিটেজ-মেডেলিয়ন প্রিন্ট",
+      "salwar": "সলিড অ্যাকোয়া-টিল",
+      "dupatta": "বহুরঙা হেরিটেজ বর্ডার",
+      "colors": [
+        "#2E2228",
+        "#3796B8",
+        "#D9B68C",
+        "#181418"
+      ],
+      "salwarColor": "#3796B8",
+      "dupattaColors": [
+        "#221D22",
+        "#D9B68C"
+      ],
+      "motif": "heritage-medallion",
+      "fabric": "Original Zam Zam Swiss Lawn",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "ZSL-04",
+      "styleNo": "STYLE 11",
+      "edit": "Zam Zam Swiss Lawn",
+      "name": "Olive Garden Bloom",
+      "bnName": "অলিভ গার্ডেন ব্লুম",
+      "price": 1850,
+      "priceVerify": false,
+      "tagline": "অলিভ সবুজে বাগানের ফুলেল ভাষা",
+      "description": "অলিভ-গ্রিন বেসে গোলাপি, বেগুনি ও উষ্ণ ফুলেল বুকে। কনট্রাস্ট বর্ডারসমৃদ্ধ প্রিন্টেড ওড়না এবং সলিড ডিপ-গ্রিন কাপড়ে তৈরি প্রকৃতি-অনুপ্রাণিত এক সুন্দর সেট।",
+      "kameez": "অলিভ বেসে মিশ্র রঙের ফ্লোরাল প্রিন্ট",
+      "salwar": "সলিড ডিপ গ্রিন",
+      "dupatta": "বড় ফুল, পাতার ছাপ ও সাজানো বর্ডার",
+      "colors": [
+        "#4F5D3B",
+        "#F06292",
+        "#F3F2D8",
+        "#142E1B"
+      ],
+      "salwarColor": "#142E1B",
+      "dupattaColors": [
+        "#F3F2D8",
+        "#3A4A28"
+      ],
+      "motif": "olive-bouquet",
+      "fabric": "Original Zam Zam Swiss Lawn",
+      "hasMirror": false,
+      "hasTassels": true
+    },
+    {
+      "id": "ZSL-05",
+      "styleNo": "STYLE 12",
+      "edit": "Zam Zam Swiss Lawn",
+      "name": "Coral Geometric Bloom",
+      "bnName": "কোরাল জিওমেট্রিক ব্লুম",
+      "price": 1800,
+      "priceVerify": true,
+      "tagline": "কোরাল পিংকে জ্যামিতিক এলিগ্যান্স",
+      "description": "কোরাল-রোজ পিংক বেসে ট্রায়াঙ্গল ও হেক্সাগন নকশার পুনরাবৃত্তি। সলিড পিংক সালোয়ার কাপড় এবং নরম ফ্লোরাল-জ্যামিতিক ওড়নায় উজ্জ্বল কিন্তু পরিমিত সাজ।",
+      "kameez": "কোরাল-পিংক জ্যামিতিক ট্রায়াঙ্গল ও হেক্সাগন",
+      "salwar": "সলিড কোরাল-পিংক",
+      "dupatta": "নরম ফ্লোরাল ও জ্যামিতিক বর্ডার",
+      "colors": [
+        "#F07484",
+        "#6E3554",
+        "#FADBD8",
+        "#F26D7D"
+      ],
+      "salwarColor": "#F26D7D",
+      "dupattaColors": [
+        "#F48B98",
+        "#6E3554"
+      ],
+      "motif": "coral-hexagon",
+      "fabric": "Original Zam Zam Swiss Lawn",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "ZSL-06",
+      "styleNo": "STYLE 13",
+      "edit": "Zam Zam Swiss Lawn",
+      "name": "Crimson Floral Mosaic",
+      "bnName": "ক্রিমসন ফ্লোরাল মোজাইক",
+      "price": 1650,
+      "priceVerify": true,
+      "tagline": "ক্রিমসন ফ্লোরাল ও সফট মভের মেলবন্ধন",
+      "description": "ডার্ক চারকোল বেসে বহুরঙা ঘন ফুলেল ডিজাইন ও ক্রিমসন উল্লম্ব প্যানেল। মভ-টোনের সলিড কাপড় এবং গ্রে-মভ ফুলেল ওড়না পুরো সেটে দিয়েছে আলাদা ব্যক্তিত্ব।",
+      "kameez": "ডার্ক বেসে ক্রিমসন প্যানেল ও বহুরঙা ফুল",
+      "salwar": "সলিড মভ/টউপ",
+      "dupatta": "গ্রে-মভ ফ্লোরাল ও কনট্রাস্ট বর্ডার",
+      "colors": [
+        "#1E1B1E",
+        "#D81E5B",
+        "#9E7B78",
+        "#F3C6D3"
+      ],
+      "salwarColor": "#9E7B78",
+      "dupattaColors": [
+        "#A9959E",
+        "#1E1B1E"
+      ],
+      "motif": "crimson-mosaic",
+      "fabric": "Original Zam Zam Swiss Lawn",
+      "hasMirror": false,
+      "hasTassels": false
+    },
+    {
+      "id": "FS-D01",
+      "styleNo": "STYLE 14",
+      "edit": "Embroidery & Mirror Edit",
+      "name": "Golden Mustard Mirror Elegance",
+      "bnName": "গোল্ডেন মাস্টার্ড মিরর এলিগ্যান্স",
+      "price": 2050,
+      "priceVerify": false,
+      "tagline": "গোল্ডেন মাস্টার্ডের উৎসবমুখর ছোঁয়া",
+      "description": "উজ্জ্বল মাস্টার্ড বেসে ডায়মন্ড গ্রিড, গোলাপি-সবুজ ডিটেইল এবং মিরর-লুক ডেকোরেশন। ম্যাচিং প্রিন্টেড ওড়না ও ম্যাজেন্টা টোনের সালোয়ারের সঙ্গে প্রাণবন্ত তিন-পিস সমন্বয়।",
+      "kameez": "মাস্টার্ডে ডায়মন্ড গ্রিড ও প্রতিফলনশীল ডিটেইল",
+      "salwar": "ম্যাজেন্টা/বার্গান্ডি প্রিন্টেড কাপড়",
+      "dupatta": "মাস্টার্ড বেসে সূক্ষ্ম ফ্লোরাল বর্ডার",
+      "colors": [
+        "#DDA818",
+        "#8A1C4A",
+        "#FFFFFF",
+        "#2E7D32"
+      ],
+      "salwarColor": "#8A1C4A",
+      "dupattaColors": [
+        "#D4A017",
+        "#6E5A1A"
+      ],
+      "motif": "mustard-mirror",
+      "fabric": "Embroidered Cotton with Shisha Mirrors",
+      "hasMirror": true,
+      "hasTassels": false
+    },
+    {
+      "id": "FS-D02",
+      "styleNo": "STYLE 15",
+      "edit": "Embroidery & Mirror Edit",
+      "name": "Midnight Black Ethnic Charm",
+      "bnName": "মিডনাইট ব্ল্যাক এথনিক চার্ম",
+      "price": 2150,
+      "priceVerify": false,
+      "tagline": "ব্ল্যাক ও বার্ন্ট অরেঞ্জের এথনিক চার্ম",
+      "description": "কালো-চারকোল কামিজে অরেঞ্জ-রেড জ্যামিতিক চেইন-ধাঁচের লাইন ও বর্ডার। বার্গান্ডি গ্রেডিয়েন্ট ওড়নার সঙ্গে কনট্রাস্ট জ্যামিতিক প্রিন্টের সালোয়ার কাপড়।",
+      "kameez": "ডার্ক বেসে অরেঞ্জ ডায়মন্ড চেইন ও বর্ডার",
+      "salwar": "কালো/অরেঞ্জ জ্যামিতিক প্রিন্টের কাপড়",
+      "dupatta": "বার্গান্ডি থেকে চারকোল গ্রেডিয়েন্ট",
+      "colors": [
+        "#1D2024",
+        "#E85D24",
+        "#7B2438",
+        "#FBBF24"
+      ],
+      "salwarColor": "#231F20",
+      "dupattaColors": [
+        "#7B2438",
+        "#1D2024"
+      ],
+      "motif": "black-orange-chain",
+      "fabric": "Embroidered Cotton with Crescent Yoke",
+      "hasMirror": true,
+      "hasTassels": true
+    },
+    {
+      "id": "FS-D03",
+      "styleNo": "STYLE 16",
+      "edit": "Embroidery & Mirror Edit",
+      "name": "Fuchsia Bloom Aqua Delight",
+      "bnName": "ফুশিয়া ব্লুম অ্যাকোয়া ডিলাইট",
+      "price": 1950,
+      "priceVerify": false,
+      "tagline": "ফুশিয়া ও অ্যাকোয়ার প্রাণবন্ত স্টাইল",
+      "description": "উজ্জ্বল ফুশিয়া কামিজে অ্যাকোয়া নেকলাইন ট্রিম, পাতার নকশা ও ক্ষুদ্র জ্যামিতিক ছাপ। অ্যাকোয়া সালোয়ারের ছোট পিংক মোটিফ এবং ফুশিয়া ওড়নার স্ট্রাইপড ফ্লোরাল বর্ডারে তরতাজা লুক।",
+      "kameez": "ফুশিয়ায় অ্যাকোয়া নেকলাইন, ফুল ও জ্যামিতিক ছাপ",
+      "salwar": "অ্যাকোয়া বেসে ছোট পিংক মোটিফ",
+      "dupatta": "ফুশিয়া-অ্যাকোয়া প্রিন্টেড বর্ডার",
+      "colors": [
+        "#DF2384",
+        "#7CE0EE",
+        "#FFFFFF",
+        "#9C1458"
+      ],
+      "salwarColor": "#84E3F0",
+      "dupattaColors": [
+        "#DF2384",
+        "#B5338A"
+      ],
+      "motif": "fuchsia-aqua-trim",
+      "fabric": "Embroidered Lawn with Aqua Neckline",
+      "hasMirror": true,
+      "hasTassels": false
+    },
+    {
+      "id": "FS-D04",
+      "styleNo": "STYLE 17",
+      "edit": "Embroidery & Mirror Edit",
+      "name": "Electric Blue Mirror Blossom",
+      "bnName": "ইলেকট্রিক ব্লু মিরর ব্লসম",
+      "price": 2250,
+      "priceVerify": false,
+      "tagline": "ইলেকট্রিক ব্লুর উজ্জ্বল আধুনিকতা",
+      "description": "ইলেকট্রিক ব্লু বেসে ডায়মন্ড গ্রিড ও হলুদ মিরর-লুক ডিটেইল। ডিপ নেভি প্যাটার্নড সালোয়ার এবং ব্লু-ফ্লোরাল বর্ডারযুক্ত ওড়নার কনট্রাস্টে আকর্ষণীয় সেট।",
+      "kameez": "ব্লু ডায়মন্ড গ্রিড ও হলুদ প্রতিফলনশীল ডিটেইল",
+      "salwar": "নেভি ব্লুতে হালকা নীল রিপিট প্যাটার্ন",
+      "dupatta": "ব্লুতে ফ্লোরাল বর্ডার ও স্ট্রাইপ",
+      "colors": [
+        "#1EA7F8",
+        "#0E1738",
+        "#FFD700",
+        "#E0F2FE"
+      ],
+      "salwarColor": "#0E1738",
+      "dupattaColors": [
+        "#25AEFA",
+        "#5B6BE6"
+      ],
+      "motif": "blue-mirror-grid",
+      "fabric": "Embroidered Cotton with Shisha Mirrors",
+      "hasMirror": true,
+      "hasTassels": true
+    },
+    {
+      "id": "FS-D05",
+      "styleNo": "STYLE 18",
+      "edit": "Embroidery & Mirror Edit",
+      "name": "Sand Beige Floral Grace",
+      "bnName": "স্যান্ড বেইজ ফ্লোরাল গ্রেস",
+      "price": 2450,
+      "priceVerify": false,
+      "tagline": "স্যান্ড বেইজের সফট ফ্লোরাল গ্রেস",
+      "description": "স্যান্ড-বেইজ বেসে সাদা ও প্যাস্টেল ফুলেল মোটিফ, টারকোয়েজ ও পিংক ডিটেইলসহ সজ্জিত নেকলাইন। ডিপ পার্পল সালোয়ার এবং বেইজ ফুলেল ওড়নায় নরম রঙের ভারসাম্য।",
+      "kameez": "স্যান্ড বেইজে সাদা-প্যাস্টেল ফ্লোরাল ও টারকোয়েজ নেকলাইন",
+      "salwar": "ডিপ পার্পল প্যাটার্নড কাপড়",
+      "dupatta": "বেইজে প্রিন্ট ও সূক্ষ্ম ফুলেল বর্ডার",
+      "colors": [
+        "#DFC89E",
+        "#421848",
+        "#2EC4B6",
+        "#FF4D8D"
+      ],
+      "salwarColor": "#421848",
+      "dupattaColors": [
+        "#E6D2AC",
+        "#F7F1E3"
+      ],
+      "motif": "sand-pastel-grace",
+      "fabric": "Signature Embroidered Cotton Lawn",
+      "hasMirror": true,
+      "hasTassels": false
+    }
+  ],
+  "imageManifest": {
+    "CAT-001": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "CAT-002": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "CAT-003": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "MB-BT-01": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "MB-BT-02": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "MB-BT-03": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "MB-BT-04": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "ZSL-01": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "ZSL-02": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "ZSL-03": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "ZSL-04": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "ZSL-05": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "ZSL-06": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "FS-D01": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "FS-D02": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "FS-D03": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "FS-D04": {
+      "flatlay": "",
+      "lookbook": ""
+    },
+    "FS-D05": {
+      "flatlay": "",
+      "lookbook": ""
+    }
+  }
+}

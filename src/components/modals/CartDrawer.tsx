@@ -10,6 +10,9 @@ import {
   Truck,
   Sparkles,
   Plus,
+  Tag,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
@@ -88,6 +91,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderInfo | null>(null);
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<'FARIZA10' | null>(null);
+  const [promoMessage, setPromoMessage] = useState<string | null>(null);
+  const [copiedReceipt, setCopiedReceipt] = useState(false);
 
   const t = translations[language];
 
@@ -188,7 +195,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       : totalQuantity >= 2
       ? storeSettings.bundle2DiscountBDT
       : 0;
-  const discountedSubtotal = Math.max(0, subtotal - bundleDiscount);
+  const afterBundleSubtotal = Math.max(0, subtotal - bundleDiscount);
+  const promoDiscount =
+    appliedPromo === 'FARIZA10' && afterBundleSubtotal > 0
+      ? Math.round(afterBundleSubtotal * 0.1)
+      : 0;
+  const totalDiscount = Math.min(subtotal, bundleDiscount + promoDiscount);
+  const discountedSubtotal = Math.max(0, subtotal - totalDiscount);
   const freeShippingThreshold = storeSettings.freeShippingThresholdBDT;
   const freeShippingUnlocked = discountedSubtotal >= freeShippingThreshold && items.length > 0;
   const deliveryFee =
@@ -198,6 +211,24 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       ? storeSettings.dhakaShippingFeeBDT
       : storeSettings.outsideDhakaShippingFeeBDT;
   const orderTotal = discountedSubtotal + deliveryFee;
+
+  const handleApplyPromo = (codeOverride?: string) => {
+    const code = (codeOverride ?? promoInput).trim().toUpperCase();
+    if (code === 'FARIZA10') {
+      setAppliedPromo('FARIZA10');
+      setPromoInput('FARIZA10');
+      setPromoMessage(
+        language === 'en' ? '10% Extra Off Applied!' : 'অতিরিক্ত ১০% ছাড় কার্যকর হয়েছে!'
+      );
+    } else if (!code) {
+      setAppliedPromo(null);
+      setPromoMessage(null);
+    } else {
+      setPromoMessage(
+        language === 'en' ? 'Invalid code. Try FARIZA10' : 'সঠিক কোড দিন (FARIZA10)'
+      );
+    }
+  };
 
   const handleStartCheckout = () => {
     setFormError(null);
@@ -241,9 +272,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     setIsSubmitting(true);
 
     const orderId = `FAB-${Date.now().toString(36).toUpperCase().slice(-4)}${Math.floor(10 + Math.random() * 89)}`;
-    const itemsSummary = items
+    const baseItemsSummary = items
       .map((i) => `${i.nameEn} (${i.size}, ${i.color}) x${i.quantity}`)
       .join(' | ');
+    const itemsSummary = (
+      appliedPromo ? `${baseItemsSummary} [Promo: ${appliedPromo}]` : baseItemsSummary
+    ).slice(0, 1200);
     const trimmedRef = mfsReference.trim();
     const combinedAddress =
       paymentMethod === 'mfs' && trimmedRef
@@ -259,7 +293,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         division,
         paymentMethod,
         subtotalBDT: subtotal,
-        discountBDT: bundleDiscount,
+        discountBDT: totalDiscount,
         deliveryFeeBDT: deliveryFee,
         totalBDT: orderTotal,
         itemsCount: totalQuantity,
@@ -295,7 +329,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         className="absolute inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
         <div className="w-screen max-w-md bg-[#171719] border-l border-white/10 text-[#F5F2EB] shadow-2xl flex flex-col justify-between">
           {/* Header */}
           <div className="p-6 border-b border-white/10 flex items-center justify-between">
@@ -690,6 +724,49 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   )}
                 </div>
 
+                <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] font-mono text-[#D5BA80]">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-[#B69A60]" />
+                      {language === 'en' ? 'Promo Code' : 'প্রোমো কোড'}
+                    </span>
+                    {!appliedPromo && (
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPromo('FARIZA10')}
+                        className="text-[10px] underline hover:text-white cursor-pointer"
+                      >
+                        {language === 'en' ? 'Apply FARIZA10 (10% Off)' : 'FARIZA10 (১০% ছাড়)'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value)}
+                      placeholder="FARIZA10"
+                      className="flex-1 bg-black/50 border border-white/15 rounded px-2.5 py-1.5 text-xs font-mono uppercase text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPromo()}
+                      className="px-3 py-1.5 rounded bg-white/10 hover:bg-[#B69A60] text-[#F5F2EB] hover:text-[#09090B] text-[11px] font-mono font-semibold uppercase transition-colors cursor-pointer"
+                    >
+                      {language === 'en' ? 'Apply' : 'প্রয়োগ'}
+                    </button>
+                  </div>
+                  {promoMessage && (
+                    <div
+                      className={`text-[10px] font-mono ${
+                        appliedPromo ? 'text-emerald-400' : 'text-amber-300'
+                      }`}
+                    >
+                      {promoMessage}
+                    </div>
+                  )}
+                </div>
+
                 <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-1.5 font-mono text-[11px]">
                   <div className="flex justify-between text-[#D8D3C9]">
                     <span>{language === 'en' ? 'Subtotal' : 'সাবটোটাল'}</span>
@@ -699,6 +776,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <div className="flex justify-between text-emerald-400">
                       <span>{language === 'en' ? 'Bundle Privilege' : 'বান্ডেল ছাড়'}</span>
                       <span className="tabular-nums">-৳ {bundleDiscount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {promoDiscount > 0 && (
+                    <div className="flex justify-between text-emerald-400">
+                      <span>Promo ({appliedPromo})</span>
+                      <span className="tabular-nums">-৳ {promoDiscount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-[#D8D3C9]">
@@ -781,6 +864,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   )}
 
                   <button
+                    type="button"
+                    onClick={() => {
+                      const receipt = `FABRICIAN Order #${confirmedOrder.orderId} | Consignment: ${confirmedOrder.consignmentId} | Recipient: ${confirmedOrder.recipientName} | ${confirmedOrder.recipientAddress}, ${confirmedOrder.division} | Total: ৳${confirmedOrder.totalBDT.toLocaleString()}`;
+                      try {
+                        navigator.clipboard?.writeText(receipt);
+                      } catch {
+                        // ignore clipboard errors
+                      }
+                      setCopiedReceipt(true);
+                      setTimeout(() => setCopiedReceipt(false), 2200);
+                    }}
+                    className="w-full py-2.5 bg-white/10 hover:bg-white/15 text-[#F5F2EB] text-xs font-mono uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    {copiedReceipt ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#D5BA80]" />}
+                    <span>
+                      {copiedReceipt
+                        ? language === 'en'
+                          ? 'Receipt Copied'
+                          : 'রসিদ কপি হয়েছে'
+                        : language === 'en'
+                        ? 'Copy Order Receipt'
+                        : 'অর্ডার রসিদ কপি করুন'}
+                    </span>
+                  </button>
+
+                  <button
                     onClick={handleClose}
                     className="w-full py-2.5 bg-white/5 hover:bg-white/10 text-[#D8D3C9] text-xs font-mono uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
                   >
@@ -794,10 +903,45 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           {/* Drawer Footer */}
           {checkoutStep === 'cart' && items.length > 0 && (
             <div className="p-6 border-t border-white/10 bg-black/40">
-              {bundleDiscount > 0 && (
+              {/* Quick Promo Row in Bag View */}
+              <div className="mb-3 pb-3 border-b border-white/10 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#D5BA80]">
+                  <Tag className="w-3.5 h-3.5 text-[#B69A60]" />
+                  <span>
+                    {appliedPromo
+                      ? `✓ ${appliedPromo} (-10%)`
+                      : language === 'en'
+                      ? 'Have promo code?'
+                      : 'প্রোমো কোড?'}
+                  </span>
+                </div>
+                {!appliedPromo ? (
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPromo('FARIZA10')}
+                    className="px-2.5 py-1 rounded bg-[#B69A60]/15 hover:bg-[#B69A60] border border-[#B69A60]/40 text-[#D5BA80] hover:text-[#09090B] text-[10px] font-mono font-bold transition-colors cursor-pointer"
+                  >
+                    {language === 'en' ? 'Apply FARIZA10' : 'FARIZA10 নিন'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAppliedPromo(null);
+                      setPromoInput('');
+                      setPromoMessage(null);
+                    }}
+                    className="text-[10px] font-mono text-[#9A9892] hover:text-white underline cursor-pointer"
+                  >
+                    {language === 'en' ? 'Remove' : 'সরান'}
+                  </button>
+                )}
+              </div>
+
+              {totalDiscount > 0 && (
                 <div className="flex justify-between items-baseline text-xs font-mono text-emerald-400 mb-1.5">
-                  <span>{language === 'en' ? 'Bundle Savings' : 'বান্ডেল ছাড়'}</span>
-                  <span className="tabular-nums">-৳ {bundleDiscount.toLocaleString()}</span>
+                  <span>{language === 'en' ? 'Bundle & Promo Savings' : 'মোট ছাড়'}</span>
+                  <span className="tabular-nums">-৳ {totalDiscount.toLocaleString()}</span>
                 </div>
               )}
               <div className="flex justify-between items-baseline mb-2">

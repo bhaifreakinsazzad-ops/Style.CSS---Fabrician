@@ -1,0 +1,3859 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fariza's Territory | The Three-Piece Edit 2026 — Dhaka, Bangladesh</title>
+  <meta name="description" content="Official e-commerce flagship for Fariza's Territory, Mirpur, Dhaka. Explore 18 curated handcrafted & boutique three-piece designs across 5 signature edits in interactive 3D." />
+
+  <!-- Brand Book Typography: Primary Typeface 'Actor', Editorial Serif 'Playfair Display', Calligraphic Crest 'Great Vibes', & Bengali 'Hind Siliguri' -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Actor&family=Great+Vibes&family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS with Fariza's Territory Brand Book Design Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    if (window.tailwind) tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            chalk: '#F0F2F5',      /* Brand Book Primary Background: Chalk White */
+            pure: '#FFFFFF',       /* Brand Book Surface: Pure White */
+            azure: '#0866FF',      /* Brand Book Primary Accent: Azure Blue */
+            jet: '#050505',        /* Brand Book Ink & Contrast: Jet Black */
+            seagreen: '#31A24C',   /* Brand Book Craft & Verified Accent: Sea Green */
+            parchment: '#F9F6EE',  /* Brand Crest Warm Cream */
+            terracotta: '#B84A39', /* Botanical Wreath Blossom */
+            marigold: '#E5A93B',   /* Botanical Wreath Marigold */
+            olive: '#6B7F46'       /* Botanical Wreath Leaf */
+          },
+          fontFamily: {
+            sans: ['Actor', 'Hind Siliguri', 'sans-serif'],
+            bengali: ['Hind Siliguri', 'Actor', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+            script: ['Great Vibes', 'cursive']
+          },
+          boxShadow: {
+            'atelier': '0 20px 50px -12px rgba(5, 5, 5, 0.08)',
+            'card': '0 10px 30px -8px rgba(5, 5, 5, 0.06)',
+            'azure-glow': '0 12px 28px -6px rgba(8, 102, 255, 0.35)'
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Core Interactive Libraries: Three.js (r128), Anime.js (v3.2.2), ThreeUI.js Spatial HUD Bridge, & Motion.dev (v11) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three-ui@0.2.2/build/three-ui.min.js"></script>
+
+  <!-- Motion.dev ES Module Bridge with Resilient Spring/Scroll Helpers -->
+  <script type="module">
+    try {
+      const motionModule = await import('https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm');
+      window.MotionDev = motionModule;
+      window.dispatchEvent(new Event('motiondev:ready'));
+    } catch (err) {
+      window.MotionDev = {
+        animate: (el, keyframes, opts = {}) => {
+          const targets = typeof el === 'string' ? document.querySelectorAll(el) : (el instanceof Element ? [el] : el);
+          targets.forEach((node) => {
+            if (!node || !node.animate) return;
+            const duration = (opts.duration || 0.5) * 1000;
+            const delay = (opts.delay || 0) * 1000;
+            const frames = [];
+            const keys = Object.keys(keyframes);
+            const len = Array.isArray(keyframes[keys[0]]) ? keyframes[keys[0]].length : 1;
+            for (let i = 0; i < len; i++) {
+              const frame = {};
+              keys.forEach((k) => {
+                const val = Array.isArray(keyframes[k]) ? keyframes[k][i] : keyframes[k];
+                if (k === 'y') frame.transform = (frame.transform || '') + ` translateY(${typeof val === 'number' ? val + 'px' : val})`;
+                else if (k === 'x') frame.transform = (frame.transform || '') + ` translateX(${typeof val === 'number' ? val + 'px' : val})`;
+                else if (k === 'scale') frame.transform = (frame.transform || '') + ` scale(${val})`;
+                else frame[k] = val;
+              });
+              frames.push(frame);
+            }
+            node.animate(frames, { duration, delay, fill: 'forwards', easing: 'cubic-bezier(0.22, 1, 0.36, 1)' });
+          });
+        },
+        inView: (selector, callback) => {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                callback({ target: entry.target });
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.12 });
+          document.querySelectorAll(selector).forEach((el) => observer.observe(el));
+        },
+        scroll: (callback) => {
+          window.addEventListener('scroll', () => {
+            const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+            callback(window.scrollY / max);
+          }, { passive: true });
+        }
+      };
+      window.dispatchEvent(new Event('motiondev:ready'));
+    }
+  </script>
+
+  <style>
+    :root {
+      --chalk: #F0F2F5;
+      --pure: #FFFFFF;
+      --azure: #0866FF;
+      --jet: #050505;
+      --seagreen: #31A24C;
+    }
+
+    body {
+      background-color: var(--chalk);
+      color: var(--jet);
+      font-family: 'Actor', 'Hind Siliguri', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle Folk-Art Lattice Backdrop Pattern */
+    .bg-folk-lattice {
+      background-color: #F0F2F5;
+      background-image:
+        radial-gradient(rgba(8, 102, 255, 0.06) 1px, transparent 1px),
+        radial-gradient(rgba(49, 162, 76, 0.05) 1px, #F0F2F5 1px);
+      background-size: 28px 28px;
+      background-position: 0 0, 14px 14px;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F0F2F5; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0866FF; }
+
+    /* 3D Canvas Container */
+    #atelier-canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 460px;
+      touch-action: none;
+      cursor: grab;
+      transition: background 0.6s ease;
+    }
+    #atelier-canvas-wrap:active { cursor: grabbing; }
+    #three-stage-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 1.5rem;
+    }
+
+    /* Showroom Environment Themes */
+    .stage-theme-daylight {
+      background: radial-gradient(circle at 50% 30%, #FFFFFF 0%, #EAECEF 58%, #DCE2EC 100%);
+    }
+    .stage-theme-golden {
+      background: radial-gradient(circle at 50% 25%, #FFF8EB 0%, #F5E6CC 58%, #E6CFA8 100%);
+    }
+    .stage-theme-midnight {
+      background: radial-gradient(circle at 50% 25%, #1A2436 0%, #0B101B 62%, #050505 100%);
+    }
+
+    /* ThreeUI Spatial Hotspot Pin Styling */
+    .threeui-hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.25s ease, transform 0.2s ease;
+      z-index: 20;
+    }
+    .threeui-pulse {
+      animation: pulseRing 2.2s infinite cubic-bezier(0.24, 0, 0.38, 1);
+    }
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(8, 102, 255, 0.55); }
+      70% { box-shadow: 0 0 0 12px rgba(8, 102, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(8, 102, 255, 0); }
+    }
+
+    /* Product Card 3D Perspective Tilt & Dynamic Glare */
+    .product-card {
+      transform-style: preserve-3d;
+      will-change: transform;
+      position: relative;
+    }
+    .card-glare {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: inherit;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.45), transparent 65%);
+      z-index: 15;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto !important; }
+      *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-chalk text-jet selection:bg-azure selection:text-pure">
+
+  <!-- =====================================================================
+       01. TOP STUDIO ANNOUNCEMENT & DHAKA COMMUNITY BAR
+       ===================================================================== -->
+  <div class="bg-jet text-pure text-xs sm:text-sm py-2.5 px-4 border-b border-white/10">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex h-2 w-2 rounded-full bg-seagreen animate-pulse"></span>
+        <span class="tracking-wide">Mirpur Studio, Dhaka • <strong>13,000+</strong> Community Followers</span>
+        <span class="hidden md:inline text-white/40">|</span>
+        <span class="hidden md:inline font-bengali text-white/90">রঙে, নকশায়, আপনার নিজস্ব স্টাইল — Vol. 01/2026</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="copyPromoCode('FARIZA10')" class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-azure transition-colors px-2.5 py-1 rounded-full text-xs cursor-pointer" title="Click to copy promo code">
+          <span>Code: <strong class="text-marigold">FARIZA10</strong> (10% Off)</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </button>
+        <span class="hidden sm:inline text-white/70">BDT (৳)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       02. STICKY NAVIGATION HEADER WITH MOTION.DEV SCROLL PROGRESS BAR
+       ===================================================================== -->
+  <header id="main-header" class="sticky top-0 z-40 bg-pure/92 backdrop-blur-xl border-b border-jet/10 transition-shadow duration-300">
+    <!-- Motion.dev Scroll Progress Accent Line -->
+    <div id="scroll-progress-bar" class="h-[3px] bg-gradient-to-r from-azure via-seagreen to-marigold origin-left scale-x-0 transition-transform duration-75"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between py-2.5 sm:py-3">
+        
+        <!-- Brand Logo Lockup: Minimum 152px+ Width & Clear Space per Brand Book -->
+        <a href="#top" class="group flex items-center gap-3 py-1.5 px-2 rounded-2xl focus:outline-none" style="min-width: 176px;" aria-label="Fariza's Territory Home">
+          <div class="relative w-11 h-11 sm:w-12 sm:h-12 flex-shrink-0 rounded-full bg-parchment border border-olive/30 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+            <svg viewBox="0 0 100 100" class="w-10 h-10">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#6B7F46" stroke-width="2.5" stroke-dasharray="6 4"/>
+              <circle cx="50" cy="50" r="33" fill="none" stroke="#E5A93B" stroke-width="1.2"/>
+              <path d="M50 10 C55 18, 45 22, 50 10 Z" fill="#6B7F46"/>
+              <path d="M85 32 C76 34, 78 42, 85 32 Z" fill="#6B7F46"/>
+              <path d="M15 32 C24 34, 22 42, 15 32 Z" fill="#6B7F46"/>
+              <circle cx="78" cy="24" r="5" fill="#B84A39"/>
+              <circle cx="78" cy="24" r="2" fill="#E5A93B"/>
+              <circle cx="22" cy="76" r="5" fill="#B84A39"/>
+              <circle cx="22" cy="76" r="2" fill="#E5A93B"/>
+              <circle cx="50" cy="88" r="5" fill="#E5A93B"/>
+              <circle cx="76" cy="74" r="9" fill="#B84A39" stroke="#050505" stroke-width="1"/>
+              <circle cx="76" cy="74" r="5" fill="#E5A93B"/>
+              <circle cx="76" cy="74" r="2" fill="#F9F6EE"/>
+              <text x="50" y="55" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="28" fill="#050505">Ft</text>
+            </svg>
+          </div>
+          <div class="flex flex-col leading-none">
+            <span class="font-script text-2xl sm:text-[27px] text-jet tracking-normal -mb-1">Fariza's</span>
+            <span class="font-serif font-bold text-xs sm:text-[13px] tracking-[0.22em] text-jet uppercase">TERRITORY</span>
+            <span class="text-[9px] tracking-[0.18em] text-jet/60 uppercase mt-0.5">Handmade &amp; Crafts</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-jet/80">
+          <a href="#atelier-3d" class="hover:text-azure transition-colors flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-azure"></span>
+            3D Digital Showroom
+          </a>
+          <a href="#edits-showcase" class="hover:text-azure transition-colors">05 Signature Edits</a>
+          <a href="#catalog-grid" class="hover:text-azure transition-colors">18 Three-Piece Designs</a>
+          <a href="#how-to-order" class="hover:text-azure transition-colors">How to Order</a>
+          <button onclick="openBrandBookModal()" class="hover:text-seagreen transition-colors cursor-pointer">Brand Story</button>
+        </nav>
+
+        <!-- Action Controls: Search, Wishlist, Cart -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <button onclick="focusCatalogSearch()" class="p-2.5 sm:p-3 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer" aria-label="Search Catalog" title="Search 18 Designs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </button>
+
+          <button onclick="toggleDrawer('wishlist')" class="relative p-2.5 sm:p-3 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer" aria-label="Wishlist" title="Saved Designs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            <span id="wishlist-badge" class="hidden absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-terracotta text-pure text-[11px] font-bold flex items-center justify-center">0</span>
+          </button>
+
+          <button id="cart-nav-btn" onclick="toggleDrawer('cart')" class="relative inline-flex items-center gap-2 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-full bg-azure hover:bg-jet text-pure text-sm font-medium shadow-azure-glow transition-all cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <span class="hidden sm:inline">Bag</span>
+            <span id="cart-badge" class="min-w-[22px] h-5 px-1.5 rounded-full bg-pure text-jet text-xs font-bold flex items-center justify-center">0</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       03. HERO SECTION & INTERACTIVE 3D SPATIAL SHOWROOM (THREE.JS + ANIME.JS)
+       ===================================================================== -->
+  <section id="top" class="relative bg-folk-lattice pt-6 pb-12 sm:pt-10 sm:pb-16 lg:py-14 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+        
+        <!-- Left Column: Brand Story, Calligraphic Crest & Kinetic Headlines -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pure border border-jet/10 shadow-sm hero-stagger">
+            <span class="w-2 h-2 rounded-full bg-seagreen"></span>
+            <span class="text-xs font-semibold uppercase tracking-widest text-jet/80">Collection Edit 2026 • Vol. 01</span>
+          </div>
+
+          <!-- Animated SVG Botanical Brand Crest Lockup (Anime.js Stroke Draw-In) -->
+          <div class="hero-stagger p-5 sm:p-6 rounded-3xl bg-parchment border border-olive/25 shadow-card relative overflow-hidden">
+            <div class="flex items-center gap-4 sm:gap-5">
+              <svg id="hero-crest-svg" viewBox="0 0 220 220" class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0">
+                <circle class="crest-stroke" cx="110" cy="110" r="92" fill="none" stroke="#6B7F46" stroke-width="3" stroke-dasharray="14 6"/>
+                <circle class="crest-stroke" cx="110" cy="110" r="82" fill="none" stroke="#B84A39" stroke-width="1.5" stroke-dasharray="4 6"/>
+                <line class="crest-stroke" x1="145" y1="22" x2="178" y2="54" stroke="#050505" stroke-width="2.5" stroke-linecap="round"/>
+                <path class="crest-stroke" d="M168 44 C192 52, 185 82, 196 95" fill="none" stroke="#B84A39" stroke-width="2"/>
+                <path d="M110 14 Q122 24 110 32 Q98 24 110 14 Z" fill="#6B7F46"/>
+                <path d="M55 34 Q68 38 62 50 Q50 45 55 34 Z" fill="#6B7F46"/>
+                <path d="M22 95 Q36 92 34 106 Q20 106 22 95 Z" fill="#6B7F46"/>
+                <path d="M36 164 Q48 156 54 168 Q40 174 36 164 Z" fill="#6B7F46"/>
+                <path d="M196 105 Q182 102 184 116 Q198 116 196 105 Z" fill="#6B7F46"/>
+                <g transform="translate(46, 52)"><circle r="11" fill="#E5A93B"/><circle r="4" fill="#B84A39"/></g>
+                <g transform="translate(174, 58)"><circle r="12" fill="#B84A39"/><circle r="4.5" fill="#E5A93B"/></g>
+                <g transform="translate(106, 198)"><circle r="12" fill="#E5A93B"/><circle r="4.5" fill="#6B7F46"/></g>
+                <g transform="translate(48, 174)"><circle r="11" fill="#B84A39"/><circle r="4" fill="#F9F6EE"/></g>
+                <g transform="translate(166, 166)">
+                  <circle r="24" fill="#B84A39" stroke="#050505" stroke-width="1.5"/>
+                  <circle r="18" fill="#E5A93B" stroke="#050505" stroke-width="1"/>
+                  <circle r="12" fill="#6B7F46"/>
+                  <circle r="6" fill="#F9F6EE"/>
+                </g>
+                <text x="110" y="102" text-anchor="middle" font-family="'Great Vibes', cursive" font-size="44" fill="#050505">Fariza's</text>
+                <text x="110" y="128" text-anchor="middle" font-family="'Playfair Display', serif" font-weight="700" font-size="16" letter-spacing="3" fill="#050505">TERRITORY</text>
+                <text x="110" y="144" text-anchor="middle" font-family="'Actor', sans-serif" font-size="7.5" letter-spacing="2" fill="#050505">HANDMADE &amp; CRAFTS</text>
+              </svg>
+
+              <div>
+                <p class="font-bengali text-base sm:text-lg font-semibold text-jet leading-snug">
+                  রঙে, নকশায়, আপনার নিজস্ব স্টাইল।
+                </p>
+                <p class="text-xs sm:text-sm text-jet/70 mt-1">
+                  Artisanal Three-Piece Suits, Heritage Batik, Swiss Lawn &amp; Mirror-Work Craft from Mirpur, Dhaka.
+                </p>
+                <div class="mt-2.5 flex flex-wrap items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-pure text-jet text-[11px] font-semibold border border-jet/10">৳1,650 – ৳2,450</span>
+                  <span class="px-2.5 py-0.5 rounded-full bg-seagreen/15 text-seagreen text-[11px] font-semibold">18 Catalog Records</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-stagger space-y-3">
+            <h1 class="text-4xl sm:text-5xl lg:text-[54px] font-serif font-bold tracking-tight text-jet leading-[1.08]">
+              The <span class="text-azure">Three-Piece</span> Edit.
+            </h1>
+            <p class="font-bengali text-base sm:text-lg text-jet/80">
+              প্রতিদিনের সৌন্দর্য থেকে বিশেষ দিনের সাজ। পছন্দের থ্রি-পিস বেছে নিন এক জায়গায়।
+            </p>
+          </div>
+
+          <!-- Primary Hero CTAs -->
+          <div class="hero-stagger flex flex-wrap items-center gap-3.5 pt-1">
+            <a href="#catalog-grid" class="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-azure hover:bg-jet text-pure font-medium text-sm sm:text-base shadow-azure-glow transition-all">
+              <span>Shop All 18 Designs</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+            <button onclick="setShowroomMode('rotunda')" class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-pure hover:bg-jet hover:text-pure text-jet border border-jet/15 font-medium text-sm sm:text-base shadow-sm transition-all cursor-pointer">
+              <svg class="w-4 h-4 text-azure" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Launch 18-Look 3D Rotunda</span>
+            </button>
+          </div>
+
+          <!-- Brand Book Metrics Strip -->
+          <div class="hero-stagger grid grid-cols-3 gap-3 pt-2 border-t border-jet/10">
+            <div>
+              <div class="text-xl sm:text-2xl font-bold text-jet">18</div>
+              <div class="text-xs text-jet/65">Curated Designs</div>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold text-azure">05</div>
+              <div class="text-xs text-jet/65">Signature Edits</div>
+            </div>
+            <div>
+              <div class="text-xl sm:text-2xl font-bold text-seagreen">13K+</div>
+              <div class="text-xs text-jet/65">Dhaka Community</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive 3D Textile Drape & ThreeUI Spatial Showcase -->
+        <div id="atelier-3d" class="lg:col-span-7">
+          <div class="bg-pure rounded-3xl p-3 sm:p-4 shadow-atelier border border-jet/10 relative">
+            
+            <!-- Top 3D Showroom Mode & Ambience Bar -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 px-1">
+              <div class="flex items-center gap-1 bg-chalk p-1 rounded-full overflow-x-auto no-scrollbar">
+                <button onclick="setShowroomMode('ensemble')" id="mode-btn-ensemble" class="showroom-mode-btn px-3 py-1 rounded-full bg-jet text-pure text-xs font-semibold transition-all cursor-pointer whitespace-nowrap">
+                  360° Ensemble
+                </button>
+                <button onclick="setShowroomMode('rotunda')" id="mode-btn-rotunda" class="showroom-mode-btn px-3 py-1 rounded-full text-jet/75 hover:text-jet text-xs font-semibold transition-all cursor-pointer whitespace-nowrap">
+                  18-Look 3D Rotunda
+                </button>
+                <button onclick="setShowroomMode('exploded')" id="mode-btn-exploded" class="showroom-mode-btn px-3 py-1 rounded-full text-jet/75 hover:text-jet text-xs font-semibold transition-all cursor-pointer whitespace-nowrap">
+                  Exploded 3-Pc
+                </button>
+                <button onclick="setShowroomMode('macro')" id="mode-btn-macro" class="showroom-mode-btn px-3 py-1 rounded-full text-jet/75 hover:text-jet text-xs font-semibold transition-all cursor-pointer whitespace-nowrap">
+                  Macro Weave
+                </button>
+              </div>
+
+              <!-- Studio Lighting & Breeze Physics Controls -->
+              <div class="flex items-center gap-1.5 text-xs">
+                <button onclick="setStudioLighting('daylight')" id="light-btn-daylight" class="light-pill px-2.5 py-1 rounded-full bg-azure text-pure font-medium transition-colors cursor-pointer" title="Dhaka Daylight">Day</button>
+                <button onclick="setStudioLighting('golden')" id="light-btn-golden" class="light-pill px-2.5 py-1 rounded-full bg-chalk text-jet hover:bg-jet/10 font-medium transition-colors cursor-pointer" title="Golden Sunset">Gold</button>
+                <button onclick="setStudioLighting('midnight')" id="light-btn-midnight" class="light-pill px-2.5 py-1 rounded-full bg-chalk text-jet hover:bg-jet/10 font-medium transition-colors cursor-pointer" title="Midnight Couture Runway">Night</button>
+                <button onclick="toggleBreezePhysics()" id="breeze-toggle-btn" class="px-2.5 py-1 rounded-full bg-seagreen/15 text-seagreen font-semibold hover:bg-seagreen hover:text-pure transition-colors cursor-pointer">Wind: ON</button>
+              </div>
+            </div>
+
+            <!-- WebGL Three.js + ThreeUI Canvas Viewport -->
+            <div id="atelier-canvas-wrap" class="stage-theme-daylight rounded-2xl overflow-hidden h-[450px] sm:h-[520px]">
+              <canvas id="three-stage-canvas"></canvas>
+
+              <!-- Floating Raycast Hover Tooltip -->
+              <div id="raycast-tooltip" class="hidden fixed z-40 pointer-events-none px-3 py-1.5 rounded-full bg-jet/90 text-pure text-xs font-semibold shadow-xl border border-white/15 backdrop-blur-md">
+                Click to inspect 3D fabric
+              </div>
+
+              <!-- Active Product Code & Style Badge -->
+              <div class="absolute top-3 left-3 z-20 flex items-center gap-2 pointer-events-none">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jet/90 backdrop-blur-md text-pure text-xs font-semibold shadow-md">
+                  <span class="w-2 h-2 rounded-full bg-azure animate-ping"></span>
+                  <span id="showroom-mode-label">360° Ensemble Studio</span>
+                </span>
+                <span id="stage-product-code" class="px-2.5 py-1 rounded-full bg-pure/95 text-jet text-xs font-bold shadow-sm border border-jet/10">FS-D04 • STYLE 17</span>
+              </div>
+
+              <!-- ThreeUI Spatial 3D-Projected Garment Callout Hotspots -->
+              <div id="threeui-overlay-layer" class="absolute inset-0 pointer-events-none">
+                <div id="hotspot-kameez" class="threeui-hotspot pointer-events-auto">
+                  <button onclick="selectThreeUIHotspot('kameez')" class="group flex items-center gap-2 bg-pure/95 backdrop-blur-md border border-jet/15 px-3 py-1.5 rounded-full shadow-lg hover:bg-azure hover:text-pure transition-all cursor-pointer">
+                    <span class="w-2.5 h-2.5 rounded-full bg-azure group-hover:bg-pure threeui-pulse"></span>
+                    <span class="text-xs font-semibold whitespace-nowrap">01. Kameez</span>
+                  </button>
+                </div>
+
+                <div id="hotspot-dupatta" class="threeui-hotspot pointer-events-auto">
+                  <button onclick="selectThreeUIHotspot('dupatta')" class="group flex items-center gap-2 bg-pure/95 backdrop-blur-md border border-jet/15 px-3 py-1.5 rounded-full shadow-lg hover:bg-seagreen hover:text-pure transition-all cursor-pointer">
+                    <span class="w-2.5 h-2.5 rounded-full bg-seagreen group-hover:bg-pure threeui-pulse"></span>
+                    <span class="text-xs font-semibold whitespace-nowrap">02. Dupatta</span>
+                  </button>
+                </div>
+
+                <div id="hotspot-salwar" class="threeui-hotspot pointer-events-auto">
+                  <button onclick="selectThreeUIHotspot('salwar')" class="group flex items-center gap-2 bg-pure/95 backdrop-blur-md border border-jet/15 px-3 py-1.5 rounded-full shadow-lg hover:bg-jet hover:text-pure transition-all cursor-pointer">
+                    <span class="w-2.5 h-2.5 rounded-full bg-terracotta group-hover:bg-pure threeui-pulse"></span>
+                    <span class="text-xs font-semibold whitespace-nowrap">03. Salwar</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- ThreeUI Live Garment Telemetry & Spec Card -->
+              <div class="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-pure/94 backdrop-blur-xl border border-jet/10 rounded-2xl p-3.5 sm:p-4 shadow-lg z-20">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div class="space-y-0.5">
+                    <div class="flex items-center gap-2">
+                      <span id="stage-edit-badge" class="text-[11px] font-bold uppercase tracking-wider text-azure">Embroidery &amp; Mirror Edit</span>
+                      <span class="text-jet/30">•</span>
+                      <span id="stage-piece-focus" class="text-[11px] font-semibold text-seagreen">Full 3-Piece Ensemble</span>
+                    </div>
+                    <h2 id="stage-product-title" class="text-base sm:text-lg font-bold text-jet">Electric Blue Mirror Blossom <span class="font-bengali text-sm font-normal text-jet/70">(ইলেকট্রিক ব্লু মিরর ব্লসম)</span></h2>
+                    <p id="stage-piece-detail" class="font-bengali text-xs sm:text-sm text-jet/75 line-clamp-1">
+                      কামিজ: ব্লু ডায়মন্ড গ্রিড ও হলুদ প্রতিফলনশীল ডিটেইল
+                    </p>
+                  </div>
+
+                  <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0">
+                    <div class="text-right mr-1">
+                      <div class="text-[10px] uppercase tracking-wider text-jet/50">Listed Set</div>
+                      <div id="stage-product-price" class="text-lg sm:text-xl font-bold text-jet">৳2,250</div>
+                    </div>
+                    <button onclick="openStageProductModal()" class="px-3.5 py-2.5 rounded-xl bg-chalk hover:bg-jet hover:text-pure text-jet text-xs sm:text-sm font-semibold transition-colors cursor-pointer">
+                      Inspect
+                    </button>
+                    <button onclick="addStageProductToBag(this)" class="px-4 py-2.5 rounded-xl bg-azure hover:bg-jet text-pure text-xs sm:text-sm font-semibold shadow-sm transition-colors cursor-pointer">
+                      + Add to Bag
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick 18-Design Swatch Selector Strip -->
+                <div class="mt-3 pt-2.5 border-t border-jet/10 flex items-center justify-between gap-2">
+                  <span class="text-[11px] text-jet/60 whitespace-nowrap hidden sm:inline">All 18 Looks:</span>
+                  <div id="stage-swatch-strip" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5"></div>
+                  <div class="flex items-center gap-1 flex-shrink-0">
+                    <button onclick="cycleStageProduct(-1)" class="p-1.5 rounded-lg bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer" title="Previous Design">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button onclick="cycleStageProduct(1)" class="p-1.5 rounded-lg bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer" title="Next Design">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="mt-2 px-1 flex items-center justify-between text-[11px] text-jet/55">
+              <span>Drag to orbit • Click cloth for silk ripple • Use <strong>18-Look 3D Rotunda</strong> to inspect all 18 sets</span>
+              <span class="font-semibold text-jet/70">Three.js + Anime.js + Motion.dev</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       04. THE 05 SIGNATURE EDITS SHOWCASE (MOTION.DEV SCROLL REVEAL)
+       ===================================================================== -->
+  <section id="edits-showcase" class="py-12 sm:py-16 bg-pure border-y border-jet/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-[0.2em] text-azure">Curated Capsules • Vol. 01/2026</span>
+          <h2 class="text-3xl sm:text-4xl font-serif font-bold text-jet mt-1">The 05 Signature Edits</h2>
+        </div>
+        <p class="text-sm text-jet/70 max-w-md">
+          Select any edit below to filter our 18 original fabric sets—from handcrafted Alfi &amp; Mome Batik to Zam Zam Swiss Lawn and Mirror-Work Couture.
+        </p>
+      </div>
+
+      <div id="edits-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"></div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       05. COMPLETE 18-PRODUCT INTERACTIVE CATALOG GRID
+       ===================================================================== -->
+  <section id="catalog-grid" class="py-14 sm:py-20 bg-chalk">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Catalog Header, Dual-View Switcher & Live Search / Filter Bar -->
+      <div class="bg-pure rounded-3xl p-5 sm:p-7 shadow-card border border-jet/10 mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5 pb-6 border-b border-jet/10">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-seagreen/15 text-seagreen text-xs font-bold">18 Catalogued Sets</span>
+              <span class="text-xs text-jet/50">Mirpur, Dhaka Inventory</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-serif font-bold text-jet mt-1.5">
+              Collection Index <span class="font-bengali text-lg sm:text-xl font-normal text-jet/70">— প্রোডাক্ট কোড দেখে পছন্দ করুন</span>
+            </h2>
+          </div>
+
+          <!-- Global Catalog Visual Mode Switcher + Search & Sort -->
+          <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+            <!-- Toggle between Fabric Illustration (Flat-Lay) and Stitched Silhouette Lookbook -->
+            <div class="inline-flex items-center bg-chalk p-1 rounded-full border border-jet/10" title="Switch all 18 product cards between Illustrated Fabric Flat-Lay and Styled Silhouette Preview">
+              <button id="view-btn-flatlay" onclick="setGlobalCatalogView('flatlay')" class="px-3.5 py-1.5 rounded-full bg-jet text-pure text-xs font-semibold transition-all cursor-pointer">
+                Fabric Preview
+              </button>
+              <button id="view-btn-lookbook" onclick="setGlobalCatalogView('lookbook')" class="px-3.5 py-1.5 rounded-full text-jet/75 hover:text-jet text-xs font-semibold transition-all cursor-pointer">
+                Stitched Lookbook
+              </button>
+            </div>
+
+            <div class="relative flex-grow sm:w-64">
+              <input id="catalog-search-input" type="text" oninput="applyCatalogFilters()" placeholder="Search code (FS-D01, ZSL-04, Batik)..." class="w-full pl-10 pr-4 py-2.5 rounded-full bg-chalk border border-jet/10 text-sm text-jet placeholder-jet/45 focus:outline-none focus:border-azure focus:bg-pure transition-colors" />
+              <svg class="w-4 h-4 text-jet/45 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <select id="catalog-sort-select" onchange="applyCatalogFilters()" class="px-4 py-2.5 rounded-full bg-chalk border border-jet/10 text-sm text-jet font-medium focus:outline-none focus:border-azure cursor-pointer">
+              <option value="featured">Sort: Catalog Order (01–18)</option>
+              <option value="price-asc">Price: Low to High (৳1,650+)</option>
+              <option value="price-desc">Price: High to Low (৳2,450)</option>
+              <option value="code">Product Code (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Edit Filter Pills & Max Price Slider -->
+        <div class="pt-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div id="edit-filter-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+
+          <div class="flex items-center gap-3 flex-shrink-0 bg-chalk px-4 py-2 rounded-full">
+            <label for="price-range-slider" class="text-xs font-semibold text-jet/75 whitespace-nowrap">Max Price:</label>
+            <input id="price-range-slider" type="range" min="1650" max="2450" step="50" value="2450" oninput="updatePriceFilter(this.value)" class="w-28 sm:w-36 accent-azure cursor-pointer" />
+            <span id="price-range-label" class="text-xs font-bold text-azure min-w-[54px] text-right">৳2,450</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Count & Active Filter Reset -->
+      <div class="flex items-center justify-between mb-6 px-1">
+        <p id="catalog-results-count" class="text-sm text-jet/75 font-medium">Showing all 18 designs</p>
+        <button id="reset-filters-btn" onclick="resetCatalogFilters()" class="hidden text-xs font-bold text-azure hover:underline cursor-pointer">
+          Reset All Filters
+        </button>
+      </div>
+
+      <p class="mb-5 px-2 text-xs leading-relaxed text-jet/65" id="catalog-media-disclosure">Visuals marked “illustration” are digital previews, not product photographs. Verify exact item details and stock before ordering.</p>
+
+      <!-- 18-Product Responsive Grid -->
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7"></div>
+
+      <!-- Empty State -->
+      <div id="catalog-empty-state" class="hidden bg-pure rounded-3xl p-12 text-center border border-jet/10">
+        <div class="w-16 h-16 mx-auto rounded-full bg-chalk flex items-center justify-center text-jet/50 mb-4">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="text-xl font-bold text-jet">No matching three-piece designs found</h3>
+        <p class="text-sm text-jet/65 mt-1">Try adjusting your price range or clearing the search filter.</p>
+        <button onclick="resetCatalogFilters()" class="mt-5 px-6 py-2.5 rounded-full bg-azure text-pure text-sm font-medium cursor-pointer">Show All 18 Designs</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       06. HOW TO ORDER 2026 & AUTHENTICITY GUIDE (FROM CATALOG PAGE 22)
+       ===================================================================== -->
+  <section id="how-to-order" class="py-14 sm:py-20 bg-pure border-t border-jet/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="text-xs font-bold uppercase tracking-[0.2em] text-seagreen">Your Next Signature Look</span>
+        <h2 class="text-3xl sm:text-4xl font-serif font-bold text-jet mt-1.5">Find Your Favourite &amp; Order</h2>
+        <p class="font-bengali text-base text-jet/75 mt-2">
+          আপনার পছন্দের ডিজাইনটি অর্ডার করুন সহজেই — Mirpur, Dhaka থেকে সারা বাংলাদেশে দ্রুত ডেলিভারি।
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="motion-reveal p-6 rounded-3xl bg-chalk border border-jet/10 relative">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-azure text-pure font-bold text-sm mb-4">01</span>
+          <h3 class="text-lg font-bold text-jet">Select Code &amp; Design</h3>
+          <p class="font-bengali text-sm text-jet/75 mt-1.5">
+            ক্যাটালগ থেকে পছন্দের ডিজাইন ও প্রোডাক্ট কোড (যেমন: CAT-001, ZSL-04, FS-D05) বেছে নিন।
+          </p>
+        </div>
+
+        <div class="motion-reveal p-6 rounded-3xl bg-chalk border border-jet/10 relative">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-jet text-pure font-bold text-sm mb-4">02</span>
+          <h3 class="text-lg font-bold text-jet">Add to Bag or Inbox</h3>
+          <p class="font-bengali text-sm text-jet/75 mt-1.5">
+            সরাসরি ওয়েবসাইট ব্যাগে যোগ করুন অথবা প্রোডাক্ট কোড ও পরিমাণ জানিয়ে অর্ডার প্লেস করুন।
+          </p>
+        </div>
+
+        <div class="motion-reveal p-6 rounded-3xl bg-chalk border border-jet/10 relative">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-seagreen text-pure font-bold text-sm mb-4">03</span>
+          <h3 class="text-lg font-bold text-jet">Stitching &amp; Shade Check</h3>
+          <p class="font-bengali text-sm text-jet/75 mt-1.5">
+            আনস্টিচড অথবা কাস্টম সেলাই (সাইজ ৩৪"–৪৪"), কাপড় ও রঙের শেড নিশ্চিত করে নিন।
+          </p>
+        </div>
+
+        <div class="motion-reveal p-6 rounded-3xl bg-chalk border border-jet/10 relative">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-terracotta text-pure font-bold text-sm mb-4">04</span>
+          <h3 class="text-lg font-bold text-jet">Dhaka &amp; BD Delivery</h3>
+          <p class="font-bengali text-sm text-jet/75 mt-1.5">
+            ঢাকার ভেতরে (৳৭০) ও সারা বাংলাদেশে ক্যাশ অন ডেলিভারি, bKash বা Nagad-এ অর্ডার নিশ্চিত করুন।
+          </p>
+        </div>
+      </div>
+
+      <!-- Catalog Transparency Banner -->
+      <div class="mt-8 p-5 sm:p-6 rounded-3xl bg-parchment border border-olive/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-terracotta">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Catalog Visuals &amp; Studio Assurance</span>
+          </div>
+          <p class="font-bengali text-xs sm:text-sm text-jet/80 leading-relaxed">
+            গুরুত্বপূর্ণ: বর্তমান প্রোডাক্ট ছবিগুলো কোড দিয়ে তৈরি ইলাস্ট্রেশন, আসল পণ্যের ফটোগ্রাফ নয়। অর্ডারের আগে বিক্রেতার কাছ থেকে আসল ছবি, কাপড়, রঙ, সাইজ, মূল্য ও স্টক নিশ্চিত করুন। * চিহ্নিত কিছু Zam Zam Swiss Lawn দামের ক্ষেত্রে যাচাই প্রয়োজন। তিন-পিস সেটে কামিজ, সালোয়ার ও ওড়না অন্তর্ভুক্ত বলে ক্যাটালগে উল্লেখ আছে।
+          </p>
+        </div>
+        <button onclick="openBrandBookModal()" class="px-5 py-2.5 rounded-full bg-jet hover:bg-azure text-pure text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer">
+          View Brand Identity
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================================
+       07. FOOTER
+       ===================================================================== -->
+  <footer class="bg-jet text-pure pt-14 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-10 border-b border-white/10">
+        
+        <div class="md:col-span-5 space-y-4">
+          <div class="inline-block bg-parchment text-jet px-5 py-3 rounded-2xl" style="min-width: 172px;">
+            <div class="font-script text-3xl leading-none">Fariza's</div>
+            <div class="font-serif font-bold text-xs tracking-[0.24em] uppercase mt-0.5">TERRITORY</div>
+            <div class="text-[9px] tracking-[0.18em] text-jet/70 uppercase">Handmade &amp; Crafts</div>
+          </div>
+          <p class="text-sm text-white/70 max-w-sm leading-relaxed">
+            A fashion accessories &amp; artisanal three-piece boutique based in Mirpur, Dhaka, Bangladesh. Connecting over 13,000 community members with folk-art ornamentation and modern elegance.
+          </p>
+          <div class="flex items-center gap-3 text-xs text-white/60">
+            <span class="px-3 py-1 rounded-full bg-white/10">Mirpur, Dhaka-1216</span>
+            <span class="px-3 py-1 rounded-full bg-seagreen/20 text-seagreen font-semibold">Vol. 01/2026</span>
+          </div>
+        </div>
+
+        <div class="md:col-span-3 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-widest text-white/50">The 05 Edits</h4>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li><button onclick="filterByEditAndScroll('Magenta & Plum Edit')" class="hover:text-azure transition-colors cursor-pointer">Magenta &amp; Plum Edit (01)</button></li>
+            <li><button onclick="filterByEditAndScroll('Alfi Boutique')" class="hover:text-azure transition-colors cursor-pointer">Alfi Boutique Batik (02)</button></li>
+            <li><button onclick="filterByEditAndScroll('Mome Boutique')" class="hover:text-azure transition-colors cursor-pointer">Mome Boutique Collection (04)</button></li>
+            <li><button onclick="filterByEditAndScroll('Zam Zam Swiss Lawn')" class="hover:text-azure transition-colors cursor-pointer">Zam Zam Swiss Lawn (06)</button></li>
+            <li><button onclick="filterByEditAndScroll('Embroidery & Mirror Edit')" class="hover:text-azure transition-colors cursor-pointer">Embroidery &amp; Mirror Edit (05)</button></li>
+          </ul>
+        </div>
+
+        <div class="md:col-span-4 space-y-3">
+          <h4 class="text-xs font-bold uppercase tracking-widest text-white/50">Customer Care &amp; Dhaka Studio</h4>
+          <p class="text-sm text-white/75">
+            Direct Code Verification &amp; Custom Tailoring Support available daily 10:00 AM – 10:00 PM (BST).
+          </p>
+          <div class="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
+            <div class="text-xs text-white/60">Community Privilege Code</div>
+            <div class="flex items-center justify-between">
+              <code class="text-base font-bold text-marigold">FARIZA10</code>
+              <button onclick="copyPromoCode('FARIZA10')" class="px-3 py-1 rounded-lg bg-azure hover:bg-pure hover:text-jet text-xs font-semibold transition-colors cursor-pointer">Copy Code</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
+        <p>© 2026 Fariza's Territory — Mirpur, Dhaka, Bangladesh. All 18 Designs Cataloged.</p>
+        <p>Crafted with Three.js, Anime.js &amp; Motion.dev</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       08. INTERACTIVE PRODUCT QUICK-VIEW & TAILORING STUDIO MODAL
+       ===================================================================== -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-jet/65 backdrop-blur-sm">
+    <div id="product-modal-panel" class="bg-pure w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl shadow-2xl border border-jet/10 relative">
+      <button onclick="closeProductModal()" class="sticky top-4 float-right mr-4 mt-4 z-20 w-10 h-10 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet flex items-center justify-center transition-colors cursor-pointer" aria-label="Close modal">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+
+      <div id="product-modal-content" class="p-5 sm:p-8 clear-both"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       09. SLIDE-OVER SHOPPING BAG & WISHLIST DRAWERS
+       ===================================================================== -->
+  <div id="drawer-backdrop" onclick="closeAllDrawers()" class="fixed inset-0 z-50 hidden bg-jet/55 backdrop-blur-xs transition-opacity"></div>
+
+  <!-- Shopping Bag Drawer -->
+  <aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md bg-pure shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-5 border-b border-jet/10 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <h3 class="text-xl font-serif font-bold text-jet">Your Shopping Bag</h3>
+        <span id="drawer-cart-count" class="px-2.5 py-0.5 rounded-full bg-azure text-pure text-xs font-bold">0</span>
+      </div>
+      <button onclick="closeAllDrawers()" class="p-2 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div id="cart-items-container" class="flex-grow overflow-y-auto p-5 space-y-4"></div>
+
+    <div id="cart-drawer-footer" class="p-5 bg-chalk border-t border-jet/10 space-y-4">
+      <div class="flex gap-2">
+        <input id="promo-input" type="text" placeholder="Promo code (e.g. FARIZA10)" class="flex-grow px-3.5 py-2 rounded-xl bg-pure border border-jet/15 text-sm focus:outline-none focus:border-azure" />
+        <button onclick="applyPromoInput()" class="px-4 py-2 rounded-xl bg-jet hover:bg-azure text-pure text-xs font-semibold transition-colors cursor-pointer">Apply</button>
+      </div>
+
+      <div class="space-y-1.5 text-sm">
+        <div class="flex justify-between text-jet/70">
+          <span>Subtotal</span>
+          <span id="cart-subtotal" class="font-semibold text-jet">৳0</span>
+        </div>
+        <div id="cart-discount-row" class="hidden flex justify-between text-seagreen font-medium">
+          <span>Discount (<span id="applied-promo-label">FARIZA10</span>)</span>
+          <span id="cart-discount-amount">-৳0</span>
+        </div>
+        <div class="flex justify-between text-base font-bold text-jet pt-2 border-t border-jet/10">
+          <span>Estimated Total</span>
+          <span id="cart-total" class="text-azure">৳0</span>
+        </div>
+      </div>
+
+      <button id="proceed-checkout-btn" onclick="openCheckoutModal()" class="w-full py-3.5 rounded-full bg-azure hover:bg-jet disabled:opacity-40 text-pure font-semibold text-sm shadow-azure-glow transition-all cursor-pointer">
+        Proceed to Dhaka / BD Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside id="wishlist-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md bg-pure shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-5 border-b border-jet/10 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <h3 class="text-xl font-serif font-bold text-jet">Saved Favourites</h3>
+        <span id="drawer-wishlist-count" class="px-2.5 py-0.5 rounded-full bg-terracotta text-pure text-xs font-bold">0</span>
+      </div>
+      <button onclick="closeAllDrawers()" class="p-2 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div id="wishlist-items-container" class="flex-grow overflow-y-auto p-5 space-y-3"></div>
+  </aside>
+
+  <!-- =====================================================================
+       10. COMPLETE CHECKOUT & DIGITAL INVOICE MODAL
+       ===================================================================== -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-jet/70 backdrop-blur-sm">
+    <div class="bg-pure w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl shadow-2xl border border-jet/10">
+      <div class="p-5 sm:p-6 border-b border-jet/10 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-seagreen">Mirpur Studio Order Desk</span>
+          <h3 class="text-2xl font-serif font-bold text-jet">Complete Your Order</h3>
+        </div>
+        <button onclick="closeCheckoutModal()" class="p-2.5 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="checkout-body" class="p-5 sm:p-7"></div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       11. BRAND BOOK & IDENTITY MODAL
+       ===================================================================== -->
+  <div id="brandbook-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-jet/70 backdrop-blur-sm">
+    <div class="bg-pure w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl border border-jet/10 p-6 sm:p-8">
+      <div class="flex items-center justify-between pb-4 border-b border-jet/10">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-widest text-azure">Brand Book &amp; Heritage</span>
+          <h3 class="text-2xl font-serif font-bold text-jet">Fariza's Territory — Identity</h3>
+        </div>
+        <button onclick="closeBrandBookModal()" class="p-2 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="mt-5 space-y-5 text-sm text-jet/80">
+        <p class="leading-relaxed">
+          <strong>Fariza's Territory</strong> is a Dhaka-based fashion accessories and boutique three-piece brand rooted in Mirpur, Dhaka, Bangladesh. Loved by over <strong>13,000+ social media followers</strong>, our aesthetic blends folk-art ornamentation, heritage patternwork, artisanal tactility, and botanical intricacy.
+        </p>
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-jet/60 mb-2.5">Official Brand Book Palette</h4>
+          <div class="grid grid-cols-5 gap-2 text-center text-[11px]">
+            <div class="p-2 rounded-xl bg-chalk border border-jet/15">
+              <div class="w-full h-8 rounded-lg bg-[#F0F2F5] border border-jet/10 mb-1"></div>
+              <div class="font-bold">Chalk</div>
+              <div class="text-jet/60">#F0F2F5</div>
+            </div>
+            <div class="p-2 rounded-xl bg-chalk border border-jet/15">
+              <div class="w-full h-8 rounded-lg bg-[#FFFFFF] border border-jet/10 mb-1"></div>
+              <div class="font-bold">White</div>
+              <div class="text-jet/60">#FFFFFF</div>
+            </div>
+            <div class="p-2 rounded-xl bg-chalk border border-jet/15">
+              <div class="w-full h-8 rounded-lg bg-[#0866FF] mb-1"></div>
+              <div class="font-bold">Azure</div>
+              <div class="text-jet/60">#0866FF</div>
+            </div>
+            <div class="p-2 rounded-xl bg-chalk border border-jet/15">
+              <div class="w-full h-8 rounded-lg bg-[#050505] mb-1"></div>
+              <div class="font-bold">Jet</div>
+              <div class="text-jet/60">#050505</div>
+            </div>
+            <div class="p-2 rounded-xl bg-chalk border border-jet/15">
+              <div class="w-full h-8 rounded-lg bg-[#31A24C] mb-1"></div>
+              <div class="font-bold">Sea Green</div>
+              <div class="text-jet/60">#31A24C</div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 rounded-2xl bg-parchment border border-olive/30">
+          <div class="font-bold text-jet mb-1">Brand Values &amp; Craft</div>
+          <p class="text-xs text-jet/75">Style • Trendy Fashion • Community — Primary Typeface: <strong>Actor</strong> • Logo Clear Space: 35px • Minimum Crest Width: 152px.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       12. TOAST NOTIFICATION BANNER
+       ===================================================================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- =====================================================================
+       13. APPLICATION LOGIC: MASTER 18-PRODUCT DATABASE, IMAGE-TO-CODE
+           TEXTILE & LOOKBOOK RENDERING ENGINE, THREE.JS + ANIME.JS + MOTION.DEV
+       ===================================================================== -->
+  <script>
+    /**
+     * CANONICAL PRODUCT DATABASE — 18 DESIGNS / 5 COLLECTIONS.
+     * All existing source product records are preserved unchanged.
+     * The source references a master XLSX and PDF; these were NOT supplied for
+     * independent verification in this delivery. Do not treat previews as photos.
+     */
+    const PRODUCTS = [
+      {
+        id: 'CAT-001',
+        styleNo: 'STYLE 01',
+        edit: 'Magenta & Plum Edit',
+        name: 'Magenta & Plum Printed Three-Piece',
+        bnName: 'ম্যাজেন্টা ও প্লাম প্রিন্টেড থ্রি-পিস',
+        price: 2350,
+        priceVerify: false,
+        tagline: 'প্লাম ও ম্যাজেন্টার প্রাণবন্ত মেলবন্ধন',
+        description: 'গাঢ় প্লাম-পার্পল বেসে সাদা, গোলাপি ও ম্যাজেন্টা ফ্লোরাল-পেইসলি প্রিন্ট, সাজানো বর্ডার আর ট্যাসেলযুক্ত ওড়নায় একটি উজ্জ্বল এথনিক লুক। কনট্রাস্টে রয়েছে সলিড ফুশিয়া-পিংক সালোয়ারের কাপড়।',
+        kameez: 'কামিজে ফুল ও পাতার মোটিফ, আলাদা হাতার কাপড়সহ',
+        salwar: 'ফুশিয়া-পিংক সলিড কাপড়',
+        dupatta: 'ম্যাজেন্টা-প্লাম প্রিন্ট, ট্যাসেলযুক্ত',
+        colors: ['#5E1949', '#E62288', '#FFFFFF', '#F7A8D0'],
+        salwarColor: '#EE2A92',
+        dupattaColors: ['#E62288', '#4A1238'],
+        motif: 'plum-paisley',
+        fabric: 'Printed Cotton Lawn with Tassel Dupatta',
+        hasMirror: false,
+        hasTassels: true
+      },
+      {
+        id: 'CAT-002',
+        styleNo: 'STYLE 02',
+        edit: 'Alfi Boutique',
+        name: 'Emerald Teal Batik',
+        bnName: 'এমেরাল্ড টিল বাটিক থ্রি-পিস',
+        price: 2150,
+        priceVerify: false,
+        tagline: 'টিল, চারকোল ও রাস্টের সাহসী সমন্বয়',
+        description: 'চারকোল-কালো বেসে আইভরি রঙের আবস্ট্রাক্ট বাটিক-অনুপ্রাণিত প্রিন্ট। টিল-সবুজ স্ট্রাইপড ওড়নায় রাস্ট বর্ডার এবং সলিড টেরাকোটা কাপড়ের কনট্রাস্ট পুরো সেটকে করেছে আলাদা।',
+        kameez: 'চারকোল বেসে আইভরি ফুলেল, বক্ররেখা ও জ্যামিতিক ছাপ',
+        salwar: 'সলিড রাস্ট-টেরাকোটা',
+        dupatta: 'টিল স্ট্রাইপ ও টাই-ডাই ধাঁচ, রাস্ট বর্ডার',
+        colors: ['#181D1B', '#137A6E', '#A8553A', '#F5F1E3'],
+        salwarColor: '#A8553A',
+        dupattaColors: ['#137A6E', '#A7E8DF'],
+        motif: 'alfi-wax-batik',
+        fabric: 'Alfi Handcrafted Wax Batik Cotton',
+        hasMirror: false,
+        hasTassels: true
+      },
+      {
+        id: 'CAT-003',
+        styleNo: 'STYLE 03',
+        edit: 'Alfi Boutique',
+        name: 'Dusty Mauve Floral Batik',
+        bnName: 'ডাস্টি মভ ফ্লোরাল বাটিক থ্রি-পিস',
+        price: 2050,
+        priceVerify: false,
+        tagline: 'নরম মভে রুচিশীল ফ্লোরাল স্টেটমেন্ট',
+        description: 'ডাস্টি মভের শান্ত বেসে অফ-হোয়াইট ছোট ফুল আর বড় গোলাকার বাটিক-অনুপ্রাণিত নকশা। একই টোনের সলিড কাপড় ও ফুলেল ট্যাসেলযুক্ত ওড়না মিলে তৈরি হয় পরিমিত, কোমল সাজ।',
+        kameez: 'অফ-হোয়াইট ফুলেল ও বড় বৃত্তাকার মোটিফ',
+        salwar: 'সলিড ডাস্টি মভ',
+        dupatta: 'ম্যাচিং ফ্লোরাল প্রিন্ট ও ট্যাসেল',
+        colors: ['#8E5B6E', '#966477', '#FAF5F0', '#5E3847'],
+        salwarColor: '#966477',
+        dupattaColors: ['#8E5B6E', '#B38294'],
+        motif: 'shibori-circle',
+        fabric: 'Alfi Boutique Shibori & Floral Batik',
+        hasMirror: false,
+        hasTassels: true
+      },
+      {
+        id: 'MB-BT-01',
+        styleNo: 'STYLE 04',
+        edit: 'Mome Boutique',
+        name: 'Forest Elegance',
+        bnName: 'ফরেস্ট এলিগ্যান্স',
+        price: 1850,
+        priceVerify: false,
+        tagline: 'মাটির রঙে বনসবুজের প্রশান্তি',
+        description: 'আর্থি ব্রাউন ও ফরেস্ট-গ্রিনের মধ্যে হলুদাভ বোটানিক্যাল মোটিফের স্বতন্ত্র ছাপ। কনট্রাস্ট প্যাটার্নের ওড়না, ব্রাউন সলিড কাপড় এবং ছোট ট্যাসেল পুরো সেটে এনেছে প্রকৃতির অনুভূতি।',
+        kameez: 'ব্রাউন-ফরেস্ট গ্রিন বোটানিক্যাল বাটিক-স্টাইল প্রিন্ট',
+        salwar: 'সলিড ব্রাউন',
+        dupatta: 'গ্রিন গ্রেডিয়েন্ট, বোটানিক্যাল মোটিফ ও ট্যাসেল',
+        colors: ['#1D5434', '#B57E48', '#E2C57E', '#8C6249'],
+        salwarColor: '#8C6249',
+        dupattaColors: ['#B57E48', '#1D5434'],
+        motif: 'fern-botanical',
+        fabric: 'Mome Boutique Botanical Batik Cotton',
+        hasMirror: false,
+        hasTassels: true
+      },
+      {
+        id: 'MB-BT-02',
+        styleNo: 'STYLE 05',
+        edit: 'Mome Boutique',
+        name: 'Fuchsia Noir',
+        bnName: 'ফুশিয়া নোয়ার',
+        price: 1700,
+        priceVerify: false,
+        tagline: 'ফুশিয়া পিংকে বোল্ড বাটিক লুক',
+        description: 'কালো-চারকোল পটভূমিতে ফুশিয়া ও সাদার ফ্লোরাল স্ট্যাম্পের গাঢ় কনট্রাস্ট। উজ্জ্বল ফুশিয়া সালোয়ার কাপড় এবং গোলাপি থেকে চারকোল টোনে পরিবর্তিত প্রিন্টেড ওড়নায় প্রাণবন্ত স্টাইল।',
+        kameez: 'কালো বেসে ফুশিয়া-সাদা ফ্লোরাল বাটিক-স্টাইল প্রিন্ট',
+        salwar: 'সলিড ফুশিয়া',
+        dupatta: 'পিংক-চারকোল গ্রেডিয়েন্ট ও ফুলেল ছাপ',
+        colors: ['#232328', '#E91E63', '#FFFFFF', '#4A2535'],
+        salwarColor: '#E91E63',
+        dupattaColors: ['#E91E63', '#2B252C'],
+        motif: 'noir-sprig',
+        fabric: 'Mome Boutique Artisanal Cotton',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'MB-BT-03',
+        styleNo: 'STYLE 06',
+        edit: 'Mome Boutique',
+        name: 'Mustard Noir',
+        bnName: 'মাস্টার্ড নোয়ার',
+        price: 1650,
+        priceVerify: false,
+        tagline: 'হলুদের উচ্ছ্বাসে ডার্ক চারকোল',
+        description: 'গাঢ় চারকোল বেসের ওপর হলুদ বোটানিক্যাল মোটিফের পুনরাবৃত্তি। উজ্জ্বল সলিড হলুদ সালোয়ার ও হলুদ-চারকোল টু-টোন ওড়নার সঙ্গে রয়েছে নরম কনট্রাস্টের সমন্বয়।',
+        kameez: 'চারকোল বেসে হলুদ বোটানিক্যাল মোটিফ',
+        salwar: 'সলিড উজ্জ্বল হলুদ',
+        dupatta: 'হলুদ-চারকোল গ্রেডিয়েন্ট ও ছোট মোটিফ',
+        colors: ['#2C2E2B', '#F4C815', '#E8C524', '#4B4E3B'],
+        salwarColor: '#F4C815',
+        dupattaColors: ['#F4C815', '#2C2E2B'],
+        motif: 'damask-sprig',
+        fabric: 'Mome Boutique Artisanal Cotton',
+        hasMirror: false,
+        hasTassels: true
+      },
+      {
+        id: 'MB-BT-04',
+        styleNo: 'STYLE 07',
+        edit: 'Mome Boutique',
+        name: 'Burgundy Sunset',
+        bnName: 'বারগান্ডি সানসেট',
+        price: 1750,
+        priceVerify: false,
+        tagline: 'বার্গান্ডি ও সানসেট মাস্টার্ডের উষ্ণতা',
+        description: 'বার্গান্ডি-মেরুন ও সানসেট মাস্টার্ডের টাই-ডাই ধাঁচের বর্ণচ্ছটা। মারুনে হালকা স্ট্যাম্প মোটিফের কামিজ ও হলুদ-মেরুন প্রিন্টেড ওড়নায় উৎসবের রঙের অনুভূতি।',
+        kameez: 'মেরুন বেসে মাস্টার্ড রঙের বাটিক-ধাঁচের গোল মোটিফ',
+        salwar: 'মাস্টার্ড ও মেরুন টোনের কাপড়',
+        dupatta: 'সানসেট মাস্টার্ড-মেরুন টাই-ডাই',
+        colors: ['#6E1222', '#F5A623', '#FFFFFF', '#941B2F'],
+        salwarColor: '#F39C12',
+        dupattaColors: ['#6E1222', '#F5A623'],
+        motif: 'sunburst-tiedye',
+        fabric: 'Mome Boutique Bandhani & Tie-Dye',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'ZSL-01',
+        styleNo: 'STYLE 08',
+        edit: 'Zam Zam Swiss Lawn',
+        name: 'Navy Royal Bloom',
+        bnName: 'নেভি রয়্যাল ব্লুম',
+        price: 1750,
+        priceVerify: true,
+        tagline: 'নেভির গাম্ভীর্যে রাজকীয় নকশা',
+        description: 'গাঢ় নেভি বেসে সাদা পেইসলি ও অলঙ্করণধর্মী কেন্দ্রীয় প্রিন্ট। লম্বা সজ্জিত বর্ডার এবং হলুদ-কালো ফুলেল ওড়নায় তৈরি একটি রাজকীয় কনট্রাস্ট।',
+        kameez: 'নেভি, সাদা কেন্দ্রীয় পেইসলি প্যানেল ও পার্শ্ব বর্ডার',
+        salwar: 'সলিড গাঢ় রঙের কাপড়',
+        dupatta: 'হলুদ-কালো বড় ফুলেল প্রিন্ট',
+        colors: ['#111C38', '#F4CE24', '#FFFFFF', '#D81B60'],
+        salwarColor: '#0B0F19',
+        dupattaColors: ['#F4CE24', '#121212'],
+        motif: 'royal-navy-panel',
+        fabric: 'Original Zam Zam Swiss Lawn',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'ZSL-02',
+        styleNo: 'STYLE 09',
+        edit: 'Zam Zam Swiss Lawn',
+        name: 'Autumn Floral Elegance',
+        bnName: 'অটাম ফ্লোরাল এলিগ্যান্স',
+        price: 1700,
+        priceVerify: false,
+        tagline: 'শরতের ফুলে উষ্ণ রঙের কোমলতা',
+        description: 'হালকা স্টোন-বেইজের ওপর শরতের কমলা, লাল ও বাদামি ফুলের নরম ছাপ। সামনে সাজানো জ্যামিতিক ও ফুলেল প্যানেল, সঙ্গে রাস্ট-ব্রাউন সলিড কাপড় ও রঙিন বর্ডারযুক্ত ওড়না।',
+        kameez: 'স্টোন/বেইজ বেসে অটাম ফ্লোরাল ও কেন্দ্রীয় প্যানেল',
+        salwar: 'সলিড রাস্ট-ব্রাউন',
+        dupatta: 'বহুরঙা ফুল ও অলঙ্কৃত বর্ডার',
+        colors: ['#CFC3B4', '#8B3A14', '#E2A829', '#C0392B'],
+        salwarColor: '#8B3A14',
+        dupattaColors: ['#CFC3B4', '#B03A2E'],
+        motif: 'autumn-placket',
+        fabric: 'Original Zam Zam Swiss Lawn',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'ZSL-03',
+        styleNo: 'STYLE 10',
+        edit: 'Zam Zam Swiss Lawn',
+        name: 'Midnight Teal Heritage',
+        bnName: 'মিডনাইট টিল হেরিটেজ',
+        price: 1650,
+        priceVerify: true,
+        tagline: 'ডার্ক হেরিটেজ প্যাটার্নে টিল কনট্রাস্ট',
+        description: 'ডিপ প্লাম-চারকোল বেসে উল্লম্ব মেডেলিয়ন ও অলঙ্কারধর্মী প্রিন্ট। হালকা অ্যাকোয়া-টিল সলিড কাপড় এবং গভীর টোনের নকশা করা ওড়নায় আধুনিক ঐতিহ্যের ছোঁয়া।',
+        kameez: 'ডার্ক বেসে লম্বালম্বি হেরিটেজ-মেডেলিয়ন প্রিন্ট',
+        salwar: 'সলিড অ্যাকোয়া-টিল',
+        dupatta: 'বহুরঙা হেরিটেজ বর্ডার',
+        colors: ['#2E2228', '#3796B8', '#D9B68C', '#181418'],
+        salwarColor: '#3796B8',
+        dupattaColors: ['#221D22', '#D9B68C'],
+        motif: 'heritage-medallion',
+        fabric: 'Original Zam Zam Swiss Lawn',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'ZSL-04',
+        styleNo: 'STYLE 11',
+        edit: 'Zam Zam Swiss Lawn',
+        name: 'Olive Garden Bloom',
+        bnName: 'অলিভ গার্ডেন ব্লুম',
+        price: 1850,
+        priceVerify: false,
+        tagline: 'অলিভ সবুজে বাগানের ফুলেল ভাষা',
+        description: 'অলিভ-গ্রিন বেসে গোলাপি, বেগুনি ও উষ্ণ ফুলেল বুকে। কনট্রাস্ট বর্ডারসমৃদ্ধ প্রিন্টেড ওড়না এবং সলিড ডিপ-গ্রিন কাপড়ে তৈরি প্রকৃতি-অনুপ্রাণিত এক সুন্দর সেট।',
+        kameez: 'অলিভ বেসে মিশ্র রঙের ফ্লোরাল প্রিন্ট',
+        salwar: 'সলিড ডিপ গ্রিন',
+        dupatta: 'বড় ফুল, পাতার ছাপ ও সাজানো বর্ডার',
+        colors: ['#4F5D3B', '#F06292', '#F3F2D8', '#142E1B'],
+        salwarColor: '#142E1B',
+        dupattaColors: ['#F3F2D8', '#3A4A28'],
+        motif: 'olive-bouquet',
+        fabric: 'Original Zam Zam Swiss Lawn',
+        hasMirror: false,
+        hasTassels: true
+      },
+      {
+        id: 'ZSL-05',
+        styleNo: 'STYLE 12',
+        edit: 'Zam Zam Swiss Lawn',
+        name: 'Coral Geometric Bloom',
+        bnName: 'কোরাল জিওমেট্রিক ব্লুম',
+        price: 1800,
+        priceVerify: true,
+        tagline: 'কোরাল পিংকে জ্যামিতিক এলিগ্যান্স',
+        description: 'কোরাল-রোজ পিংক বেসে ট্রায়াঙ্গল ও হেক্সাগন নকশার পুনরাবৃত্তি। সলিড পিংক সালোয়ার কাপড় এবং নরম ফ্লোরাল-জ্যামিতিক ওড়নায় উজ্জ্বল কিন্তু পরিমিত সাজ।',
+        kameez: 'কোরাল-পিংক জ্যামিতিক ট্রায়াঙ্গল ও হেক্সাগন',
+        salwar: 'সলিড কোরাল-পিংক',
+        dupatta: 'নরম ফ্লোরাল ও জ্যামিতিক বর্ডার',
+        colors: ['#F07484', '#6E3554', '#FADBD8', '#F26D7D'],
+        salwarColor: '#F26D7D',
+        dupattaColors: ['#F48B98', '#6E3554'],
+        motif: 'coral-hexagon',
+        fabric: 'Original Zam Zam Swiss Lawn',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'ZSL-06',
+        styleNo: 'STYLE 13',
+        edit: 'Zam Zam Swiss Lawn',
+        name: 'Crimson Floral Mosaic',
+        bnName: 'ক্রিমসন ফ্লোরাল মোজাইক',
+        price: 1650,
+        priceVerify: true,
+        tagline: 'ক্রিমসন ফ্লোরাল ও সফট মভের মেলবন্ধন',
+        description: 'ডার্ক চারকোল বেসে বহুরঙা ঘন ফুলেল ডিজাইন ও ক্রিমসন উল্লম্ব প্যানেল। মভ-টোনের সলিড কাপড় এবং গ্রে-মভ ফুলেল ওড়না পুরো সেটে দিয়েছে আলাদা ব্যক্তিত্ব।',
+        kameez: 'ডার্ক বেসে ক্রিমসন প্যানেল ও বহুরঙা ফুল',
+        salwar: 'সলিড মভ/টউপ',
+        dupatta: 'গ্রে-মভ ফ্লোরাল ও কনট্রাস্ট বর্ডার',
+        colors: ['#1E1B1E', '#D81E5B', '#9E7B78', '#F3C6D3'],
+        salwarColor: '#9E7B78',
+        dupattaColors: ['#A9959E', '#1E1B1E'],
+        motif: 'crimson-mosaic',
+        fabric: 'Original Zam Zam Swiss Lawn',
+        hasMirror: false,
+        hasTassels: false
+      },
+      {
+        id: 'FS-D01',
+        styleNo: 'STYLE 14',
+        edit: 'Embroidery & Mirror Edit',
+        name: 'Golden Mustard Mirror Elegance',
+        bnName: 'গোল্ডেন মাস্টার্ড মিরর এলিগ্যান্স',
+        price: 2050,
+        priceVerify: false,
+        tagline: 'গোল্ডেন মাস্টার্ডের উৎসবমুখর ছোঁয়া',
+        description: 'উজ্জ্বল মাস্টার্ড বেসে ডায়মন্ড গ্রিড, গোলাপি-সবুজ ডিটেইল এবং মিরর-লুক ডেকোরেশন। ম্যাচিং প্রিন্টেড ওড়না ও ম্যাজেন্টা টোনের সালোয়ারের সঙ্গে প্রাণবন্ত তিন-পিস সমন্বয়।',
+        kameez: 'মাস্টার্ডে ডায়মন্ড গ্রিড ও প্রতিফলনশীল ডিটেইল',
+        salwar: 'ম্যাজেন্টা/বার্গান্ডি প্রিন্টেড কাপড়',
+        dupatta: 'মাস্টার্ড বেসে সূক্ষ্ম ফ্লোরাল বর্ডার',
+        colors: ['#DDA818', '#8A1C4A', '#FFFFFF', '#2E7D32'],
+        salwarColor: '#8A1C4A',
+        dupattaColors: ['#D4A017', '#6E5A1A'],
+        motif: 'mustard-mirror',
+        fabric: 'Embroidered Cotton with Shisha Mirrors',
+        hasMirror: true,
+        hasTassels: false
+      },
+      {
+        id: 'FS-D02',
+        styleNo: 'STYLE 15',
+        edit: 'Embroidery & Mirror Edit',
+        name: 'Midnight Black Ethnic Charm',
+        bnName: 'মিডনাইট ব্ল্যাক এথনিক চার্ম',
+        price: 2150,
+        priceVerify: false,
+        tagline: 'ব্ল্যাক ও বার্ন্ট অরেঞ্জের এথনিক চার্ম',
+        description: 'কালো-চারকোল কামিজে অরেঞ্জ-রেড জ্যামিতিক চেইন-ধাঁচের লাইন ও বর্ডার। বার্গান্ডি গ্রেডিয়েন্ট ওড়নার সঙ্গে কনট্রাস্ট জ্যামিতিক প্রিন্টের সালোয়ার কাপড়।',
+        kameez: 'ডার্ক বেসে অরেঞ্জ ডায়মন্ড চেইন ও বর্ডার',
+        salwar: 'কালো/অরেঞ্জ জ্যামিতিক প্রিন্টের কাপড়',
+        dupatta: 'বার্গান্ডি থেকে চারকোল গ্রেডিয়েন্ট',
+        colors: ['#1D2024', '#E85D24', '#7B2438', '#FBBF24'],
+        salwarColor: '#231F20',
+        dupattaColors: ['#7B2438', '#1D2024'],
+        motif: 'black-orange-chain',
+        fabric: 'Embroidered Cotton with Crescent Yoke',
+        hasMirror: true,
+        hasTassels: true
+      },
+      {
+        id: 'FS-D03',
+        styleNo: 'STYLE 16',
+        edit: 'Embroidery & Mirror Edit',
+        name: 'Fuchsia Bloom Aqua Delight',
+        bnName: 'ফুশিয়া ব্লুম অ্যাকোয়া ডিলাইট',
+        price: 1950,
+        priceVerify: false,
+        tagline: 'ফুশিয়া ও অ্যাকোয়ার প্রাণবন্ত স্টাইল',
+        description: 'উজ্জ্বল ফুশিয়া কামিজে অ্যাকোয়া নেকলাইন ট্রিম, পাতার নকশা ও ক্ষুদ্র জ্যামিতিক ছাপ। অ্যাকোয়া সালোয়ারের ছোট পিংক মোটিফ এবং ফুশিয়া ওড়নার স্ট্রাইপড ফ্লোরাল বর্ডারে তরতাজা লুক।',
+        kameez: 'ফুশিয়ায় অ্যাকোয়া নেকলাইন, ফুল ও জ্যামিতিক ছাপ',
+        salwar: 'অ্যাকোয়া বেসে ছোট পিংক মোটিফ',
+        dupatta: 'ফুশিয়া-অ্যাকোয়া প্রিন্টেড বর্ডার',
+        colors: ['#DF2384', '#7CE0EE', '#FFFFFF', '#9C1458'],
+        salwarColor: '#84E3F0',
+        dupattaColors: ['#DF2384', '#B5338A'],
+        motif: 'fuchsia-aqua-trim',
+        fabric: 'Embroidered Lawn with Aqua Neckline',
+        hasMirror: true,
+        hasTassels: false
+      },
+      {
+        id: 'FS-D04',
+        styleNo: 'STYLE 17',
+        edit: 'Embroidery & Mirror Edit',
+        name: 'Electric Blue Mirror Blossom',
+        bnName: 'ইলেকট্রিক ব্লু মিরর ব্লসম',
+        price: 2250,
+        priceVerify: false,
+        tagline: 'ইলেকট্রিক ব্লুর উজ্জ্বল আধুনিকতা',
+        description: 'ইলেকট্রিক ব্লু বেসে ডায়মন্ড গ্রিড ও হলুদ মিরর-লুক ডিটেইল। ডিপ নেভি প্যাটার্নড সালোয়ার এবং ব্লু-ফ্লোরাল বর্ডারযুক্ত ওড়নার কনট্রাস্টে আকর্ষণীয় সেট।',
+        kameez: 'ব্লু ডায়মন্ড গ্রিড ও হলুদ প্রতিফলনশীল ডিটেইল',
+        salwar: 'নেভি ব্লুতে হালকা নীল রিপিট প্যাটার্ন',
+        dupatta: 'ব্লুতে ফ্লোরাল বর্ডার ও স্ট্রাইপ',
+        colors: ['#1EA7F8', '#0E1738', '#FFD700', '#E0F2FE'],
+        salwarColor: '#0E1738',
+        dupattaColors: ['#25AEFA', '#5B6BE6'],
+        motif: 'blue-mirror-grid',
+        fabric: 'Embroidered Cotton with Shisha Mirrors',
+        hasMirror: true,
+        hasTassels: true
+      },
+      {
+        id: 'FS-D05',
+        styleNo: 'STYLE 18',
+        edit: 'Embroidery & Mirror Edit',
+        name: 'Sand Beige Floral Grace',
+        bnName: 'স্যান্ড বেইজ ফ্লোরাল গ্রেস',
+        price: 2450,
+        priceVerify: false,
+        tagline: 'স্যান্ড বেইজের সফট ফ্লোরাল গ্রেস',
+        description: 'স্যান্ড-বেইজ বেসে সাদা ও প্যাস্টেল ফুলেল মোটিফ, টারকোয়েজ ও পিংক ডিটেইলসহ সজ্জিত নেকলাইন। ডিপ পার্পল সালোয়ার এবং বেইজ ফুলেল ওড়নায় নরম রঙের ভারসাম্য।',
+        kameez: 'স্যান্ড বেইজে সাদা-প্যাস্টেল ফ্লোরাল ও টারকোয়েজ নেকলাইন',
+        salwar: 'ডিপ পার্পল প্যাটার্নড কাপড়',
+        dupatta: 'বেইজে প্রিন্ট ও সূক্ষ্ম ফুলেল বর্ডার',
+        colors: ['#DFC89E', '#421848', '#2EC4B6', '#FF4D8D'],
+        salwarColor: '#421848',
+        dupattaColors: ['#E6D2AC', '#F7F1E3'],
+        motif: 'sand-pastel-grace',
+        fabric: 'Signature Embroidered Cotton Lawn',
+        hasMirror: true,
+        hasTassels: false
+      }
+    ];
+
+    /**
+     * Store deployment configuration. Set only with verified seller details.
+     * productMedia example:
+     *   'CAT-001': { flatlay: 'https://your-cdn/.../CAT-001.webp', lookbook: 'https://...' }
+     * orderApiEndpoint must be a trusted server that revalidates all prices,
+     * inventory, discounts and payment state — never trust client totals.
+     */
+    const STORE_CONFIG = {
+      sellerWhatsappNumber: '', // e.g. '8801XXXXXXXXX' (omit the +); blank disables direct seller chat
+      orderApiEndpoint: '',      // blank means this HTML prepares an order REQUEST only
+      productMedia: {}          // original product photos, where licensed and verified
+    };
+
+    function getMediaKindLabel(product, mode = 'flatlay') {
+      return STORE_CONFIG.productMedia?.[product.id]?.[mode] ? 'Product photo' : 'Digital illustration';
+    }
+
+    function safeStoredArray(key) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || '[]');
+        return Array.isArray(data) ? data : [];
+      } catch (_) { return []; }
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    const SIGNATURE_EDITS = [
+      {
+        name: 'Magenta & Plum Edit',
+        bn: 'ম্যাজেন্টা ও প্লাম এডিট',
+        accent: '#D81B60',
+        range: '৳2,350',
+        subtitle: 'Vibrant Paisley & Tassel Craft'
+      },
+      {
+        name: 'Alfi Boutique',
+        bn: 'আলফি বুটিক বাটিক',
+        accent: '#008080',
+        range: '৳2,050 – ৳2,150',
+        subtitle: 'Artisanal Wax & Floral Batik'
+      },
+      {
+        name: 'Mome Boutique',
+        bn: 'মোম বুটিক কালেকশন',
+        accent: '#31A24C',
+        range: '৳1,650 – ৳1,850',
+        subtitle: 'Botanical Stamps & Tie-Dye'
+      },
+      {
+        name: 'Zam Zam Swiss Lawn',
+        bn: 'জমজম সুইস লন',
+        accent: '#0866FF',
+        range: '৳1,650 – ৳1,850',
+        subtitle: 'Original Swiss Lawn Panels'
+      },
+      {
+        name: 'Embroidery & Mirror Edit',
+        bn: 'এমব্রয়ডারি ও মিরর এডিট',
+        accent: '#E5A93B',
+        range: '৳1,950 – ৳2,450',
+        subtitle: 'Festive Shisha Mirror & Threadwork'
+      }
+    ];
+
+    /* =====================================================================
+       APPLICATION STATE
+       ===================================================================== */
+    const state = {
+      selectedEdit: 'ALL',
+      searchQuery: '',
+      maxPrice: 2450,
+      sortBy: 'featured',
+      catalogViewMode: 'flatlay', // 'flatlay' (Fabric preview) | 'lookbook' (Stitched preview)
+      stageProductId: 'FS-D04',
+      showroomMode: 'ensemble',
+      breezeEnabled: true,
+      lightingMode: 'daylight',
+      cart: safeStoredArray('ft_cart_2026'),
+      wishlist: safeStoredArray('ft_wishlist_2026'),
+      appliedPromo: null,
+      artworkCache: {},
+      textureCache: {}
+    };
+
+    // Sanitize untrusted local storage. Catalog records remain the price source of truth.
+    state.cart = state.cart.filter((item) => item && typeof item === 'object').map((item) => {
+      const product = PRODUCTS.find((p) => p.id === item.productId);
+      if (!product) return null;
+      const variant = typeof item.variant === 'string' && item.variant.startsWith('Custom Stitched')
+        ? item.variant.slice(0, 70)
+        : 'Unstitched 3-Piece Set';
+      const qty = Math.max(1, Math.min(25, Math.floor(Number(item.qty) || 1)));
+      return { key: `${product.id}__${variant}`, productId: product.id,
+        name: product.name, bnName: product.bnName,
+        variant, unitPrice: product.price + (variant.startsWith('Custom Stitched') ? 450 : 0), qty };
+    }).filter(Boolean);
+    state.wishlist = [...new Set(state.wishlist.filter((id) => PRODUCTS.some((p) => p.id === id)))];
+
+    function savePersistedState() {
+      try {
+        localStorage.setItem('ft_cart_2026', JSON.stringify(state.cart));
+        localStorage.setItem('ft_wishlist_2026', JSON.stringify(state.wishlist));
+      } catch (e) {}
+    }
+
+    /* =====================================================================
+       IMAGE-TO-CODE BESPOKE TEXTILE & GARMENT RENDERING ENGINE
+       Creates illustrative textile artwork from the product metadata.
+       These vector/canvas illustrations are NOT exact catalog photographs.
+       ===================================================================== */
+    function renderBespokeTextileSurface(ctx, width, height, product, scale = 1) {
+      const [c1, c2, c3, c4] = product.colors;
+      ctx.save();
+
+      // 1. Base Fabric Ground & Gradient
+      if (product.motif === 'fern-botanical') {
+        const g = ctx.createLinearGradient(0, 0, 0, height);
+        g.addColorStop(0, '#B57E48');
+        g.addColorStop(0.42, '#E2C57E');
+        g.addColorStop(0.48, '#1D5434');
+        g.addColorStop(1, '#143D25');
+        ctx.fillStyle = g;
+      } else if (product.motif === 'sunburst-tiedye') {
+        const g = ctx.createLinearGradient(0, 0, width, height);
+        g.addColorStop(0, '#6E1222');
+        g.addColorStop(0.28, '#F5A623');
+        g.addColorStop(0.55, '#6E1222');
+        g.addColorStop(0.82, '#F5A623');
+        g.addColorStop(1, '#6E1222');
+        ctx.fillStyle = g;
+      } else {
+        ctx.fillStyle = c1;
+      }
+      ctx.fillRect(0, 0, width, height);
+
+      // Subtle Cotton / Swiss Lawn Weave Micro-Texture
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      const weaveStep = Math.max(7, Math.round(10 * scale));
+      for (let x = 0; x < width; x += weaveStep) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+      }
+      for (let y = 0; y < height; y += weaveStep) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
+      }
+
+      // 2. Motif-Specific Patternwork (Matched 1:1 to Catalog Photos)
+      const step = Math.round(58 * scale);
+
+      if (product.motif === 'plum-paisley') {
+        for (let y = step * 0.5; y < height; y += step) {
+          for (let x = step * 0.5; x < width; x += step) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 2.2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(0, -16 * scale);
+            ctx.bezierCurveTo(15 * scale, -8 * scale, 13 * scale, 14 * scale, 0, 17 * scale);
+            ctx.bezierCurveTo(-13 * scale, 14 * scale, -15 * scale, -8 * scale, 0, -16 * scale);
+            ctx.stroke();
+            ctx.fillStyle = '#F7A8D0';
+            ctx.beginPath();
+            ctx.arc(0, 2 * scale, 5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+      } else if (product.motif === 'alfi-wax-batik') {
+        ctx.strokeStyle = '#F5F1E3';
+        ctx.lineWidth = 2.4 * scale;
+        for (let y = 16 * scale; y < height; y += 34 * scale) {
+          for (let x = 16 * scale; x < width; x += 38 * scale) {
+            ctx.beginPath();
+            ctx.arc(x, y, 12 * scale, 0.2, Math.PI * 1.65);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x + 8 * scale, y + 6 * scale, 5 * scale, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+        }
+      } else if (product.motif === 'shibori-circle') {
+        for (let y = step * 0.6; y < height; y += step * 1.2) {
+          for (let x = step * 0.6; x < width; x += step * 1.2) {
+            ctx.fillStyle = '#FAF5F0';
+            ctx.beginPath();
+            ctx.arc(x, y, 19 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#8E5B6E';
+            ctx.lineWidth = 1.8 * scale;
+            for (let r = 0; r < 8; r++) {
+              const a = (r * Math.PI) / 4;
+              ctx.beginPath();
+              ctx.moveTo(x, y);
+              ctx.lineTo(x + Math.cos(a) * 19 * scale, y + Math.sin(a) * 19 * scale);
+              ctx.stroke();
+            }
+            ctx.fillStyle = '#FAF5F0';
+            ctx.fillRect(x + 24 * scale, y - 6 * scale, 10 * scale, 10 * scale);
+          }
+        }
+      } else if (product.motif === 'fern-botanical' || product.motif === 'noir-sprig' || product.motif === 'damask-sprig') {
+        for (let y = step * 0.5; y < height; y += step * 0.9) {
+          for (let x = step * 0.45; x < width; x += step * 0.85) {
+            ctx.save();
+            ctx.translate(x, y);
+            const sprigColor = product.motif === 'noir-sprig'
+              ? ((Math.floor(x / step) + Math.floor(y / step)) % 2 === 0 ? '#E91E63' : '#FFFFFF')
+              : c3;
+            ctx.strokeStyle = sprigColor;
+            ctx.fillStyle = sprigColor;
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(0, 14 * scale);
+            ctx.lineTo(0, -14 * scale);
+            ctx.stroke();
+            for (let b = -8; b <= 8; b += 8) {
+              ctx.beginPath();
+              ctx.ellipse(-6 * scale, b * scale, 5 * scale, 2.5 * scale, -0.5, 0, Math.PI * 2);
+              ctx.ellipse(6 * scale, b * scale, 5 * scale, 2.5 * scale, 0.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          }
+        }
+      } else if (product.motif === 'sunburst-tiedye') {
+        for (let y = 24 * scale; y < height; y += 36 * scale) {
+          for (let x = 24 * scale; x < width; x += 36 * scale) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(x, y, 3.2 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else if (product.motif === 'royal-navy-panel') {
+        ctx.fillStyle = '#E5A93B';
+        ctx.fillRect(width * 0.22, 0, 8 * scale, height);
+        ctx.fillRect(width * 0.78 - 8 * scale, 0, 8 * scale, height);
+        ctx.fillStyle = '#D81B60';
+        ctx.fillRect(width * 0.16, 0, 5 * scale, height);
+        ctx.fillRect(width * 0.84 - 5 * scale, 0, 5 * scale, height);
+        for (let y = 46 * scale; y < height; y += 78 * scale) {
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 2.4 * scale;
+          ctx.beginPath();
+          ctx.ellipse(width * 0.5, y, 26 * scale, 34 * scale, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.ellipse(width * 0.5, y, 14 * scale, 20 * scale, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      } else if (product.motif === 'autumn-placket') {
+        for (let y = 28 * scale; y < height; y += 44 * scale) {
+          for (let x = 22 * scale; x < width; x += 44 * scale) {
+            ctx.fillStyle = (x + y) % 88 === 0 ? '#E67E22' : '#A04000';
+            ctx.beginPath();
+            ctx.arc(x, y, 5.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#2E4053';
+            ctx.beginPath();
+            ctx.arc(x + 9 * scale, y + 6 * scale, 3 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.fillStyle = '#E2A829';
+        ctx.fillRect(width * 0.38, 0, width * 0.24, height);
+        ctx.strokeStyle = '#8B3A14';
+        ctx.lineWidth = 2 * scale;
+        ctx.strokeRect(width * 0.41, 0, width * 0.18, height);
+      } else if (product.motif === 'heritage-medallion') {
+        ctx.fillStyle = '#B8958E';
+        ctx.fillRect(width * 0.44, 0, width * 0.12, height);
+        for (let y = 34 * scale; y < height; y += 54 * scale) {
+          [width * 0.25, width * 0.75].forEach(cx => {
+            ctx.strokeStyle = '#D9B68C';
+            ctx.lineWidth = 2.2 * scale;
+            ctx.beginPath();
+            ctx.arc(cx, y, 15 * scale, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.fillStyle = '#3796B8';
+            ctx.beginPath();
+            ctx.arc(cx, y, 5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+      } else if (product.motif === 'olive-bouquet') {
+        for (let y = 44 * scale; y < height; y += 76 * scale) {
+          for (let x = 44 * scale; x < width; x += 76 * scale) {
+            const colors = ['#FF6F91', '#B39CD0', '#FFC75F'];
+            colors.forEach((col, i) => {
+              const ang = (i * Math.PI * 2) / 3;
+              ctx.fillStyle = col;
+              ctx.beginPath();
+              ctx.arc(x + Math.cos(ang) * 11 * scale, y + Math.sin(ang) * 11 * scale, 9 * scale, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+        }
+      } else if (product.motif === 'coral-hexagon') {
+        for (let y = 28 * scale; y < height; y += 44 * scale) {
+          for (let x = 28 * scale; x < width; x += 44 * scale) {
+            ctx.strokeStyle = '#6E3554';
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            for (let s = 0; s < 6; s++) {
+              const a = (s * Math.PI) / 3;
+              const px = x + Math.cos(a) * 15 * scale;
+              const py = y + Math.sin(a) * 15 * scale;
+              if (s === 0) ctx.moveTo(px, py);
+              else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fillStyle = '#FADBD8';
+            ctx.beginPath();
+            ctx.arc(x, y, 4 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else if (product.motif === 'crimson-mosaic') {
+        for (let y = 20 * scale; y < height; y += 34 * scale) {
+          for (let x = 20 * scale; x < width; x += 34 * scale) {
+            ctx.fillStyle = ['#E74C3C', '#F1C40F', '#E8DAEF', '#2ECC71'][(Math.floor(x + y)) % 4];
+            ctx.beginPath();
+            ctx.arc(x, y, 6.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        ctx.fillStyle = '#D81E5B';
+        ctx.fillRect(width * 0.39, 0, width * 0.22, height);
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 2 * scale;
+        for (let y = 22 * scale; y < height; y += 32 * scale) {
+          ctx.beginPath();
+          ctx.arc(width * 0.5, y, 9 * scale, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      } else if (product.motif === 'mustard-mirror' || product.motif === 'blue-mirror-grid') {
+        const lineCol = product.motif === 'mustard-mirror' ? '#8A1C4A' : '#0E1738';
+        const mirrorGlow = product.motif === 'mustard-mirror' ? '#2E7D32' : '#FFD700';
+        for (let y = step * 0.5; y < height; y += step * 0.85) {
+          for (let x = step * 0.5; x < width; x += step * 0.85) {
+            ctx.strokeStyle = lineCol;
+            ctx.lineWidth = 2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 18 * scale);
+            ctx.lineTo(x + 18 * scale, y);
+            ctx.lineTo(x, y + 18 * scale);
+            ctx.lineTo(x - 18 * scale, y);
+            ctx.closePath();
+            ctx.stroke();
+
+            // Shisha Mirror Disc with Specular Shine
+            ctx.fillStyle = mirrorGlow;
+            ctx.beginPath();
+            ctx.arc(x, y, 8.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            const mGrad = ctx.createRadialGradient(x - 2 * scale, y - 2 * scale, 1, x, y, 6.5 * scale);
+            mGrad.addColorStop(0, '#FFFFFF');
+            mGrad.addColorStop(0.65, '#E2E8F0');
+            mGrad.addColorStop(1, '#94A3B8');
+            ctx.fillStyle = mGrad;
+            ctx.beginPath();
+            ctx.arc(x, y, 6 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else if (product.motif === 'black-orange-chain') {
+        ctx.strokeStyle = '#E85D24';
+        ctx.lineWidth = 3 * scale;
+        for (let offset = -height; offset < width + height; offset += 46 * scale) {
+          ctx.beginPath();
+          ctx.moveTo(offset, 0);
+          ctx.lineTo(offset + height * 0.75, height);
+          ctx.stroke();
+          for (let d = 24 * scale; d < height; d += 44 * scale) {
+            ctx.fillStyle = '#FBBF24';
+            ctx.beginPath();
+            ctx.arc(offset + d * 0.75, d, 4.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else if (product.motif === 'fuchsia-aqua-trim') {
+        for (let y = 26 * scale; y < height; y += 38 * scale) {
+          for (let x = 26 * scale; x < width; x += 38 * scale) {
+            ctx.strokeStyle = (x + y) % 76 === 0 ? '#7CE0EE' : '#FFFFFF';
+            ctx.lineWidth = 2.2 * scale;
+            ctx.beginPath();
+            ctx.moveTo(x - 7 * scale, y); ctx.lineTo(x + 7 * scale, y);
+            ctx.moveTo(x, y - 7 * scale); ctx.lineTo(x, y + 7 * scale);
+            ctx.stroke();
+          }
+        }
+      } else {
+        // FS-D05: Sand Beige Pastel Floral Embroidery with Turquoise & Coral Accents
+        for (let y = 38 * scale; y < height; y += 64 * scale) {
+          for (let x = 38 * scale; x < width; x += 64 * scale) {
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(x, y, 10 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#2EC4B6';
+            ctx.beginPath();
+            ctx.arc(x - 10 * scale, y + 8 * scale, 4.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FF4D8D';
+            ctx.beginPath();
+            ctx.arc(x + 10 * scale, y + 8 * scale, 4.5 * scale, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      ctx.restore();
+    }
+
+    /**
+     * Generates & Caches Both Product Visual Modes:
+     * 1) 'flatlay': Illustrated Fabric Set Composition (Kameez + Salwar + Dupatta + Tassels)
+     * 2) 'lookbook': Stitched 3-Piece Silhouette Lookbook Preview
+     */
+    function getProductArtworkDataURL(product, mode = 'flatlay') {
+      // Actual, verified product photos override the fallback illustrations.
+      const verifiedImage = STORE_CONFIG.productMedia?.[product.id]?.[mode];
+      if (typeof verifiedImage === 'string' && verifiedImage.trim()) return verifiedImage.trim();
+      const cacheKey = `${product.id}_${mode}`;
+      if (state.artworkCache[cacheKey]) return state.artworkCache[cacheKey];
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 520;
+      const ctx = canvas.getContext('2d');
+
+      if (mode === 'lookbook') {
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, 520);
+        bgGrad.addColorStop(0, '#F5EFE6');
+        bgGrad.addColorStop(1, '#E6DDD0');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, 640, 520);
+
+        // Architectural Terracotta Archway Backdrop
+        ctx.fillStyle = 'rgba(184, 74, 57, 0.10)';
+        ctx.beginPath();
+        ctx.arc(320, 210, 175, Math.PI, 0);
+        ctx.lineTo(495, 495);
+        ctx.lineTo(145, 495);
+        ctx.closePath();
+        ctx.fill();
+
+        // 1. Tailored Salwar Trousers
+        ctx.save();
+        ctx.fillStyle = product.salwarColor;
+        ctx.beginPath();
+        ctx.roundRect(262, 345, 46, 130, 10);
+        ctx.roundRect(332, 345, 46, 130, 10);
+        ctx.fill();
+        if (product.hasMirror) {
+          ctx.strokeStyle = product.colors[2];
+          ctx.lineWidth = 2;
+          ctx.strokeRect(266, 445, 38, 22);
+          ctx.strokeRect(336, 445, 38, 22);
+        }
+        ctx.restore();
+
+        // 2. Tailored Kameez Tunic Silhouette
+        ctx.save();
+        ctx.shadowColor = 'rgba(5,5,5,0.16)';
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 8;
+        ctx.beginPath();
+        ctx.moveTo(255, 65);
+        ctx.lineTo(385, 65);
+        ctx.lineTo(432, 165);
+        ctx.lineTo(405, 182);
+        ctx.lineTo(385, 138);
+        ctx.lineTo(396, 375);
+        ctx.lineTo(244, 375);
+        ctx.lineTo(255, 138);
+        ctx.lineTo(235, 182);
+        ctx.lineTo(208, 165);
+        ctx.closePath();
+        ctx.fillStyle = product.colors[0];
+        ctx.fill();
+        ctx.clip();
+
+        renderBespokeTextileSurface(ctx, 640, 520, product, 0.72);
+
+        // Ornate Hemline Border
+        ctx.fillStyle = product.colors[1];
+        ctx.fillRect(220, 346, 200, 29);
+        ctx.strokeStyle = product.colors[2];
+        ctx.lineWidth = 2;
+        ctx.strokeRect(220, 351, 200, 19);
+
+        // Neckline Trim Detail
+        ctx.fillStyle = product.motif === 'black-orange-chain' ? '#E85D24' : product.colors[1];
+        ctx.beginPath();
+        ctx.arc(320, 68, 28, 0, Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = product.colors[2];
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        if (product.id === 'FS-D05') {
+          ['#FF4D8D', '#2EC4B6', '#6B7F46'].forEach((pom, idx) => {
+            ctx.fillStyle = pom;
+            ctx.beginPath();
+            ctx.arc(320, 104 + idx * 13, 5, 0, Math.PI * 2);
+            ctx.fill();
+          });
+        }
+        ctx.restore();
+
+        // 3. Flowing Draped Dupatta Scarf
+        ctx.save();
+        ctx.shadowColor = 'rgba(5,5,5,0.2)';
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        ctx.moveTo(368, 62);
+        ctx.quadraticCurveTo(435, 180, 422, 425);
+        ctx.lineTo(362, 435);
+        ctx.quadraticCurveTo(372, 200, 342, 68);
+        ctx.closePath();
+        ctx.fillStyle = product.dupattaColors[0];
+        ctx.fill();
+        ctx.clip();
+        renderBespokeTextileSurface(ctx, 640, 520, {
+          ...product,
+          colors: [product.dupattaColors[0], product.dupattaColors[1], product.colors[2], product.colors[3]]
+        }, 0.65);
+        ctx.restore();
+
+        if (product.hasTassels) {
+          [372, 392, 412].forEach(tx => {
+            ctx.fillStyle = product.colors[1];
+            ctx.beginPath();
+            ctx.moveTo(tx, 430);
+            ctx.lineTo(tx - 5, 448);
+            ctx.lineTo(tx + 5, 448);
+            ctx.closePath();
+            ctx.fill();
+          });
+        }
+
+        ctx.fillStyle = 'rgba(5, 5, 5, 0.85)';
+        ctx.beginPath();
+        ctx.roundRect(22, 456, 255, 42, 12);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 11px Actor, sans-serif';
+        ctx.fillText('STITCHED SILHOUETTE PREVIEW', 36, 474);
+        ctx.fillStyle = '#E5A93B';
+        ctx.fillText(`${product.id} • ${product.styleNo}`, 36, 490);
+      } else {
+        ctx.fillStyle = '#F7F5F0';
+        ctx.fillRect(0, 0, 640, 520);
+
+        ctx.strokeStyle = 'rgba(0,0,0,0.03)';
+        for (let i = 0; i < 640; i += 18) {
+          ctx.beginPath(); ctx.arc(i, 480, 24, 0, Math.PI * 2); ctx.stroke();
+        }
+
+        // 1. Draped Dupatta Scarf
+        ctx.save();
+        ctx.beginPath();
+        ctx.roundRect(22, 22, 345, 476, 22);
+        ctx.clip();
+        const dupGrad = ctx.createLinearGradient(22, 22, 345, 498);
+        dupGrad.addColorStop(0, product.dupattaColors[0]);
+        dupGrad.addColorStop(1, product.dupattaColors[1]);
+        ctx.fillStyle = dupGrad;
+        ctx.fillRect(22, 22, 345, 476);
+        renderBespokeTextileSurface(ctx, 380, 520, {
+          ...product,
+          colors: [product.dupattaColors[0], product.dupattaColors[1], product.colors[2], product.colors[3]]
+        }, 0.85);
+        ctx.fillStyle = product.colors[1];
+        ctx.fillRect(22, 434, 345, 64);
+        ctx.fillStyle = product.colors[2];
+        ctx.fillRect(22, 444, 345, 7);
+        ctx.restore();
+
+        if (product.hasTassels) {
+          [290, 325].forEach(tx => {
+            ctx.fillStyle = product.colors[1];
+            ctx.beginPath();
+            ctx.moveTo(tx, 496);
+            ctx.lineTo(tx - 7, 514);
+            ctx.lineTo(tx + 7, 514);
+            ctx.closePath();
+            ctx.fill();
+          });
+        }
+
+        // 2. Folded Kameez Tunic Panel
+        ctx.save();
+        ctx.shadowColor = 'rgba(5, 5, 5, 0.18)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 9;
+        ctx.beginPath();
+        ctx.roundRect(182, 40, 242, 300, 18);
+        ctx.fillStyle = product.colors[0];
+        ctx.fill();
+        ctx.clip();
+        renderBespokeTextileSurface(ctx, 450, 360, product, 0.9);
+
+        if (product.hasMirror) {
+          ctx.fillStyle = product.motif === 'black-orange-chain' ? '#E85D24' : product.colors[1];
+          ctx.beginPath();
+          ctx.arc(303, 44, 46, 0, Math.PI);
+          ctx.fill();
+          ctx.strokeStyle = product.colors[2];
+          ctx.lineWidth = 3.5;
+          ctx.stroke();
+
+          if (product.id === 'FS-D05') {
+            ['#FF4D8D', '#2EC4B6', '#6B7F46'].forEach((pom, idx) => {
+              ctx.fillStyle = pom;
+              ctx.beginPath();
+              ctx.arc(303, 98 + idx * 15, 6.5, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+        }
+        ctx.restore();
+
+        // 3. Contrast Folded Salwar Trouser Fabric
+        ctx.save();
+        ctx.shadowColor = 'rgba(5, 5, 5, 0.15)';
+        ctx.shadowBlur = 16;
+        ctx.shadowOffsetY = 6;
+        ctx.beginPath();
+        ctx.roundRect(442, 122, 176, 238, 18);
+        ctx.fillStyle = product.salwarColor;
+        ctx.fill();
+        ctx.clip();
+
+        if (product.hasMirror) {
+          ctx.strokeStyle = product.colors[2];
+          ctx.lineWidth = 1.6;
+          for (let sy = 140; sy < 350; sy += 26) {
+            for (let sx = 460; sx < 610; sx += 26) {
+              ctx.beginPath();
+              ctx.moveTo(sx - 5, sy); ctx.lineTo(sx + 5, sy);
+              ctx.moveTo(sx, sy - 5); ctx.lineTo(sx, sy + 5);
+              ctx.stroke();
+            }
+          }
+        }
+        ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(442, 122, 176, 238);
+        ctx.restore();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
+        ctx.beginPath();
+        ctx.roundRect(402, 446, 216, 46, 12);
+        ctx.fill();
+        ctx.fillStyle = '#050505';
+        ctx.font = 'bold 11px Actor, sans-serif';
+        ctx.fillText('ORIGINAL FABRIC SET', 418, 466);
+        ctx.fillStyle = '#0866FF';
+        ctx.font = 'bold 11px Actor, sans-serif';
+        ctx.fillText(`${product.id} • ${product.styleNo}`, 418, 483);
+      }
+
+      const url = canvas.toDataURL('image/jpeg', 0.92);
+      state.artworkCache[cacheKey] = url;
+      return url;
+    }
+
+    /**
+     * Generates High-Resolution WebGL Diffuse & Woven Bump Textures for the 3D Showroom
+     */
+    function createProductThreeTextures(product) {
+      if (state.textureCache[product.id]) return state.textureCache[product.id];
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d');
+      renderBespokeTextileSurface(ctx, 1024, 1024, product, 1.85);
+
+      const [, c2, c3, c4] = product.colors;
+      ctx.fillStyle = c2;
+      ctx.fillRect(0, 885, 1024, 139);
+      ctx.fillStyle = c3;
+      ctx.fillRect(0, 902, 1024, 16);
+      ctx.fillStyle = c4;
+      ctx.fillRect(0, 982, 1024, 14);
+
+      const map = new THREE.CanvasTexture(canvas);
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+      map.anisotropy = 4;
+
+      const bumpCanvas = document.createElement('canvas');
+      bumpCanvas.width = 256;
+      bumpCanvas.height = 256;
+      const bCtx = bumpCanvas.getContext('2d');
+      bCtx.fillStyle = '#808080';
+      bCtx.fillRect(0, 0, 256, 256);
+      bCtx.fillStyle = '#A8A8A8';
+      for (let y = 0; y < 256; y += 4) {
+        for (let x = 0; x < 256; x += 4) {
+          if ((x + y) % 8 === 0) bCtx.fillRect(x, y, 2, 2);
+        }
+      }
+      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      bumpMap.wrapS = THREE.RepeatWrapping;
+      bumpMap.wrapT = THREE.RepeatWrapping;
+      bumpMap.repeat.set(16, 16);
+
+      const bundle = { map, bumpMap };
+      state.textureCache[product.id] = bundle;
+      return bundle;
+    }
+
+    /* =====================================================================
+       THREE.JS + THREEUI.JS + ANIME.JS INTERACTIVE 3D DIGITAL SHOWROOM
+       ===================================================================== */
+    let scene, camera, renderer, threeUIInstance, raycaster, pointerNDC;
+    let mannequinGroup, kameezMesh, duppataMesh, salwarMesh, mirrorGroup, banglesGroup;
+    let rotundaGroup, rotundaCards = [], particlesSystem;
+    let keyLight, warmRimLight, cursorLight, ambientLight;
+    let isDragging = false, dragDistance = 0, prevPointer = { x: 0, y: 0 };
+    let targetRotationY = 0.22, targetRotationX = 0.06, targetZoom = 6.2;
+    let rotundaTargetAngle = 0, hoveredMesh = null;
+    let clothRipple = { active: false, point: window.THREE ? new THREE.Vector3() : { copy() {} }, strength: 0 };
+    let clock = window.THREE ? new THREE.Clock() : null;
+
+    function renderStageFallback(message) {
+      const canvas = document.getElementById('three-stage-canvas');
+      if (canvas) canvas.style.display = 'none';
+      const wrap = document.getElementById('atelier-canvas-wrap');
+      if (!wrap) return;
+      const old = document.getElementById('three-stage-fallback');
+      if (old) return;
+      const note = document.createElement('p');
+      note.id = 'three-stage-fallback';
+      note.className = 'absolute top-1/3 left-4 right-4 mx-auto max-w-md text-center px-6 py-4 bg-pure/95 text-jet rounded-2xl border border-jet/10 text-sm shadow-md';
+      note.textContent = message;
+      wrap.appendChild(note);
+      const hotspots = document.getElementById('threeui-overlay-layer');
+      if (hotspots) hotspots.style.display = 'none';
+    }
+
+    function initThreeAtelierStage() {
+      const container = document.getElementById('atelier-canvas-wrap');
+      const canvas = document.getElementById('three-stage-canvas');
+      if (!container || !canvas) return;
+      if (!window.THREE) {
+        renderStageFallback('3D preview is currently unavailable. The full product catalog and ordering tools remain accessible below.');
+        return;
+      }
+
+      scene = new THREE.Scene();
+      raycaster = new THREE.Raycaster();
+      pointerNDC = new THREE.Vector2(-99, -99);
+
+      const width = container.clientWidth || 640;
+      const height = container.clientHeight || 500;
+      camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+      camera.position.set(0, 0.35, targetZoom);
+
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      } catch (err) {
+        console.warn('3D stage unavailable:', err);
+        renderStageFallback('This device cannot render the 3D showroom. Browse and select every design in the catalog below.');
+        return;
+      }
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.18;
+
+      ambientLight = new THREE.AmbientLight(0xffffff, 0.78);
+      scene.add(ambientLight);
+
+      keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
+      keyLight.position.set(4, 6, 5);
+      scene.add(keyLight);
+
+      warmRimLight = new THREE.PointLight(0x0866FF, 0.9, 18);
+      warmRimLight.position.set(-4, 2, 3);
+      scene.add(warmRimLight);
+
+      cursorLight = new THREE.PointLight(0xFFF4D2, 1.15, 9);
+      cursorLight.position.set(0, 0.5, 3.2);
+      scene.add(cursorLight);
+
+      try {
+        if (window.ThreeUI) {
+          threeUIInstance = new window.ThreeUI(canvas, height);
+        }
+      } catch (e) {
+        threeUIInstance = null;
+      }
+
+      mannequinGroup = new THREE.Group();
+      scene.add(mannequinGroup);
+
+      const initialProd = PRODUCTS.find(p => p.id === state.stageProductId) || PRODUCTS[0];
+      const texBundle = createProductThreeTextures(initialProd);
+
+      // 1. Sculpted 3D Kameez Drape
+      const kameezGeo = new THREE.CylinderGeometry(0.76, 1.34, 3.15, 56, 36, true, -Math.PI * 0.44, Math.PI * 0.88);
+      kameezGeo.userData.basePositions = Float32Array.from(kameezGeo.attributes.position.array);
+      const kameezMat = new THREE.MeshStandardMaterial({
+        map: texBundle.map,
+        bumpMap: texBundle.bumpMap,
+        bumpScale: 0.018,
+        roughness: 0.52,
+        metalness: 0.08,
+        side: THREE.DoubleSide
+      });
+      kameezMesh = new THREE.Mesh(kameezGeo, kameezMat);
+      kameezMesh.position.set(-0.15, 0.15, 0.1);
+      kameezMesh.userData = { partName: 'kameez', label: '01. Kameez Tunic — Click to Ripple' };
+      mannequinGroup.add(kameezMesh);
+
+      // 2. Flowing 3D Dupatta Scarf Drape
+      const dupattaGeo = new THREE.PlaneGeometry(1.18, 3.4, 28, 40);
+      dupattaGeo.userData.basePositions = Float32Array.from(dupattaGeo.attributes.position.array);
+      const dupattaMat = new THREE.MeshStandardMaterial({
+        map: texBundle.map,
+        bumpMap: texBundle.bumpMap,
+        bumpScale: 0.015,
+        roughness: 0.4,
+        metalness: 0.12,
+        side: THREE.DoubleSide
+      });
+      duppataMesh = new THREE.Mesh(dupattaGeo, dupattaMat);
+      duppataMesh.position.set(0.88, 0.25, 0.36);
+      duppataMesh.rotation.set(0.12, -0.35, -0.22);
+      duppataMesh.userData = { partName: 'dupatta', label: '02. Dupatta Drape — Click to Ripple' };
+      mannequinGroup.add(duppataMesh);
+
+      // 3. Contrast Folded Salwar Pedestal Roll
+      const salwarGeo = new THREE.CylinderGeometry(0.45, 0.48, 1.48, 36);
+      const salwarMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color(initialProd.salwarColor),
+        bumpMap: texBundle.bumpMap,
+        bumpScale: 0.012,
+        roughness: 0.62,
+        metalness: 0.05
+      });
+      salwarMesh = new THREE.Mesh(salwarGeo, salwarMat);
+      salwarMesh.position.set(-0.92, -0.75, -0.15);
+      salwarMesh.rotation.set(0.1, 0.2, 0.18);
+      salwarMesh.userData = { partName: 'salwar', label: '03. Contrast Salwar Fabric' };
+      mannequinGroup.add(salwarMesh);
+
+      // 4. Reflective Shisha Mirror-Work Discs
+      mirrorGroup = new THREE.Group();
+      const mirrorDiscGeo = new THREE.CircleGeometry(0.056, 20);
+      const mirrorDiscMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.05,
+        metalness: 0.96
+      });
+      for (let row = 0; row < 4; row++) {
+        for (let col = -1; col <= 1; col++) {
+          const disc = new THREE.Mesh(mirrorDiscGeo, mirrorDiscMat);
+          const angle = col * 0.18;
+          const r = 0.85 + row * 0.036;
+          disc.position.set(
+            -0.15 + Math.sin(angle) * r,
+            1.15 - row * 0.28,
+            0.13 + Math.cos(angle) * r
+          );
+          disc.rotation.y = angle;
+          mirrorGroup.add(disc);
+        }
+      }
+      mannequinGroup.add(mirrorGroup);
+
+      // 5. Orbiting Handcrafted Bangles
+      banglesGroup = new THREE.Group();
+      [0xB84A39, 0xE5A93B, 0x31A24C, 0x0866FF].forEach((hex, idx) => {
+        const torusGeo = new THREE.TorusGeometry(0.28, 0.032, 16, 40);
+        const torusMat = new THREE.MeshStandardMaterial({ color: hex, roughness: 0.28, metalness: 0.38 });
+        const bangle = new THREE.Mesh(torusGeo, torusMat);
+        const theta = (idx * Math.PI) / 2;
+        bangle.position.set(Math.cos(theta) * 1.98, 0.7 - idx * 0.35, Math.sin(theta) * 1.2);
+        bangle.rotation.set(0.6, theta, 0.3);
+        banglesGroup.add(bangle);
+      });
+      scene.add(banglesGroup);
+
+      // 6. 18-Look Spatial 3D Rotunda Gallery Ring
+      rotundaGroup = new THREE.Group();
+      rotundaGroup.visible = false;
+      rotundaGroup.position.set(0, 0.25, 0);
+      scene.add(rotundaGroup);
+
+      const radius = 4.35;
+      const cardGeo = new THREE.BoxGeometry(1.18, 1.56, 0.06);
+      PRODUCTS.forEach((prod, index) => {
+        const angle = (index / PRODUCTS.length) * Math.PI * 2;
+        const pTex = createProductThreeTextures(prod);
+        const matFront = new THREE.MeshStandardMaterial({ map: pTex.map, roughness: 0.45, metalness: 0.08 });
+        const matSide = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.3 });
+        const plaque = new THREE.Mesh(cardGeo, [matSide, matSide, matSide, matSide, matFront, matFront]);
+
+        plaque.position.set(Math.sin(angle) * radius, 0, Math.cos(angle) * radius);
+        plaque.rotation.y = angle;
+        plaque.userData = {
+          isRotundaCard: true,
+          productId: prod.id,
+          index,
+          label: `${prod.id} • ${prod.name} (৳${prod.price.toLocaleString()})`
+        };
+
+        rotundaGroup.add(plaque);
+        rotundaCards.push(plaque);
+      });
+
+      // 7. Ambient Golden Textile Motes
+      const moteCount = 95;
+      const moteGeo = new THREE.BufferGeometry();
+      const motePositions = new Float32Array(moteCount * 3);
+      for (let i = 0; i < moteCount; i++) {
+        motePositions[i * 3] = (Math.random() - 0.5) * 9;
+        motePositions[i * 3 + 1] = (Math.random() - 0.5) * 5;
+        motePositions[i * 3 + 2] = (Math.random() - 0.5) * 7;
+      }
+      moteGeo.setAttribute('position', new THREE.BufferAttribute(motePositions, 3));
+      particlesSystem = new THREE.Points(moteGeo, new THREE.PointsMaterial({
+        color: 0xE5A93B,
+        size: 0.055,
+        transparent: true,
+        opacity: 0.65
+      }));
+      scene.add(particlesSystem);
+
+      // 8. Minimalist Studio Display Ring Plinth
+      const plinth = new THREE.Mesh(
+        new THREE.RingGeometry(1.4, 1.54, 64),
+        new THREE.MeshBasicMaterial({ color: 0x0866FF, side: THREE.DoubleSide, transparent: true, opacity: 0.28 })
+      );
+      plinth.rotation.x = -Math.PI / 2;
+      plinth.position.y = -1.65;
+      scene.add(plinth);
+
+      // Pointer & Raycast Handlers
+      const updatePointerNDC = (clientX, clientY) => {
+        const rect = container.getBoundingClientRect();
+        pointerNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+        pointerNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+        if (cursorLight) {
+          cursorLight.position.x = pointerNDC.x * 3.2;
+          cursorLight.position.y = pointerNDC.y * 2.2 + 0.4;
+        }
+
+        const tooltip = document.getElementById('raycast-tooltip');
+        if (tooltip && !tooltip.classList.contains('hidden')) {
+          tooltip.style.left = `${clientX + 14}px`;
+          tooltip.style.top = `${clientY - 14}px`;
+        }
+      };
+
+      const onPointerDown = (x, y) => {
+        isDragging = true;
+        dragDistance = 0;
+        prevPointer = { x, y };
+        updatePointerNDC(x, y);
+      };
+
+      const onPointerMove = (x, y) => {
+        updatePointerNDC(x, y);
+        if (!isDragging) return;
+        const dx = x - prevPointer.x;
+        const dy = y - prevPointer.y;
+        dragDistance += Math.hypot(dx, dy);
+
+        if (state.showroomMode === 'rotunda') {
+          rotundaTargetAngle += dx * 0.0065;
+        } else {
+          targetRotationY += dx * 0.0085;
+          targetRotationX = Math.max(-0.45, Math.min(0.55, targetRotationX + dy * 0.006));
+        }
+        prevPointer = { x, y };
+      };
+
+      const onPointerUp = (x, y) => {
+        const wasClick = isDragging && dragDistance < 6;
+        isDragging = false;
+        if (wasClick && typeof x === 'number') {
+          updatePointerNDC(x, y);
+          handleThreeStageClick();
+        }
+      };
+
+      container.addEventListener('mousedown', (e) => onPointerDown(e.clientX, e.clientY));
+      window.addEventListener('mousemove', (e) => onPointerMove(e.clientX, e.clientY));
+      window.addEventListener('mouseup', (e) => onPointerUp(e.clientX, e.clientY));
+      container.addEventListener('mouseleave', () => {
+        const tooltip = document.getElementById('raycast-tooltip');
+        if (tooltip) tooltip.classList.add('hidden');
+      });
+
+      container.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+      container.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+      container.addEventListener('touchend', (e) => {
+        const touch = e.changedTouches && e.changedTouches[0];
+        onPointerUp(touch ? touch.clientX : undefined, touch ? touch.clientY : undefined);
+      });
+
+      container.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        targetZoom = Math.max(3.8, Math.min(8.6, targetZoom + e.deltaY * 0.003));
+      }, { passive: false });
+
+      window.addEventListener('resize', () => {
+        if (!container || !renderer || !camera) return;
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w > 0 && h > 0) {
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+          renderer.setSize(w, h);
+        }
+      });
+
+      updateThreeStageProduct(state.stageProductId, false);
+      animateThreeStage();
+    }
+
+    function handleThreeStageClick() {
+      if (!raycaster || !camera) return;
+      raycaster.setFromCamera(pointerNDC, camera);
+
+      if (state.showroomMode === 'rotunda' && rotundaGroup) {
+        const hits = raycaster.intersectObjects(rotundaCards, false);
+        if (hits.length > 0) {
+          const hitCard = hits[0].object;
+          const prodId = hitCard.userData.productId;
+          const idx = hitCard.userData.index;
+          rotundaTargetAngle = -(idx / PRODUCTS.length) * Math.PI * 2;
+          updateThreeStageProduct(prodId, false);
+          showToast(`Selected ${prodId} in 3D Rotunda`);
+        }
+        return;
+      }
+
+      if (mannequinGroup) {
+        const hits = raycaster.intersectObjects([kameezMesh, duppataMesh, salwarMesh], false);
+        if (hits.length > 0) {
+          const hit = hits[0];
+          if (hit.object.userData.partName) {
+            selectThreeUIHotspot(hit.object.userData.partName);
+          }
+          clothRipple.active = true;
+          clothRipple.point.copy(hit.point);
+          if (window.anime) {
+            anime.remove(clothRipple);
+            clothRipple.strength = 1.0;
+            anime({
+              targets: clothRipple,
+              strength: [1.0, 0],
+              duration: 1400,
+              easing: 'easeOutElastic(1, .45)',
+              complete: () => { clothRipple.active = false; }
+            });
+          }
+        }
+      }
+    }
+
+    function setShowroomMode(mode) {
+      state.showroomMode = mode;
+
+      document.querySelectorAll('.showroom-mode-btn').forEach(btn => {
+        btn.classList.remove('bg-jet', 'text-pure');
+        btn.classList.add('text-jet/75');
+      });
+      const activeBtn = document.getElementById(`mode-btn-${mode}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-jet/75');
+        activeBtn.classList.add('bg-jet', 'text-pure');
+      }
+
+      const modeLabels = {
+        ensemble: '360° Ensemble Studio',
+        rotunda: '18-Look 3D Rotunda Gallery',
+        exploded: 'Exploded 3-Piece Anatomy',
+        macro: 'Macro Weave & Mirror Zoom'
+      };
+      document.getElementById('showroom-mode-label').textContent = modeLabels[mode] || '360° Ensemble Studio';
+
+      const hotspotLayer = document.getElementById('threeui-overlay-layer');
+      if (hotspotLayer) {
+        hotspotLayer.style.opacity = mode === 'rotunda' ? '0' : '1';
+        hotspotLayer.style.pointerEvents = mode === 'rotunda' ? 'none' : '';
+      }
+
+      if (!mannequinGroup || !rotundaGroup || !window.anime) return;
+
+      if (mode === 'rotunda') {
+        mannequinGroup.visible = false;
+        banglesGroup.visible = false;
+        rotundaGroup.visible = true;
+
+        const activeIdx = Math.max(0, PRODUCTS.findIndex(p => p.id === state.stageProductId));
+        rotundaTargetAngle = -(activeIdx / PRODUCTS.length) * Math.PI * 2;
+        targetZoom = 7.4;
+
+        anime({ targets: camera.position, y: 0.75, duration: 750, easing: 'easeOutCubic' });
+        anime({ targets: rotundaGroup.scale, x: [0.7, 1], y: [0.7, 1], z: [0.7, 1], duration: 700, easing: 'easeOutElastic(1, .65)' });
+      } else {
+        rotundaGroup.visible = false;
+        mannequinGroup.visible = true;
+        banglesGroup.visible = true;
+
+        if (mode === 'exploded') {
+          targetZoom = 6.8;
+          anime({ targets: camera.position, y: 0.35, duration: 650, easing: 'easeOutCubic' });
+          anime({ targets: kameezMesh.position, x: -0.25, y: 0.45, z: -0.25, duration: 750, easing: 'easeOutElastic(1, .65)' });
+          anime({ targets: duppataMesh.position, x: 1.45, y: 0.42, z: 0.75, duration: 750, easing: 'easeOutElastic(1, .65)' });
+          anime({ targets: salwarMesh.position, x: -1.45, y: -0.82, z: 0.45, duration: 750, easing: 'easeOutElastic(1, .65)' });
+        } else if (mode === 'macro') {
+          targetZoom = 4.05;
+          targetRotationY = 0.08;
+          targetRotationX = 0.04;
+          anime({ targets: camera.position, y: 0.45, duration: 650, easing: 'easeOutCubic' });
+          anime({ targets: kameezMesh.position, x: -0.15, y: 0.15, z: 0.1, duration: 600, easing: 'easeOutCubic' });
+          anime({ targets: duppataMesh.position, x: 0.88, y: 0.25, z: 0.36, duration: 600, easing: 'easeOutCubic' });
+          anime({ targets: salwarMesh.position, x: -0.92, y: -0.75, z: -0.15, duration: 600, easing: 'easeOutCubic' });
+        } else {
+          targetZoom = 6.2;
+          anime({ targets: camera.position, y: 0.35, duration: 650, easing: 'easeOutCubic' });
+          anime({ targets: kameezMesh.position, x: -0.15, y: 0.15, z: 0.1, duration: 650, easing: 'easeOutCubic' });
+          anime({ targets: duppataMesh.position, x: 0.88, y: 0.25, z: 0.36, duration: 650, easing: 'easeOutCubic' });
+          anime({ targets: salwarMesh.position, x: -0.92, y: -0.75, z: -0.15, duration: 650, easing: 'easeOutCubic' });
+        }
+      }
+    }
+
+    function animateThreeStage() {
+      requestAnimationFrame(animateThreeStage);
+      if (!renderer || !scene || !camera) return;
+
+      const t = clock.getElapsedTime();
+
+      if (!isDragging) {
+        if (state.showroomMode === 'rotunda') {
+          rotundaTargetAngle += 0.0018;
+        } else if (state.showroomMode !== 'macro') {
+          targetRotationY += 0.0032;
+        }
+      }
+
+      mannequinGroup.rotation.y += (targetRotationY - mannequinGroup.rotation.y) * 0.08;
+      mannequinGroup.rotation.x += (targetRotationX - mannequinGroup.rotation.x) * 0.08;
+      camera.position.z += (targetZoom - camera.position.z) * 0.08;
+      camera.lookAt(0, 0.05, 0);
+
+      if (rotundaGroup && rotundaGroup.visible) {
+        rotundaGroup.rotation.y += (rotundaTargetAngle - rotundaGroup.rotation.y) * 0.09;
+        rotundaCards.forEach((card, idx) => {
+          const isHovered = hoveredMesh === card;
+          const isSelected = card.userData.productId === state.stageProductId;
+          const targetY = Math.sin(t * 2 + idx * 0.5) * 0.05 + (isHovered || isSelected ? 0.22 : 0);
+          const targetScale = isHovered ? 1.14 : (isSelected ? 1.08 : 1.0);
+          card.position.y += (targetY - card.position.y) * 0.12;
+          card.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.12);
+        });
+      }
+
+      const amp = state.breezeEnabled ? 1.0 : 0.12;
+      if (kameezMesh && kameezMesh.geometry.userData.basePositions) {
+        const pos = kameezMesh.geometry.attributes.position;
+        const base = kameezMesh.geometry.userData.basePositions;
+        for (let i = 0; i < pos.count; i++) {
+          const bx = base[i * 3];
+          const by = base[i * 3 + 1];
+          const bz = base[i * 3 + 2];
+          const factor = Math.max(0, (1.58 - by) / 3.15);
+          let wave = Math.sin(bx * 3.5 + t * 2.4) * 0.045 * factor * amp;
+
+          if (clothRipple.active && clothRipple.strength > 0.01) {
+            const dist = Math.hypot(bx - clothRipple.point.x, by - clothRipple.point.y);
+            wave += Math.sin(dist * 11 - t * 14) * Math.exp(-dist * 1.8) * 0.14 * clothRipple.strength;
+          }
+          pos.setZ(i, bz + wave);
+        }
+        pos.needsUpdate = true;
+      }
+
+      if (duppataMesh && duppataMesh.geometry.userData.basePositions) {
+        const pos = duppataMesh.geometry.attributes.position;
+        const base = duppataMesh.geometry.userData.basePositions;
+        for (let i = 0; i < pos.count; i++) {
+          const bx = base[i * 3];
+          const by = base[i * 3 + 1];
+          let wave = Math.sin(by * 2.2 + bx * 2.0 + t * 2.8) * 0.085 * amp;
+
+          if (clothRipple.active && clothRipple.strength > 0.01) {
+            const dist = Math.hypot(bx - clothRipple.point.x, by - clothRipple.point.y);
+            wave += Math.sin(dist * 10 - t * 14) * Math.exp(-dist * 1.6) * 0.16 * clothRipple.strength;
+          }
+          pos.setZ(i, wave);
+        }
+        pos.needsUpdate = true;
+      }
+
+      if (banglesGroup && banglesGroup.visible) {
+        banglesGroup.rotation.y = t * 0.25;
+        banglesGroup.position.y = Math.sin(t * 1.4) * 0.06;
+      }
+      if (particlesSystem) {
+        particlesSystem.rotation.y = t * 0.04;
+      }
+
+      if (raycaster && pointerNDC.x > -2) {
+        raycaster.setFromCamera(pointerNDC, camera);
+        const targets = state.showroomMode === 'rotunda' ? rotundaCards : [kameezMesh, duppataMesh, salwarMesh];
+        const hits = raycaster.intersectObjects(targets, false);
+        const tooltip = document.getElementById('raycast-tooltip');
+        const wrap = document.getElementById('atelier-canvas-wrap');
+
+        if (hits.length > 0) {
+          hoveredMesh = hits[0].object;
+          if (wrap && !isDragging) wrap.style.cursor = 'pointer';
+          if (tooltip && hoveredMesh.userData && hoveredMesh.userData.label) {
+            tooltip.textContent = hoveredMesh.userData.label;
+            tooltip.classList.remove('hidden');
+          }
+        } else {
+          hoveredMesh = null;
+          if (wrap && !isDragging) wrap.style.cursor = 'grab';
+          if (tooltip) tooltip.classList.add('hidden');
+        }
+      }
+
+      mannequinGroup.updateMatrixWorld();
+      updateThreeUIHotspots();
+
+      renderer.render(scene, camera);
+      if (threeUIInstance && threeUIInstance.render) {
+        try { threeUIInstance.render(); } catch (e) {}
+      }
+    }
+
+    function updateThreeUIHotspots() {
+      const container = document.getElementById('atelier-canvas-wrap');
+      if (!container || !camera || !mannequinGroup || state.showroomMode === 'rotunda') return;
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (!width || !height) return;
+
+      const anchors = [
+        { id: 'hotspot-kameez', mesh: kameezMesh, offset: new THREE.Vector3(0, 0.55, 0.72) },
+        { id: 'hotspot-dupatta', mesh: duppataMesh, offset: new THREE.Vector3(0.15, 0.35, 0.25) },
+        { id: 'hotspot-salwar', mesh: salwarMesh, offset: new THREE.Vector3(0, 0.25, 0.45) }
+      ];
+
+      anchors.forEach(({ id, mesh, offset }) => {
+        const el = document.getElementById(id);
+        if (!el || !mesh) return;
+
+        const worldPos = offset.clone().applyMatrix4(mesh.matrixWorld);
+        const projected = worldPos.project(camera);
+
+        if (projected.z > 1) {
+          el.style.opacity = '0';
+          return;
+        }
+
+        const x = (projected.x * 0.5 + 0.5) * width;
+        const y = (-projected.y * 0.5 + 0.5) * height;
+        el.style.left = `${Math.max(54, Math.min(width - 54, x))}px`;
+        el.style.top = `${Math.max(44, Math.min(height - 135, y))}px`;
+        el.style.opacity = '1';
+      });
+    }
+
+    function updateThreeStageProduct(productId, scrollToStage = false) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+      state.stageProductId = product.id;
+
+      if (kameezMesh && duppataMesh && salwarMesh) {
+        const texBundle = createProductThreeTextures(product);
+        kameezMesh.material.map = texBundle.map;
+        kameezMesh.material.bumpMap = texBundle.bumpMap;
+        kameezMesh.material.needsUpdate = true;
+
+        duppataMesh.material.map = texBundle.map;
+        duppataMesh.material.bumpMap = texBundle.bumpMap;
+        duppataMesh.material.needsUpdate = true;
+
+        salwarMesh.material.color = new THREE.Color(product.salwarColor);
+        if (mirrorGroup) {
+          mirrorGroup.visible = Boolean(product.hasMirror);
+        }
+        if (warmRimLight) {
+          warmRimLight.color = new THREE.Color(product.colors[0]);
+        }
+
+        if (state.showroomMode === 'rotunda') {
+          const idx = Math.max(0, PRODUCTS.findIndex(p => p.id === product.id));
+          rotundaTargetAngle = -(idx / PRODUCTS.length) * Math.PI * 2;
+        }
+
+        if (window.anime) {
+          anime({
+            targets: mannequinGroup.scale,
+            x: [0.92, 1],
+            y: [0.92, 1],
+            z: [0.92, 1],
+            duration: 580,
+            easing: 'easeOutElastic(1, .65)'
+          });
+        }
+      }
+
+      document.getElementById('stage-product-code').textContent = `${product.id} • ${product.styleNo}`;
+      document.getElementById('stage-edit-badge').textContent = product.edit;
+      document.getElementById('stage-piece-focus').textContent = 'Full 3-Piece Ensemble';
+      document.getElementById('stage-product-title').innerHTML = `${product.name} <span class="font-bengali text-sm font-normal text-jet/70">(${product.bnName})</span>`;
+      document.getElementById('stage-piece-detail').textContent = `কামিজ: ${product.kameez}`;
+      document.getElementById('stage-product-price').textContent = `৳${product.price.toLocaleString()}${product.priceVerify ? '*' : ''}`;
+
+      document.querySelectorAll('.stage-swatch-btn').forEach((btn) => {
+        const active = btn.dataset.id === product.id;
+        btn.classList.toggle('ring-2', active);
+        btn.classList.toggle('ring-azure', active);
+        btn.classList.toggle('scale-110', active);
+      });
+
+      if (scrollToStage) {
+        document.getElementById('atelier-3d').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast(`Loaded ${product.id} (${product.name}) onto 3D Stage`);
+      }
+    }
+
+    function selectThreeUIHotspot(part) {
+      const product = PRODUCTS.find(p => p.id === state.stageProductId) || PRODUCTS[0];
+      const focusLabel = document.getElementById('stage-piece-focus');
+      const detailLabel = document.getElementById('stage-piece-detail');
+
+      if (part === 'kameez') {
+        focusLabel.textContent = '01. Kameez Focus';
+        detailLabel.textContent = `কামিজ: ${product.kameez}`;
+        targetRotationY = 0.05;
+      } else if (part === 'dupatta') {
+        focusLabel.textContent = '02. Dupatta Drape Focus';
+        detailLabel.textContent = `ওড়না: ${product.dupatta}`;
+        targetRotationY = -0.55;
+      } else if (part === 'salwar') {
+        focusLabel.textContent = '03. Salwar Contrast Focus';
+        detailLabel.textContent = `সালোয়ার: ${product.salwar}`;
+        targetRotationY = 0.65;
+      }
+    }
+
+    function cycleStageProduct(dir) {
+      const idx = PRODUCTS.findIndex(p => p.id === state.stageProductId);
+      const nextIdx = (idx + dir + PRODUCTS.length) % PRODUCTS.length;
+      updateThreeStageProduct(PRODUCTS[nextIdx].id, false);
+    }
+
+    function setStudioLighting(mode) {
+      state.lightingMode = mode;
+      document.querySelectorAll('.light-pill').forEach(btn => {
+        btn.classList.remove('bg-azure', 'text-pure');
+        btn.classList.add('bg-chalk', 'text-jet');
+      });
+      const activeBtn = document.getElementById(`light-btn-${mode}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-chalk', 'text-jet');
+        activeBtn.classList.add('bg-azure', 'text-pure');
+      }
+
+      const wrap = document.getElementById('atelier-canvas-wrap');
+      if (wrap) {
+        wrap.classList.remove('stage-theme-daylight', 'stage-theme-golden', 'stage-theme-midnight');
+        wrap.classList.add(`stage-theme-${mode}`);
+      }
+
+      if (!keyLight || !ambientLight) return;
+      if (mode === 'golden') {
+        keyLight.color.setHex(0xFFE0B2);
+        keyLight.intensity = 1.32;
+        ambientLight.color.setHex(0xFFF3E0);
+      } else if (mode === 'midnight') {
+        keyLight.color.setHex(0xDCEBFF);
+        keyLight.intensity = 1.45;
+        ambientLight.color.setHex(0x6C8CD5);
+      } else {
+        keyLight.color.setHex(0xFFFFFF);
+        keyLight.intensity = 1.15;
+        ambientLight.color.setHex(0xFFFFFF);
+      }
+    }
+
+    function toggleBreezePhysics() {
+      state.breezeEnabled = !state.breezeEnabled;
+      const btn = document.getElementById('breeze-toggle-btn');
+      btn.textContent = state.breezeEnabled ? 'Wind: ON' : 'Wind: STILL';
+    }
+
+    function openStageProductModal() {
+      openProductModal(state.stageProductId);
+    }
+
+    function addStageProductToBag(triggerEl) {
+      addToCart(state.stageProductId, 'Unstitched 3-Piece Set', 1, triggerEl);
+    }
+
+    /* =====================================================================
+       RENDERING THE 05 SIGNATURE EDITS & 18-PRODUCT CATALOG GRID
+       ===================================================================== */
+    function renderSignatureEdits() {
+      const container = document.getElementById('edits-cards-grid');
+      if (!container) return;
+
+      container.innerHTML = SIGNATURE_EDITS.map((ed, i) => {
+        const count = PRODUCTS.filter(p => p.edit === ed.name).length;
+        const isSelected = state.selectedEdit === ed.name;
+        return `
+          <button onclick="filterByEditAndScroll('${ed.name}')" class="motion-reveal text-left p-5 rounded-3xl border transition-all cursor-pointer group ${isSelected ? 'bg-jet text-pure border-jet shadow-lg' : 'bg-chalk hover:bg-pure text-jet border-jet/10 hover:shadow-card'}">
+            <div class="flex items-center justify-between mb-3">
+              <span class="w-8 h-8 rounded-2xl flex items-center justify-center text-xs font-bold text-pure" style="background-color: ${ed.accent};">0${i + 1}</span>
+              <span class="text-xs font-bold px-2.5 py-0.5 rounded-full ${isSelected ? 'bg-white/15 text-pure' : 'bg-pure text-jet/75'}">${count} Designs</span>
+            </div>
+            <h3 class="text-base font-bold leading-snug group-hover:text-azure transition-colors">${ed.name}</h3>
+            <p class="font-bengali text-xs ${isSelected ? 'text-white/75' : 'text-jet/65'} mt-0.5">${ed.bn}</p>
+            <div class="mt-3 pt-3 border-t ${isSelected ? 'border-white/15' : 'border-jet/10'} flex items-center justify-between text-xs">
+              <span class="font-bold">${ed.range}</span>
+              <span class="text-azure font-semibold group-hover:translate-x-1 transition-transform">Explore →</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderEditFilterPills() {
+      const container = document.getElementById('edit-filter-pills');
+      if (!container) return;
+
+      const pills = [
+        { label: `All Designs (${PRODUCTS.length})`, value: 'ALL' },
+        ...SIGNATURE_EDITS.map(e => ({
+          label: `${e.name} (${PRODUCTS.filter(p => p.edit === e.name).length})`,
+          value: e.name
+        }))
+      ];
+
+      container.innerHTML = pills.map(p => {
+        const active = state.selectedEdit === p.value;
+        return `
+          <button onclick="setEditFilter('${p.value}')" class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all cursor-pointer ${active ? 'bg-azure text-pure shadow-sm' : 'bg-chalk hover:bg-jet hover:text-pure text-jet'}">
+            ${p.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function renderStageSwatchStrip() {
+      const strip = document.getElementById('stage-swatch-strip');
+      if (!strip) return;
+
+      strip.innerHTML = PRODUCTS.map(p => {
+        const active = p.id === state.stageProductId;
+        return `
+          <button data-id="${p.id}" onclick="updateThreeStageProduct('${p.id}', false)" title="${p.id}: ${p.name} (৳${p.price})" class="stage-swatch-btn w-6 h-6 rounded-full flex-shrink-0 border border-jet/20 transition-transform cursor-pointer ${active ? 'ring-2 ring-azure scale-110' : 'hover:scale-110'}" style="background: linear-gradient(135deg, ${p.colors[0]} 50%, ${p.salwarColor} 50%);"></button>
+        `;
+      }).join('');
+    }
+
+    function setGlobalCatalogView(mode) {
+      state.catalogViewMode = mode;
+      const flatBtn = document.getElementById('view-btn-flatlay');
+      const lookBtn = document.getElementById('view-btn-lookbook');
+
+      if (mode === 'lookbook') {
+        lookBtn.className = 'px-3.5 py-1.5 rounded-full bg-jet text-pure text-xs font-semibold transition-all cursor-pointer';
+        flatBtn.className = 'px-3.5 py-1.5 rounded-full text-jet/75 hover:text-jet text-xs font-semibold transition-all cursor-pointer';
+      } else {
+        flatBtn.className = 'px-3.5 py-1.5 rounded-full bg-jet text-pure text-xs font-semibold transition-all cursor-pointer';
+        lookBtn.className = 'px-3.5 py-1.5 rounded-full text-jet/75 hover:text-jet text-xs font-semibold transition-all cursor-pointer';
+      }
+      renderCatalogGrid();
+    }
+
+    function toggleSingleCardView(productId, btnEl) {
+      const cardImg = document.getElementById(`card-img-${productId}`);
+      if (!cardImg) return;
+      const product = PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      const currentMode = cardImg.dataset.viewMode || state.catalogViewMode;
+      const nextMode = currentMode === 'flatlay' ? 'lookbook' : 'flatlay';
+      cardImg.dataset.viewMode = nextMode;
+      cardImg.src = getProductArtworkDataURL(product, nextMode);
+      if (btnEl) {
+        btnEl.textContent = nextMode === 'flatlay' ? 'Stitched View' : 'Fabric Set';
+      }
+      const mediaKind = document.getElementById(`card-media-${product.id}`);
+      if (mediaKind) mediaKind.textContent = getMediaKindLabel(product, nextMode);
+      if (window.anime) {
+        anime({ targets: cardImg, opacity: [0.55, 1], scale: [0.97, 1], duration: 320, easing: 'easeOutCubic' });
+      }
+    }
+
+    function getFilteredProducts() {
+      const q = state.searchQuery.trim().toLowerCase();
+      let list = PRODUCTS.filter(p => {
+        const matchEdit = state.selectedEdit === 'ALL' || p.edit === state.selectedEdit;
+        const matchPrice = p.price <= state.maxPrice;
+        const matchQuery = !q ||
+          p.id.toLowerCase().includes(q) ||
+          p.styleNo.toLowerCase().includes(q) ||
+          p.name.toLowerCase().includes(q) ||
+          p.bnName.toLowerCase().includes(q) ||
+          p.edit.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q) ||
+          p.kameez.toLowerCase().includes(q);
+        return matchEdit && matchPrice && matchQuery;
+      });
+
+      if (state.sortBy === 'price-asc') {
+        list = [...list].sort((a, b) => a.price - b.price);
+      } else if (state.sortBy === 'price-desc') {
+        list = [...list].sort((a, b) => b.price - a.price);
+      } else if (state.sortBy === 'code') {
+        list = [...list].sort((a, b) => a.id.localeCompare(b.id));
+      }
+      return list;
+    }
+
+    function renderCatalogGrid() {
+      const grid = document.getElementById('products-grid');
+      const emptyState = document.getElementById('catalog-empty-state');
+      const countLabel = document.getElementById('catalog-results-count');
+      const resetBtn = document.getElementById('reset-filters-btn');
+      if (!grid) return;
+
+      const filtered = getFilteredProducts();
+      const hasActiveFilters = state.selectedEdit !== 'ALL' || state.searchQuery.trim() !== '' || state.maxPrice < 2450;
+
+      countLabel.textContent = `Showing ${filtered.length} of ${PRODUCTS.length} catalogued sets`;
+      resetBtn.classList.toggle('hidden', !hasActiveFilters);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      grid.innerHTML = filtered.map((product) => {
+        const isWishlisted = state.wishlist.includes(product.id);
+        const imgUrl = getProductArtworkDataURL(product, state.catalogViewMode);
+        return `
+          <article class="product-card catalog-card-item bg-pure rounded-3xl border border-jet/10 overflow-hidden shadow-card hover:shadow-atelier transition-shadow flex flex-col justify-between group">
+            <div class="card-glare"></div>
+            <div>
+              <!-- Top Visual Studio Frame -->
+              <div class="relative aspect-[16/13] bg-chalk overflow-hidden">
+                <img id="card-img-${product.id}" data-view-mode="${state.catalogViewMode}" src="${imgUrl}" alt="${product.name} (${product.id})" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <span id="card-media-${product.id}" class="absolute bottom-14 left-3 z-10 px-2 py-1 rounded-full bg-pure/95 text-jet text-[10px] font-bold border border-jet/10">${getMediaKindLabel(product, state.catalogViewMode)}</span>
+                
+                <!-- Top Badges: Product Code & Mirror Tag -->
+                <div class="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
+                  <span class="px-3 py-1 rounded-full bg-jet text-pure text-xs font-bold tracking-wide shadow-sm">${product.id}</span>
+                  ${product.hasMirror ? `<span class="px-2.5 py-1 rounded-full bg-marigold text-jet text-[11px] font-bold">Mirror Work</span>` : ''}
+                </div>
+
+                <!-- Wishlist Toggle Button -->
+                <button onclick="toggleWishlist('${product.id}')" aria-label="Save to wishlist" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-pure/90 backdrop-blur-md border border-jet/10 flex items-center justify-center text-jet hover:scale-110 transition-transform cursor-pointer">
+                  <svg class="w-4.5 h-4.5 ${isWishlisted ? 'fill-terracotta text-terracotta' : 'fill-none text-jet'}" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                  </svg>
+                </button>
+
+                <!-- Bottom Dual Actions: Toggle Fabric/Lookbook & Load on 3D Stage -->
+                <div class="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                  <button onclick="toggleSingleCardView('${product.id}', this)" class="px-2.5 py-1.5 rounded-full bg-jet/80 hover:bg-jet text-pure text-[11px] font-semibold backdrop-blur-md transition-colors cursor-pointer">
+                    ${state.catalogViewMode === 'flatlay' ? 'Stitched View' : 'Fabric Set'}
+                  </button>
+
+                  <button onclick="updateThreeStageProduct('${product.id}', true)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pure/95 hover:bg-azure hover:text-pure text-jet text-xs font-semibold shadow-md transition-colors cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/></svg>
+                    <span>3D Drape</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card Editorial Body -->
+              <div class="p-5">
+                <div class="flex items-center justify-between gap-2 text-xs mb-1.5">
+                  <span class="font-bold uppercase tracking-wider text-azure">${product.edit}</span>
+                  <span class="text-[11px] font-semibold text-jet/50">${product.styleNo}</span>
+                </div>
+
+                <h3 class="text-lg font-bold text-jet leading-snug group-hover:text-azure transition-colors">
+                  <button onclick="openProductModal('${product.id}')" class="text-left cursor-pointer">${product.name}</button>
+                </h3>
+                <p class="font-bengali text-sm text-jet/75 mt-0.5">${product.bnName}</p>
+
+                <!-- 3-Piece Mini Swatch Palette -->
+                <div class="mt-3 flex items-center gap-2">
+                  <div class="flex -space-x-1">
+                    ${product.colors.map(hex => `<span class="w-4 h-4 rounded-full border border-pure shadow-xs" style="background-color:${hex}"></span>`).join('')}
+                  </div>
+                  <span class="text-xs text-jet/60 truncate">${product.fabric}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Footer: Price & Quick Actions -->
+            <div class="px-5 pb-5 pt-3 border-t border-jet/10 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-[10px] uppercase tracking-wider text-jet/50">Set Price</div>
+                <div class="text-xl font-bold text-jet">
+                  ৳${product.price.toLocaleString()}${product.priceVerify ? '<span class="text-azure text-sm ml-0.5" title="Shade-based price verification">*</span>' : ''}
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="openProductModal('${product.id}')" class="px-3.5 py-2.5 rounded-xl bg-chalk hover:bg-jet hover:text-pure text-jet text-xs font-semibold transition-colors cursor-pointer">
+                  Details
+                </button>
+                <button onclick="addToCart('${product.id}', 'Unstitched 3-Piece Set', 1, this)" class="px-4 py-2.5 rounded-xl bg-azure hover:bg-jet text-pure text-xs font-semibold shadow-sm transition-colors cursor-pointer">
+                  + Add
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      if (window.anime) {
+        anime({
+          targets: '.catalog-card-item',
+          opacity: [0, 1],
+          translateY: [22, 0],
+          delay: anime.stagger(35, { start: 30 }),
+          duration: 500,
+          easing: 'easeOutCubic'
+        });
+      }
+      initCardTiltInteractions();
+    }
+
+    function initCardTiltInteractions() {
+      document.querySelectorAll('.product-card').forEach(card => {
+        if (card.dataset.tiltBound) return;
+        card.dataset.tiltBound = 'true';
+        const glare = card.querySelector('.card-glare');
+
+        card.addEventListener('mousemove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const relX = (e.clientX - rect.left) / rect.width;
+          const relY = (e.clientY - rect.top) / rect.height;
+          const rotateY = (relX - 0.5) * 9;
+          const rotateX = (0.5 - relY) * 9;
+
+          card.style.transform = `perspective(900px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-4px)`;
+          if (glare) {
+            glare.style.opacity = '1';
+            glare.style.background = `radial-gradient(circle at ${relX * 100}% ${relY * 100}%, rgba(255,255,255,0.42), transparent 62%)`;
+          }
+        });
+
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+          if (glare) glare.style.opacity = '0';
+        });
+      });
+    }
+
+    /* =====================================================================
+       FILTER, SEARCH & SORT CONTROLLERS
+       ===================================================================== */
+    function setEditFilter(editName) {
+      state.selectedEdit = editName;
+      renderSignatureEdits();
+      renderEditFilterPills();
+      renderCatalogGrid();
+    }
+
+    function filterByEditAndScroll(editName) {
+      setEditFilter(editName);
+      document.getElementById('catalog-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updatePriceFilter(val) {
+      state.maxPrice = Number(val);
+      document.getElementById('price-range-label').textContent = `৳${state.maxPrice.toLocaleString()}`;
+      renderCatalogGrid();
+    }
+
+    function applyCatalogFilters() {
+      state.searchQuery = document.getElementById('catalog-search-input').value;
+      state.sortBy = document.getElementById('catalog-sort-select').value;
+      renderCatalogGrid();
+    }
+
+    function resetCatalogFilters() {
+      state.selectedEdit = 'ALL';
+      state.searchQuery = '';
+      state.maxPrice = 2450;
+      state.sortBy = 'featured';
+      document.getElementById('catalog-search-input').value = '';
+      document.getElementById('catalog-sort-select').value = 'featured';
+      document.getElementById('price-range-slider').value = 2450;
+      document.getElementById('price-range-label').textContent = '৳2,450';
+      renderSignatureEdits();
+      renderEditFilterPills();
+      renderCatalogGrid();
+    }
+
+    function focusCatalogSearch() {
+      const input = document.getElementById('catalog-search-input');
+      input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => input.focus(), 350);
+    }
+
+    /* =====================================================================
+       PRODUCT QUICK-VIEW & CUSTOM TAILORING STUDIO MODAL
+       ===================================================================== */
+    let modalSelectedTailoring = 'Unstitched 3-Piece Set';
+    let modalSelectedSize = 'M (38")';
+    let modalQuantity = 1;
+
+    function switchModalArtwork(productId, mode) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      const imgEl = document.getElementById('modal-preview-img');
+      if (!product || !imgEl) return;
+
+      imgEl.src = getProductArtworkDataURL(product, mode);
+      const mediaKind = document.getElementById('modal-media-kind');
+      if (mediaKind) mediaKind.textContent = getMediaKindLabel(product, mode);
+      document.getElementById('modal-tab-flatlay').className = mode === 'flatlay'
+        ? 'px-3 py-1.5 rounded-full bg-jet text-pure text-xs font-semibold cursor-pointer'
+        : 'px-3 py-1.5 rounded-full bg-chalk text-jet text-xs font-semibold cursor-pointer';
+      document.getElementById('modal-tab-lookbook').className = mode === 'lookbook'
+        ? 'px-3 py-1.5 rounded-full bg-jet text-pure text-xs font-semibold cursor-pointer'
+        : 'px-3 py-1.5 rounded-full bg-chalk text-jet text-xs font-semibold cursor-pointer';
+    }
+
+    function openProductModal(productId) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      modalSelectedTailoring = 'Unstitched 3-Piece Set';
+      modalSelectedSize = 'M (38")';
+      modalQuantity = 1;
+
+      const modal = document.getElementById('product-modal');
+      const content = document.getElementById('product-modal-content');
+      const imgUrl = getProductArtworkDataURL(product, 'flatlay');
+
+      content.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-start">
+          <!-- Left: Digital Fabric Illustration vs. Styled Lookbook Preview -->
+          <div class="md:col-span-6 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <div class="inline-flex items-center gap-1.5 bg-chalk p-1 rounded-full">
+                <button id="modal-tab-flatlay" onclick="switchModalArtwork('${product.id}', 'flatlay')" class="px-3 py-1.5 rounded-full bg-jet text-pure text-xs font-semibold cursor-pointer">Fabric Preview</button>
+                <button id="modal-tab-lookbook" onclick="switchModalArtwork('${product.id}', 'lookbook')" class="px-3 py-1.5 rounded-full bg-chalk text-jet text-xs font-semibold cursor-pointer">Stitched Lookbook</button>
+              </div>
+              <span class="text-xs font-bold text-jet/60">${product.styleNo}</span>
+            </div>
+
+            <div class="rounded-2xl overflow-hidden bg-chalk border border-jet/10 relative">
+              <img id="modal-preview-img" src="${imgUrl}" alt="${product.name}" class="w-full h-auto object-cover" />
+              <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-jet text-pure text-xs font-bold">${product.id}</span>
+              <span id="modal-media-kind" class="absolute bottom-3 left-3 px-2 py-1 rounded-full bg-pure/95 text-jet text-[11px] font-bold">${getMediaKindLabel(product, 'flatlay')}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-2 p-3.5 rounded-2xl bg-chalk">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-jet/70">Colorway:</span>
+                ${product.colors.map(hex => `<span class="w-6 h-6 rounded-full border border-jet/20" style="background-color:${hex}" title="${hex}"></span>`).join('')}
+              </div>
+              <button onclick="updateThreeStageProduct('${product.id}', true); closeProductModal();" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-jet hover:bg-azure text-pure text-xs font-semibold transition-colors cursor-pointer">
+                <span>View on 3D Drape Stage</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Bilingual Editorial Specs & Tailoring Customizer -->
+          <div class="md:col-span-6 space-y-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-azure/10 text-azure text-xs font-bold">${product.edit}</span>
+              <span class="px-3 py-1 rounded-full bg-parchment text-terracotta text-xs font-semibold">Stock: Confirm with Seller</span>
+            </div>
+
+            <div>
+              <h3 class="text-2xl sm:text-3xl font-serif font-bold text-jet">${product.name}</h3>
+              <p class="font-bengali text-base font-medium text-jet/80 mt-0.5">${product.bnName} — ${product.tagline}</p>
+            </div>
+
+            <div class="flex items-baseline gap-3">
+              <span id="modal-dynamic-price" class="text-3xl font-bold text-azure">৳${product.price.toLocaleString()}</span>
+              <span class="text-xs text-jet/60">Per 3-Piece Set (Kameez + Salwar + Dupatta)</span>
+            </div>
+            ${product.priceVerify ? `<p class="font-bengali text-xs text-terracotta bg-terracotta/10 px-3 py-1.5 rounded-xl">* চিহ্নিত মূল্য রঙভিত্তিক মিল যাচাইসাপেক্ষ (Shade & stock verified upon order)</p>` : ''}
+
+            <p class="font-bengali text-sm text-jet/80 leading-relaxed bg-chalk p-3.5 rounded-2xl">
+              ${product.description}
+            </p>
+
+            <!-- 3-Piece Component Breakdown -->
+            <div class="grid grid-cols-1 gap-2 text-xs">
+              <div class="p-3 rounded-xl border border-jet/10 flex justify-between gap-3">
+                <span class="font-bold text-jet whitespace-nowrap">কামিজ / KAMEEZ</span>
+                <span class="font-bengali text-jet/75 text-right">${product.kameez}</span>
+              </div>
+              <div class="p-3 rounded-xl border border-jet/10 flex justify-between gap-3">
+                <span class="font-bold text-jet whitespace-nowrap">সালোয়ার / SALWAR</span>
+                <span class="font-bengali text-jet/75 text-right">${product.salwar}</span>
+              </div>
+              <div class="p-3 rounded-xl border border-jet/10 flex justify-between gap-3">
+                <span class="font-bold text-jet whitespace-nowrap">ওড়না / DUPATTA</span>
+                <span class="font-bengali text-jet/75 text-right">${product.dupatta}</span>
+              </div>
+            </div>
+
+            <!-- Stitching / Tailoring Selector -->
+            <div class="space-y-2 pt-1">
+              <label class="text-xs font-bold uppercase tracking-wider text-jet/70">Select Stitching Preference:</label>
+              <div class="grid grid-cols-2 gap-2.5">
+                <button type="button" onclick="selectModalTailoring('Unstitched 3-Piece Set', ${product.price})" id="tailor-opt-unstitched" class="tailor-opt-btn p-3 rounded-2xl border-2 border-azure bg-azure/5 text-left cursor-pointer">
+                  <div class="text-xs font-bold text-jet">Unstitched Fabric</div>
+                  <div class="text-[11px] text-jet/65">Original 3-Pc Set (৳${product.price.toLocaleString()})</div>
+                </button>
+                <button type="button" onclick="selectModalTailoring('Custom Tailored (+৳450)', ${product.price})" id="tailor-opt-stitched" class="tailor-opt-btn p-3 rounded-2xl border border-jet/15 bg-pure text-left cursor-pointer">
+                  <div class="text-xs font-bold text-jet">Custom Stitched</div>
+                  <div class="text-[11px] text-azure font-semibold">+৳450 (Dhaka Atelier)</div>
+                </button>
+              </div>
+            </div>
+
+            <div id="modal-size-selector" class="hidden space-y-2">
+              <label class="text-xs font-bold uppercase tracking-wider text-jet/70">Select Tailored Size (Chest):</label>
+              <div class="flex flex-wrap gap-2">
+                ${['XS (34")', 'S (36")', 'M (38")', 'L (40")', 'XL (42")', 'XXL (44")'].map(sz => `
+                  <button type="button" onclick="selectModalSize('${sz}', this)" class="modal-sz-btn px-3 py-1.5 rounded-xl text-xs font-semibold border cursor-pointer ${sz === 'M (38")' ? 'bg-jet text-pure border-jet' : 'bg-chalk text-jet border-jet/10'}">${sz}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="pt-3 flex flex-wrap items-center gap-3">
+              <div class="inline-flex items-center rounded-full bg-chalk border border-jet/10 px-2 py-1">
+                <button type="button" onclick="changeModalQty(-1)" class="w-8 h-8 rounded-full hover:bg-pure font-bold cursor-pointer">-</button>
+                <span id="modal-qty-val" class="w-8 text-center text-sm font-bold">1</span>
+                <button type="button" onclick="changeModalQty(1)" class="w-8 h-8 rounded-full hover:bg-pure font-bold cursor-pointer">+</button>
+              </div>
+
+              <button type="button" onclick="confirmModalAddToCart('${product.id}')" class="flex-grow py-3.5 px-6 rounded-full bg-azure hover:bg-jet text-pure font-semibold text-sm shadow-azure-glow transition-all cursor-pointer">
+                Add Set to Shopping Bag
+              </button>
+
+              <button type="button" onclick="copyProductCode('${product.id}')" title="Copy Product Code for Messenger/WhatsApp" class="p-3.5 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet transition-colors cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      if (window.MotionDev && window.MotionDev.animate) {
+        window.MotionDev.animate('#product-modal-panel', { opacity: [0, 1], scale: [0.94, 1], y: [18, 0] }, { duration: 0.32 });
+      }
+    }
+
+    function selectModalTailoring(option, basePrice) {
+      modalSelectedTailoring = option;
+      const isStitched = option.includes('Custom Tailored');
+      document.getElementById('modal-size-selector').classList.toggle('hidden', !isStitched);
+
+      const uBtn = document.getElementById('tailor-opt-unstitched');
+      const sBtn = document.getElementById('tailor-opt-stitched');
+      if (isStitched) {
+        sBtn.className = 'tailor-opt-btn p-3 rounded-2xl border-2 border-azure bg-azure/5 text-left cursor-pointer';
+        uBtn.className = 'tailor-opt-btn p-3 rounded-2xl border border-jet/15 bg-pure text-left cursor-pointer';
+      } else {
+        uBtn.className = 'tailor-opt-btn p-3 rounded-2xl border-2 border-azure bg-azure/5 text-left cursor-pointer';
+        sBtn.className = 'tailor-opt-btn p-3 rounded-2xl border border-jet/15 bg-pure text-left cursor-pointer';
+      }
+
+      const finalUnit = basePrice + (isStitched ? 450 : 0);
+      document.getElementById('modal-dynamic-price').textContent = `৳${finalUnit.toLocaleString()}`;
+    }
+
+    function selectModalSize(size, btnEl) {
+      modalSelectedSize = size;
+      document.querySelectorAll('.modal-sz-btn').forEach(b => {
+        b.className = 'modal-sz-btn px-3 py-1.5 rounded-xl text-xs font-semibold border cursor-pointer bg-chalk text-jet border-jet/10';
+      });
+      btnEl.className = 'modal-sz-btn px-3 py-1.5 rounded-xl text-xs font-semibold border cursor-pointer bg-jet text-pure border-jet';
+    }
+
+    function changeModalQty(delta) {
+      modalQuantity = Math.max(1, Math.min(10, modalQuantity + delta));
+      document.getElementById('modal-qty-val').textContent = modalQuantity;
+    }
+
+    function confirmModalAddToCart(productId) {
+      const variant = modalSelectedTailoring.includes('Custom Tailored')
+        ? `Custom Stitched • Size ${modalSelectedSize}`
+        : 'Unstitched 3-Piece Set';
+      addToCart(productId, variant, modalQuantity);
+      closeProductModal();
+    }
+
+    function closeProductModal() {
+      const modal = document.getElementById('product-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    /* =====================================================================
+       SHOPPING BAG, WISHLIST, PROMO CODES & CHECKOUT ENGINE
+       ===================================================================== */
+    function launchFlyToBagParticle(triggerEl, product) {
+      if (!window.anime || !triggerEl) return;
+      const bagBtn = document.getElementById('cart-nav-btn');
+      if (!bagBtn) return;
+
+      const startRect = triggerEl.getBoundingClientRect();
+      const endRect = bagBtn.getBoundingClientRect();
+
+      const orb = document.createElement('div');
+      orb.className = 'fixed z-50 pointer-events-none w-7 h-7 rounded-full shadow-xl border-2 border-pure flex items-center justify-center text-[9px] font-bold text-pure';
+      orb.style.background = `linear-gradient(135deg, ${product.colors[0]}, ${product.salwarColor})`;
+      orb.style.left = `${startRect.left + startRect.width / 2 - 14}px`;
+      orb.style.top = `${startRect.top + startRect.height / 2 - 14}px`;
+      document.body.appendChild(orb);
+
+      const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+      const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+
+      if (!window.anime) { orb.remove(); return; }
+      anime({
+        targets: orb,
+        translateX: [0, dx * 0.45, dx],
+        translateY: [0, dy * 0.35 - 65, dy],
+        scale: [1, 1.35, 0.35],
+        opacity: [1, 1, 0],
+        duration: 680,
+        easing: 'easeInOutCubic',
+        complete: () => orb.remove()
+      });
+    }
+
+    function addToCart(productId, variant = 'Unstitched 3-Piece Set', qty = 1, triggerEl = null) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      const isStitched = variant.includes('Custom Stitched');
+      const unitPrice = product.price + (isStitched ? 450 : 0);
+      const key = `${productId}__${variant}`;
+
+      const existing = state.cart.find(item => item.key === key);
+      if (existing) {
+        existing.qty = Math.min(25, existing.qty + Math.max(1, qty));
+      } else {
+        state.cart.push({
+          key,
+          productId: product.id,
+          name: product.name,
+          bnName: product.bnName,
+          variant,
+          unitPrice,
+          qty: Math.max(1, Math.min(25, qty))
+        });
+      }
+
+      savePersistedState();
+      updateCartAndWishlistUI();
+      showToast(`Added ${product.id} (${product.name}) to Bag`);
+
+      if (triggerEl) {
+        launchFlyToBagParticle(triggerEl, product);
+      }
+
+      if (window.anime) {
+        anime({
+          targets: '#cart-nav-btn',
+          scale: [1, 1.18, 1],
+          delay: triggerEl ? 420 : 0,
+          duration: 480,
+          easing: 'easeOutElastic(1, .5)'
+        });
+      }
+    }
+
+    function updateCartItemQty(key, delta) {
+      const item = state.cart.find(i => i.key === key);
+      if (!item) return;
+      item.qty = Math.min(25, item.qty + delta);
+      if (item.qty <= 0) {
+        state.cart = state.cart.filter(i => i.key !== key);
+      }
+      savePersistedState();
+      updateCartAndWishlistUI();
+    }
+
+    function toggleWishlist(productId) {
+      const idx = state.wishlist.indexOf(productId);
+      if (idx > -1) {
+        state.wishlist.splice(idx, 1);
+        showToast(`Removed ${productId} from Saved Favourites`);
+      } else {
+        state.wishlist.push(productId);
+        showToast(`Saved ${productId} to Favourites`);
+      }
+      savePersistedState();
+      updateCartAndWishlistUI();
+      renderCatalogGrid();
+    }
+
+    function applyPromoInput() {
+      const code = document.getElementById('promo-input').value.trim().toUpperCase();
+      if (code === 'FARIZA10' || code === 'DHAKA2026') {
+        state.appliedPromo = code;
+        updateCartAndWishlistUI();
+        showToast(`Promo code ${code} applied!`);
+      } else {
+        showToast('Try code FARIZA10 for 10% community privilege');
+      }
+    }
+
+    function getCartTotals() {
+      const subtotal = state.cart.reduce((sum, item) => sum + item.unitPrice * item.qty, 0);
+      let discount = 0;
+      if (state.appliedPromo === 'FARIZA10') {
+        discount = Math.round(subtotal * 0.10);
+      } else if (state.appliedPromo === 'DHAKA2026') {
+        discount = Math.min(150, Math.round(subtotal * 0.05));
+      }
+      return {
+        count: state.cart.reduce((sum, item) => sum + item.qty, 0),
+        subtotal,
+        discount,
+        total: Math.max(0, subtotal - discount)
+      };
+    }
+
+    function updateCartAndWishlistUI() {
+      const totals = getCartTotals();
+
+      document.getElementById('cart-badge').textContent = totals.count;
+      document.getElementById('drawer-cart-count').textContent = totals.count;
+
+      const wBadge = document.getElementById('wishlist-badge');
+      wBadge.textContent = state.wishlist.length;
+      wBadge.classList.toggle('hidden', state.wishlist.length === 0);
+      document.getElementById('drawer-wishlist-count').textContent = state.wishlist.length;
+
+      const cartContainer = document.getElementById('cart-items-container');
+      const checkoutBtn = document.getElementById('proceed-checkout-btn');
+
+      if (state.cart.length === 0) {
+        checkoutBtn.disabled = true;
+        cartContainer.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center py-12">
+            <div class="w-16 h-16 rounded-full bg-chalk flex items-center justify-center text-jet/40 mb-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
+            <p class="font-bold text-jet">Your bag is currently empty</p>
+            <p class="text-xs text-jet/60 mt-1 max-w-xs">Explore our 18 original three-piece designs across 5 signature edits.</p>
+            <button onclick="closeAllDrawers()" class="mt-4 px-5 py-2.5 rounded-full bg-azure text-pure text-xs font-semibold cursor-pointer">Browse Collection</button>
+          </div>
+        `;
+      } else {
+        checkoutBtn.disabled = false;
+        cartContainer.innerHTML = state.cart.map(item => {
+          const prod = PRODUCTS.find(p => p.id === item.productId) || PRODUCTS[0];
+          const thumb = getProductArtworkDataURL(prod, 'flatlay');
+          return `
+            <div class="flex gap-3.5 p-3 rounded-2xl bg-chalk border border-jet/10">
+              <img src="${thumb}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0 bg-pure" />
+              <div class="flex-grow min-w-0">
+                <div class="flex items-start justify-between gap-2">
+                  <span class="text-[11px] font-bold text-azure">${item.productId}</span>
+                  <span class="text-sm font-bold text-jet">৳${(item.unitPrice * item.qty).toLocaleString()}</span>
+                </div>
+                <h4 class="text-sm font-bold text-jet truncate">${item.name}</h4>
+                <p class="text-[11px] text-jet/65 truncate">${item.variant}</p>
+
+                <div class="mt-2 flex items-center justify-between">
+                  <div class="inline-flex items-center rounded-full bg-pure border border-jet/10 px-1.5 py-0.5 text-xs">
+                    <button onclick="updateCartItemQty('${item.key}', -1)" class="w-6 h-6 rounded-full hover:bg-chalk font-bold cursor-pointer">-</button>
+                    <span class="w-6 text-center font-bold">${item.qty}</span>
+                    <button onclick="updateCartItemQty('${item.key}', 1)" class="w-6 h-6 rounded-full hover:bg-chalk font-bold cursor-pointer">+</button>
+                  </div>
+                  <button onclick="updateCartItemQty('${item.key}', -99)" class="text-[11px] text-terracotta hover:underline cursor-pointer">Remove</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      document.getElementById('cart-subtotal').textContent = `৳${totals.subtotal.toLocaleString()}`;
+      const discountRow = document.getElementById('cart-discount-row');
+      if (totals.discount > 0) {
+        discountRow.classList.remove('hidden');
+        document.getElementById('applied-promo-label').textContent = state.appliedPromo;
+        document.getElementById('cart-discount-amount').textContent = `-৳${totals.discount.toLocaleString()}`;
+      } else {
+        discountRow.classList.add('hidden');
+      }
+      document.getElementById('cart-total').textContent = `৳${totals.total.toLocaleString()}`;
+
+      const wishContainer = document.getElementById('wishlist-items-container');
+      if (state.wishlist.length === 0) {
+        wishContainer.innerHTML = `
+          <div class="text-center py-14">
+            <p class="font-bold text-jet">No saved designs yet</p>
+            <p class="text-xs text-jet/60 mt-1">Tap the heart icon on any three-piece design to save it here.</p>
+          </div>
+        `;
+      } else {
+        wishContainer.innerHTML = state.wishlist.map(id => {
+          const p = PRODUCTS.find(x => x.id === id);
+          if (!p) return '';
+          return `
+            <div class="flex items-center gap-3 p-3 rounded-2xl bg-chalk border border-jet/10">
+              <img src="${getProductArtworkDataURL(p, 'flatlay')}" alt="${p.name}" class="w-16 h-16 rounded-xl object-cover flex-shrink-0" />
+              <div class="flex-grow min-w-0">
+                <div class="text-xs font-bold text-azure">${p.id} • ৳${p.price.toLocaleString()}</div>
+                <div class="text-sm font-bold text-jet truncate">${p.name}</div>
+                <div class="mt-1.5 flex items-center gap-2">
+                  <button onclick="addToCart('${p.id}', 'Unstitched 3-Piece Set', 1); toggleDrawer('cart');" class="px-3 py-1 rounded-full bg-azure text-pure text-[11px] font-semibold cursor-pointer">Move to Bag</button>
+                  <button onclick="toggleWishlist('${p.id}')" class="text-[11px] text-jet/60 hover:text-terracotta cursor-pointer">Remove</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function toggleDrawer(type) {
+      const backdrop = document.getElementById('drawer-backdrop');
+      const cartDrawer = document.getElementById('cart-drawer');
+      const wishDrawer = document.getElementById('wishlist-drawer');
+
+      backdrop.classList.remove('hidden');
+      if (type === 'cart') {
+        wishDrawer.classList.add('translate-x-full');
+        cartDrawer.classList.remove('translate-x-full');
+      } else {
+        cartDrawer.classList.add('translate-x-full');
+        wishDrawer.classList.remove('translate-x-full');
+      }
+    }
+
+    function closeAllDrawers() {
+      document.getElementById('drawer-backdrop').classList.add('hidden');
+      document.getElementById('cart-drawer').classList.add('translate-x-full');
+      document.getElementById('wishlist-drawer').classList.add('translate-x-full');
+    }
+
+    /* =====================================================================
+       CHECKOUT MODAL & HONEST ORDER REQUEST DELIVERY
+       ===================================================================== */
+    let selectedDeliveryCharge = 70;
+    let selectedDeliveryZone = 'Inside Dhaka City (Mirpur, Dhanmondi, Gulshan, Uttara)';
+
+    function openCheckoutModal() {
+      closeAllDrawers();
+      const modal = document.getElementById('checkout-modal');
+      const body = document.getElementById('checkout-body');
+      const totals = getCartTotals();
+
+      selectedDeliveryCharge = 70;
+      selectedDeliveryZone = 'Inside Dhaka City (Mirpur, Dhanmondi, Gulshan, Uttara)';
+
+      body.innerHTML = `
+        <p class="mb-4 text-xs leading-relaxed text-jet/70 bg-parchment border border-olive/20 rounded-xl px-4 py-3">Order submission is a request, not payment or inventory confirmation. If seller messaging/server delivery is not configured, you must manually send the generated request.</p>
+        <form id="checkout-form" onsubmit="submitOrder(event)" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <div class="md:col-span-7 space-y-4">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-jet/70 mb-1">Full Name *</label>
+              <input required id="cust-name" type="text" placeholder="e.g. Farhana Rahman" class="w-full px-4 py-2.5 rounded-xl bg-chalk border border-jet/15 text-sm focus:outline-none focus:border-azure" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-jet/70 mb-1">Mobile Number (Bangladesh) *</label>
+                <input required id="cust-phone" type="tel" inputmode="tel" pattern="(?:[+]88|88)?01[3-9][0-9]{8}" title="Enter an 11-digit Bangladesh mobile number, optionally prefixed +88" placeholder="017XXXXXXXX" class="w-full px-4 py-2.5 rounded-xl bg-chalk border border-jet/15 text-sm focus:outline-none focus:border-azure" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-jet/70 mb-1">Delivery Zone *</label>
+              <select id="delivery-zone-select" onchange="updateCheckoutDelivery(this)" class="w-full px-4 py-2.5 rounded-xl bg-chalk border border-jet/15 text-sm font-medium focus:outline-none focus:border-azure">
+                <option value="70">Inside Dhaka City (Mirpur, Uttara, Dhanmondi, Gulshan) — ৳70</option>
+                <option value="110">Dhaka Suburbs (Savar, Keraniganj, Gazipur, Narayanganj) — ৳110</option>
+                <option value="130">Outside Dhaka Nationwide Courier — ৳130</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-jet/70 mb-1">Complete Delivery Address *</label>
+              <textarea required id="cust-address" rows="2" placeholder="House, Road, Block/Sector, Area..." class="w-full px-4 py-2.5 rounded-xl bg-chalk border border-jet/15 text-sm focus:outline-none focus:border-azure"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-jet/70 mb-1.5">Preferred Payment Method (confirmed by seller)</label>
+              <div class="grid grid-cols-3 gap-2 text-xs">
+                <label class="p-3 rounded-xl border border-jet/15 bg-chalk has-[:checked]:border-azure has-[:checked]:bg-azure/10 cursor-pointer text-center font-semibold">
+                  <input type="radio" name="payment_method" value="Cash on Delivery (COD)" checked class="hidden" />
+                  Cash on Delivery
+                </label>
+                <label class="p-3 rounded-xl border border-jet/15 bg-chalk has-[:checked]:border-azure has-[:checked]:bg-azure/10 cursor-pointer text-center font-semibold">
+                  <input type="radio" name="payment_method" value="bKash (confirm merchant details)" class="hidden" />
+                  bKash
+                </label>
+                <label class="p-3 rounded-xl border border-jet/15 bg-chalk has-[:checked]:border-azure has-[:checked]:bg-azure/10 cursor-pointer text-center font-semibold">
+                  <input type="radio" name="payment_method" value="Nagad (confirm merchant details)" class="hidden" />
+                  Nagad
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-5 bg-chalk rounded-2xl p-5 border border-jet/10 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <h4 class="font-bold text-jet text-base border-b border-jet/10 pb-2">Order Summary (${totals.count} Sets)</h4>
+              <div class="max-h-44 overflow-y-auto space-y-2 pr-1 text-xs">
+                ${state.cart.map(i => `
+                  <div class="flex justify-between gap-2">
+                    <span class="text-jet/80"><strong>${i.productId}</strong> × ${i.qty} <span class="block text-[10px] text-jet/55">${i.variant}</span></span>
+                    <span class="font-bold text-jet">৳${(i.unitPrice * i.qty).toLocaleString()}</span>
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="pt-3 border-t border-jet/10 space-y-1.5 text-xs">
+                <div class="flex justify-between">
+                  <span class="text-jet/70">Items Total</span>
+                  <span class="font-semibold">৳${totals.total.toLocaleString()}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-jet/70">Delivery Charge</span>
+                  <span id="checkout-delivery-fee" class="font-semibold">৳70</span>
+                </div>
+                <div class="flex justify-between text-base font-bold text-jet pt-2 border-t border-jet/10">
+                  <span>Payable Total</span>
+                  <span id="checkout-grand-total" class="text-azure">৳${(totals.total + 70).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 rounded-full bg-seagreen hover:bg-jet text-pure font-bold text-sm shadow-lg transition-colors cursor-pointer">
+              Prepare Order Request
+            </button>
+          </div>
+        </form>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function updateCheckoutDelivery(selectEl) {
+      selectedDeliveryCharge = Number(selectEl.value);
+      selectedDeliveryZone = selectEl.options[selectEl.selectedIndex].text;
+      const totals = getCartTotals();
+      document.getElementById('checkout-delivery-fee').textContent = `৳${selectedDeliveryCharge}`;
+      document.getElementById('checkout-grand-total').textContent = `৳${(totals.total + selectedDeliveryCharge).toLocaleString()}`;
+    }
+
+    let currentPreparedOrder = null;
+
+    function formatOrderRequest(order) {
+      return [
+        `Fariza's Territory — ORDER REQUEST ${order.id}`,
+        `Customer: ${order.customer.name}`,
+        `Phone: ${order.customer.phone}`,
+        `Address: ${order.customer.address}`,
+        `Delivery: ${order.delivery.zone}`,
+        `Payment preference: ${order.paymentPreference}`,
+        'Products:',
+        ...order.items.map((item) => `• ${item.productId} — ${item.name} — ${item.variant} ×${item.qty}: ৳${(item.unitPrice * item.qty).toLocaleString()}`),
+        `Subtotal: ৳${order.totals.subtotal.toLocaleString()}`,
+        `Discount: ৳${order.totals.discount.toLocaleString()}`,
+        `Estimated delivery: ৳${order.delivery.charge.toLocaleString()}`,
+        `Estimated total: ৳${order.totals.grandTotal.toLocaleString()}`,
+        order.requiresVerification ? 'IMPORTANT: One or more prices require seller verification.' : '',
+        'Please confirm actual product photos, stock, delivery and final payable amount before accepting.',
+        'This request is not a confirmed order or payment.'
+      ].filter(Boolean).join('\n');
+    }
+
+    async function submitOrder(e) {
+      e.preventDefault();
+      if (!state.cart.length) { showToast('Your bag is empty.'); return; }
+      const name = document.getElementById('cust-name').value.trim();
+      const phoneInput = document.getElementById('cust-phone').value.replace(/[\s()-]/g, '');
+      const phone = phoneInput.startsWith('+88') ? phoneInput.slice(3) : (phoneInput.startsWith('88') ? phoneInput.slice(2) : phoneInput);
+      const address = document.getElementById('cust-address').value.trim();
+      const payment = document.querySelector('input[name="payment_method"]:checked')?.value || 'Cash on Delivery (COD)';
+      if (name.length < 2 || !/^01[3-9][0-9]{8}$/.test(phone) || address.length < 10) {
+        showToast('Enter your full name, a valid Bangladesh mobile number and a full delivery address.');
+        return;
+      }
+      const totals = getCartTotals();
+      const orderId = `FT-${new Date().getFullYear()}-${(window.crypto?.randomUUID?.() || Math.random().toString(36).slice(2)).slice(0, 8).toUpperCase()}`;
+      const order = {
+        id: orderId,
+        createdAt: new Date().toISOString(),
+        customer: { name, phone, address },
+        delivery: { zone: selectedDeliveryZone, charge: selectedDeliveryCharge },
+        paymentPreference: payment,
+        items: state.cart.map(({ productId, name, variant, unitPrice, qty }) => ({ productId, name, variant, unitPrice, qty })),
+        totals: { ...totals, grandTotal: totals.total + selectedDeliveryCharge },
+        requiresVerification: state.cart.some((i) => PRODUCTS.find((p) => p.id === i.productId)?.priceVerify),
+        status: 'request_draft'
+      };
+      currentPreparedOrder = order;
+      let submitted = false;
+      let serverOrderId = '';
+      const submitBtn = document.querySelector('#checkout-form button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+      if (STORE_CONFIG.orderApiEndpoint) {
+        try {
+          const response = await fetch(STORE_CONFIG.orderApiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(order)
+          });
+          const data = await response.json();
+          if (!response.ok || data?.accepted !== true || !data?.orderId) {
+            throw new Error('Order API did not confirm acceptance');
+          }
+          submitted = true;
+          serverOrderId = String(data.orderId);
+          order.status = 'submitted';
+        } catch (err) {
+          console.warn('Order submission failed; preserving editable request:', err);
+          showToast('Could not submit online. Copy or download your request instead.');
+        }
+      }
+      const body = document.getElementById('checkout-body');
+      body.innerHTML = `
+        <div id="order-success-card" class="text-center py-4 space-y-5">
+          <div class="w-16 h-16 mx-auto rounded-full ${submitted ? 'bg-seagreen' : 'bg-azure'} text-pure flex items-center justify-center font-bold text-xl shadow-lg">${submitted ? '✓' : '↗'}</div>
+          <div>
+            <span class="px-3 py-1 rounded-full bg-chalk text-jet text-xs font-bold">${submitted ? 'Request received by order server' : 'Order request prepared — NOT SENT'}</span>
+            <h4 class="text-2xl sm:text-3xl font-serif font-bold text-jet mt-2">${submitted ? 'Request submitted' : 'Share your request with the seller'}</h4>
+            <p class="text-sm text-jet/75 mt-2 max-w-lg mx-auto">${submitted ? 'The order service acknowledged your request; the seller will confirm inventory, price and payment.' : 'No order was transmitted and no payment was taken. Copy or download the request, then send it to Fariza’s Territory for confirmation.'}</p>
+          </div>
+          <div class="text-left bg-chalk p-4 sm:p-5 rounded-2xl border border-jet/10 text-sm space-y-2 max-w-lg mx-auto">
+            <div class="flex justify-between gap-3"><span>Request reference</span><strong>${escapeHtml(serverOrderId || order.id)}</strong></div>
+            <div class="flex justify-between gap-3"><span>Customer</span><strong>${escapeHtml(name)}</strong></div>
+            <div class="flex justify-between gap-3"><span>Items</span><strong>${totals.count} set(s)</strong></div>
+            <div class="flex justify-between gap-3"><span>Estimated total</span><strong>৳${order.totals.grandTotal.toLocaleString()}</strong></div>
+            ${order.requiresVerification ? '<p class="text-terracotta text-xs font-semibold">* Some listed prices need seller verification.</p>' : ''}
+          </div>
+          <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+            <button type="button" onclick="copyPreparedOrder()" class="px-5 py-3 rounded-full bg-azure hover:bg-jet text-pure text-xs font-semibold">Copy Order Request</button>
+            <button type="button" onclick="downloadPreparedOrder()" class="px-5 py-3 rounded-full bg-chalk hover:bg-jet hover:text-pure text-jet text-xs font-semibold">Save .txt</button>
+            ${STORE_CONFIG.sellerWhatsappNumber ? '<button type="button" onclick="sendPreparedOrderWhatsApp()" class="px-5 py-3 rounded-full bg-seagreen text-pure text-xs font-semibold">Message Seller via WhatsApp</button>' : ''}
+            <button type="button" onclick="closeCheckoutModal()" class="px-5 py-3 rounded-full bg-chalk text-jet border border-jet/15 text-xs font-semibold">Back to Shop</button>
+          </div>
+        </div>
+      `;
+      if (submitted) {
+        state.cart = [];
+        state.appliedPromo = null;
+        savePersistedState();
+        updateCartAndWishlistUI();
+      }
+      if (window.anime) {
+        anime({ targets: '#order-success-card', opacity: [0, 1], translateY: [18, 0], duration: 450, easing: 'easeOutCubic' });
+      }
+    }
+
+    function copyPreparedOrder() {
+      if (currentPreparedOrder) copyRawText(formatOrderRequest(currentPreparedOrder));
+    }
+    function downloadPreparedOrder() {
+      if (!currentPreparedOrder) return;
+      const text = formatOrderRequest(currentPreparedOrder);
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${currentPreparedOrder.id}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function sendPreparedOrderWhatsApp() {
+      const seller = String(STORE_CONFIG.sellerWhatsappNumber).replace(/\D/g, '');
+      if (!seller || !currentPreparedOrder) return;
+      window.open(`https://wa.me/${seller}?text=${encodeURIComponent(formatOrderRequest(currentPreparedOrder))}`, '_blank', 'noopener,noreferrer');
+    }
+
+    function closeCheckoutModal() {
+      const modal = document.getElementById('checkout-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openBrandBookModal() {
+      const m = document.getElementById('brandbook-modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeBrandBookModal() {
+      const m = document.getElementById('brandbook-modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    /* =====================================================================
+       CLIPBOARD & NON-BLOCKING TOAST HELPERS
+       ===================================================================== */
+    function copyRawText(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('Copied to clipboard!');
+      } catch (e) {
+        showToast('Ready to share!');
+      }
+      document.body.removeChild(ta);
+    }
+
+    function copyPromoCode(code) {
+      copyRawText(code);
+      showToast(`Promo code ${code} copied!`);
+    }
+
+    function copyProductCode(code) {
+      copyRawText(`Fariza's Territory — Product Code: ${code}`);
+      showToast(`Product Code ${code} copied for inbox order!`);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto flex items-center gap-2.5 bg-jet text-pure px-4 py-3 rounded-2xl shadow-xl border border-white/10 text-xs sm:text-sm font-medium';
+      toast.innerHTML = `<span class="w-2 h-2 rounded-full bg-seagreen flex-shrink-0"></span><span>${message}</span>`;
+      container.appendChild(toast);
+
+      if (window.anime) {
+        anime({
+          targets: toast,
+          translateY: [20, 0],
+          opacity: [0, 1],
+          duration: 320,
+          easing: 'easeOutCubic'
+        });
+      }
+
+      setTimeout(() => {
+        if (window.anime) {
+          anime({
+            targets: toast,
+            opacity: 0,
+            translateY: 12,
+            duration: 260,
+            easing: 'easeInQuad',
+            complete: () => toast.remove()
+          });
+        } else {
+          toast.remove();
+        }
+      }, 2800);
+    }
+
+    /* =====================================================================
+       ANIME.JS & MOTION.DEV INITIALIZATION ON WINDOW LOAD
+       ===================================================================== */
+    function bootFarizaStore() {
+      if (window.__farizaStoreBootstrapped) return;
+      window.__farizaStoreBootstrapped = true;
+      renderSignatureEdits();
+      renderEditFilterPills();
+      renderStageSwatchStrip();
+      renderCatalogGrid();
+      updateCartAndWishlistUI();
+
+      initThreeAtelierStage();
+
+      if (window.anime) {
+        anime({
+          targets: '#hero-crest-svg .crest-stroke',
+          strokeDashoffset: [anime.setDashoffset, 0],
+          easing: 'easeInOutSine',
+          duration: 1600,
+          delay: (el, i) => i * 180
+        });
+
+        anime({
+          targets: '.hero-stagger',
+          opacity: [0, 1],
+          translateY: [22, 0],
+          delay: anime.stagger(110),
+          duration: 750,
+          easing: 'easeOutCubic'
+        });
+      }
+
+      const initMotionChoreography = () => {
+        if (!window.MotionDev) return;
+        window.MotionDev.inView('.motion-reveal', (entryOrElement) => {
+          const target = entryOrElement?.target || entryOrElement;
+          if (!target) return;
+          window.MotionDev.animate(
+            target,
+            { opacity: [0, 1], y: [24, 0] },
+            { duration: 0.55 }
+          );
+        });
+
+        window.MotionDev.scroll((progress) => {
+          const header = document.getElementById('main-header');
+          const progressBar = document.getElementById('scroll-progress-bar');
+          if (header) {
+            header.classList.toggle('shadow-md', progress > 0.02);
+          }
+          if (progressBar) {
+            progressBar.style.transform = `scaleX(${Math.min(1, Math.max(0, progress))})`;
+          }
+        });
+      };
+
+      if (window.MotionDev) {
+        initMotionChoreography();
+      } else {
+        window.addEventListener('motiondev:ready', initMotionChoreography);
+      }
+    }
+    // Support full HTML pages and scripts injected into an already-loaded custom-code block.
+    if (document.readyState === 'complete') bootFarizaStore();
+    else window.addEventListener('load', bootFarizaStore, { once: true });
+  </script>
+</body>
+</html>

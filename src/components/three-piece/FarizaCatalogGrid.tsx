@@ -1,0 +1,870 @@
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { animate, stagger } from 'animejs';
+import {
+  Box,
+  Check,
+  Copy,
+  Eye,
+  Heart,
+  Layers,
+  RefreshCw,
+  Scissors,
+  Search,
+  ShoppingBag,
+  Tag,
+  Truck,
+  Zap,
+} from 'lucide-react';
+import { ThreePieceItem } from '../../data/threePieceCatalog';
+import { LiveThreePieceItem } from '../../types/store';
+import { CartItem, Language, Product } from '../../types';
+import { useStoreData } from '../../context/StoreDataContext';
+
+const TAILORING_SURCHARGE_BDT = 450;
+const CHEST_SIZES = ['34"', '36"', '38"', '40"', '42"', '44"'] as const;
+
+export const toThreePieceProduct = (item: ThreePieceItem): Product => ({
+  id: item.id,
+  slug: item.code.toLowerCase(),
+  brand: item.brand || "Fariza's Territory",
+  nameEn: `${item.code} — ${item.nameEn}`,
+  nameBn: `${item.code} — ${item.nameBn}`,
+  category: 'Women',
+  collection: item.subCollection,
+  priceBDT: item.priceBDT,
+  image: item.flatLayImage,
+  colors: item.colors,
+  sizes: ['Unstitched Set', 'S (36")', 'M (38")', 'L (40")', 'XL (42")'],
+  fabricEn: item.fabric,
+  fabricBn: item.fabric,
+  fitEn: 'Unstitched or Custom Stitched (+৳450)',
+  fitBn: 'আনস্টিচড অথবা কাস্টম স্টিচড (+৳৪৫০)',
+  styleTag: 'heritage',
+});
+
+interface EditMeta {
+  id: 'All' | ThreePieceItem['subCollection'];
+  labelEn: string;
+  labelBn: string;
+  accentHex: string;
+  pillBg: string;
+  fabricTag: string;
+}
+
+const EDIT_METADATA: EditMeta[] = [
+  {
+    id: 'All',
+    labelEn: 'All 18 Styles',
+    labelBn: 'সকল ১৮ ডিজাইন',
+    accentHex: '#C2185B',
+    pillBg: 'bg-[#C2185B]',
+    fabricTag: 'Complete Capsule',
+  },
+  {
+    id: 'Magenta & Plum',
+    labelEn: 'Magenta & Plum',
+    labelBn: 'ম্যাজেন্টা ও প্লাম',
+    accentHex: '#A21CAF',
+    pillBg: 'bg-[#A21CAF]',
+    fabricTag: 'Printed Cotton Lawn',
+  },
+  {
+    id: 'Alfi Boutique',
+    labelEn: 'Alfi Boutique',
+    labelBn: 'আলফি বুটিক',
+    accentHex: '#0D7A5F',
+    pillBg: 'bg-[#0D7A5F]',
+    fabricTag: 'Wax-Resist Batik',
+  },
+  {
+    id: 'Mome Boutique',
+    labelEn: 'Mome Boutique',
+    labelBn: 'মোমে বুটিক',
+    accentHex: '#C84B31',
+    pillBg: 'bg-[#C84B31]',
+    fabricTag: 'Tie-Dye & Sprig',
+  },
+  {
+    id: 'Zam Zam Swiss Lawn',
+    labelEn: 'Zam Zam Swiss Lawn',
+    labelBn: 'জমজম সুইস লন',
+    accentHex: '#1D4ED8',
+    pillBg: 'bg-[#1D4ED8]',
+    fabricTag: 'Swiss Lawn',
+  },
+  {
+    id: 'Embroidery & Mirror',
+    labelEn: 'Embroidery & Mirror',
+    labelBn: 'মিরর এমব্রয়ডারি',
+    accentHex: '#B45309',
+    pillBg: 'bg-[#B45309]',
+    fabricTag: 'Shisha & Resham',
+  },
+];
+
+export const FarizaPromoBar: React.FC<{ language: Language }> = ({ language }) => {
+  const { storeSettings } = useStoreData();
+  const [copiedPromo, setCopiedPromo] = useState(false);
+
+  const handleCopyCode = () => {
+    try {
+      navigator.clipboard?.writeText('FARIZA10');
+    } catch {
+      // fallback silently if clipboard unavailable
+    }
+    setCopiedPromo(true);
+    setTimeout(() => setCopiedPromo(false), 2200);
+  };
+
+  return (
+    <div className="rounded-2xl bg-gradient-to-r from-[#880E4F] via-[#AD1457] to-[#0D7A5F] p-[1px] shadow-lg mb-8">
+      <div className="rounded-[15px] bg-[#FFFDF9] px-4 py-3.5 sm:px-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[#2B1F24]">
+          <div className="flex items-center gap-2 font-semibold">
+            <Tag className="w-4 h-4 text-[#C2185B] shrink-0" />
+            <span>
+              {language === 'en'
+                ? 'Unlock 10% Extra Off with Code'
+                : 'কোড ব্যবহারে পাচ্ছেন অতিরিক্ত ১০% ছাড়'}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopyCode}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#C2185B]/10 hover:bg-[#C2185B] text-[#9D1148] hover:text-white border border-[#C2185B]/30 font-mono text-[11px] font-bold transition-colors cursor-pointer"
+              title={language === 'en' ? 'Copy promo code FARIZA10' : 'কপি করুন FARIZA10'}
+            >
+              <span>FARIZA10</span>
+              {copiedPromo ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            </button>
+            {copiedPromo && (
+              <span className="text-[11px] font-mono text-[#0D7A5F] font-semibold">
+                {language === 'en' ? 'Copied!' : 'কপি হয়েছে!'}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 text-[#4E4347]">
+            <Layers className="w-3.5 h-3.5 text-[#B45309] shrink-0" />
+            <span className="tabular-nums">
+              {language === 'en'
+                ? `Stacks with ৳${storeSettings.bundle2DiscountBDT} (2 sets) / ৳${storeSettings.bundle3DiscountBDT} (3+ sets) Bundle Privilege`
+                : `২টি সেটে ৳${storeSettings.bundle2DiscountBDT} ও ৩টিতে ৳${storeSettings.bundle3DiscountBDT} বান্ডেল ছাড়`}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-[11px] font-mono text-[#0D7A5F] font-semibold shrink-0">
+          <Truck className="w-4 h-4 shrink-0" />
+          <span className="tabular-nums">
+            {language === 'en'
+              ? `Free Pathao Delivery on ৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+`
+              : `৳${storeSettings.freeShippingThresholdBDT.toLocaleString()}+ অর্ডারে ফ্রি পাঠাও ডেলিভারি`}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface FarizaCatalogGridProps {
+  items: LiveThreePieceItem[];
+  language: Language;
+  onAddToCart: (item: Omit<CartItem, 'id'>) => void;
+  onBuyNow?: (item: Omit<CartItem, 'id'>) => void;
+  onToggleWishlist: (product: Product) => void;
+  isWishlisted: (id: string) => boolean;
+  onQuickView?: (product: Product) => void;
+  onLaunch3D: (item: ThreePieceItem) => void;
+  animateOnMount?: boolean;
+}
+
+export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
+  items,
+  language,
+  onAddToCart,
+  onBuyNow,
+  onToggleWishlist,
+  isWishlisted,
+  onQuickView,
+  onLaunch3D,
+  animateOnMount = false,
+}) => {
+  const [activeSubEdit, setActiveSubEdit] = useState<'All' | ThreePieceItem['subCollection']>('All');
+  const [globalViewMode, setGlobalViewMode] = useState<'flatlay' | 'model'>('flatlay');
+  const [cardViewOverrides, setCardViewOverrides] = useState<Record<string, 'flatlay' | 'model'>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceTier, setPriceTier] = useState<'all' | 'under-1850' | 'mid' | 'signature'>('all');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
+  const [tailoringMode, setTailoringMode] = useState<Record<string, 'unstitched' | 'stitched'>>({});
+  const [selectedChestSize, setSelectedChestSize] = useState<Record<string, string>>({});
+  const [selectedShade, setSelectedShade] = useState<Record<string, string>>({});
+  const [addedItemCode, setAddedItemCode] = useState<string | null>(null);
+
+  const gridRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLSpanElement>(null);
+
+  const countByEdit = useMemo(() => {
+    const map: Record<string, number> = { All: items.length };
+    items.forEach((item) => {
+      map[item.subCollection] = (map[item.subCollection] || 0) + 1;
+    });
+    return map;
+  }, [items]);
+
+  const filteredItems = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return items
+      .filter((item) => {
+        const matchEdit = activeSubEdit === 'All' || item.subCollection === activeSubEdit;
+        const matchPrice =
+          priceTier === 'all'
+            ? true
+            : priceTier === 'under-1850'
+            ? item.priceBDT <= 1850
+            : priceTier === 'mid'
+            ? item.priceBDT > 1850 && item.priceBDT <= 2150
+            : item.priceBDT > 2150;
+        const matchQuery =
+          !q ||
+          item.code.toLowerCase().includes(q) ||
+          item.nameEn.toLowerCase().includes(q) ||
+          item.nameBn.includes(searchQuery) ||
+          item.subCollection.toLowerCase().includes(q) ||
+          item.kameezEn.toLowerCase().includes(q) ||
+          item.colors.some((c) => c.name.toLowerCase().includes(q));
+        return matchEdit && matchPrice && matchQuery;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'price-asc') return a.priceBDT - b.priceBDT;
+        if (sortBy === 'price-desc') return b.priceBDT - a.priceBDT;
+        return 0;
+      });
+  }, [items, activeSubEdit, priceTier, searchQuery, sortBy]);
+
+  useEffect(() => {
+    if (!animateOnMount || !gridRef.current) return;
+    const cards = gridRef.current.querySelectorAll('.fariza-product-card');
+    if (cards.length === 0) return;
+
+    animate(cards, {
+      opacity: [0, 1],
+      translateY: [18, 0],
+      delay: stagger(35, { start: 30 }),
+      duration: 450,
+      ease: 'outCubic',
+    });
+  }, [animateOnMount, activeSubEdit, priceTier, sortBy, searchQuery]);
+
+  useEffect(() => {
+    if (!counterRef.current) return;
+    const obj = { val: 0 };
+    animate(obj, {
+      val: filteredItems.length,
+      duration: 420,
+      ease: 'outExpo',
+      onUpdate: () => {
+        if (counterRef.current) {
+          counterRef.current.textContent = String(Math.round(obj.val)).padStart(2, '0');
+        }
+      },
+    });
+  }, [filteredItems.length]);
+
+  const buildOrderPayload = (item: LiveThreePieceItem): Omit<CartItem, 'id'> => {
+    const isStitched = tailoringMode[item.id] === 'stitched';
+    const chest = selectedChestSize[item.id] || '38"';
+    const activeColor = selectedShade[item.id] || item.colors[0]?.name || 'Signature Shade';
+    const unitPrice = item.priceBDT + (isStitched ? TAILORING_SURCHARGE_BDT : 0);
+
+    return {
+      productId: item.id,
+      nameEn: `${item.code} — ${item.nameEn}`,
+      nameBn: `${item.code} — ${item.nameBn}`,
+      priceBDT: unitPrice,
+      image: item.flatLayImage,
+      color: activeColor,
+      size: isStitched ? `Custom Stitched (${chest})` : 'Unstitched Set',
+      quantity: 1,
+    };
+  };
+
+  const handleAddItem = (item: LiveThreePieceItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (item.status === 'out_of_stock' || item.stockCount <= 0) return;
+    onAddToCart(buildOrderPayload(item));
+    setAddedItemCode(item.code);
+    setTimeout(() => setAddedItemCode(null), 1800);
+  };
+
+  const handleBuyNowItem = (item: LiveThreePieceItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (item.status === 'out_of_stock' || item.stockCount <= 0) return;
+    const payload = buildOrderPayload(item);
+    if (onBuyNow) {
+      onBuyNow(payload);
+    } else {
+      onAddToCart(payload);
+    }
+  };
+
+  const minPrice = items.length ? Math.min(...items.map((i) => i.priceBDT)) : 1650;
+  const maxPrice = items.length ? Math.max(...items.map((i) => i.priceBDT)) : 2450;
+
+  return (
+    <div>
+      {/* 5 Signature Edit Selector Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-6">
+        {EDIT_METADATA.map((edit) => {
+          const isActive = activeSubEdit === edit.id;
+          const count = countByEdit[edit.id] || 0;
+          return (
+            <button
+              key={edit.id}
+              type="button"
+              onClick={() => setActiveSubEdit(edit.id)}
+              className={`group text-left p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden ${
+                isActive
+                  ? 'bg-[#171216] border-[#171216] text-[#FFFDF9] shadow-md'
+                  : 'bg-white border-[#E7DEC8] hover:border-[#C2185B]/50 text-[#171216]'
+              }`}
+            >
+              <span
+                className="block w-8 h-1 rounded-full mb-2 transition-all group-hover:w-12"
+                style={{ backgroundColor: edit.accentHex }}
+              />
+              <div className="flex items-baseline justify-between gap-1">
+                <span className="text-xs font-semibold leading-tight truncate">
+                  {language === 'en' ? edit.labelEn : edit.labelBn}
+                </span>
+                <span
+                  className={`font-mono text-[11px] font-bold tabular-nums shrink-0 ${
+                    isActive ? 'text-[#F5E4B7]' : 'text-[#6D5E63]'
+                  }`}
+                >
+                  {String(count).padStart(2, '0')}
+                </span>
+              </div>
+              <div
+                className={`text-[10px] font-mono mt-0.5 truncate ${
+                  isActive ? 'text-[#D8D3C9]' : 'text-[#6D5E63]'
+                }`}
+              >
+                {edit.fabricTag}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Discovery, View Mode, Budget & Search Controls */}
+      <div className="p-3 sm:p-4 rounded-2xl bg-white border border-[#E7DEC8] shadow-sm mb-8 space-y-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          {/* Global Image View Segmented Toggle */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="p-1 bg-[#F4EEE1] border border-[#E7DEC8] rounded-lg inline-flex items-center gap-1 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setGlobalViewMode('flatlay');
+                  setCardViewOverrides({});
+                }}
+                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                  globalViewMode === 'flatlay'
+                    ? 'bg-[#171216] text-white shadow-sm'
+                    : 'text-[#4E4347] hover:text-[#171216]'
+                }`}
+              >
+                {language === 'en' ? 'Original Fabric' : 'আসল ফ্যাব্রিক'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setGlobalViewMode('model');
+                  setCardViewOverrides({});
+                }}
+                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
+                  globalViewMode === 'model'
+                    ? 'bg-[#C2185B] text-white shadow-sm'
+                    : 'text-[#4E4347] hover:text-[#171216]'
+                }`}
+              >
+                {language === 'en' ? 'Model / Detail' : 'মডেল / ডিটেইল'}
+              </button>
+            </div>
+
+            {/* Price Tier Quick Filters */}
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
+              {[
+                { id: 'all', en: 'All Prices', bn: 'সব মূল্য' },
+                { id: 'under-1850', en: '≤ ৳1,850', bn: '≤ ৳১,৮৫০' },
+                { id: 'mid', en: '৳1,851–2,150', bn: '৳১,৮৫১–২,১৫০' },
+                { id: 'signature', en: '৳2,150+', bn: '৳২,১৫০+' },
+              ].map((tier) => (
+                <button
+                  key={tier.id}
+                  type="button"
+                  onClick={() => setPriceTier(tier.id as typeof priceTier)}
+                  className={`px-2.5 py-1.5 rounded-lg border transition-colors cursor-pointer tabular-nums ${
+                    priceTier === tier.id
+                      ? 'bg-[#0D7A5F] border-[#0D7A5F] text-white font-bold'
+                      : 'bg-[#FBF7EF] border-[#E7DEC8] text-[#4E4347] hover:border-[#0D7A5F]/50'
+                  }`}
+                >
+                  {language === 'en' ? tier.en : tier.bn}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* SKU Search + Sort */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 text-[#6D5E63] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={
+                  language === 'en'
+                    ? 'Search code, color (ZSL-01, Plum)...'
+                    : 'কোড বা রঙ খুঁজুন (ZSL-01)...'
+                }
+                className="w-full bg-[#FBF7EF] border border-[#E7DEC8] rounded-lg pl-8 pr-3 py-2 text-xs text-[#171216] placeholder:text-[#6D5E63] focus:outline-none focus:border-[#C2185B]"
+              />
+            </div>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              aria-label={language === 'en' ? 'Sort designs' : 'ডিজাইন সাজান'}
+              className="bg-[#FBF7EF] border border-[#E7DEC8] rounded-lg px-3 py-2 text-xs font-mono text-[#171216] focus:outline-none focus:border-[#C2185B] cursor-pointer"
+            >
+              <option value="featured">
+                {language === 'en' ? 'Sort: Curated Order' : 'নির্বাচিত ক্রম'}
+              </option>
+              <option value="price-asc">
+                {language === 'en' ? 'Price: Low to High' : 'মূল্য: কম থেকে বেশি'}
+              </option>
+              <option value="price-desc">
+                {language === 'en' ? 'Price: High to Low' : 'মূল্য: বেশি থেকে কম'}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Live Counter & Range Strip */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#4E4347] uppercase tracking-wider mb-7 pb-3 border-b border-[#E7DEC8]">
+        <div className="flex items-center gap-2">
+          <span>{language === 'en' ? 'Showing' : 'দেখানো হচ্ছে'}</span>
+          <span ref={counterRef} className="text-[#C2185B] font-bold tabular-nums text-sm">
+            {String(filteredItems.length).padStart(2, '0')}
+          </span>
+          <span>
+            {language === 'en'
+              ? `of ${items.length} Verified Sets`
+              : `টি (মোট ${items.length} আসল ডিজাইন)`}
+          </span>
+        </div>
+        <span className="tabular-nums text-[#0D7A5F] font-semibold">
+          {language === 'en'
+            ? `Direct Factory Price: ৳${minPrice.toLocaleString()} — ৳${maxPrice.toLocaleString()}`
+            : `সরাসরি বুটিক মূল্য: ৳${minPrice.toLocaleString()} — ৳${maxPrice.toLocaleString()}`}
+        </span>
+      </div>
+
+      {/* Product Grid */}
+      {filteredItems.length === 0 ? (
+        <div className="py-16 text-center rounded-2xl border border-[#E7DEC8] bg-white">
+          <p className="font-serif-luxury text-2xl text-[#171216] mb-2">
+            {language === 'en'
+              ? 'No matching three-piece sets found'
+              : 'কোনো থ্রি-পিস ডিজাইন পাওয়া যায়নি'}
+          </p>
+          <p className="text-xs text-[#6D5E63] mb-4">
+            {language === 'en'
+              ? 'Try resetting filters or searching another SKU code.'
+              : 'অন্য কোড দিয়ে খুঁজুন অথবা ফিল্টার রিসেট করুন।'}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveSubEdit('All');
+              setPriceTier('all');
+              setSearchQuery('');
+              setSortBy('featured');
+            }}
+            className="px-5 py-2.5 rounded-lg bg-[#C2185B] hover:bg-[#9D1148] text-white text-xs font-mono font-semibold uppercase tracking-wider cursor-pointer transition-colors"
+          >
+            {language === 'en' ? 'Reset All Filters' : 'সব ফিল্টার রিসেট করুন'}
+          </button>
+        </div>
+      ) : (
+        <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
+          {filteredItems.map((item) => {
+            const isWish = isWishlisted(item.id);
+            const isJustAdded = addedItemCode === item.code;
+            const isOutOfStock = item.status === 'out_of_stock' || item.stockCount <= 0;
+            const cardMode = cardViewOverrides[item.id] || globalViewMode;
+            const displayImage = cardMode === 'flatlay' ? item.flatLayImage : item.modelImage;
+            const mappedProduct = toThreePieceProduct(item);
+            const isStitched = tailoringMode[item.id] === 'stitched';
+            const chestSize = selectedChestSize[item.id] || '38"';
+            const activeShade = selectedShade[item.id] || item.colors[0]?.name || 'Standard';
+            const finalUnitPrice = item.priceBDT + (isStitched ? TAILORING_SURCHARGE_BDT : 0);
+            const editColor =
+              EDIT_METADATA.find((e) => e.id === item.subCollection)?.accentHex || '#C2185B';
+
+            return (
+              <div
+                key={item.id}
+                onClick={() => onQuickView?.(mappedProduct)}
+                className="fariza-product-card group relative bg-white border border-[#E7DEC8] hover:border-[#C2185B]/60 rounded-2xl overflow-hidden transition-all duration-300 flex flex-col justify-between shadow-sm hover:shadow-xl cursor-pointer"
+              >
+                {/* Top Jewel Accent Bar */}
+                <div
+                  className="h-1 w-full"
+                  style={{ backgroundColor: editColor }}
+                />
+
+                {/* Uniform 4:5 Media Stage */}
+                <div className="relative aspect-[4/5] overflow-hidden bg-[#F4EEE1]">
+                  <img
+                    src={displayImage}
+                    alt={`${item.code} ${item.nameEn}`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      if (img.src !== item.flatLayImage) {
+                        img.src = item.flatLayImage;
+                      }
+                    }}
+                    className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out ${
+                      isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
+                    }`}
+                  />
+
+                  {/* Top SKU & Action Buttons */}
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono text-[11px] font-bold text-white bg-[#171216]/90 px-2.5 py-1 rounded-md shadow">
+                        {item.styleNo ? `${item.styleNo} · ` : ''}
+                        {item.code}
+                      </span>
+                      {isOutOfStock && (
+                        <span className="font-mono text-[10px] font-bold text-white bg-red-600 px-2 py-1 rounded-md">
+                          {language === 'en' ? 'Sold Out' : 'স্টক শেষ'}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {onQuickView && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onQuickView(mappedProduct);
+                          }}
+                          className="p-2 bg-white/95 hover:bg-[#171216] text-[#171216] hover:text-white rounded-full shadow-md transition-colors cursor-pointer"
+                          title={language === 'en' ? 'Quick View & Reviews' : 'বিস্তারিত দেখুন'}
+                          aria-label={`Quick view ${item.code}`}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onLaunch3D(item);
+                        }}
+                        className="p-2 bg-white/95 hover:bg-[#0D7A5F] text-[#0D7A5F] hover:text-white rounded-full shadow-md transition-colors cursor-pointer"
+                        title={language === 'en' ? '3D Fabric Studio' : '৩ডি ফ্যাব্রিক স্টুডিও'}
+                        aria-label={`Inspect ${item.code} in 3D`}
+                      >
+                        <Box className="w-3.5 h-3.5" />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleWishlist(mappedProduct);
+                        }}
+                        className={`p-2 rounded-full shadow-md transition-colors cursor-pointer ${
+                          isWish
+                            ? 'bg-[#C2185B] text-white'
+                            : 'bg-white/95 text-[#4E4347] hover:text-[#C2185B]'
+                        }`}
+                        aria-label="Toggle wishlist"
+                      >
+                        <Heart className="w-3.5 h-3.5 fill-current" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bottom Per-Card Photo Angle Flipper */}
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCardViewOverrides((prev) => ({
+                          ...prev,
+                          [item.id]: cardMode === 'flatlay' ? 'model' : 'flatlay',
+                        }));
+                      }}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#171216]/85 hover:bg-[#C2185B] text-white text-[10px] font-mono backdrop-blur-sm transition-colors cursor-pointer shadow"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span>
+                        {cardMode === 'flatlay'
+                          ? language === 'en'
+                            ? item.hasModelConcept
+                              ? 'Switch to Model Look'
+                              : 'Close-Up Texture'
+                            : 'মডেল লুক দেখুন'
+                          : language === 'en'
+                          ? 'Original Flat-Lay'
+                          : 'আসল ফ্যাব্রিক'}
+                      </span>
+                    </button>
+
+                    {(item.hasMirror || item.hasTassels) && (
+                      <span className="px-2 py-1 rounded-md bg-white/95 text-[#171216] text-[10px] font-mono font-semibold shadow-sm">
+                        {item.hasMirror
+                          ? language === 'en'
+                            ? 'Shisha Mirror'
+                            : 'মিরর ওয়ার্ক'
+                          : language === 'en'
+                          ? 'Tassel Dupatta'
+                          : 'ট্যাসেল ওড়না'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-5 flex flex-col justify-between flex-1 text-[#171216]">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 text-[11px] font-mono uppercase tracking-wider mb-1">
+                      <span style={{ color: editColor }} className="font-bold truncate">
+                        {item.subCollection}
+                      </span>
+                      <span className="text-[#0D7A5F] font-semibold shrink-0 tabular-nums">
+                        {isOutOfStock
+                          ? language === 'en'
+                            ? 'Restocking'
+                            : 'স্টক শেষ'
+                          : language === 'en'
+                          ? `${item.stockCount} Ready`
+                          : `${item.stockCount}টি রেডি`}
+                      </span>
+                    </div>
+
+                    <h3 className="font-serif-luxury text-xl sm:text-2xl text-[#171216] font-semibold leading-snug group-hover:text-[#C2185B] transition-colors mb-1">
+                      {language === 'en' ? item.nameEn : item.nameBn}
+                    </h3>
+
+                    {item.taglineBn && (
+                      <p className="font-bengali text-xs text-[#6D5E63] mb-2">
+                        {item.taglineBn}
+                      </p>
+                    )}
+
+                    {/* Interactive Color Swatches */}
+                    <div className="flex items-center justify-between gap-2 my-3">
+                      <div className="flex items-center gap-1.5">
+                        {item.colors.map((c) => {
+                          const isSelected = activeShade === c.name;
+                          return (
+                            <button
+                              key={c.name}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedShade((prev) => ({ ...prev, [item.id]: c.name }));
+                              }}
+                              title={c.name}
+                              aria-label={`Select colorway ${c.name}`}
+                              className={`w-5 h-5 rounded-full border transition-transform cursor-pointer ${
+                                isSelected
+                                  ? 'scale-115 ring-2 ring-[#C2185B] ring-offset-1 border-white'
+                                  : 'border-black/20 hover:scale-105'
+                              }`}
+                              style={{ backgroundColor: c.hex }}
+                            />
+                          );
+                        })}
+                      </div>
+                      <span className="text-[11px] font-mono text-[#4E4347] truncate">
+                        {activeShade}
+                      </span>
+                    </div>
+
+                    {/* 3-Piece Detailed Specifications Box */}
+                    <div className="p-3 rounded-xl bg-[#F8F3E8] border border-[#E7DEC8] space-y-1 text-[11px] mb-3.5">
+                      <div className="flex gap-2">
+                        <span className="font-mono font-bold text-[#9D1148] shrink-0">KAMEEZ:</span>
+                        <span className="text-[#2B1F24] truncate">
+                          {language === 'en' ? item.kameezEn : item.kameezBn}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-mono font-bold text-[#0D7A5F] shrink-0">SALWAR:</span>
+                        <span className="text-[#2B1F24] truncate">
+                          {language === 'en' ? item.salwarEn : item.salwarBn}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-mono font-bold text-[#B45309] shrink-0">DUPATTA:</span>
+                        <span className="text-[#2B1F24] truncate">
+                          {language === 'en' ? item.dupattaEn : item.dupattaBn}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Direct Fit Mode Selector: Unstitched vs Custom Tailored */}
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="mb-4 p-2.5 rounded-xl bg-[#FBF7EF] border border-[#E7DEC8] space-y-2"
+                    >
+                      <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#4E4347]">
+                        <span className="inline-flex items-center gap-1 font-semibold">
+                          <Scissors className="w-3 h-3 text-[#C2185B]" />
+                          {language === 'en' ? 'Tailoring Option' : 'সেলাই অপশন'}
+                        </span>
+                        <span className="text-[#0D7A5F] font-semibold">
+                          {isStitched ? '+৳450 Tailored' : '3-Piece Fabric'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setTailoringMode((prev) => ({ ...prev, [item.id]: 'unstitched' }))
+                          }
+                          className={`py-1.5 px-2 rounded-lg border font-semibold transition-colors cursor-pointer ${
+                            !isStitched
+                              ? 'bg-[#171216] border-[#171216] text-white'
+                              : 'bg-white border-[#E7DEC8] text-[#4E4347] hover:border-[#171216]/40'
+                          }`}
+                        >
+                          {language === 'en' ? 'Unstitched' : 'আনস্টিচড'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setTailoringMode((prev) => ({ ...prev, [item.id]: 'stitched' }))
+                          }
+                          className={`py-1.5 px-2 rounded-lg border font-semibold transition-colors cursor-pointer ${
+                            isStitched
+                              ? 'bg-[#C2185B] border-[#C2185B] text-white'
+                              : 'bg-white border-[#E7DEC8] text-[#4E4347] hover:border-[#C2185B]/50'
+                          }`}
+                        >
+                          {language === 'en' ? 'Stitched +৳450' : 'স্টিচড +৳৪৫০'}
+                        </button>
+                      </div>
+
+                      {isStitched && (
+                        <div className="flex items-center justify-between gap-1 pt-1">
+                          <span className="text-[10px] font-mono text-[#6D5E63] shrink-0">
+                            {language === 'en' ? 'Chest:' : 'বডি:'}
+                          </span>
+                          <div className="flex flex-wrap gap-1">
+                            {CHEST_SIZES.map((sz) => (
+                              <button
+                                key={sz}
+                                type="button"
+                                onClick={() =>
+                                  setSelectedChestSize((prev) => ({ ...prev, [item.id]: sz }))
+                                }
+                                className={`px-1.5 py-0.5 rounded text-[10px] font-mono cursor-pointer transition-colors ${
+                                  chestSize === sz
+                                    ? 'bg-[#171216] text-white font-bold'
+                                    : 'bg-white border border-[#E7DEC8] text-[#4E4347] hover:border-[#171216]'
+                                }`}
+                              >
+                                {sz}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Price & High-Conversion CTA Footer */}
+                  <div className="pt-3 border-t border-[#E7DEC8]">
+                    <div className="flex items-baseline justify-between gap-2 mb-3">
+                      <div>
+                        <div className="font-mono text-xl text-[#171216] font-bold tabular-nums">
+                          ৳ {finalUnitPrice.toLocaleString()}
+                        </div>
+                        {(item.priceVerify || item.priceNote) && (
+                          <div className="text-[10px] font-mono text-[#B45309]">
+                            {item.priceNote || 'Shade verified on confirm'}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-mono text-[#6D5E63] truncate max-w-[140px]">
+                        {item.fabric}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => handleAddItem(item, e)}
+                        disabled={isJustAdded || isOutOfStock}
+                        className={`py-2.5 px-3 rounded-xl text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
+                          isOutOfStock
+                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                            : isJustAdded
+                            ? 'bg-[#0D7A5F] text-white cursor-pointer'
+                            : 'bg-[#171216] hover:bg-[#2F262C] text-white cursor-pointer'
+                        }`}
+                      >
+                        {isOutOfStock ? (
+                          <span>{language === 'en' ? 'Sold Out' : 'স্টক শেষ'}</span>
+                        ) : isJustAdded ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>{language === 'en' ? 'Added' : 'যুক্ত'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>{language === 'en' ? 'Add to Bag' : 'ব্যাগে নিন'}</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => handleBuyNowItem(item, e)}
+                        disabled={isOutOfStock}
+                        className={`py-2.5 px-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-sm ${
+                          isOutOfStock
+                            ? 'bg-stone-200 text-stone-500 cursor-not-allowed'
+                            : 'bg-[#C2185B] hover:bg-[#9D1148] text-white cursor-pointer'
+                        }`}
+                      >
+                        <Zap className="w-3.5 h-3.5 fill-current" />
+                        <span>{language === 'en' ? 'Buy Now' : 'এখনই কিনুন'}</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};

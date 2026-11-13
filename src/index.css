@@ -47,6 +47,14 @@
   background-size: 24px 24px, 48px 48px;
 }
 
+/* Sunlit folk-lattice texture for Fariza's Territory collaboration */
+.bg-fariza-lattice {
+  background-image: radial-gradient(rgba(194, 24, 91, 0.07) 1.25px, transparent 1.25px),
+    radial-gradient(rgba(13, 122, 95, 0.05) 1.25px, transparent 1.25px);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+}
+
 /* Subtle fabric thread line divider */
 .thread-line {
   background: linear-gradient(90deg, transparent 0%, rgba(182, 154, 96, 0.35) 50%, transparent 100%);

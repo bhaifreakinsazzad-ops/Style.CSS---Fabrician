@@ -487,9 +487,9 @@ export const CinematicHero: React.FC<CinematicHeroProps> = ({
                 {/* Top Editorial Frame Header Badge */}
                 <div className="absolute top-3.5 left-3.5 right-3.5 flex items-center justify-between pointer-events-none">
                   <div className="px-3 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#B69A60]/45 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#B69A60] animate-pulse" />
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#B69A60]" />
                     <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#F5F2EB]">
-                      {language === 'en' ? 'Brand Ambassador · Live Look' : 'ব্র্যান্ড অ্যাম্বাসেডর'}
+                      {language === 'en' ? 'Brand Ambassador · Editorial' : 'ব্র্যান্ড অ্যাম্বাসেডর'}
                     </span>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-white/15 text-[10px] font-mono text-[#D5BA80] tabular-nums">

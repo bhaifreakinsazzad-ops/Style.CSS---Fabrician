@@ -1,0 +1,95 @@
+{
+  "instructions": "Fill verified image URLs only. Set the same values in STORE_CONFIG.productMedia within HTML. texture is reserved for accurately cropped textile closeups if an upgraded Three.js texture loader is implemented. Blank entries use code-generated illustrations.",
+  "products": {
+    "CAT-001": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "CAT-002": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "CAT-003": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "MB-BT-01": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "MB-BT-02": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "MB-BT-03": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "MB-BT-04": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "ZSL-01": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "ZSL-02": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "ZSL-03": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "ZSL-04": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "ZSL-05": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "ZSL-06": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "FS-D01": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "FS-D02": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "FS-D03": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "FS-D04": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    },
+    "FS-D05": {
+      "flatlay": "",
+      "lookbook": "",
+      "texture": ""
+    }
+  }
+}

@@ -162,14 +162,19 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
     approvedReviews
   );
 
+  const isThreePieceStitched =
+    Boolean(matchedThreePiece) && !selectedSize.toLowerCase().includes('unstitched');
+  const effectiveUnitPriceBDT =
+    resolvedProduct.priceBDT + (isThreePieceStitched ? 450 : 0);
+
   const buildCartPayload = (): Omit<CartItem, 'id'> => ({
     productId: resolvedProduct.id,
     nameEn: resolvedProduct.nameEn,
     nameBn: resolvedProduct.nameBn,
-    priceBDT: resolvedProduct.priceBDT,
+    priceBDT: effectiveUnitPriceBDT,
     image: primaryImage,
     color: activeColor,
-    size: selectedSize,
+    size: isThreePieceStitched ? `Custom Stitched (${selectedSize})` : selectedSize,
     quantity,
   });
 
@@ -212,6 +217,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           <img
             src={displayedImage}
             alt={resolvedProduct.nameEn}
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (img.src !== primaryImage) {
+                img.src = primaryImage;
+              }
+            }}
             className="w-full h-full object-cover object-top transition-all duration-500"
             referrerPolicy="no-referrer"
           />
@@ -306,8 +317,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
             <div className="flex flex-wrap items-baseline gap-3 mb-4">
               <span className="font-mono text-2xl text-[#D5BA80] font-semibold tabular-nums">
-                ৳ {resolvedProduct.priceBDT.toLocaleString()}
+                ৳ {effectiveUnitPriceBDT.toLocaleString()}
               </span>
+              {isThreePieceStitched && (
+                <span className="text-[11px] font-mono text-[#D5BA80] bg-[#B69A60]/15 border border-[#B69A60]/30 px-2 py-0.5 rounded">
+                  {language === 'en' ? 'Includes +৳450 Tailoring' : 'সেলাই +৳৪৫০ সহ'}
+                </span>
+              )}
               {resolvedProduct.compareAtPriceBDT && (
                 <span className="font-mono text-sm text-[#77777D] line-through tabular-nums">
                   ৳ {resolvedProduct.compareAtPriceBDT.toLocaleString()}

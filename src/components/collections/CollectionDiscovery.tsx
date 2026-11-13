@@ -52,7 +52,11 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
               onClick={() =>
                 onSelectBrand ? onSelectBrand(col.brandRoute) : onSelectCategory(col.category)
               }
-              className="group relative rounded-xl overflow-hidden bg-[#171719] border border-white/10 hover:border-[#B69A60]/50 transition-colors duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl will-change-transform"
+              className={`group relative rounded-xl overflow-hidden bg-[#171719] border transition-colors duration-300 cursor-pointer flex flex-col justify-end aspect-[3/4] p-6 shadow-xl will-change-transform ${
+                col.brand === "Fariza's Territory"
+                  ? 'border-[#C2185B]/35 hover:border-[#E91E63]'
+                  : 'border-white/10 hover:border-[#B69A60]/50'
+              }`}
             >
               {/* Image with subtle zoom on hover */}
               <img
@@ -72,13 +76,23 @@ export const CollectionDiscovery: React.FC<CollectionDiscoveryProps> = ({
                   <span className="text-[11px] font-mono text-[#D8D3C9] tracking-widest border border-white/10 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
                     0{idx + 1}
                   </span>
-                  <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white group-hover:bg-[#B69A60] group-hover:text-[#09090B] transition-colors">
+                  <div
+                    className={`w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white transition-colors ${
+                      col.brand === "Fariza's Territory"
+                        ? 'group-hover:bg-[#C2185B] group-hover:text-white'
+                        : 'group-hover:bg-[#B69A60] group-hover:text-[#09090B]'
+                    }`}
+                  >
                     <ArrowUpRight className="w-4 h-4" />
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#D5BA80] mb-1">
+                  <div
+                    className={`text-[10px] font-mono uppercase tracking-[0.2em] mb-1 ${
+                      col.brand === "Fariza's Territory" ? 'text-[#F48FB1]' : 'text-[#D5BA80]'
+                    }`}
+                  >
                     {col.brand}
                   </div>
                   <h3 className="font-serif-luxury text-2xl text-[#F5F2EB] font-light group-hover:text-[#D5BA80] transition-colors mb-1">

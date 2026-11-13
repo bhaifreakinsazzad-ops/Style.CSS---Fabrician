@@ -317,7 +317,7 @@ export default function App() {
 
         {/* Floating Bottom-Right Express Bag Checkout Pill */}
         {totalBagCount > 0 && !isCartOpen && (
-          <div className="fixed bottom-4 right-4 z-30">
+          <div className="fixed bottom-20 md:bottom-4 right-4 z-30">
             <button
               type="button"
               onClick={() => {
@@ -382,6 +382,7 @@ export default function App() {
           onBackHome={navigateToStore}
           onSwitchBrand={(b) => navigateToBrand(b)}
           onAddToCart={handleAddToCart}
+          onBuyNow={handleBuyNow}
           onToggleWishlist={handleToggleWishlist}
           isWishlisted={isWishlisted}
           onQuickView={(p) => setQuickViewProduct(p)}
@@ -410,6 +411,7 @@ export default function App() {
           <ThreePieceSection
             language={language}
             onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
             onToggleWishlist={handleToggleWishlist}
             isWishlisted={isWishlisted}
             onQuickView={(p) => setQuickViewProduct(p)}
