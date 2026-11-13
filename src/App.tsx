@@ -394,6 +394,8 @@ export default function App() {
             language={language}
             onExploreCollections={() => handleNavigateSection('collections')}
             onEnterLookbook={() => handleNavigateSection('lookbook')}
+            onAddToCart={handleAddToCart}
+            onQuickView={(p) => setQuickViewProduct(p)}
           />
 
           {/* Interactive Lookbook */}
