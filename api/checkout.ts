@@ -1,4 +1,3 @@
-import { randomBytes } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 type Request = IncomingMessage & { body?: unknown };
@@ -21,7 +20,10 @@ async function readJson(req: Request): Promise<unknown> {
 export default async function handler(req: Request, res: ServerResponse) {
   if (req.method !== 'POST') return send(res, 405, { error: 'METHOD_NOT_ALLOWED' });
   const origin = req.headers.origin;
-  if (origin && new URL(origin).host !== req.headers.host) return send(res, 403, { error: 'ORIGIN_NOT_ALLOWED' });
+  if (origin) {
+    try { if (new URL(origin).host !== req.headers.host) return send(res, 403, { error: 'ORIGIN_NOT_ALLOWED' }); }
+    catch { return send(res, 403, { error: 'ORIGIN_NOT_ALLOWED' }); }
+  }
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return send(res, 503, { error: 'CHECKOUT_NOT_CONFIGURED' });
@@ -35,6 +37,7 @@ export default async function handler(req: Request, res: ServerResponse) {
         !Array.isArray(payload.items) || payload.items.length < 1 || payload.items.length > 25 ||
         !payload.items.every(x => /^[A-Za-z0-9_-]{3,100}$/.test(x.sku) &&
           Number.isInteger(x.quantity) && x.quantity >= 1 && x.quantity <= 20) ||
+        !Number.isSafeInteger((payload as { expectedTotalBDT?: number }).expectedTotalBDT) ||
         !payload.customer || !['name','phone','address','division'].every(k =>
           typeof (payload.customer as Record<string,unknown>)[k] === 'string')) {
       return send(res, 400, { error: 'INVALID_CHECKOUT' });
@@ -47,7 +50,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     });
     if (!response.ok) {
       const detail = await response.text();
-      const code = ['INSUFFICIENT_STOCK','PRODUCT_NOT_PUBLISHED','ORDER_RATE_LIMITED','REUSED_REQUEST_KEY']
+      const code = ['INSUFFICIENT_STOCK','PRODUCT_NOT_PUBLISHED','ORDER_RATE_LIMITED','REUSED_REQUEST_KEY','PRICE_CHANGED','PROMO_NOT_ELIGIBLE']
         .find(c => detail.includes(c));
       return send(res, code === 'ORDER_RATE_LIMITED' ? 429 : code ? 409 : 503,
         { error: code || 'ORDER_UNAVAILABLE' });
