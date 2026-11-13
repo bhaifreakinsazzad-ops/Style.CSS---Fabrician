@@ -18,7 +18,9 @@ import {
   StoreSettings,
   StoreReview,
 } from '../types/store';
-import { Language } from '../types';
+import { Language, CartItem } from '../types';
+import { GRAPHIC_ARCHIVE_PRODUCTS } from '../data/graphicArchiveCatalog';
+import { THREE_PIECE_CATALOG } from '../data/threePieceCatalog';
 import { saveCustomerOrder } from './pathaoCourier';
 
 function toMillis(val: unknown): number {
@@ -48,15 +50,58 @@ export async function placeStoreOrder(input: {
   totalBDT: number;
   itemsCount: number;
   itemsSummary: string;
-}): Promise<{ orderId: string; consignmentId: string }> {
+  items?: Pick<CartItem, 'productId' | 'color' | 'size' | 'quantity'>[];
+  requestId?: string;
+  lookupToken?: string;
+  promoCode?: string | null;
+}): Promise<{ orderId: string; consignmentId: string; totalBDT?: number }> {
+  // Explicit opt-in: Firebase stays active until a dedicated Supabase project is verified.
+  if (import.meta.env.VITE_COMMERCE_BACKEND === 'supabase') {
+    if (input.paymentMethod !== 'cod') throw new Error('UNVERIFIED_PAYMENT_NOT_SUPPORTED');
+    if (!input.requestId || !input.lookupToken || !input.items?.length) throw new Error('INVALID_CHECKOUT');
+    const items = input.items.map(item => {
+      const hoodie = GRAPHIC_ARCHIVE_PRODUCTS.find(p => p.id === item.productId);
+      if (hoodie) {
+        const variant = hoodie.variants.find(v => v.color === item.color);
+        if (!variant || !['M', 'L', 'XL'].includes(item.size)) throw new Error('INVALID_HOODIE_VARIANT');
+        return { sku: `${variant.sku}-${item.size}`, quantity: item.quantity };
+      }
+      const threePiece = THREE_PIECE_CATALOG.find(p => p.id === item.productId);
+      if (threePiece && ['Unstitched Set', 'Unstitched Fabric Set'].includes(item.size)) {
+        return { sku: `${threePiece.code}-SET`, quantity: item.quantity };
+      }
+      throw new Error('PRODUCT_NOT_AVAILABLE_FOR_CHECKOUT');
+    });
+    const response = await fetch('/api/checkout', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requestId: input.requestId, lookupToken: input.lookupToken,
+        expectedTotalBDT: input.totalBDT, promoCode: input.promoCode || null,
+        customer: {
+          name: input.recipientName, phone: input.recipientPhone,
+          address: input.recipientAddress, division: input.division,
+        }, items,
+      }),
+    });
+    const result = await response.json().catch(() => ({ error: 'CHECKOUT_UNAVAILABLE' }));
+    if (!response.ok || typeof result.orderId !== 'string') throw new Error(result.error || 'ORDER_UNAVAILABLE');
+    try { localStorage.setItem(`fabrician_order_lookup_${result.orderId}`, input.lookupToken); }
+    catch { /* Storage may be disabled */ }
+    return {
+      orderId: result.orderId,
+      consignmentId: result.consignmentId || 'Awaiting courier assignment',
+      totalBDT: result.totalBDT,
+    };
+  }
+  if (!db) throw new Error('ORDER_BACKEND_UNAVAILABLE');
   const cleanOrderId = sanitizeId(input.orderId.toUpperCase());
-  const consignmentId = `PTH-DH-${Math.floor(100000 + Math.random() * 900000)}`;
+  const consignmentId = `AWAIT-${cleanOrderId}`; // Internal reference, NOT a Pathao consignment
   const isDhaka = input.division.toLowerCase().includes('dhaka');
   const hubLocation = isDhaka
     ? 'Tejgaon Central Hub, Dhaka'
     : `${truncateStr(input.division, 60)} Regional Hub`;
   const estimatedDelivery = isDhaka ? 'Within 24–48 Hours' : 'Within 2–4 Business Days';
-  const trackingNote = 'Order confirmed and scheduled for quality inspection before Pathao pickup.';
+  const trackingNote = 'Order received by Fabrician; courier booking is pending.';
 
   const orderDoc = {
     orderId: cleanOrderId,
@@ -94,22 +139,6 @@ export async function placeStoreOrder(input: {
     updatedAt: serverTimestamp(),
   };
 
-  // Persist local cache as well so browser-local offline lookups remain seamless
-  saveCustomerOrder({
-    orderId: cleanOrderId,
-    recipientName: orderDoc.recipientName,
-    recipientPhone: orderDoc.recipientPhone,
-    recipientAddress: orderDoc.recipientAddress,
-    division: orderDoc.division,
-    paymentMethod: input.paymentMethod,
-    totalBDT: orderDoc.totalBDT,
-    consignmentId,
-  });
-
-  if (!db) {
-    return { orderId: cleanOrderId, consignmentId };
-  }
-
   try {
     const batch = writeBatch(db);
     batch.set(doc(db, 'orders', cleanOrderId), orderDoc);
@@ -119,6 +148,13 @@ export async function placeStoreOrder(input: {
     handleFirestoreError(error, OperationType.WRITE, `orders/${cleanOrderId}`);
   }
 
+  // Store browser receipt only after the cloud transaction succeeds.
+  saveCustomerOrder({
+    orderId: cleanOrderId, recipientName: orderDoc.recipientName,
+    recipientPhone: orderDoc.recipientPhone, recipientAddress: orderDoc.recipientAddress,
+    division: orderDoc.division, paymentMethod: input.paymentMethod,
+    totalBDT: orderDoc.totalBDT, consignmentId,
+  });
   return { orderId: cleanOrderId, consignmentId };
 }
 
