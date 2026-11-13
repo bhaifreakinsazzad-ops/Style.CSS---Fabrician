@@ -184,7 +184,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     user,
     authReady,
     isAdmin,
+    authNotice,
     signInWithGoogle,
+    signInWithGoogleRedirect,
     signOutAdmin,
     storeSettings,
     unifiedCatalog,
@@ -685,6 +687,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
     }
   };
 
+  const handleGoogleRedirectSignIn = async () => {
+    setAuthError(null);
+    setAuthSubmitting(true);
+    try {
+      await signInWithGoogleRedirect();
+    } catch (err) {
+      setAuthError(
+        err instanceof Error ? err.message : 'Unable to start redirect sign-in.'
+      );
+      setAuthSubmitting(false);
+    }
+  };
+
   // Auth Loading State
   if (!authReady) {
     return (
@@ -742,9 +757,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
               </div>
             )}
 
-            {authError && (
+            {(authError || authNotice) && (
               <div className="p-3 rounded-lg bg-[#DC2626]/10 border border-[#DC2626]/40 text-xs text-red-300">
-                {authError}
+                {authError || authNotice}
               </div>
             )}
           </div>
@@ -762,6 +777,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                 ? 'Set VITE_FIREBASE_API_KEY to Sign In'
                 : 'Sign in with Google'}
             </button>
+
+            {isFirebaseConfigured && (
+              <button
+                type="button"
+                onClick={handleGoogleRedirectSignIn}
+                disabled={authSubmitting}
+                className="w-full py-2 px-4 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[#D5BA80] text-[11px] font-mono transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Popup blocked? Sign in via full-page redirect
+              </button>
+            )}
 
             <button
               type="button"
@@ -1728,8 +1754,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                             type="button"
                             onClick={async () => {
                               const nextStatus = rev.status === 'approved' ? 'hidden' : 'approved';
-                              await moderateStoreReview(rev.id, nextStatus);
-                              showToast(`Review marked ${nextStatus}.`);
+                              try {
+                                await moderateStoreReview(rev.id, nextStatus);
+                                showToast(`Review marked ${nextStatus}.`);
+                              } catch {
+                                showToast('Failed to update review visibility.');
+                              }
                             }}
                             className="px-2.5 py-1.5 rounded-lg border border-white/15 hover:border-white/30 text-xs text-[#D8D3C9] hover:text-white flex items-center gap-1.5 cursor-pointer"
                           >
@@ -1748,8 +1778,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                           <button
                             type="button"
                             onClick={async () => {
-                              await deleteStoreReview(rev.id);
-                              showToast('Review deleted permanently.');
+                              try {
+                                await deleteStoreReview(rev.id);
+                                showToast('Review deleted permanently.');
+                              } catch {
+                                showToast('Failed to delete review.');
+                              }
                             }}
                             className="p-1.5 rounded-lg border border-white/10 text-[#77777D] hover:text-red-400 hover:border-red-500/40 cursor-pointer"
                             aria-label="Delete review"
@@ -1841,8 +1875,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                               <button
                                 type="button"
                                 onClick={async () => {
-                                  await deleteSubscriber(sub.id);
-                                  showToast(`Removed ${sub.email}`);
+                                  try {
+                                    await deleteSubscriber(sub.id);
+                                    showToast(`Removed ${sub.email}`);
+                                  } catch {
+                                    showToast('Failed to remove subscriber.');
+                                  }
                                 }}
                                 className="p-1.5 rounded text-[#77777D] hover:text-red-400 hover:bg-white/5 cursor-pointer"
                                 aria-label={`Remove ${sub.email}`}

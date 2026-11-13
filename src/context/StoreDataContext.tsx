@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  User,
+  onAuthStateChanged,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+  signOut,
+} from 'firebase/auth';
 import {
   collection,
   doc,
@@ -59,7 +66,9 @@ interface StoreDataContextValue {
   user: User | null;
   authReady: boolean;
   isAdmin: boolean;
+  authNotice: string | null;
   signInWithGoogle: () => Promise<void>;
+  signInWithGoogleRedirect: () => Promise<void>;
   signOutAdmin: () => Promise<void>;
   storeSettings: StoreSettings;
   catalogOverrides: Record<string, CatalogOverride>;
@@ -75,6 +84,7 @@ const StoreDataContext = createContext<StoreDataContextValue | null>(null);
 export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [authNotice, setAuthNotice] = useState<string | null>(null);
   const [storeSettings, setStoreSettings] = useState<StoreSettings>(DEFAULT_STORE_SETTINGS);
   const [catalogOverrides, setCatalogOverrides] = useState<Record<string, CatalogOverride>>({});
   const [approvedReviews, setApprovedReviews] = useState<StoreReview[]>([]);
@@ -87,8 +97,16 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     testFirestoreConnection();
 
+    getRedirectResult(auth).catch((err) => {
+      const code = (err as { code?: string })?.code || '';
+      if (code && code !== 'auth/popup-closed-by-user') {
+        setAuthNotice(formatAuthErrorMessage(err));
+      }
+    });
+
     const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      if (currentUser) setAuthNotice(null);
       setAuthReady(true);
     });
 
@@ -221,7 +239,30 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!auth || !googleProvider) {
       throw new Error('Firebase Authentication is not configured. Set VITE_FIREBASE_API_KEY.');
     }
-    await signInWithPopup(auth, googleProvider);
+    setAuthNotice(null);
+    try {
+      await signInWithPopup(auth, googleProvider);
+    } catch (err) {
+      const code = (err as { code?: string })?.code || '';
+      if (code === 'auth/popup-blocked') {
+        // Fallback smoothly if browser/PWA blocked popup
+        await signInWithRedirect(auth, googleProvider);
+        return;
+      }
+      throw new Error(formatAuthErrorMessage(err));
+    }
+  };
+
+  const signInWithGoogleRedirect = async () => {
+    if (!auth || !googleProvider) {
+      throw new Error('Firebase Authentication is not configured. Set VITE_FIREBASE_API_KEY.');
+    }
+    setAuthNotice(null);
+    try {
+      await signInWithRedirect(auth, googleProvider);
+    } catch (err) {
+      throw new Error(formatAuthErrorMessage(err));
+    }
   };
 
   const signOutAdmin = async () => {
@@ -380,7 +421,9 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     user,
     authReady,
     isAdmin,
+    authNotice,
     signInWithGoogle,
+    signInWithGoogleRedirect,
     signOutAdmin,
     storeSettings,
     catalogOverrides,
@@ -393,6 +436,30 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   return <StoreDataContext.Provider value={value}>{children}</StoreDataContext.Provider>;
 };
+
+function formatAuthErrorMessage(err: unknown): string {
+  const code = (err as { code?: string })?.code || '';
+  const host = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+  switch (code) {
+    case 'auth/popup-closed-by-user':
+    case 'auth/cancelled-popup-request':
+      return 'Google Sign-In popup was closed before finishing. Please try again or use Redirect Sign-In.';
+    case 'auth/popup-blocked':
+      return 'Sign-in popup was blocked by your browser. Allow popups or use Redirect Sign-In.';
+    case 'auth/unauthorized-domain':
+      return `Domain "${host}" is not listed in Firebase Console -> Authentication -> Settings -> Authorized domains.`;
+    case 'auth/operation-not-allowed':
+      return 'Google Sign-In provider is disabled in Firebase Console -> Authentication -> Sign-in method.';
+    case 'auth/invalid-api-key':
+      return 'Invalid Firebase Web API Key. Check firebase-applet-config.json or VITE_FIREBASE_API_KEY.';
+    case 'auth/network-request-failed':
+      return 'Network error while reaching Google Auth. Check internet connection or ad-blocker settings.';
+    default:
+      return err instanceof Error
+        ? err.message
+        : 'Unable to complete Google Sign-In. Please allow popups and try again.';
+  }
+}
 
 export function useStoreData(): StoreDataContextValue {
   const ctx = useContext(StoreDataContext);

@@ -29,7 +29,7 @@ service cloud.firestore {
 
     // Zero-lookup primary owner check safe for list queries (Cost-Optimization Clause)
     function isPrimaryAdmin() {
-      return isVerified() && request.auth.token.email == 'sazzadsharifofficial@gmail.com';
+      return isVerified() && request.auth.token.email.lower() == 'sazzadsharifofficial@gmail.com';
     }
 
     // Full admin gate for single-document operations

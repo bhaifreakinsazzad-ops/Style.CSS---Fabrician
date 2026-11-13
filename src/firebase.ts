@@ -21,6 +21,7 @@ if (isFirebaseConfigured) {
   db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
   auth = getAuth(app);
   googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
 }
 
 export const PRIMARY_ADMIN_EMAIL = 'sazzadsharifofficial@gmail.com';

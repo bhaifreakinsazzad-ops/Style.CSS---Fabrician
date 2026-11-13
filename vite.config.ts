@@ -88,6 +88,7 @@ export default defineConfig(() => {
           ],
         },
         workbox: {
+          cleanupOutdatedCaches: true,
           maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
           globIgnores: [
@@ -103,7 +104,7 @@ export default defineConfig(() => {
             '**/assets/aistudio/test_page_*',
           ],
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/__\/auth/],
+          navigateFallbackDenylist: [/^\/__\/auth/, /^\/__\/firebase/],
           runtimeCaching: [
             {
               urlPattern: ({ url }) =>
