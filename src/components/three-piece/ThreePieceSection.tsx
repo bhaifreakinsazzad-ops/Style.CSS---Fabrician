@@ -152,7 +152,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
       priceBDT: item.priceBDT,
       image: item.flatLayImage,
       color: item.colors[0]?.name || 'Standard Color',
-      size: 'Unstitched Fabric Set',
+      size: 'Unstitched Set',
       quantity: 1,
     });
     setAddedItemCode(item.code);

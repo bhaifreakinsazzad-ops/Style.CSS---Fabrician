@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -10,17 +10,20 @@ import {
   Ruler, 
   ArrowLeft, 
   Layers, 
-  ShieldCheck
+  ShieldCheck,
+  Eye
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { FashionLook, Language, CartItem, LookGarment } from '../../types';
+import { FashionLook, Language, CartItem, LookGarment, Product } from '../../types';
 import { translations } from '../../data/translations';
 import { SizeGuideModal } from '../modals/SizeGuideModal';
+import { useStoreData } from '../../context/StoreDataContext';
 
 interface InteractiveLookbookProps {
   looks: FashionLook[];
   language: Language;
   onAddToCart: (item: Omit<CartItem, 'id'>) => void;
+  onQuickView?: (product: Product) => void;
   onOpenVirtualTryOn?: () => void;
 }
 
@@ -28,7 +31,9 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
   looks,
   language,
   onAddToCart,
+  onQuickView,
 }) => {
+  const { unifiedCatalog } = useStoreData();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
   const [selectedGarmentId, setSelectedGarmentId] = useState<string | null>(null);
@@ -42,14 +47,38 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
   const touchStartX = useRef<number | null>(null);
   const t = translations[language];
 
-  const currentLook = looks[activeIndex] || looks[0];
+  const resolvedLooks = useMemo(() => {
+    return looks.map((look) => {
+      const updatedGarments = look.garments.map((g) => {
+        const live = unifiedCatalog.find((u) => u.id === g.id);
+        if (!live) return g;
+        return {
+          ...g,
+          nameEn: live.nameEn,
+          nameBn: live.nameBn,
+          priceBDT: live.priceBDT,
+          fabric: live.fabricEn || g.fabric,
+        };
+      });
+      const updatedTotal = updatedGarments.reduce((sum, g) => sum + g.priceBDT, 0);
+      return {
+        ...look,
+        garments: updatedGarments,
+        totalPriceBDT: updatedTotal || look.totalPriceBDT,
+      };
+    });
+  }, [looks, unifiedCatalog]);
+
+  const currentLook = resolvedLooks[activeIndex] || resolvedLooks[0];
 
   // Initialize selected sizes for garments in active look
   useEffect(() => {
     if (currentLook) {
       const initialSizes: Record<string, string> = {};
       currentLook.garments.forEach((g) => {
-        initialSizes[g.id] = g.sizes[1] || g.sizes[0] || 'M';
+        initialSizes[g.id] = g.sizes.includes('Unstitched Set')
+          ? 'Unstitched Set'
+          : g.sizes[1] || g.sizes[0] || 'L';
       });
       setSelectedSizes(initialSizes);
       setSelectedGarmentId(currentLook.garments[0]?.id || null);
@@ -424,7 +453,7 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
 
             {/* Runway Thumbnails Quick Carousel */}
             <div className="mt-4 flex items-center justify-between gap-3 overflow-x-auto pb-2 scrollbar-none">
-              {looks.map((look, idx) => {
+              {resolvedLooks.map((look, idx) => {
                 const isSelected = idx === activeIndex;
                 return (
                   <button
@@ -487,6 +516,7 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
                   {currentLook.garments.map((garment) => {
                     const isSelected = selectedGarmentId === garment.id;
                     const activeSize = selectedSizes[garment.id] || garment.sizes[0] || 'M';
+                    const matchedCatalogProduct = unifiedCatalog.find((u) => u.id === garment.id);
 
                     return (
                       <div
@@ -507,9 +537,25 @@ export const InteractiveLookbook: React.FC<InteractiveLookbookProps> = ({
                           />
 
                           <div className="flex-1 min-w-0">
-                            <span className="text-[10px] font-mono uppercase text-[#B69A60] tracking-wider">
-                              {garment.type}
-                            </span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[10px] font-mono uppercase text-[#B69A60] tracking-wider">
+                                {garment.type}
+                              </span>
+                              {onQuickView && matchedCatalogProduct && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onQuickView(matchedCatalogProduct);
+                                  }}
+                                  className="text-[10px] font-mono text-[#D8D3C9] hover:text-[#D5BA80] inline-flex items-center gap-1 cursor-pointer"
+                                  title="Quick View"
+                                >
+                                  <Eye className="w-3 h-3 text-[#B69A60]" />
+                                  <span>{language === 'en' ? 'Inspect' : 'দেখুন'}</span>
+                                </button>
+                              )}
+                            </div>
                             <h4 className="font-serif-luxury text-sm text-[#F5F2EB] font-medium truncate">
                               {language === 'en' ? garment.nameEn : garment.nameBn}
                             </h4>

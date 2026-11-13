@@ -83,6 +83,7 @@ export default function App() {
   );
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartInitialStep, setCartInitialStep] = useState<'cart' | 'checkout'>('cart');
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
@@ -171,7 +172,7 @@ export default function App() {
   };
 
   // Cart Handlers
-  const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
+  const upsertCartItem = (item: Omit<CartItem, 'id'>) => {
     setCartItems((prev) => {
       const existing = prev.find(
         (i) => i.productId === item.productId && i.size === item.size && i.color === item.color
@@ -183,6 +184,17 @@ export default function App() {
       }
       return [...prev, { ...item, id: `cart-${Date.now()}-${Math.random()}` }];
     });
+  };
+
+  const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
+    upsertCartItem(item);
+    setCartInitialStep('cart');
+    setIsCartOpen(true);
+  };
+
+  const handleBuyNow = (item: Omit<CartItem, 'id'>) => {
+    upsertCartItem(item);
+    setCartInitialStep('checkout');
     setIsCartOpen(true);
   };
 
@@ -246,6 +258,16 @@ export default function App() {
     handleNavigateSection('essentials');
   };
 
+  const totalBagCount = cartItems.reduce((acc, i) => acc + i.quantity, 0);
+  const bagSubtotal = cartItems.reduce((acc, i) => acc + i.priceBDT * i.quantity, 0);
+  const bagDiscount =
+    totalBagCount >= 3
+      ? storeSettings.bundle3DiscountBDT
+      : totalBagCount >= 2
+      ? storeSettings.bundle2DiscountBDT
+      : 0;
+  const bagNetSubtotal = Math.max(0, bagSubtotal - bagDiscount);
+
   if (viewMode === 'admin') {
     return (
       <Suspense
@@ -278,25 +300,62 @@ export default function App() {
         {/* PWA Offline Notice & Mobile Install Prompt */}
         <OfflineIndicator language={language} />
         <MobilePWAInstallPrompt language={language} />
-      {storeSettings.announcementEnabled &&
-        (language === 'en'
-          ? storeSettings.announcementTextEn
-          : storeSettings.announcementTextBn) && (
-          <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-30 pointer-events-none">
-            <div className="pointer-events-auto px-4 py-2 rounded-lg bg-[#11141C]/95 backdrop-blur-md border border-[#B69A60]/40 text-[11px] font-mono text-[#D5BA80] shadow-xl">
-              {language === 'en'
-                ? storeSettings.announcementTextEn
-                : storeSettings.announcementTextBn}
+
+        {/* Floating Bottom-Left Announcement Pill */}
+        {storeSettings.announcementEnabled &&
+          (language === 'en'
+            ? storeSettings.announcementTextEn
+            : storeSettings.announcementTextBn) && (
+            <div className="fixed bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm z-30 pointer-events-none hidden sm:block">
+              <div className="pointer-events-auto px-4 py-2 rounded-lg bg-[#11141C]/95 backdrop-blur-md border border-[#B69A60]/40 text-[11px] font-mono text-[#D5BA80] shadow-xl">
+                {language === 'en'
+                  ? storeSettings.announcementTextEn
+                  : storeSettings.announcementTextBn}
+              </div>
             </div>
+          )}
+
+        {/* Floating Bottom-Right Express Bag Checkout Pill */}
+        {totalBagCount > 0 && !isCartOpen && (
+          <div className="fixed bottom-4 right-4 z-30">
+            <button
+              type="button"
+              onClick={() => {
+                setCartInitialStep('checkout');
+                setIsCartOpen(true);
+              }}
+              className="px-4 py-2.5 rounded-full bg-[#171719]/95 hover:bg-[#1E1E22] backdrop-blur-md border border-[#B69A60] text-[#F5F2EB] shadow-2xl flex items-center gap-3 transition-all hover:scale-[1.02] cursor-pointer"
+            >
+              <span className="px-2 py-0.5 rounded-full bg-[#B69A60] text-[#09090B] font-mono text-xs font-bold tabular-nums">
+                {totalBagCount}
+              </span>
+              <div className="text-left">
+                <div className="text-[11px] font-mono font-semibold text-[#D5BA80] tabular-nums">
+                  ৳ {bagNetSubtotal.toLocaleString()}
+                  {bagDiscount > 0 && (
+                    <span className="ml-1.5 text-[10px] text-emerald-400">
+                      (-৳{bagDiscount})
+                    </span>
+                  )}
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-[#F5F2EB] text-[#09090B] text-[10px] font-mono font-bold uppercase tracking-wider">
+                {language === 'en' ? 'Checkout →' : 'চেকআউট →'}
+              </span>
+            </button>
           </div>
         )}
+
       {/* Top Navigation */}
       <Navbar
         language={language}
         onToggleLanguage={() => setLanguage((l) => (l === 'en' ? 'bn' : 'en'))}
-        cartCount={cartItems.reduce((acc, i) => acc + i.quantity, 0)}
+        cartCount={totalBagCount}
         wishlistCount={wishlist.length}
-        onOpenCart={() => setIsCartOpen(true)}
+        onOpenCart={() => {
+          setCartInitialStep('cart');
+          setIsCartOpen(true);
+        }}
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
         onNavigateSection={handleNavigateSection}
@@ -342,6 +401,7 @@ export default function App() {
             looks={FASHION_LOOKS}
             language={language}
             onAddToCart={handleAddToCart}
+            onQuickView={(p) => setQuickViewProduct(p)}
           />
 
           {/* The Three-Piece Edit: 18 Curated Designs with 3D Studio (Fariza's Territory) */}
@@ -418,6 +478,8 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveFromCart}
         onClearCart={handleClearCart}
+        onAddToCart={handleAddToCart}
+        initialStep={cartInitialStep}
         language={language}
         onOpenTrackOrder={handleOpenTrackOrder}
       />
@@ -435,6 +497,7 @@ export default function App() {
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         onSelectProduct={(p) => setQuickViewProduct(p)}
+        onAddToCart={handleAddToCart}
         language={language}
       />
 
@@ -443,6 +506,7 @@ export default function App() {
         isOpen={Boolean(quickViewProduct)}
         onClose={() => setQuickViewProduct(null)}
         onAddToCart={handleAddToCart}
+        onBuyNow={handleBuyNow}
         language={language}
         onToggleWishlist={handleToggleWishlist}
         isWishlisted={quickViewProduct ? isWishlisted(quickViewProduct.id) : false}

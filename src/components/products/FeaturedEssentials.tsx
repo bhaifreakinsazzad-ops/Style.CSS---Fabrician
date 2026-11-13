@@ -24,9 +24,11 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
   selectedFilterCategory = null,
   onOpenBrandPage,
 }) => {
-  const { liveEssentialsProducts } = useStoreData();
+  const { liveEssentialsProducts, unifiedCatalog } = useStoreData();
   const [activeCategory, setActiveCategory] = useState<string>(selectedFilterCategory || 'All');
   const [activeBrand, setActiveBrand] = useState<'All' | BrandPartner>('All');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
+  const [showAllCatalog, setShowAllCatalog] = useState<boolean>(false);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const t = translations[language];
 
@@ -38,17 +40,38 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
 
   const categories = ['All', 'Streetwear', 'Women', 'Men', 'Unisex'];
 
-  const filteredProducts = liveEssentialsProducts.filter((p) => {
-    const matchCategory = activeCategory === 'All' || p.category === activeCategory;
-    const matchBrand = activeBrand === 'All' || (p.brand || 'FABRICIAN') === activeBrand;
-    return matchCategory && matchBrand;
-  });
+  const visibleUnified = unifiedCatalog.filter((p) => p.status !== 'hidden');
+  const sourcePool =
+    showAllCatalog || activeCategory === 'Men' || activeCategory === 'Unisex'
+      ? visibleUnified
+      : liveEssentialsProducts;
+
+  const filteredProducts = sourcePool
+    .filter((p) => {
+      const matchCategory =
+        activeCategory === 'All'
+          ? true
+          : activeCategory === 'Men'
+          ? p.category === 'Men' || p.category === 'Streetwear' || p.brand === 'StarKiT'
+          : activeCategory === 'Women'
+          ? p.category === 'Women' || p.brand === "Fariza's Territory"
+          : activeCategory === 'Unisex'
+          ? p.category === 'Unisex' || p.category === 'Streetwear'
+          : p.category === activeCategory;
+      const matchBrand = activeBrand === 'All' || (p.brand || 'FABRICIAN') === activeBrand;
+      return matchCategory && matchBrand;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'price-asc') return a.priceBDT - b.priceBDT;
+      if (sortBy === 'price-desc') return b.priceBDT - a.priceBDT;
+      return 0;
+    });
 
   const handleQuickAdd = (product: Product, isOutOfStock: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
     if (isOutOfStock) return;
     const defaultSize = product.sizes.includes('Unstitched Set')
-      ? 'Unstitched Fabric Set'
+      ? 'Unstitched Set'
       : product.sizes[1] || product.sizes[0] || 'L';
     onAddToCart({
       productId: product.id,
@@ -131,34 +154,69 @@ export const FeaturedEssentials: React.FC<FeaturedEssentialsProps> = ({
           </div>
         </div>
 
-        {/* Dedicated Brand Pages Bar */}
-        {onOpenBrandPage && (
-          <div className="mb-10 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#121216] border border-white/10 text-xs">
-            <span className="font-mono text-[#9A9892]">
+        {/* Dedicated Brand Pages & Sort Bar */}
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-3 p-3.5 rounded-xl bg-[#121216] border border-white/10 text-xs">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-mono text-[#D5BA80] tabular-nums">
               {language === 'en'
-                ? 'Explore dedicated partner brand houses:'
-                : 'পার্টনার ব্র্যান্ড শোরুম ভিজিট করুন:'}
+                ? `Showing ${filteredProducts.length} ${showAllCatalog ? 'Catalog Pieces' : 'Signature Highlights'}`
+                : `দেখানো হচ্ছে ${filteredProducts.length}টি পোশাক`}
             </span>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => onOpenBrandPage('starkit')}
-                className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-[#B69A60] text-[#F5F2EB] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>StarKiT Menswear &amp; Hoodies</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onOpenBrandPage('farizas-territory')}
-                className="px-3.5 py-1.5 rounded-lg bg-[#B69A60]/15 border border-[#B69A60]/40 hover:bg-[#B69A60] text-[#D5BA80] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>Fariza&apos;s Territory Women&apos;s Edit</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowAllCatalog((v) => !v)}
+              className="px-3 py-1 rounded-md bg-white/5 hover:bg-white/15 border border-white/10 text-[#F5F2EB] font-mono text-[11px] transition-colors cursor-pointer"
+            >
+              {showAllCatalog
+                ? language === 'en'
+                  ? 'Show Signature 8 Only'
+                  : 'শুধু সিগনেচার ৮টি দেখুন'
+                : language === 'en'
+                ? `View Full Archive (${visibleUnified.length})`
+                : `সম্পূর্ণ কালেকশন দেখুন (${visibleUnified.length})`}
+            </button>
           </div>
-        )}
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'featured' | 'price-asc' | 'price-desc')}
+              aria-label="Sort products"
+              className="bg-black/60 border border-white/15 rounded-lg px-3 py-1.5 text-xs font-mono text-[#D8D3C9] focus:outline-none focus:border-[#B69A60] cursor-pointer"
+            >
+              <option value="featured">
+                {language === 'en' ? 'Sort: Featured Curated' : 'সাজান: নির্বাচিত'}
+              </option>
+              <option value="price-asc">
+                {language === 'en' ? 'Price: Low to High' : 'মূল্য: কম থেকে বেশি'}
+              </option>
+              <option value="price-desc">
+                {language === 'en' ? 'Price: High to Low' : 'মূল্য: বেশি থেকে কম'}
+              </option>
+            </select>
+
+            {onOpenBrandPage && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onOpenBrandPage('starkit')}
+                  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-[#B69A60] text-[#F5F2EB] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>StarKiT Menswear</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onOpenBrandPage('farizas-territory')}
+                  className="px-3 py-1.5 rounded-lg bg-[#B69A60]/15 border border-[#B69A60]/40 hover:bg-[#B69A60] text-[#D5BA80] hover:text-[#09090B] font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Fariza&apos;s Territory</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Product Grid */}
         {filteredProducts.length === 0 ? (

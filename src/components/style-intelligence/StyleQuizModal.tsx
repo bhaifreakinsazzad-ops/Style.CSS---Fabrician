@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
 import { Sparkles, X, ArrowRight, RotateCcw, ShoppingBag, Check, Box } from 'lucide-react';
 import { Language, CartItem } from '../../types';
-import { THREE_PIECE_CATALOG, ThreePieceItem } from '../../data/threePieceCatalog';
-import { GRAPHIC_ARCHIVE_PRODUCTS } from '../../data/graphicArchiveCatalog';
+import { ThreePieceItem } from '../../data/threePieceCatalog';
+import { useStoreData } from '../../context/StoreDataContext';
 
 interface StyleQuizModalProps {
   isOpen: boolean;
@@ -31,6 +31,7 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
   onAddToCart,
   onOpen3DStudio,
 }) => {
+  const { liveThreePieceItems, liveGraphicArchiveProducts } = useStoreData();
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
@@ -173,7 +174,7 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
   }
 
   const toQuizThreePiece = (code: string, fallbackIndex: number): CuratedQuizResult => {
-    const tp = THREE_PIECE_CATALOG.find((p) => p.code === code) || THREE_PIECE_CATALOG[fallbackIndex];
+    const tp = liveThreePieceItems.find((p) => p.code === code) || liveThreePieceItems[fallbackIndex];
     return {
       id: tp.id,
       nameEn: `${tp.code} — ${tp.nameEn}`,
@@ -183,13 +184,13 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
       subtitle: tp.subCollection,
       detailText: tp.kameezEn,
       colorName: tp.colors?.[0]?.name || 'Standard',
-      size: 'Unstitched Fabric Set',
+      size: 'Unstitched Set',
       threePieceItem: tp,
     };
   };
 
   const toQuizHoodie = (id: string): CuratedQuizResult => {
-    const h = GRAPHIC_ARCHIVE_PRODUCTS.find((p) => p.id === id) || GRAPHIC_ARCHIVE_PRODUCTS[0];
+    const h = liveGraphicArchiveProducts.find((p) => p.id === id) || liveGraphicArchiveProducts[0];
     const v = h.variants[0];
     return {
       id: h.id,
@@ -292,6 +293,9 @@ export const StyleQuizModal: React.FC<StyleQuizModalProps> = ({
     curatedProducts.forEach((item) => {
       handleAddProduct(item);
     });
+    setTimeout(() => {
+      onClose();
+    }, 350);
   };
 
   const activeQuestion = questions[currentStep];

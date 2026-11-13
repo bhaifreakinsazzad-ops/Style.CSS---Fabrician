@@ -73,9 +73,9 @@ export const StyleIntelligence: React.FC<StyleIntelligenceProps> = ({
       priceBDT: product.priceBDT,
       image: product.image,
       color: product.colors[0]?.name || 'Standard',
-      size:
-        product.sizes[0] ||
-        (product.brand === "Fariza's Territory" ? 'Unstitched Fabric Set' : 'L'),
+      size: product.sizes.includes('Unstitched Set')
+        ? 'Unstitched Set'
+        : product.sizes[1] || product.sizes[0] || 'L',
       quantity: 1,
     });
     setAddedId(product.id);

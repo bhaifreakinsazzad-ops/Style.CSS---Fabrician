@@ -1,5 +1,18 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { X, ShoppingBag, Heart, Check, Sparkles, Ruler, Star, MessageSquare } from 'lucide-react';
+import {
+  X,
+  ShoppingBag,
+  Heart,
+  Check,
+  Sparkles,
+  Ruler,
+  Star,
+  MessageSquare,
+  Zap,
+  Truck,
+  ShieldCheck,
+  Layers,
+} from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
 import { translations } from '../../data/translations';
 import { SizeGuideModal } from './SizeGuideModal';
@@ -17,6 +30,7 @@ interface QuickViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddToCart: (item: Omit<CartItem, 'id'>) => void;
+  onBuyNow?: (item: Omit<CartItem, 'id'>) => void;
   onToggleWishlist: (product: Product) => void;
   isWishlisted: boolean;
   language: Language;
@@ -46,13 +60,22 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   isOpen,
   onClose,
   onAddToCart,
+  onBuyNow,
   onToggleWishlist,
   isWishlisted,
   language,
 }) => {
-  const { unifiedCatalog, approvedReviews } = useStoreData();
-  const [selectedSize, setSelectedSize] = useState<string>('M');
+  const {
+    unifiedCatalog,
+    liveThreePieceItems,
+    liveGraphicArchiveProducts,
+    approvedReviews,
+    storeSettings,
+  } = useStoreData();
+  const [selectedSize, setSelectedSize] = useState<string>('L');
   const [selectedColor, setSelectedColor] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
+  const [mediaView, setMediaView] = useState<'primary' | 'secondary'>('primary');
   const [addedAnimation, setAddedAnimation] = useState(false);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [isTryOnOpen, setIsTryOnOpen] = useState(false);
@@ -62,6 +85,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const liveCatalogItem = product
     ? unifiedCatalog.find((item) => item.id === product.id)
     : undefined;
+  const matchedThreePiece = product
+    ? liveThreePieceItems.find((tp) => tp.id === product.id)
+    : undefined;
+  const matchedGraphicHoodie = product
+    ? liveGraphicArchiveProducts.find((h) => h.id === product.id)
+    : undefined;
+
   const resolvedProduct = liveCatalogItem
     ? {
         ...product!,
@@ -79,11 +109,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const isOutOfStock = liveCatalogItem
     ? liveCatalogItem.status === 'out_of_stock' || liveCatalogItem.stockCount <= 0
     : false;
+  const stockCount = liveCatalogItem ? liveCatalogItem.stockCount : 18;
 
   useEffect(() => {
     if (product) {
       setSelectedColor(product.colors?.[0]?.name || 'Standard');
-      setSelectedSize(product.sizes?.[1] || product.sizes?.[0] || 'M');
+      const defaultSz = product.sizes?.includes('Unstitched Set')
+        ? 'Unstitched Set'
+        : product.sizes?.[1] || product.sizes?.[0] || 'L';
+      setSelectedSize(defaultSz);
+      setQuantity(1);
+      setMediaView('primary');
       setActiveTab('details');
     }
   }, [product?.id]);
@@ -102,28 +138,60 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   if (!isOpen || !resolvedProduct) return null;
 
   const activeColor = selectedColor || resolvedProduct.colors?.[0]?.name || 'Standard';
+
+  // Resolve colorway-specific image if StarKiT hoodie or 3-piece set
+  const matchedVariant = matchedGraphicHoodie?.variants.find(
+    (v) => v.color.toLowerCase() === activeColor.toLowerCase()
+  );
+
+  const primaryImage = matchedVariant
+    ? matchedVariant.previewImage
+    : matchedThreePiece
+    ? matchedThreePiece.flatLayImage
+    : resolvedProduct.image;
+  const secondaryImage = matchedVariant
+    ? matchedVariant.catalogPageImage
+    : matchedThreePiece
+    ? matchedThreePiece.modelImage
+    : null;
+  const displayedImage =
+    mediaView === 'secondary' && secondaryImage ? secondaryImage : primaryImage;
+
   const { avg: averageRating, count: reviewCount } = getReviewSummary(
     resolvedProduct.id,
     approvedReviews
   );
 
+  const buildCartPayload = (): Omit<CartItem, 'id'> => ({
+    productId: resolvedProduct.id,
+    nameEn: resolvedProduct.nameEn,
+    nameBn: resolvedProduct.nameBn,
+    priceBDT: resolvedProduct.priceBDT,
+    image: primaryImage,
+    color: activeColor,
+    size: selectedSize,
+    quantity,
+  });
+
   const handleAdd = () => {
     if (isOutOfStock) return;
-    onAddToCart({
-      productId: resolvedProduct.id,
-      nameEn: resolvedProduct.nameEn,
-      nameBn: resolvedProduct.nameBn,
-      priceBDT: resolvedProduct.priceBDT,
-      image: resolvedProduct.image,
-      color: activeColor,
-      size: selectedSize,
-      quantity: 1,
-    });
+    onAddToCart(buildCartPayload());
     setAddedAnimation(true);
     setTimeout(() => {
       setAddedAnimation(false);
       onClose();
-    }, 1200);
+    }, 950);
+  };
+
+  const handleExpressBuyNow = () => {
+    if (isOutOfStock) return;
+    const payload = buildCartPayload();
+    onClose();
+    if (onBuyNow) {
+      onBuyNow(payload);
+    } else {
+      onAddToCart(payload);
+    }
   };
 
   return (
@@ -139,15 +207,71 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           <X className="w-5 h-5" />
         </button>
 
-        {/* Product Media */}
-        <div className="relative aspect-[3/4] md:aspect-auto md:h-full bg-black/40 overflow-hidden">
+        {/* Product Media Stage */}
+        <div className="relative aspect-[3/4] md:aspect-auto md:h-full bg-black/40 overflow-hidden flex flex-col justify-between">
           <img
-            src={resolvedProduct.image}
+            src={displayedImage}
             alt={resolvedProduct.nameEn}
-            className="w-full h-full object-cover object-top"
+            className="w-full h-full object-cover object-top transition-all duration-500"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#171719] via-transparent to-transparent opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#171719] via-transparent to-transparent opacity-50 pointer-events-none" />
+
+          {/* Top Left SKU / Stock Pill */}
+          <div className="absolute top-4 left-4 z-10 flex flex-wrap items-center gap-2">
+            {matchedVariant && (
+              <span className="px-2.5 py-1 rounded bg-black/80 backdrop-blur-md border border-[#B69A60]/40 text-[10px] font-mono text-[#D5BA80] uppercase">
+                SKU: {matchedVariant.sku}
+              </span>
+            )}
+            {matchedThreePiece && (
+              <span className="px-2.5 py-1 rounded bg-[#D5BA80] text-[#09090B] text-[10px] font-mono font-bold uppercase">
+                {matchedThreePiece.code}
+              </span>
+            )}
+          </div>
+
+          {/* Bottom Media Switcher (Flat-lay vs Model or Studio vs Spec Sheet) */}
+          {secondaryImage && (
+            <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-center">
+              <div className="p-1 rounded-xl bg-black/80 backdrop-blur-md border border-white/15 flex items-center gap-1 text-[11px] font-mono">
+                <button
+                  type="button"
+                  onClick={() => setMediaView('primary')}
+                  className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
+                    mediaView === 'primary'
+                      ? 'bg-[#B69A60] text-[#09090B] font-bold'
+                      : 'text-[#D8D3C9] hover:text-white'
+                  }`}
+                >
+                  {matchedThreePiece
+                    ? language === 'en'
+                      ? 'Original Fabric'
+                      : 'আসল ফ্যাব্রিক'
+                    : language === 'en'
+                    ? 'Studio Preview'
+                    : 'স্টুডিও প্রিভিউ'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMediaView('secondary')}
+                  className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
+                    mediaView === 'secondary'
+                      ? 'bg-[#B69A60] text-[#09090B] font-bold'
+                      : 'text-[#D8D3C9] hover:text-white'
+                  }`}
+                >
+                  {matchedThreePiece
+                    ? language === 'en'
+                      ? 'Model / Detail'
+                      : 'মডেল / ডিটেইল'
+                    : language === 'en'
+                    ? 'Catalog Sheet'
+                    : 'ক্যাটালগ শিট'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Purchase & Reviews Module */}
@@ -180,7 +304,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               {language === 'en' ? resolvedProduct.nameEn : resolvedProduct.nameBn}
             </h3>
 
-            <div className="flex items-baseline gap-3 mb-4">
+            <div className="flex flex-wrap items-baseline gap-3 mb-4">
               <span className="font-mono text-2xl text-[#D5BA80] font-semibold tabular-nums">
                 ৳ {resolvedProduct.priceBDT.toLocaleString()}
               </span>
@@ -189,9 +313,15 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   ৳ {resolvedProduct.compareAtPriceBDT.toLocaleString()}
                 </span>
               )}
-              {isOutOfStock && (
+              {isOutOfStock ? (
                 <span className="text-[11px] font-mono uppercase text-red-300 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded">
                   {language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}
+                </span>
+              ) : (
+                <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded tabular-nums">
+                  {language === 'en'
+                    ? `In Stock · ${stockCount} Ready`
+                    : `স্টকে আছে · ${stockCount}টি`}
                 </span>
               )}
             </div>
@@ -226,7 +356,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             {/* Tab 1: Product Details, Try-on & Sizing */}
             {activeTab === 'details' && (
               <div>
-                <div className="p-3.5 rounded-lg bg-black/40 border border-white/5 space-y-1.5 mb-6 text-xs">
+                <div className="p-3.5 rounded-lg bg-black/40 border border-white/5 space-y-1.5 mb-5 text-xs">
                   <div>
                     <span className="text-[#77777D] font-mono mr-2">FABRIC:</span>
                     <span className="text-[#D8D3C9]">
@@ -239,28 +369,57 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                       {language === 'en' ? resolvedProduct.fitEn : resolvedProduct.fitBn}
                     </span>
                   </div>
+                  {matchedThreePiece && (
+                    <div className="pt-1.5 mt-1.5 border-t border-white/5 space-y-1 text-[11px]">
+                      <div>
+                        <span className="font-mono text-[#B69A60] mr-1.5">KAMEEZ:</span>
+                        <span className="text-[#D8D3C9]">
+                          {language === 'en'
+                            ? matchedThreePiece.kameezEn
+                            : matchedThreePiece.kameezBn}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="font-mono text-[#B69A60] mr-1.5">DUPATTA:</span>
+                        <span className="text-[#D8D3C9]">
+                          {language === 'en'
+                            ? matchedThreePiece.dupattaEn
+                            : matchedThreePiece.dupattaBn}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Color Swatches */}
-                <div className="mb-6">
+                <div className="mb-5">
                   <label className="block text-xs uppercase tracking-wider text-[#D8D3C9] font-medium mb-2">
                     {language === 'en' ? 'Colorway:' : 'রঙ:'}{' '}
                     <span className="text-[#F5F2EB] font-normal">{activeColor}</span>
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     {resolvedProduct.colors.map((c) => (
                       <button
                         key={c.name}
-                        onClick={() => setSelectedColor(c.name)}
-                        className={`w-7 h-7 rounded-full border-2 transition-all cursor-pointer ${
+                        type="button"
+                        onClick={() => {
+                          setSelectedColor(c.name);
+                          setMediaView('primary');
+                        }}
+                        className={`px-2.5 py-1 rounded-full border text-xs flex items-center gap-2 transition-all cursor-pointer ${
                           activeColor === c.name
-                            ? 'border-[#B69A60] scale-110'
-                            : 'border-white/15 hover:border-white/40'
+                            ? 'border-[#B69A60] bg-[#B69A60]/15 text-[#F5F2EB] font-medium shadow'
+                            : 'border-white/15 bg-black/40 text-[#D8D3C9] hover:border-white/40'
                         }`}
-                        style={{ backgroundColor: c.hex }}
                         title={c.name}
                         aria-label={`Select color ${c.name}`}
-                      />
+                      >
+                        <span
+                          className="w-3.5 h-3.5 rounded-full border border-white/30 shrink-0"
+                          style={{ backgroundColor: c.hex }}
+                        />
+                        <span>{c.name}</span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -301,7 +460,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 </div>
 
                 {/* Size Selector with Size Guide Trigger */}
-                <div className="mb-6">
+                <div className="mb-5">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs uppercase tracking-wider text-[#D8D3C9] font-medium">
                       {language === 'en' ? 'Size' : 'সাইজ'}
@@ -320,6 +479,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                     {resolvedProduct.sizes.map((s) => (
                       <button
                         key={s}
+                        type="button"
                         onClick={() => setSelectedSize(s)}
                         className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded transition-all cursor-pointer ${
                           selectedSize === s
@@ -332,6 +492,53 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                     ))}
                   </div>
                 </div>
+
+                {/* Quantity & Bundle Privilege Callout */}
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-black/40 border border-white/10">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs uppercase tracking-wider text-[#D8D3C9] font-mono">
+                      {language === 'en' ? 'Qty' : 'সংখ্যা'}:
+                    </span>
+                    <div className="flex items-center border border-white/15 rounded-lg bg-black/60">
+                      <button
+                        type="button"
+                        onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                        className="px-2.5 py-1 text-xs text-[#D8D3C9] hover:text-white cursor-pointer"
+                        aria-label="Decrease quantity"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 text-xs font-mono font-bold text-[#F5F2EB] tabular-nums">
+                        {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setQuantity((q) => Math.min(10, q + 1))}
+                        className="px-2.5 py-1 text-xs text-[#D8D3C9] hover:text-white cursor-pointer"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#D5BA80]">
+                    <Layers className="w-3.5 h-3.5 text-[#B69A60] shrink-0" />
+                    <span className="tabular-nums">
+                      {quantity >= 3
+                        ? language === 'en'
+                          ? `✓ ৳${storeSettings.bundle3DiscountBDT} Bundle Savings Unlocked!`
+                          : `✓ ৳${storeSettings.bundle3DiscountBDT} বান্ডেল ছাড় আনলক!`
+                        : quantity === 2
+                        ? language === 'en'
+                          ? `✓ ৳${storeSettings.bundle2DiscountBDT} Off! (3+ saves ৳${storeSettings.bundle3DiscountBDT})`
+                          : `✓ ৳${storeSettings.bundle2DiscountBDT} ছাড়! (৩টিতে ৳${storeSettings.bundle3DiscountBDT})`
+                        : language === 'en'
+                        ? `Buy 2 Save ৳${storeSettings.bundle2DiscountBDT} · 3+ Save ৳${storeSettings.bundle3DiscountBDT}`
+                        : `২টিতে ৳${storeSettings.bundle2DiscountBDT} ছাড় · ৩টিতে ৳${storeSettings.bundle3DiscountBDT}`}
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -341,45 +548,75 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             )}
           </div>
 
-          {/* Action Row */}
-          <div className="pt-4 border-t border-white/10 flex gap-3">
-            <button
-              onClick={handleAdd}
-              disabled={addedAnimation || isOutOfStock}
-              className={`flex-1 py-3 px-6 rounded font-semibold text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-2 transition-all ${
-                isOutOfStock
-                  ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
-                  : addedAnimation
-                  ? 'bg-[#B69A60] text-[#09090B] cursor-pointer'
-                  : 'bg-[#F5F2EB] text-[#09090B] hover:bg-[#D5BA80] cursor-pointer'
-              }`}
-            >
-              {isOutOfStock ? (
-                <span>{language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}</span>
-              ) : addedAnimation ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>{t.essentials.addedToBag}</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{t.essentials.addToBag}</span>
-                </>
-              )}
-            </button>
+          {/* Action Row & Conversion Trust Bar */}
+          <div className="pt-4 border-t border-white/10 space-y-3">
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={handleAdd}
+                disabled={addedAnimation || isOutOfStock}
+                className={`flex-1 py-3 px-4 rounded-lg font-semibold text-xs uppercase tracking-[0.14em] flex items-center justify-center gap-2 transition-all ${
+                  isOutOfStock
+                    ? 'bg-zinc-800 text-zinc-400 cursor-not-allowed'
+                    : addedAnimation
+                    ? 'bg-[#B69A60] text-[#09090B] cursor-pointer'
+                    : 'bg-white/10 hover:bg-white/20 text-[#F5F2EB] border border-white/15 cursor-pointer'
+                }`}
+              >
+                {isOutOfStock ? (
+                  <span>{language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}</span>
+                ) : addedAnimation ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>{t.essentials.addedToBag}</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>{t.essentials.addToBag}</span>
+                  </>
+                )}
+              </button>
 
-            <button
-              onClick={() => onToggleWishlist(resolvedProduct)}
-              className={`p-3 rounded border border-white/15 transition-colors cursor-pointer ${
-                isWishlisted
-                  ? 'bg-[#B69A60] text-[#09090B]'
-                  : 'hover:bg-white/10 text-[#D8D3C9]'
-              }`}
-              aria-label="Toggle wishlist"
-            >
-              <Heart className="w-4 h-4 fill-current" />
-            </button>
+              {!isOutOfStock && (
+                <button
+                  type="button"
+                  onClick={handleExpressBuyNow}
+                  className="flex-1 py-3 px-4 rounded-lg bg-[#B69A60] hover:bg-[#D5BA80] text-[#09090B] font-semibold text-xs uppercase tracking-[0.14em] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg"
+                >
+                  <Zap className="w-4 h-4 fill-current" />
+                  <span>{language === 'en' ? 'Buy Now' : 'এখনই কিনুন'}</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => onToggleWishlist(resolvedProduct)}
+                className={`p-3 rounded-lg border border-white/15 transition-colors cursor-pointer shrink-0 ${
+                  isWishlisted
+                    ? 'bg-[#B69A60] text-[#09090B]'
+                    : 'hover:bg-white/10 text-[#D8D3C9]'
+                }`}
+                aria-label="Toggle wishlist"
+              >
+                <Heart className="w-4 h-4 fill-current" />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-[#77777D]">
+              <span className="inline-flex items-center gap-1">
+                <Truck className="w-3 h-3 text-[#B69A60]" />
+                {language === 'en'
+                  ? 'Pathao Courier Dispatch (64 Districts)'
+                  : 'পাঠাও কুরিয়ার ডেলিভারি (৬৪ জেলা)'}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                {language === 'en'
+                  ? 'Cash on Delivery & bKash/Nagad'
+                  : 'ক্যাশ অন ডেলিভারি ও বিকাশ/নগদ'}
+              </span>
+            </div>
           </div>
         </div>
       </div>

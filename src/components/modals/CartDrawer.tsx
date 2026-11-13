@@ -1,10 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { X, Trash2, ShoppingBag, ArrowRight, ShieldCheck, CheckCircle2, Truck } from 'lucide-react';
+import {
+  X,
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  Truck,
+  Sparkles,
+  Plus,
+} from 'lucide-react';
 import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useStoreData } from '../../context/StoreDataContext';
 import { placeStoreOrder } from '../../services/storeService';
+
+const CHECKOUT_PROFILE_KEY = 'fabrician_checkout_profile_v1';
+
+interface SavedCheckoutProfile {
+  fullName: string;
+  phone: string;
+  address: string;
+  division: string;
+}
+
+function readSavedProfile(): SavedCheckoutProfile {
+  try {
+    const raw = localStorage.getItem(CHECKOUT_PROFILE_KEY);
+    if (!raw) {
+      return { fullName: '', phone: '', address: '', division: 'Dhaka Division' };
+    }
+    const parsed = JSON.parse(raw) as Partial<SavedCheckoutProfile>;
+    return {
+      fullName: typeof parsed.fullName === 'string' ? parsed.fullName : '',
+      phone: typeof parsed.phone === 'string' ? parsed.phone : '',
+      address: typeof parsed.address === 'string' ? parsed.address : '',
+      division: typeof parsed.division === 'string' ? parsed.division : 'Dhaka Division',
+    };
+  } catch {
+    return { fullName: '', phone: '', address: '', division: 'Dhaka Division' };
+  }
+}
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -13,6 +50,8 @@ interface CartDrawerProps {
   onUpdateQuantity: (id: string, delta: number) => void;
   onRemoveItem: (id: string) => void;
   onClearCart: () => void;
+  onAddToCart?: (item: Omit<CartItem, 'id'>) => void;
+  initialStep?: 'cart' | 'checkout';
   language: Language;
   onOpenTrackOrder?: (orderId: string) => void;
 }
@@ -33,15 +72,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onClearCart,
+  onAddToCart,
+  initialStep = 'cart',
   language,
   onOpenTrackOrder,
 }) => {
-  const { storeSettings } = useStoreData();
+  const { storeSettings, unifiedCatalog } = useStoreData();
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'checkout' | 'success'>('cart');
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
-  const [division, setDivision] = useState('Dhaka Division');
+  const [fullName, setFullName] = useState(() => readSavedProfile().fullName);
+  const [phone, setPhone] = useState(() => readSavedProfile().phone);
+  const [address, setAddress] = useState(() => readSavedProfile().address);
+  const [division, setDivision] = useState(() => readSavedProfile().division);
   const [paymentMethod, setPaymentMethod] = useState<'mfs' | 'cod'>('cod');
   const [mfsReference, setMfsReference] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -50,12 +91,44 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
   const t = translations[language];
 
+  useEffect(() => {
+    if (isOpen && checkoutStep !== 'success') {
+      if (initialStep === 'checkout' && items.length > 0) {
+        setCheckoutStep('checkout');
+      } else if (items.length === 0) {
+        setCheckoutStep('cart');
+      }
+    }
+  }, [isOpen, initialStep, items.length]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        CHECKOUT_PROFILE_KEY,
+        JSON.stringify({ fullName, phone, address, division })
+      );
+    } catch {
+      // ignore storage errors
+    }
+  }, [fullName, phone, address, division]);
+
+  const upsellRecommendations = useMemo(() => {
+    const inCartIds = new Set(items.map((i) => i.productId));
+    return unifiedCatalog
+      .filter(
+        (p) =>
+          p.status !== 'hidden' &&
+          p.status !== 'out_of_stock' &&
+          p.stockCount > 0 &&
+          !inCartIds.has(p.id)
+      )
+      .slice(0, 2);
+  }, [unifiedCatalog, items]);
+
   const handleClose = () => {
     if (isSubmitting) return;
-    if (checkoutStep === 'success') {
-      setCheckoutStep('cart');
-      setConfirmedOrder(null);
-    }
+    setCheckoutStep('cart');
+    setConfirmedOrder(null);
     setFormError(null);
     onClose();
   };
@@ -229,7 +302,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-4 h-4 text-[#B69A60]" />
               <h3 className="font-serif-luxury text-xl font-light tracking-wide">
-                {t.cart.title}
+                {checkoutStep === 'checkout'
+                  ? language === 'en'
+                    ? 'Express Checkout'
+                    : 'এক্সপ্রেস চেকআউট'
+                  : t.cart.title}
               </h3>
               <span className="text-xs font-mono text-[#77777D] tabular-nums">
                 ({totalQuantity})
@@ -248,7 +325,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           <div className="flex-1 overflow-y-auto p-6">
             {checkoutStep === 'cart' && (
               <>
-                <div className="p-3 rounded-lg bg-black/40 border border-white/5 mb-6 text-xs">
+                <div className="p-3 rounded-lg bg-black/40 border border-white/5 mb-3 text-xs">
                   <div className="flex justify-between mb-1.5 font-light">
                     <span className="text-[#D8D3C9]">
                       {freeShippingUnlocked
@@ -279,6 +356,26 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     />
                   </div>
                 </div>
+
+                {/* Bundle Privilege Progress Banner */}
+                {items.length > 0 && (
+                  <div className="p-2.5 rounded-lg bg-[#B69A60]/10 border border-[#B69A60]/30 mb-5 text-[11px] font-mono text-[#D5BA80] flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-[#B69A60] shrink-0" />
+                    <span className="tabular-nums">
+                      {totalQuantity === 1
+                        ? language === 'en'
+                          ? `Add 1 more piece to unlock ৳${storeSettings.bundle2DiscountBDT} Bundle Privilege!`
+                          : `আরও ১টি পোশাক যোগ করলেই পাচ্ছেন ৳${storeSettings.bundle2DiscountBDT} বান্ডেল ছাড়!`
+                        : totalQuantity === 2
+                        ? language === 'en'
+                          ? `✓ ৳${storeSettings.bundle2DiscountBDT} saved! Add 1 more for ৳${storeSettings.bundle3DiscountBDT} off`
+                          : `✓ ৳${storeSettings.bundle2DiscountBDT} ছাড় যুক্ত! আরও ১টিতে ৳${storeSettings.bundle3DiscountBDT} ছাড়`
+                        : language === 'en'
+                        ? `✓ Maximum ৳${storeSettings.bundle3DiscountBDT} Bundle Privilege applied!`
+                        : `✓ সর্বোচ্চ ৳${storeSettings.bundle3DiscountBDT} বান্ডেল ছাড় কার্যকর হয়েছে!`}
+                    </span>
+                  </div>
+                )}
 
                 {items.length === 0 ? (
                   <div className="text-center py-16">
@@ -352,6 +449,68 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </div>
                       </div>
                     ))}
+
+                    {/* Complete Your Bag 1-Click Upsell Recommendations */}
+                    {onAddToCart && upsellRecommendations.length > 0 && (
+                      <div className="pt-4 mt-4 border-t border-white/10">
+                        <div className="flex items-center justify-between mb-2.5">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-[#B69A60]">
+                            {language === 'en'
+                              ? 'Complete Your Bag · Instant Pairings'
+                              : 'সাথে নিতে পারেন · বান্ডেল ছাড়'}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {upsellRecommendations.map((rec) => {
+                            const defaultSz = rec.sizes.includes('Unstitched Set')
+                              ? 'Unstitched Set'
+                              : rec.sizes[1] || rec.sizes[0] || 'L';
+                            return (
+                              <div
+                                key={rec.id}
+                                className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-black/30 border border-white/5 hover:border-[#B69A60]/30 transition-colors"
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <img
+                                    src={rec.image}
+                                    alt={rec.nameEn}
+                                    className="w-10 h-12 object-cover object-top rounded bg-zinc-900 shrink-0"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                  <div className="min-w-0">
+                                    <div className="text-xs font-serif-luxury text-[#F5F2EB] truncate">
+                                      {language === 'en' ? rec.nameEn : rec.nameBn}
+                                    </div>
+                                    <div className="text-[11px] font-mono text-[#D5BA80] tabular-nums">
+                                      ৳ {rec.priceBDT.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    onAddToCart({
+                                      productId: rec.id,
+                                      nameEn: rec.nameEn,
+                                      nameBn: rec.nameBn,
+                                      priceBDT: rec.priceBDT,
+                                      image: rec.image,
+                                      color: rec.colors[0]?.name || 'Standard',
+                                      size: defaultSz,
+                                      quantity: 1,
+                                    })
+                                  }
+                                  className="px-2.5 py-1.5 rounded bg-white/10 hover:bg-[#B69A60] text-[#F5F2EB] hover:text-[#09090B] text-[10px] font-mono uppercase tracking-wider font-semibold flex items-center gap-1 transition-colors cursor-pointer shrink-0"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>{language === 'en' ? 'Add' : 'নিন'}</span>
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </>
@@ -364,6 +523,40 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   {language === 'en'
                     ? 'Express Pathao Courier Dispatch across all 64 districts in Bangladesh.'
                     : 'বাংলাদেশের সকল ৬৪ জেলায় পাঠাও কুরিয়ারের মাধ্যমে এক্সপ্রেস ডেলিভারি।'}
+                </div>
+
+                {/* Compact Order Items Summary */}
+                <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#B69A60]">
+                    <span>
+                      {language === 'en'
+                        ? `Order Summary (${totalQuantity} ${totalQuantity === 1 ? 'item' : 'items'})`
+                        : `অর্ডার সংক্ষেপ (${totalQuantity}টি পোশাক)`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setCheckoutStep('cart')}
+                      className="text-[#D8D3C9] hover:text-white underline cursor-pointer"
+                    >
+                      {language === 'en' ? 'Edit Bag' : 'পরিবর্তন'}
+                    </button>
+                  </div>
+                  <div className="max-h-28 overflow-y-auto space-y-1.5 pr-1">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-2 text-[11px] text-[#D8D3C9]"
+                      >
+                        <span className="truncate">
+                          {item.quantity}× {language === 'en' ? item.nameEn : item.nameBn} (
+                          {item.size})
+                        </span>
+                        <span className="font-mono text-[#F5F2EB] shrink-0 tabular-nums">
+                          ৳ {(item.priceBDT * item.quantity).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {formError && (

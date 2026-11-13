@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { Language } from '../../types';
+import { useStoreData } from '../../context/StoreDataContext';
 import {
   trackPathaoOrder,
   getSavedCustomerOrders,
@@ -32,6 +33,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
   language,
   initialOrderId = 'FAB-2026',
 }) => {
+  const { storeSettings } = useStoreData();
   const [orderQuery, setOrderQuery] = useState(initialOrderId);
   const [trackingData, setTrackingData] = useState<PathaoTrackingData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -428,11 +430,17 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
 
         {/* Footer */}
         <div className="p-4 sm:p-5 border-t border-white/10 bg-black/60 flex items-center justify-between text-xs text-[#77777D]">
-          <span className="font-mono text-[11px]">
-            {language === 'en'
-              ? 'Concierge Hotline: +880 1778 307704'
-              : 'সহায়তা হটলাইন: +৮৮০ ১৭৭৮ ৩০৭৭০৪'}
-          </span>
+          <a
+            href={storeSettings.hotlineTel}
+            className="font-mono text-[11px] text-[#D8D3C9] hover:text-[#D5BA80] transition-colors flex items-center gap-1.5"
+          >
+            <Phone className="w-3.5 h-3.5 text-[#B69A60]" />
+            <span>
+              {language === 'en'
+                ? `Concierge Hotline: ${storeSettings.hotlineDisplay}`
+                : `সহায়তা হটলাইন: ${storeSettings.hotlineDisplay}`}
+            </span>
+          </a>
 
           <button
             onClick={onClose}

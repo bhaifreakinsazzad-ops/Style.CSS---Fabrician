@@ -135,7 +135,7 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
       priceBDT: item.priceBDT,
       image: item.flatLayImage,
       color: item.colors[0]?.name || 'Standard Color',
-      size: 'Unstitched Fabric Set',
+      size: 'Unstitched Set',
       quantity: 1,
     });
     setAddedKey(item.id);
