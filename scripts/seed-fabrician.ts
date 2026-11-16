@@ -37,7 +37,7 @@ const products = [
   })),
 ];
 const hoodieVariants = GRAPHIC_ARCHIVE_PRODUCTS.flatMap(p =>
-  p.variants.flatMap(v => ['M', 'L', 'XL'].map(size => ({
+  p.variants.flatMap(v => ['M', 'L', 'XL', 'XXL'].map(size => ({
     sku: `${v.sku}-${size}`, product_id: p.id, color: v.color, size,
     price_bdt: v.priceBdt, stock_count: 0, enabled: false,
   }))),

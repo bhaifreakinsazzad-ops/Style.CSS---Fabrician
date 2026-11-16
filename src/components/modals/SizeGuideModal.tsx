@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, Ruler, Sparkles, Check, HelpCircle, Info } from 'lucide-react';
 import { Language } from '../../types';
+import {
+  STARKIT_FABRIC_SPEC,
+  STARKIT_SIZE_CHART,
+  STARKIT_SIZE_CHART_META,
+} from '../../data/starkitBrandData';
 
 interface SizeGuideModalProps {
   isOpen: boolean;
@@ -50,11 +55,20 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
     { size: '44 (XXL)', bustInches: 44, waist: 40, hip: 46, length: 45, shoulder: 16.0, sleeve: 20.0 },
   ];
 
-  const streetwearSizes = [
-    { size: 'M', chestInches: 42, length: 27.5, shoulder: 20.5, fit: 'Contemporary Relaxed Fit' },
-    { size: 'L', chestInches: 44, length: 28.5, shoulder: 21.5, fit: 'Drop-Shoulder Standard' },
-    { size: 'XL', chestInches: 46.5, length: 29.5, shoulder: 22.5, fit: 'Architectural Oversized' },
-  ];
+  const fitLabels: Record<'M' | 'L' | 'XL' | 'XXL', string> = {
+    M: 'Contemporary Relaxed Fit',
+    L: 'Drop-Shoulder Standard',
+    XL: 'Architectural Oversized',
+    XXL: 'Extended Boxy Street',
+  };
+
+  const streetwearSizes = STARKIT_SIZE_CHART.map((row) => ({
+    size: row.size,
+    chestInches: row.chestInches,
+    length: row.lengthInches,
+    shoulder: row.shoulderInches,
+    fit: fitLabels[row.size],
+  }));
 
   // Dynamic recommendation logic
   const getRecommendedSize = () => {
@@ -70,8 +84,9 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
       return '44 (XXL)';
     } else if (activeTab === 'streetwear') {
       if (target <= 40) return 'M';
-      if (target <= 43) return 'L';
-      return 'XL';
+      if (target <= 42) return 'L';
+      if (target <= 44.5) return 'XL';
+      return 'XXL';
     }
     return null;
   };
@@ -346,7 +361,12 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
           )}
 
           {activeTab === 'streetwear' && (
-            <div>
+            <div className="space-y-4">
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/35 text-xs text-amber-200 font-mono">
+                <strong className="uppercase">{language === 'en' ? STARKIT_SIZE_CHART_META.badgeEn : STARKIT_SIZE_CHART_META.badgeBn}:</strong>{' '}
+                {language === 'en' ? STARKIT_SIZE_CHART_META.noticeEn : STARKIT_SIZE_CHART_META.noticeBn}
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -384,10 +404,11 @@ export const SizeGuideModal: React.FC<SizeGuideModalProps> = ({
                 </table>
               </div>
 
-              <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-lg text-xs text-[#77777D] flex items-start gap-2">
+              <div className="p-3 bg-white/5 border border-white/10 rounded-lg text-xs text-[#77777D] flex items-start gap-2">
                 <Info className="w-4 h-4 text-[#B69A60] shrink-0 mt-0.5" />
                 <span>
-                  <strong>StarKiT 330–350 GSM One-Side Brushed Fleece:</strong> Generous contemporary block with pre-shrunk fleece construction for structured everyday drape.
+                  <strong>{STARKIT_FABRIC_SPEC.gsmShort}:</strong>{' '}
+                  {language === 'en' ? STARKIT_FABRIC_SPEC.fabricEn : STARKIT_FABRIC_SPEC.fabricBn}
                 </span>
               </div>
             </div>

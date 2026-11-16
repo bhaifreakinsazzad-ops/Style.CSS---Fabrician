@@ -61,6 +61,7 @@ import {
 } from '../../types/store';
 import { BrandPartner, Product } from '../../types';
 import { AMBASSADOR_PORTRAIT } from '../../data/mockData';
+import { StarKiT44ReadinessMatrix } from './StarKiT44ReadinessMatrix';
 
 interface AdminDashboardProps {
   onExitAdmin: () => void;
@@ -70,6 +71,7 @@ type AdminTab =
   | 'overview'
   | 'orders'
   | 'catalog'
+  | 'starkit44'
   | 'reviews'
   | 'subscribers'
   | 'settings';
@@ -184,6 +186,7 @@ const VALID_ADMIN_TABS: AdminTab[] = [
   'overview',
   'orders',
   'catalog',
+  'starkit44',
   'reviews',
   'subscribers',
   'settings',
@@ -916,6 +919,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
       label: 'Catalog & Inventory',
       icon: <Package className="w-4 h-4" />,
       badge: Object.keys(catalogOverrides).length || undefined,
+    },
+    {
+      id: 'starkit44',
+      label: 'StarkiT 44-Slot Gate',
+      icon: <SlidersHorizontal className="w-4 h-4" />,
+      badge: 44,
     },
     {
       id: 'reviews',
@@ -2186,6 +2195,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onExitAdmin }) =
                 </button>
               </div>
             </form>
+          )}
+
+          {/* ==================== STARKIT 44-VARIANT MATRIX TAB ==================== */}
+          {activeTab === 'starkit44' && (
+            <StarKiT44ReadinessMatrix
+              mode="firebase-admin"
+              onNotify={showToast}
+            />
           )}
         </main>
       </div>

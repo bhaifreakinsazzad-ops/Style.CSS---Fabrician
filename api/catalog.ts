@@ -3,11 +3,13 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 type PublicProduct = {
   id: string; brand: string; name_en: string; name_bn: string;
   category: string; description_en: string; image_url: string;
-  status: string; rights_cleared: boolean;
+  status: string; rights_cleared: boolean; design_id?: string | null;
+  publication_status?: string | null;
 };
 type PublicVariant = {
   sku: string; product_id: string; color: string; size: string;
   price_bdt: number; stock_count: number; enabled: boolean;
+  is_provisional?: boolean | null; color_hex?: string | null;
 };
 type PublicSettings = {
   free_shipping_threshold_bdt: number; dhaka_shipping_bdt: number;
@@ -41,20 +43,34 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       return await response.json() as T[];
     }
     const [productRows, variantRows, settingsRows] = await Promise.all([
-      getTable<PublicProduct>('/fabrician_products?select=id,brand,name_en,name_bn,category,description_en,image_url,status,rights_cleared&status=eq.active&rights_cleared=eq.true'),
-      getTable<PublicVariant>('/fabrician_variants?select=sku,product_id,color,size,price_bdt,stock_count,enabled&enabled=eq.true'),
+      getTable<PublicProduct>('/fabrician_products?select=*&status=eq.active&rights_cleared=eq.true'),
+      getTable<PublicVariant>('/fabrician_variants?select=*&enabled=eq.true'),
       getTable<PublicSettings>('/fabrician_settings?select=free_shipping_threshold_bdt,dhaka_shipping_bdt,outside_dhaka_shipping_bdt,bundle_2_discount_bdt,bundle_3_discount_bdt&id=eq.main'),
     ]);
     // Filter a second time in the API layer, so privileged service-role reads
-    // never accidentally expose unpublished designs or disabled variants.
-    const published = productRows.filter(p => p.status === 'active' && p.rights_cleared === true);
-    const ids = new Set(published.map(p => p.id));
-    const variants = variantRows.filter(v =>
-      ids.has(v.product_id) && v.enabled === true &&
-      Number.isInteger(v.price_bdt) && v.price_bdt > 0 &&
-      Number.isInteger(v.stock_count) && v.stock_count >= 0
+    // never accidentally expose unpublished designs, provisional slots, or disabled variants.
+    const published = productRows.filter(
+      p => p.status === 'active' && p.rights_cleared === true && p.publication_status !== 'HOLD / NOT FOR PUBLIC SALES'
     );
-    const byId = new Map<string, PublicVariant[]>();
+    const ids = new Set(published.map(p => p.id));
+    const variants = variantRows
+      .filter(v =>
+        ids.has(v.product_id) && v.enabled === true &&
+        v.is_provisional !== true &&
+        Number.isInteger(v.price_bdt) && v.price_bdt > 0 &&
+        Number.isInteger(v.stock_count) && v.stock_count >= 0
+      )
+      .map(v => ({
+        sku: v.sku,
+        product_id: v.product_id,
+        color: v.color,
+        size: v.size,
+        price_bdt: v.price_bdt,
+        stock_count: v.stock_count,
+        enabled: v.enabled,
+        ...(v.color_hex ? { color_hex: v.color_hex } : {}),
+      }));
+    const byId = new Map<string, typeof variants>();
     for (const variant of variants) {
       const entry = byId.get(variant.product_id) || [];
       entry.push(variant);
@@ -64,6 +80,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       id: p.id, brand: p.brand, nameEn: p.name_en, nameBn: p.name_bn,
       category: p.category, descriptionEn: p.description_en,
       image: p.image_url, status: 'active' as const,
+      ...(p.design_id ? { designId: p.design_id } : {}),
       variants: byId.get(p.id),
     }));
     const settings = settingsRows[0];

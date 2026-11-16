@@ -7,6 +7,9 @@ import { fileURLToPath } from 'node:url';
 import express from 'express';
 import metaCapiHandler from './api/meta-capi.ts';
 import pathaoHandler from './api/pathao.ts';
+import catalogHandler from './api/catalog.ts';
+import checkoutHandler from './api/checkout.ts';
+import orderStatusHandler from './api/order-status.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +38,18 @@ async function startServer() {
 
   app.set('trust proxy', true);
   app.use(express.json({ limit: '256kb' }));
+
+  app.all('/api/catalog', (req, res) => {
+    void catalogHandler(req, res);
+  });
+
+  app.all('/api/checkout', (req, res) => {
+    void checkoutHandler(req, res);
+  });
+
+  app.all('/api/order-status', (req, res) => {
+    void orderStatusHandler(req, res);
+  });
 
   app.all('/api/meta-capi', (req, res) => {
     void metaCapiHandler(req, res);

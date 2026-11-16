@@ -42,6 +42,8 @@ export async function placeStoreOrder(input: {
   recipientName: string;
   recipientPhone: string;
   recipientAddress: string;
+  upazilaArea?: string;
+  deliveryNotes?: string;
   division: string;
   paymentMethod: 'cod' | 'mfs';
   subtotalBDT: number;
@@ -55,15 +57,22 @@ export async function placeStoreOrder(input: {
   lookupToken?: string;
   promoCode?: string | null;
 }): Promise<{ orderId: string; consignmentId: string; totalBDT?: number }> {
+  const cleanArea = input.upazilaArea ? truncateStr(input.upazilaArea, 120) : '';
+  const cleanNotes = input.deliveryNotes ? truncateStr(input.deliveryNotes, 240) : '';
+
   // Explicit opt-in: Firebase stays active until a dedicated Supabase project is verified.
   if (import.meta.env.VITE_COMMERCE_BACKEND === 'supabase') {
     if (input.paymentMethod !== 'cod') throw new Error('UNVERIFIED_PAYMENT_NOT_SUPPORTED');
     if (!input.requestId || !input.lookupToken || !input.items?.length) throw new Error('INVALID_CHECKOUT');
     const items = input.items.map(item => {
-      const hoodie = GRAPHIC_ARCHIVE_PRODUCTS.find(p => p.id === item.productId);
+      const hoodie = GRAPHIC_ARCHIVE_PRODUCTS.find(
+        p => p.id === item.productId || p.stkCode === item.productId
+      );
       if (hoodie) {
+        const slot = hoodie.allColorSlots.find(s => s.color === item.color);
+        if (slot?.isProvisional) throw new Error('PROVISIONAL_COLORWAY_LOCKED');
         const variant = hoodie.variants.find(v => v.color === item.color);
-        if (!variant || !['M', 'L', 'XL'].includes(item.size)) throw new Error('INVALID_HOODIE_VARIANT');
+        if (!variant || !['M', 'L', 'XL', 'XXL'].includes(item.size)) throw new Error('INVALID_HOODIE_VARIANT');
         return { sku: `${variant.sku}-${item.size}`, quantity: item.quantity };
       }
       const threePiece = THREE_PIECE_CATALOG.find(p => p.id === item.productId);
@@ -78,9 +87,14 @@ export async function placeStoreOrder(input: {
         requestId: input.requestId, lookupToken: input.lookupToken,
         expectedTotalBDT: input.totalBDT, promoCode: input.promoCode || null,
         customer: {
-          name: input.recipientName, phone: input.recipientPhone,
-          address: input.recipientAddress, division: input.division,
-        }, items,
+          name: input.recipientName,
+          phone: input.recipientPhone,
+          address: input.recipientAddress,
+          division: input.division,
+          ...(cleanArea ? { areaUpazila: cleanArea } : {}),
+          ...(cleanNotes ? { deliveryNotes: cleanNotes } : {}),
+        },
+        items,
       }),
     });
     const result = await response.json().catch(() => ({ error: 'CHECKOUT_UNAVAILABLE' }));
@@ -101,14 +115,19 @@ export async function placeStoreOrder(input: {
     ? 'Tejgaon Central Hub, Dhaka'
     : `${truncateStr(input.division, 60)} Regional Hub`;
   const estimatedDelivery = isDhaka ? 'Within 24–48 Hours' : 'Within 2–4 Business Days';
-  const trackingNote = 'Order received by Fabrician; courier booking is pending.';
+  const trackingNote = cleanNotes
+    ? truncateStr(`Order received · Delivery note: ${cleanNotes}`, 300)
+    : 'Order received by Fabrician; courier booking is pending.';
+  const combinedRecipientAddress = cleanArea
+    ? truncateStr(`${input.recipientAddress} · Area: ${cleanArea}`, 300)
+    : truncateStr(input.recipientAddress, 300);
 
   const orderDoc = {
     orderId: cleanOrderId,
     consignmentId,
     recipientName: truncateStr(input.recipientName, 120),
     recipientPhone: truncateStr(input.recipientPhone, 32),
-    recipientAddress: truncateStr(input.recipientAddress, 300),
+    recipientAddress: combinedRecipientAddress,
     division: truncateStr(input.division, 80),
     paymentMethod: input.paymentMethod,
     subtotalBDT: Math.max(0, Math.round(input.subtotalBDT)),

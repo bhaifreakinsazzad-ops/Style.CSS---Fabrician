@@ -5,7 +5,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|pwa-|__/|apple-touch-icon|icon\\.svg|manifest\\.webmanifest|sw\\.js|workbox-).*)",
+      "source": "/((?!api/|assets/|media/|catalog/|downloads/|robots\\.txt|sitemap\\.xml|pwa-|__/|apple-touch-icon|icon\\.svg|manifest\\.webmanifest|sw\\.js|workbox-).*)",
       "destination": "/index.html"
     }
   ],
@@ -26,6 +26,12 @@
     },
     {
       "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/media/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]

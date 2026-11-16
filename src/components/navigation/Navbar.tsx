@@ -326,7 +326,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 >
                   {language === 'en'
                     ? 'Community · Style · Authenticity (/starkit)'
-                    : '৩৩০–৪৮০ জিএসএম ফ্লিস ও ১১টি হুডি'}
+                    : '৩৩০–৩৫০ জিএসএম ফ্লিস (নমুনা বাকি) · ১১টি ডিজাইন'}
                 </div>
               </a>
               <a

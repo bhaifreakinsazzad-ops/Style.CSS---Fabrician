@@ -92,7 +92,12 @@
         fbq('init', '1564623565315873');
         fbq('trackSingle', '1564623565315873', 'PageView', {}, { eventID: mainPvId });
 
-        var isStarKiTLanding = path === '/starkit' || hash === '#starkit' || hash === '#graphic-archive';
+        var isStarKiTLanding =
+          path === '/starkit' ||
+          path.startsWith('/starkit/') ||
+          hash === '#starkit' ||
+          hash.startsWith('#starkit/') ||
+          hash === '#graphic-archive';
         var isFarizaLanding =
           path === '/farizas-territory' ||
           hash === '#farizas-territory' ||

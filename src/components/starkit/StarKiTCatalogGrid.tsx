@@ -1,5 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import {
+  AlertTriangle,
+  ArrowUpRight,
   Box,
   Check,
   Copy,
@@ -7,6 +9,7 @@ import {
   FileText,
   Heart,
   Layers,
+  Lock,
   MessageCircle,
   Search,
   ShoppingBag,
@@ -19,6 +22,11 @@ import {
   GraphicArchiveProduct,
   GraphicArchiveVariant,
 } from '../../data/graphicArchiveCatalog';
+import {
+  StarKiT44Variant,
+  WORKING_COLOR_PALETTE,
+  WorkingColorName,
+} from '../../data/starkit44Catalog';
 import { LiveGraphicArchiveProduct } from '../../types/store';
 import { CartItem, Language, Product } from '../../types';
 import { useStoreData } from '../../context/StoreDataContext';
@@ -169,6 +177,7 @@ interface StarKiTCatalogGridProps {
   onToggleWishlist?: (product: Product) => void;
   isWishlisted?: (productId: string) => boolean;
   onOpenQuickView?: (product: Product) => void;
+  onOpenProductPage?: (designId: string) => void;
   onLaunch3D?: (product: GraphicArchiveProduct) => void;
   recommendedSize?: StarKiTSize | null;
   surfaceTheme?: 'light' | 'dark';
@@ -182,18 +191,22 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
   onToggleWishlist,
   isWishlisted,
   onOpenQuickView,
+  onOpenProductPage,
   onLaunch3D,
   recommendedSize,
   surfaceTheme = 'light',
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedColorFilter, setSelectedColorFilter] = useState<'all' | WorkingColorName>('all');
+  const [readinessFilter, setReadinessFilter] = useState<'all' | 'documented-only' | 'multi-color' | 'license-free'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured');
 
-  const [selectedVariantSkus, setSelectedVariantSkus] = useState<Record<string, string>>(() => {
+  const [selectedSlotSkus, setSelectedSlotSkus] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     products.forEach((p) => {
-      initial[p.id] = p.variants[0]?.sku || '';
+      const firstDoc = p.allColorSlots.find((s) => s.isDocumented) || p.allColorSlots[0];
+      initial[p.id] = firstDoc?.sku || '';
     });
     return initial;
   });
@@ -264,13 +277,25 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
     return products
       .filter((p) => {
         if (selectedCategory !== 'all' && p.category !== selectedCategory) return false;
+        if (readinessFilter === 'documented-only') {
+          if (selectedColorFilter !== 'all') {
+            const slot = p.allColorSlots.find((s) => s.color === selectedColorFilter);
+            if (!slot?.isDocumented) return false;
+          }
+        } else if (readinessFilter === 'multi-color') {
+          if (p.availableColors.length < 2) return false;
+        } else if (readinessFilter === 'license-free') {
+          if (p.isLicensingRequired) return false;
+        }
         if (!q) return true;
         return (
           p.id.toLowerCase().includes(q) ||
           (p.stkCode && p.stkCode.toLowerCase().includes(q)) ||
-          p.name.toLowerCase().includes(q) ||
+          p.designName.toLowerCase().includes(q) ||
+          p.sourceDesignName.toLowerCase().includes(q) ||
           p.editorial.toLowerCase().includes(q) ||
           p.category.toLowerCase().includes(q) ||
+          p.allColorSlots.some((s) => s.sku.toLowerCase().includes(q)) ||
           p.tags.some((t) => t.toLowerCase().includes(q))
         );
       })
@@ -279,36 +304,53 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
         if (sortBy === 'price-desc') return b.basePrice - a.basePrice;
         return a.priority - b.priority;
       });
-  }, [products, selectedCategory, searchQuery, sortBy]);
+  }, [products, selectedCategory, selectedColorFilter, readinessFilter, searchQuery, sortBy]);
 
-  const buildPayload = (
+  // Synchronize selected slot when color filter changes
+  useEffect(() => {
+    if (selectedColorFilter === 'all') return;
+    setSelectedSlotSkus((prev) => {
+      const next = { ...prev };
+      products.forEach((p) => {
+        const match = p.allColorSlots.find((s) => s.color === selectedColorFilter);
+        if (match) next[p.id] = match.sku;
+      });
+      return next;
+    });
+  }, [selectedColorFilter, products]);
+
+  const buildSlotCartPayload = (
     product: GraphicArchiveProduct,
-    variant: GraphicArchiveVariant,
+    slot: StarKiT44Variant,
     size: StarKiTSize
   ): Omit<CartItem, 'id'> => ({
     productId: product.id,
-    nameEn: `StarkiT ${product.name} Hoodie (${product.stkCode || variant.sku})`,
-    nameBn: `স্টারকিট ${product.name} হুডি (${product.stkCode || variant.sku})`,
-    priceBDT: variant.priceBdt,
-    image: variant.previewImage,
-    color: variant.color,
+    nameEn: `StarkiT ${product.designName} Hoodie (${slot.sku})`,
+    nameBn: `স্টারকিট ${product.designName} হুডি (${slot.sku})`,
+    priceBDT: slot.priceBdtProposed,
+    image:
+      slot.studioPreviewWebp ||
+      slot.referenceCompositeWebp ||
+      product.variants[0]?.previewImage ||
+      '',
+    color: slot.color,
     size,
     quantity: 1,
   });
 
-  const handleAdd = (product: GraphicArchiveProduct, variant: GraphicArchiveVariant) => {
+  const handleAddSlot = (product: GraphicArchiveProduct, slot: StarKiT44Variant) => {
     const sz = selectedSizes[product.id] || 'L';
-    onAddToCart(buildPayload(product, variant, sz));
-    setAddedSku(variant.sku);
+    onAddToCart(buildSlotCartPayload(product, slot, sz));
+    setAddedSku(slot.sku);
     setTimeout(() => setAddedSku(null), 1800);
   };
 
-  const handleInstantBuy = (product: GraphicArchiveProduct, variant: GraphicArchiveVariant) => {
+  const handleInstantBuySlot = (product: GraphicArchiveProduct, slot: StarKiT44Variant) => {
     const sz = selectedSizes[product.id] || 'L';
     if (onBuyNow) {
-      onBuyNow(buildPayload(product, variant, sz));
+      onBuyNow(buildSlotCartPayload(product, slot, sz));
     } else {
-      handleAdd(product, variant);
+      handleAddSlot(product, slot);
     }
   };
 
@@ -318,82 +360,163 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
     <div>
       {/* Filter Toolbar */}
       <div
-        className={`flex flex-col lg:flex-row lg:items-center justify-between gap-4 p-3.5 rounded-2xl border-2 mb-8 ${
+        className={`flex flex-col gap-3 p-3.5 rounded-2xl border-2 mb-8 ${
           isLight
             ? 'bg-white border-[#170000]/15 shadow-sm'
             : 'bg-[#170000] border-white/20'
         }`}
       >
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 lg:pb-0">
-          {categories.map((cat) => {
-            const active = selectedCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-2 rounded-lg text-xs font-starkit-tech uppercase tracking-wider whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
-                  active
-                    ? isLight
-                      ? 'bg-[#170000] text-white font-bold border border-[#170000]'
-                      : 'bg-white text-[#170000] font-bold border border-white'
-                    : isLight
-                    ? 'bg-[#ECEAEA] text-[#170000] hover:bg-[#C7C1BF]/60 border border-transparent'
-                    : 'bg-white/5 text-white/80 hover:bg-white/15 border border-white/15'
-                }`}
-              >
-                {language === 'en' ? cat.en : cat.bn}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
-          {/* Live Search */}
-          <div className="relative flex-1 sm:w-56">
-            <Search
-              className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 ${
-                isLight ? 'text-[#524B4B]' : 'text-white/50'
-              }`}
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                language === 'en' ? 'Search STK-H003, Dhaka...' : 'খুঁজুন (STK-H003, ঢাকা)...'
-              }
-              className={`w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs focus:outline-none ${
-                isLight
-                  ? 'bg-[#ECEAEA]/60 border-[#170000]/20 text-[#170000] placeholder:text-[#777] focus:border-[#170000]'
-                  : 'bg-black/50 border-white/20 text-white placeholder:text-white/40 focus:border-white'
-              }`}
-            />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 lg:pb-0">
+            {categories.map((cat) => {
+              const active = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`px-3.5 py-2 rounded-lg text-xs font-starkit-tech uppercase tracking-wider whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                    active
+                      ? isLight
+                        ? 'bg-[#170000] text-white font-bold border border-[#170000]'
+                        : 'bg-white text-[#170000] font-bold border border-white'
+                      : isLight
+                      ? 'bg-[#ECEAEA] text-[#170000] hover:bg-[#C7C1BF]/60 border border-transparent'
+                      : 'bg-white/5 text-white/80 hover:bg-white/15 border border-white/15'
+                  }`}
+                >
+                  {language === 'en' ? cat.en : cat.bn}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Sort */}
-          <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs ${
-              isLight
-                ? 'bg-[#ECEAEA]/60 border-[#170000]/20 text-[#170000]'
-                : 'bg-black/50 border-white/20 text-white'
-            }`}
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-              aria-label="Sort StarkiT Drop 01"
-              className="bg-transparent text-xs font-mono focus:outline-none cursor-pointer"
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+            {/* Live Search */}
+            <div className="relative flex-1 sm:w-56">
+              <Search
+                className={`w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 ${
+                  isLight ? 'text-[#524B4B]' : 'text-white/50'
+                }`}
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={
+                  language === 'en' ? 'Search STK-H003, Dhaka...' : 'খুঁজুন (STK-H003, ঢাকা)...'
+                }
+                className={`w-full pl-8 pr-3 py-1.5 rounded-lg border text-xs focus:outline-none ${
+                  isLight
+                    ? 'bg-[#ECEAEA]/60 border-[#170000]/20 text-[#170000] placeholder:text-[#777] focus:border-[#170000]'
+                    : 'bg-black/50 border-white/20 text-white placeholder:text-white/40 focus:border-white'
+                }`}
+              />
+            </div>
+
+            {/* Sort */}
+            <div
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs ${
+                isLight
+                  ? 'bg-[#ECEAEA]/60 border-[#170000]/20 text-[#170000]'
+                  : 'bg-black/50 border-white/20 text-white'
+              }`}
             >
-              <option value="featured" className="bg-[#170000] text-white">
-                {language === 'en' ? 'Featured Drop Order' : 'নির্বাচিত ক্রম'}
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                aria-label="Sort StarkiT Drop 01"
+                className="bg-transparent text-xs font-mono focus:outline-none cursor-pointer"
+              >
+                <option value="featured" className="bg-[#170000] text-white">
+                  {language === 'en' ? 'Featured Drop Order' : 'নির্বাচিত ক্রম'}
+                </option>
+                <option value="price-asc" className="bg-[#170000] text-white">
+                  {language === 'en' ? 'Price: ৳1,290 → ৳1,690' : 'মূল্য: কম → বেশি'}
+                </option>
+                <option value="price-desc" className="bg-[#170000] text-white">
+                  {language === 'en' ? 'Price: ৳1,690 → ৳1,290' : 'মূল্য: বেশি → কম'}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* 44-Slot Colorway & Readiness Filter Row */}
+        <div
+          className={`pt-2.5 border-t flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono ${
+            isLight ? 'border-[#170000]/10 text-[#170000]' : 'border-white/10 text-white'
+          }`}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="uppercase opacity-70">
+              {language === 'en' ? '4-Color Palette:' : '৪-কালার প্যালেট:'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedColorFilter('all')}
+              className={`px-2.5 py-1 rounded border text-[10px] cursor-pointer transition-colors ${
+                selectedColorFilter === 'all'
+                  ? isLight
+                    ? 'bg-[#170000] text-white border-[#170000]'
+                    : 'bg-white text-[#170000] border-white'
+                  : isLight
+                  ? 'border-[#170000]/20 hover:border-[#170000]'
+                  : 'border-white/20 hover:border-white'
+              }`}
+            >
+              All 44 Slots
+            </button>
+            {WORKING_COLOR_PALETTE.map((c) => {
+              const active = selectedColorFilter === c.name;
+              return (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => setSelectedColorFilter(c.name)}
+                  className={`px-2.5 py-1 rounded border text-[10px] inline-flex items-center gap-1.5 cursor-pointer transition-colors ${
+                    active
+                      ? isLight
+                        ? 'bg-[#170000] text-white border-[#170000]'
+                        : 'bg-white text-[#170000] border-white'
+                      : isLight
+                      ? 'border-[#170000]/20 hover:border-[#170000]'
+                      : 'border-white/20 hover:border-white'
+                  }`}
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full border border-white/40 shrink-0"
+                    style={{ backgroundColor: c.hex }}
+                  />
+                  <span>{c.name}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <select
+              value={readinessFilter}
+              onChange={(e) => setReadinessFilter(e.target.value as typeof readinessFilter)}
+              aria-label="Filter by variant readiness"
+              className={`px-2.5 py-1 rounded border text-[10px] font-mono cursor-pointer focus:outline-none ${
+                isLight
+                  ? 'bg-[#ECEAEA]/70 border-[#170000]/20 text-[#170000]'
+                  : 'bg-black/40 border-white/20 text-white'
+              }`}
+            >
+              <option value="all" className="bg-[#170000] text-white">
+                Readiness: All 11 Designs
               </option>
-              <option value="price-asc" className="bg-[#170000] text-white">
-                {language === 'en' ? 'Price: ৳1,290 → ৳1,690' : 'মূল্য: কম → বেশি'}
+              <option value="documented-only" className="bg-[#170000] text-white">
+                Has Documented Mockup in Selected Color
               </option>
-              <option value="price-desc" className="bg-[#170000] text-white">
-                {language === 'en' ? 'Price: ৳1,690 → ৳1,290' : 'মূল্য: বেশি → কম'}
+              <option value="multi-color" className="bg-[#170000] text-white">
+                Multi-Colorway Documented (H001, H008)
+              </option>
+              <option value="license-free" className="bg-[#170000] text-white">
+                Original / Heritage Art Only
               </option>
             </select>
           </div>
@@ -433,23 +556,32 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           {filtered.map((product) => {
-            const activeSku = selectedVariantSkus[product.id];
-            const currentVariant =
-              product.variants.find((v) => v.sku === activeSku) || product.variants[0];
+            const activeSlotSku = selectedSlotSkus[product.id];
+            const currentSlot =
+              product.allColorSlots.find((s) => s.sku === activeSlotSku) ||
+              product.allColorSlots.find((s) => s.isDocumented) ||
+              product.allColorSlots[0];
+            const matchingVariant =
+              product.variants.find((v) => v.stkSku === currentSlot.sku) || product.variants[0];
             const currentSize = selectedSizes[product.id] || 'L';
             const sizeSpec =
               STARKIT_SIZE_CHART.find((s) => s.size === currentSize) || STARKIT_SIZE_CHART[1];
             const showSheet = Boolean(sheetPreviewIds[product.id]);
-            const isAdded = addedSku === currentVariant.sku;
-            const isOutOfStock =
-              product.catalogStatus === 'out_of_stock' || product.stockCount <= 0;
-            const isLowStock = !isOutOfStock && product.stockCount <= 6;
-            const mappedProduct = toStarKiTQuickViewProduct(product, currentVariant);
+            const isAdded = addedSku === currentSlot.sku;
+
+            const isProvisionalSlot = currentSlot.isProvisional;
+            const isDuplicatePlaceholder =
+              currentSlot.imageIntegrity === 'DUPLICATE_BLACK_PLACEHOLDER_NEEDS_COLOR_PHOTO';
+            const isPublishedOrderable =
+              !isProvisionalSlot &&
+              !isDuplicatePlaceholder &&
+              currentSlot.gates.publicationStatus === 'APPROVED' &&
+              product.stockCount > 0;
+
+            const mappedProduct = toStarKiTQuickViewProduct(product, matchingVariant);
             const wish = isWishlisted?.(product.id) ?? false;
 
-            const waMessage = `Assalamu Alaikum StarkiT! I want to order/ask about ${
-              product.stkCode || product.id
-            } (${product.name}) — Color: ${currentVariant.color}, Size: ${currentSize}, Price: ৳${currentVariant.priceBdt}`;
+            const waMessage = `Assalamu Alaikum StarkiT! I want to ask about ${currentSlot.sku} (${product.designName}) — Color: ${currentSlot.color}, Size: ${currentSize}, Proposed Price: ৳${currentSlot.priceBdtProposed}`;
 
             return (
               <article
@@ -462,26 +594,63 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
               >
                 {/* Visual Aspect 4:5 */}
                 <div className="relative aspect-[4/5] bg-[#170000] overflow-hidden">
-                  {(() => {
+                  {isProvisionalSlot ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onOpenProductPage
+                          ? onOpenProductPage(product.stkCode || product.id)
+                          : onOpenQuickView?.(mappedProduct)
+                      }
+                      className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-starkit-grid-dark text-white cursor-pointer"
+                    >
+                      <div
+                        className="w-14 h-14 rounded-full border-2 border-white/40 mb-4 flex items-center justify-center"
+                        style={{ backgroundColor: currentSlot.colorHex }}
+                      >
+                        <Lock
+                          className={`w-5 h-5 ${
+                            currentSlot.color === 'Cream' ? 'text-[#170000]' : 'text-white'
+                          }`}
+                        />
+                      </div>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#C7C1BF] mb-2">
+                        {currentSlot.sku} · {currentSlot.color}
+                      </span>
+                      <span className="font-starkit text-lg sm:text-xl font-bold uppercase tracking-tight leading-snug max-w-xs">
+                        {language === 'en'
+                          ? 'COLORWAY IN DEVELOPMENT / AWAITING APPROVAL'
+                          : 'কালারওয়ে উন্নয়নাধীন / অনুমোদনের অপেক্ষায়'}
+                      </span>
+                      <span className="font-mono text-[10px] text-white/65 mt-2">
+                        {language === 'en'
+                          ? 'Real color mockup required — no black placeholder reused'
+                          : 'আসল রঙের ছবি তৈরি হলে প্রকাশিত হবে'}
+                      </span>
+                    </button>
+                  ) : (() => {
                     const imgSrc = showSheet
-                      ? currentVariant.catalogPageImage
-                      : currentVariant.previewImage;
-                    const imgKey = `${product.id}-${showSheet ? 'sheet' : currentVariant.sku}`;
-                    if (brokenImages[imgKey]) {
+                      ? currentSlot.referenceCompositeWebp || matchingVariant.catalogPageImage
+                      : currentSlot.studioPreviewWebp ||
+                        currentSlot.referenceCompositeWebp ||
+                        matchingVariant.previewImage;
+                    const imgKey = `${product.id}-${showSheet ? 'sheet' : currentSlot.sku}`;
+                    if (brokenImages[imgKey] || !imgSrc) {
                       return (
                         <button
                           type="button"
-                          onClick={() => onOpenQuickView?.(mappedProduct)}
-                          className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-[#170000] via-[#261111] to-[#09090B] text-white cursor-pointer"
+                          onClick={() =>
+                            onOpenProductPage
+                              ? onOpenProductPage(product.stkCode || product.id)
+                              : onOpenQuickView?.(mappedProduct)
+                          }
+                          className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#170000] text-white cursor-pointer"
                         >
                           <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-[#C7C1BF] mb-2">
-                            {product.stkCode || product.id} · {currentVariant.color}
+                            {currentSlot.sku}
                           </span>
                           <span className="font-starkit text-2xl font-bold uppercase tracking-tight">
-                            {product.name}
-                          </span>
-                          <span className="font-mono text-[11px] text-white/60 mt-1">
-                            {currentVariant.gsm} Brushed Fleece
+                            {product.designName}
                           </span>
                         </button>
                       );
@@ -489,41 +658,39 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                     return (
                       <img
                         src={imgSrc}
-                        alt={`${product.name} (${currentVariant.color})`}
+                        alt={`${product.designName} (${currentSlot.color})`}
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        onClick={() => onOpenQuickView?.(mappedProduct)}
+                        onClick={() =>
+                          onOpenProductPage
+                            ? onOpenProductPage(product.stkCode || product.id)
+                            : onOpenQuickView?.(mappedProduct)
+                        }
                         onError={() =>
                           setBrokenImages((prev) => ({ ...prev, [imgKey]: true }))
                         }
-                        className={`w-full h-full ${
-                          onOpenQuickView ? 'cursor-pointer' : ''
-                        } ${
-                          showSheet ? 'object-contain bg-[#170000] p-2' : 'object-cover object-center'
-                        } transition-transform duration-700 group-hover:scale-105 ${
-                          isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
-                        }`}
+                        className={`w-full h-full cursor-pointer ${
+                          showSheet || isDuplicatePlaceholder
+                            ? 'object-contain bg-[#170000] p-2'
+                            : 'object-cover object-center'
+                        } transition-transform duration-700 group-hover:scale-105`}
                       />
                     );
                   })()}
 
-                  {/* Top Badges & Action Icons */}
+                  {/* Top Identity & Status (max 2 badges) */}
                   <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <span className="px-2.5 py-1 rounded bg-[#170000] border border-white/25 text-[10px] font-mono font-bold tracking-wider text-white uppercase">
-                        {product.stkCode || product.id}
+                        {currentSlot.sku}
                       </span>
-                      {isOutOfStock ? (
-                        <span className="px-2 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase border border-[#170000]">
-                          {language === 'en' ? 'Sold Out' : 'স্টক শেষ'}
-                        </span>
-                      ) : isLowStock ? (
-                        <span className="px-2 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase tabular-nums border border-[#170000]">
-                          {language === 'en'
-                            ? `${product.stockCount} Left`
-                            : `মাত্র ${product.stockCount}টি`}
-                        </span>
-                      ) : null}
+                      <span className="px-2 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase border border-[#170000]">
+                        {isProvisionalSlot
+                          ? 'In Development'
+                          : isPublishedOrderable
+                          ? `In Stock (${product.stockCount})`
+                          : 'Hold · Preview'}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-1.5">
@@ -533,7 +700,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                           onClick={() => onLaunch3D(product)}
                           className="p-2 rounded-full bg-[#170000]/90 hover:bg-white hover:text-[#170000] text-white border border-white/30 transition-colors cursor-pointer"
                           title={language === 'en' ? 'Inspect in 3D Studio' : '৩ডি স্টুডিওতে দেখুন'}
-                          aria-label={`Inspect ${product.name} in 3D`}
+                          aria-label={`Inspect ${product.designName} in 3D`}
                         >
                           <Box className="w-3.5 h-3.5" />
                         </button>
@@ -543,8 +710,8 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                           type="button"
                           onClick={() => onOpenQuickView(mappedProduct)}
                           className="p-2 rounded-full bg-[#170000]/90 hover:bg-white hover:text-[#170000] text-white border border-white/30 transition-colors cursor-pointer"
-                          title={language === 'en' ? 'Quick View & Reviews' : 'বিস্তারিত'}
-                          aria-label={`Quick view ${product.name}`}
+                          title={language === 'en' ? 'Quick View' : 'বিস্তারিত'}
+                          aria-label={`Quick view ${product.designName}`}
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </button>
@@ -558,7 +725,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                               ? 'bg-white border-white text-[#170000]'
                               : 'bg-[#170000]/90 border-white/30 text-white hover:bg-white hover:text-[#170000]'
                           }`}
-                          aria-label={`Toggle wishlist for ${product.name}`}
+                          aria-label={`Toggle wishlist for ${product.designName}`}
                         >
                           <Heart className="w-3.5 h-3.5 fill-current" />
                         </button>
@@ -567,41 +734,50 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                   </div>
 
                   {/* Bottom Photo ↔ Spec Sheet Toggle Bar */}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-                    <span className="px-2.5 py-1 rounded bg-[#170000]/90 border border-white/20 text-[10px] font-mono text-white/90 truncate">
-                      {product.feature}
-                    </span>
+                  {!isProvisionalSlot && (
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                      <span className="px-2.5 py-1 rounded bg-[#170000]/90 border border-white/20 text-[10px] font-mono text-white/90 truncate flex items-center gap-1">
+                        {isDuplicatePlaceholder && (
+                          <AlertTriangle className="w-3 h-3 text-white shrink-0" />
+                        )}
+                        <span>
+                          {isDuplicatePlaceholder
+                            ? 'Duplicate Black PNG Flagged'
+                            : product.feature}
+                        </span>
+                      </span>
 
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSheetPreviewIds((prev) => ({
-                            ...prev,
-                            [product.id]: !prev[product.id],
-                          }))
-                        }
-                        className="px-2.5 py-1 rounded bg-white hover:bg-[#C7C1BF] text-[#170000] text-[10px] font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer shadow"
-                      >
-                        {showSheet
-                          ? language === 'en'
-                            ? 'Garment'
-                            : 'ছবি'
-                          : language === 'en'
-                          ? 'Spec Sheet'
-                          : 'শিট'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setActiveSheetModal({ product, variant: currentVariant })}
-                        className="p-1.5 rounded bg-[#170000]/90 hover:bg-white text-white hover:text-[#170000] border border-white/30 transition-colors cursor-pointer"
-                        title="Expand Full Lookbook Sheet"
-                        aria-label="Expand Full Lookbook Sheet"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSheetPreviewIds((prev) => ({
+                              ...prev,
+                              [product.id]: !prev[product.id],
+                            }))
+                          }
+                          className="px-2.5 py-1 rounded bg-white hover:bg-[#C7C1BF] text-[#170000] text-[10px] font-mono font-bold uppercase tracking-wider transition-colors cursor-pointer shadow"
+                        >
+                          {showSheet
+                            ? language === 'en'
+                              ? 'Preview'
+                              : 'ছবি'
+                            : language === 'en'
+                            ? 'Spec Sheet'
+                            : 'শিট'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveSheetModal({ product, variant: matchingVariant })}
+                          className="p-1.5 rounded bg-[#170000]/90 hover:bg-white text-white hover:text-[#170000] border border-white/30 transition-colors cursor-pointer"
+                          title="Expand Full Lookbook Sheet"
+                          aria-label="Expand Full Lookbook Sheet"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Card Details */}
@@ -613,25 +789,29 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                           isLight ? 'text-[#524B4B]' : 'text-[#C7C1BF]'
                         }`}
                       >
-                        {product.category} · {product.editorial}
+                        {product.category} · {product.availableColors.length}/4 Documented
                       </span>
                     </div>
 
-                    <div className="flex items-baseline justify-between gap-2 mb-2">
+                    <div className="flex items-baseline justify-between gap-2 mb-1.5">
                       <h3
-                        onClick={() => onOpenQuickView?.(mappedProduct)}
-                        className={`font-starkit text-2xl font-bold tracking-tight ${
-                          onOpenQuickView ? 'cursor-pointer hover:underline underline-offset-4' : ''
-                        } ${isLight ? 'text-[#170000]' : 'text-white'}`}
+                        onClick={() =>
+                          onOpenProductPage
+                            ? onOpenProductPage(product.stkCode || product.id)
+                            : onOpenQuickView?.(mappedProduct)
+                        }
+                        className={`font-starkit text-2xl font-bold tracking-tight cursor-pointer hover:underline underline-offset-4 ${
+                          isLight ? 'text-[#170000]' : 'text-white'
+                        }`}
                       >
-                        {product.name}
+                        {product.designName}
                       </h3>
                       <span
                         className={`font-mono text-lg font-extrabold shrink-0 tabular-nums ${
                           isLight ? 'text-[#170000]' : 'text-white'
                         }`}
                       >
-                        ৳{currentVariant.priceBdt.toLocaleString()}
+                        ৳{currentSlot.priceBdtProposed.toLocaleString()}
                       </span>
                     </div>
 
@@ -643,7 +823,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       {language === 'en' ? product.descriptionEn : product.descriptionBn}
                     </p>
 
-                    {/* Colorway + Size Selector */}
+                    {/* Full 4-Colorway Matrix + Size Selector */}
                     <div className="flex items-end justify-between gap-3 mb-3">
                       <div>
                         <p
@@ -652,23 +832,28 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                           }`}
                         >
                           {language === 'en' ? 'Shade:' : 'রঙ:'}{' '}
-                          <span className="font-bold">{currentVariant.color}</span>
+                          <span className="font-bold">
+                            {currentSlot.color}
+                            {isProvisionalSlot ? ' (Pending)' : ''}
+                          </span>
                         </p>
                         <div className="flex items-center gap-1.5">
-                          {product.variants.map((v) => {
-                            const selected = v.sku === currentVariant.sku;
+                          {product.allColorSlots.map((slot) => {
+                            const selected = slot.sku === currentSlot.sku;
                             return (
                               <button
-                                key={v.sku}
+                                key={slot.sku}
                                 type="button"
                                 onClick={() =>
-                                  setSelectedVariantSkus((prev) => ({
+                                  setSelectedSlotSkus((prev) => ({
                                     ...prev,
-                                    [product.id]: v.sku,
+                                    [product.id]: slot.sku,
                                   }))
                                 }
-                                aria-label={`Color ${v.color}`}
-                                title={`${v.color} · ${v.stkSku || v.sku}`}
+                                aria-label={`Color ${slot.color} (${slot.isDocumented ? 'Documented' : 'In Development'})`}
+                                title={`${slot.color} · ${slot.sku} (${
+                                  slot.isDocumented ? 'Documented' : 'In Development / Pending'
+                                })`}
                                 className={`w-6 h-6 rounded-full border-2 transition-transform cursor-pointer relative ${
                                   selected
                                     ? isLight
@@ -677,13 +862,13 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                                     : isLight
                                     ? 'border-[#170000]/30 hover:border-[#170000]'
                                     : 'border-white/30 hover:border-white'
-                                }`}
-                                style={{ backgroundColor: v.colorHex }}
+                                } ${slot.isProvisional ? 'opacity-65 border-dashed' : ''}`}
+                                style={{ backgroundColor: slot.colorHex }}
                               >
                                 {selected && (
                                   <span
                                     className={`absolute inset-1.5 rounded-full ${
-                                      v.color === 'Cream' ? 'bg-[#170000]' : 'bg-white'
+                                      slot.color === 'Cream' ? 'bg-[#170000]' : 'bg-white'
                                     }`}
                                   />
                                 )}
@@ -699,7 +884,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                             isLight ? 'text-[#524B4B]' : 'text-white/60'
                           }`}
                         >
-                          {sizeSpec.chestInches}&Prime; × {sizeSpec.lengthInches}&Prime;
+                          {sizeSpec.chestInches}&Prime; × {sizeSpec.lengthInches}&Prime; (Est.)
                         </p>
                         <div className="flex items-center gap-1">
                           {STARKIT_SIZES.map((sz) => {
@@ -737,28 +922,45 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                           : 'bg-black/40 border border-white/10 text-white/75'
                       }`}
                     >
-                      <span>{currentVariant.gsm} Brushed Fleece</span>
+                      <span>330–350 GSM (Claim)</span>
                       <span className="inline-flex items-center gap-1 font-semibold">
                         <Truck className="w-3 h-3" />
-                        COD 64-Dist.
+                        {product.isLicensingRequired ? 'Rights Check' : 'COD Plan'}
                       </span>
                     </div>
                   </div>
 
-                  {/* High-Conversion Monochrome Actions */}
+                  {/* Monochrome Actions */}
                   <div
                     className={`pt-3 border-t space-y-2 ${
                       isLight ? 'border-[#170000]/10' : 'border-white/10'
                     }`}
                   >
+                    {onOpenProductPage && (
+                      <button
+                        type="button"
+                        onClick={() => onOpenProductPage(product.stkCode || product.id)}
+                        className={`w-full py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                          isLight
+                            ? 'bg-[#170000] hover:bg-neutral-800 text-white'
+                            : 'bg-white hover:bg-[#C7C1BF] text-[#170000]'
+                        }`}
+                      >
+                        <span>{language === 'en' ? 'Open Full Product Page' : 'সম্পূর্ণ প্রোডাক্ট পেজ'}</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        disabled={isOutOfStock}
-                        onClick={() => !isOutOfStock && handleAdd(product, currentVariant)}
-                        className={`py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 border-2 transition-colors ${
-                          isOutOfStock
-                            ? 'bg-neutral-300 border-neutral-300 text-neutral-500 cursor-not-allowed'
+                        disabled={!isPublishedOrderable}
+                        onClick={() => isPublishedOrderable && handleAddSlot(product, currentSlot)}
+                        className={`py-2 px-3 rounded-xl text-[11px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1 border-2 transition-colors ${
+                          !isPublishedOrderable
+                            ? isLight
+                              ? 'bg-[#ECEAEA] border-[#170000]/15 text-[#170000]/45 cursor-not-allowed'
+                              : 'bg-white/5 border-white/15 text-white/40 cursor-not-allowed'
                             : isAdded
                             ? 'bg-[#170000] border-[#170000] text-white cursor-pointer'
                             : isLight
@@ -766,33 +968,44 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                             : 'bg-transparent hover:bg-white/10 border-white text-white cursor-pointer'
                         }`}
                       >
-                        {isAdded ? (
-                          <>
-                            <Check className="w-3.5 h-3.5" />
-                            <span>{language === 'en' ? 'Added' : 'যুক্ত'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            <span>{language === 'en' ? 'Add to Bag' : 'ব্যাগে নিন'}</span>
-                          </>
-                        )}
+                        {isAdded ? <Check className="w-3.5 h-3.5" /> : <ShoppingBag className="w-3.5 h-3.5" />}
+                        <span>
+                          {isProvisionalSlot
+                            ? language === 'en'
+                              ? 'Pending'
+                              : 'অপেক্ষায়'
+                            : !isPublishedOrderable
+                            ? language === 'en'
+                              ? 'Hold'
+                              : 'হোল্ড'
+                            : isAdded
+                            ? language === 'en'
+                              ? 'Added'
+                              : 'যুক্ত'
+                            : language === 'en'
+                            ? 'Add Bag'
+                            : 'ব্যাগে নিন'}
+                        </span>
                       </button>
 
                       <button
                         type="button"
-                        disabled={isOutOfStock}
-                        onClick={() => !isOutOfStock && handleInstantBuy(product, currentVariant)}
-                        className={`py-2.5 px-3 rounded-xl text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors ${
-                          isOutOfStock
-                            ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
+                        disabled={!isPublishedOrderable}
+                        onClick={() =>
+                          isPublishedOrderable && handleInstantBuySlot(product, currentSlot)
+                        }
+                        className={`py-2 px-3 rounded-xl text-[11px] font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-colors ${
+                          !isPublishedOrderable
+                            ? isLight
+                              ? 'bg-[#ECEAEA] text-[#170000]/45 cursor-not-allowed'
+                              : 'bg-white/5 text-white/40 cursor-not-allowed'
                             : isLight
-                            ? 'bg-[#170000] hover:bg-neutral-800 text-white cursor-pointer shadow-sm'
-                            : 'bg-white hover:bg-[#C7C1BF] text-[#170000] cursor-pointer shadow-sm'
+                            ? 'bg-[#170000] hover:bg-neutral-800 text-white cursor-pointer'
+                            : 'bg-white hover:bg-[#C7C1BF] text-[#170000] cursor-pointer'
                         }`}
                       >
                         <Zap className="w-3.5 h-3.5" />
-                        <span>{language === 'en' ? 'Buy Now' : 'এখনই কিনুন'}</span>
+                        <span>{language === 'en' ? 'Buy Now' : 'কিনুন'}</span>
                       </button>
                     </div>
 
@@ -801,7 +1014,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() =>
-                        trackStarKiTContact('WhatsApp', `${product.stkCode || product.id} (${currentVariant.color})`)
+                        trackStarKiTContact('WhatsApp', `${currentSlot.sku} (${currentSlot.color})`)
                       }
                       className={`w-full py-1.5 px-3 rounded-lg border text-[11px] font-mono font-semibold flex items-center justify-center gap-1.5 transition-colors ${
                         isLight
@@ -812,8 +1025,8 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       <MessageCircle className="w-3.5 h-3.5" />
                       <span>
                         {language === 'en'
-                          ? `Ask on StarkiT WhatsApp (${product.stkCode || product.id})`
-                          : `হোয়াটসঅ্যাপে অর্ডার / প্রশ্ন (${product.stkCode || product.id})`}
+                          ? `Inquire on WhatsApp (${currentSlot.sku})`
+                          : `হোয়াটসঅ্যাপ জিজ্ঞাসা (${currentSlot.sku})`}
                       </span>
                     </a>
                   </div>

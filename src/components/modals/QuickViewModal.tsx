@@ -111,10 +111,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
         fitBn: liveCatalogItem.fitBn,
       }
     : product;
-  const isOutOfStock = liveCatalogItem
+  const isGraphicHeld = matchedGraphicHoodie
+    ? matchedGraphicHoodie.publicationStatus !== 'APPROVED' ||
+      matchedGraphicHoodie.stockCount <= 0
+    : false;
+  const isOutOfStock = isGraphicHeld
+    ? true
+    : liveCatalogItem
     ? liveCatalogItem.status === 'out_of_stock' || liveCatalogItem.stockCount <= 0
     : false;
-  const stockCount = liveCatalogItem ? liveCatalogItem.stockCount : 18;
+  const stockCount = matchedGraphicHoodie
+    ? matchedGraphicHoodie.stockCount
+    : liveCatalogItem
+    ? liveCatalogItem.stockCount
+    : 18;
 
   useEffect(() => {
     if (product) {
@@ -376,7 +386,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                   ৳ {resolvedProduct.compareAtPriceBDT.toLocaleString()}
                 </span>
               )}
-              {isOutOfStock ? (
+              {isGraphicHeld ? (
+                <span className="text-[11px] font-mono uppercase text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">
+                  {language === 'en' ? 'Hold · Not For Public Sales' : 'প্রি-লঞ্চ হোল্ড · বিক্রয় বন্ধ'}
+                </span>
+              ) : isOutOfStock ? (
                 <span className="text-[11px] font-mono uppercase text-red-300 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded">
                   {language === 'en' ? 'Out of Stock' : 'স্টক শেষ'}
                 </span>

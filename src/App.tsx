@@ -28,6 +28,7 @@ import { TrackOrderModal } from './components/modals/TrackOrderModal';
 import { ReturnsExchangesModal } from './components/modals/ReturnsExchangesModal';
 import { StarKiTBrandPage } from './components/brands/StarKiTBrandPage';
 import { FarizasTerritoryBrandPage } from './components/brands/FarizasTerritoryBrandPage';
+import { findStarKiTDesign } from './data/starkit44Catalog';
 import {
   isFarizaItem,
   isFarizaProduct,
@@ -46,12 +47,34 @@ import {
 const AdminDashboard = React.lazy(() =>
   import('./components/admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard }))
 );
+const StarKiT44ReadinessMatrix = React.lazy(() =>
+  import('./components/admin/StarKiT44ReadinessMatrix').then((m) => ({
+    default: m.StarKiT44ReadinessMatrix,
+  }))
+);
 
 const STORAGE_LANG_KEY = 'fabrician_lang_v1';
 const STORAGE_CART_KEY = 'fabrician_cart_v1';
 const STORAGE_WISHLIST_KEY = 'fabrician_wishlist_v1';
 
-type AppViewMode = 'store' | 'starkit' | 'farizas-territory' | 'admin';
+type AppViewMode = 'store' | 'starkit' | 'starkit-product' | 'farizas-territory' | 'admin';
+
+function parseStarKiTProductFromLocation(): string | null {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash.replace(/^#/, '');
+  const path = window.location.pathname.replace(/\/+$/, '');
+  const pathMatch = path.match(/^\/starkit\/product\/([^/?#]+)/i);
+  if (pathMatch?.[1]) {
+    const matched = findStarKiTDesign(decodeURIComponent(pathMatch[1]));
+    return matched ? matched.designId : 'STK-H001';
+  }
+  const hashMatch = hash.match(/^starkit\/product\/([^/?#]+)/i);
+  if (hashMatch?.[1]) {
+    const matched = findStarKiTDesign(decodeURIComponent(hashMatch[1]));
+    return matched ? matched.designId : 'STK-H001';
+  }
+  return null;
+}
 
 function getViewModeFromLocation(): AppViewMode {
   if (typeof window === 'undefined') return 'store';
@@ -64,6 +87,9 @@ function getViewModeFromLocation(): AppViewMode {
     path.startsWith('/admin/')
   ) {
     return 'admin';
+  }
+  if (path.startsWith('/starkit/product/') || hash.startsWith('#starkit/product/')) {
+    return 'starkit-product';
   }
   if (hash === '#starkit' || path === '/starkit') return 'starkit';
   if (hash === '#farizas-territory' || path === '/farizas-territory') return 'farizas-territory';
@@ -80,11 +106,14 @@ function readStoredJson<T>(key: string, fallback: T): T {
 }
 
 export default function App() {
-  const { storeSettings, unifiedCatalog } = useStoreData();
+  const { storeSettings, unifiedCatalog, liveGraphicArchiveProducts } = useStoreData();
   const useSupabaseCommerce = import.meta.env.VITE_COMMERCE_BACKEND === 'supabase';
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 220, damping: 30, restDelta: 0.001 });
   const [viewMode, setViewMode] = useState<AppViewMode>(() => getViewModeFromLocation());
+  const [selectedStarkitDesignId, setSelectedStarkitDesignId] = useState<string | null>(() =>
+    parseStarKiTProductFromLocation()
+  );
   const [language, setLanguage] = useState<Language>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_LANG_KEY);
@@ -117,6 +146,7 @@ export default function App() {
     syncInitialPageViewCapi();
     const syncFromLocation = () => {
       setViewMode(getViewModeFromLocation());
+      setSelectedStarkitDesignId(parseStarKiTProductFromLocation());
     };
     window.addEventListener('hashchange', syncFromLocation);
     window.addEventListener('popstate', syncFromLocation);
@@ -130,7 +160,7 @@ export default function App() {
     if (viewMode !== 'admin') {
       trackFabricianPageView();
     }
-  }, [viewMode]);
+  }, [viewMode, selectedStarkitDesignId]);
 
   const navigateToAdmin = () => {
     window.location.hash = 'admin';
@@ -139,6 +169,7 @@ export default function App() {
   };
 
   const navigateToBrand = (brand: 'store' | 'starkit' | 'farizas-territory') => {
+    setSelectedStarkitDesignId(null);
     if (brand === 'store') {
       window.history.pushState(null, '', '/' + window.location.search);
       setViewMode('store');
@@ -152,17 +183,72 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   };
 
-  useEffect(() => {
-    if (viewMode === 'starkit') {
-      document.title = 'StarKiT (ستاركيت) — Wear Your World | FABRICIAN';
-    } else if (viewMode === 'farizas-territory') {
-      document.title = "Fariza's Territory — Handmade & Crafts | FABRICIAN";
-    } else if (viewMode === 'admin') {
-      document.title = 'Store Admin Console | FABRICIAN';
-    } else {
-      document.title = 'FABRICIAN — The Intelligent Fashion Universe | Made in Bangladesh';
+  const navigateToStarKiTProduct = (designId: string | null) => {
+    if (!designId) {
+      navigateToBrand('starkit');
+      return;
     }
-  }, [viewMode]);
+    const matched = findStarKiTDesign(designId);
+    const canonicalId = matched?.designId || 'STK-H001';
+    window.history.pushState(
+      null,
+      '',
+      `/starkit/product/${canonicalId}` + window.location.search
+    );
+    setSelectedStarkitDesignId(canonicalId);
+    setViewMode('starkit-product');
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  };
+
+  useEffect(() => {
+    let pageTitle = 'FABRICIAN — The Intelligent Fashion Universe | Made in Bangladesh';
+    let pageDesc =
+      "Flagship Bangladeshi fashion house uniting contemporary tailoring, StarKiT Drop 01 Graphic Archive hoodies, and Fariza's Territory artisanal three-piece ensembles.";
+    let canonicalPath = '/';
+
+    if (viewMode === 'starkit-product' && selectedStarkitDesignId) {
+      const design = findStarKiTDesign(selectedStarkitDesignId);
+      if (design) {
+        pageTitle = `${design.designId} · StarkiT ${design.designName} Hoodie — Drop 01 | FABRICIAN`;
+        pageDesc = `${design.descriptionEn} 4 working colorways (15 documented / 29 in development). 330–350 GSM claim, ৳${design.priceBdtProposed.toLocaleString()} proposed.`;
+        canonicalPath = `/starkit/product/${design.designId}`;
+      }
+    } else if (viewMode === 'starkit') {
+      pageTitle = 'StarkiT (ستاركيت) Drop 01 — The Graphic Archive | Wear Your World.';
+      pageDesc =
+        'StarkiT Drop 01 Graphic Archive by Nafe Munawer in Dhaka: 11 hoodie designs across 44 planned colorway slots. Community · Style · Authenticity.';
+      canonicalPath = '/starkit';
+    } else if (viewMode === 'farizas-territory') {
+      pageTitle = "Fariza's Territory — Handmade & Crafts | FABRICIAN";
+      pageDesc =
+        "Fariza's Territory Bangladeshi artisanal 3-piece lawn, batik, and handcrafted collections with nationwide Pathao COD.";
+      canonicalPath = '/farizas-territory';
+    } else if (viewMode === 'admin') {
+      pageTitle = 'Store Admin & Release Gate Console | FABRICIAN';
+      canonicalPath = '/admin';
+    }
+
+    document.title = pageTitle;
+    const setMeta = (selector: string, content: string) => {
+      const el = document.querySelector<HTMLMetaElement>(selector);
+      if (el) el.content = content;
+    };
+    setMeta('meta[name="description"]', pageDesc);
+    setMeta('meta[property="og:title"]', pageTitle);
+    setMeta('meta[property="og:description"]', pageDesc);
+    setMeta('meta[name="twitter:title"]', pageTitle);
+    setMeta('meta[name="twitter:description"]', pageDesc);
+
+    if (typeof window !== 'undefined') {
+      let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+      }
+      canonical.href = `${window.location.origin}${canonicalPath}`;
+    }
+  }, [viewMode, selectedStarkitDesignId]);
 
   const navigateToStore = () => {
     navigateToBrand('store');
@@ -233,21 +319,35 @@ export default function App() {
     });
   };
 
-  const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
-    if (useSupabaseCommerce) {
-      const published = unifiedCatalog.find(p => p.id === item.productId);
-      if (!published || published.status !== 'active' || published.stockCount <= 0) return;
+  const canPurchaseItem = (item: Omit<CartItem, 'id'>): boolean => {
+    const graphicMatch = liveGraphicArchiveProducts.find(
+      (g) => g.id === item.productId || g.stkCode === item.productId
+    );
+    if (graphicMatch) {
+      if (graphicMatch.publicationStatus !== 'APPROVED' || graphicMatch.stockCount <= 0) {
+        return false;
+      }
+      const slot = graphicMatch.allColorSlots.find(
+        (s) => s.color.toLowerCase() === item.color.toLowerCase()
+      );
+      if (slot?.isProvisional) return false;
     }
+    if (useSupabaseCommerce) {
+      const published = unifiedCatalog.find((p) => p.id === item.productId);
+      if (!published || published.status !== 'active' || published.stockCount <= 0) return false;
+    }
+    return true;
+  };
+
+  const handleAddToCart = (item: Omit<CartItem, 'id'>) => {
+    if (!canPurchaseItem(item)) return;
     upsertCartItem(item);
     setCartInitialStep('cart');
     setIsCartOpen(true);
   };
 
   const handleBuyNow = (item: Omit<CartItem, 'id'>) => {
-    if (useSupabaseCommerce) {
-      const published = unifiedCatalog.find(p => p.id === item.productId);
-      if (!published || published.status !== 'active' || published.stockCount <= 0) return;
-    }
+    if (!canPurchaseItem(item)) return;
     upsertCartItem(item);
     setCartInitialStep('checkout');
     setIsCartOpen(true);
@@ -348,13 +448,19 @@ export default function App() {
 
   if (viewMode === 'admin' && useSupabaseCommerce) {
     return (
-      <div className="min-h-screen bg-[#09090B] text-[#F5F2EB] flex items-center justify-center p-6">
-        <div className="max-w-xl text-center space-y-5">
-          <h1 className="font-serif-luxury text-3xl">Supabase Commerce Administration</h1>
-          <p>During database migration, manage products, inventory, and orders from your authenticated Supabase dashboard. The legacy Firebase admin console is disabled for Supabase checkout.</p>
-          <button className="px-5 py-3 border border-white/30 rounded" onClick={navigateToStore}>Return to store</button>
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#0B0D12] text-[#F5F2EB] flex items-center justify-center text-xs font-mono">
+            <span>Loading StarkiT 44-Slot Readiness Console...</span>
+          </div>
+        }
+      >
+        <div className="min-h-screen bg-[#0B0D12] text-[#F5F2EB] p-4 sm:p-8">
+          <div className="max-w-7xl mx-auto">
+            <StarKiT44ReadinessMatrix mode="supabase-audit" onExit={navigateToStore} />
+          </div>
         </div>
-      </div>
+      </Suspense>
     );
   }
   if (viewMode === 'admin') {
@@ -450,13 +556,15 @@ export default function App() {
         onNavigateSection={handleNavigateSection}
         onOpenTrackOrder={() => handleOpenTrackOrder()}
         onOpenAdmin={navigateToAdmin}
-        viewMode={viewMode}
+        viewMode={viewMode === 'starkit-product' ? 'starkit' : viewMode}
         onSelectBrand={navigateToBrand}
       />
 
-      {viewMode === 'starkit' ? (
+      {viewMode === 'starkit' || viewMode === 'starkit-product' ? (
         <StarKiTBrandPage
           language={language}
+          selectedDesignId={viewMode === 'starkit-product' ? selectedStarkitDesignId : null}
+          onSelectProductPage={navigateToStarKiTProduct}
           onBackHome={navigateToStore}
           onSwitchBrand={(b) => navigateToBrand(b)}
           onAddToCart={handleAddToCart}
@@ -530,6 +638,7 @@ export default function App() {
             isWishlisted={isWishlisted}
             onOpenQuickView={(p) => setQuickViewProduct(p)}
             onOpenBrandPage={() => navigateToBrand('starkit')}
+            onOpenProductPage={(designId) => navigateToStarKiTProduct(designId)}
           />
 
           {/* Collection Discovery */}

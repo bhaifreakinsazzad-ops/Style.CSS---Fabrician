@@ -120,15 +120,17 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         const variants: Record<string, SupabaseVariant> = {};
         for (const product of payload.products) {
           const isThreePiece = THREE_PIECE_CATALOG.some(p => p.id === product.id);
-          const isHoodie = GRAPHIC_ARCHIVE_PRODUCTS.some(p => p.id === product.id);
+          const matchedHoodie = GRAPHIC_ARCHIVE_PRODUCTS.find(p => p.id === product.id || p.stkCode === product.id);
+          const isHoodie = Boolean(matchedHoodie);
           if ((!isThreePiece && !isHoodie) || !Array.isArray(product.variants)) continue;
           const usable = product.variants.filter(v => Number.isInteger(v.price_bdt) && v.price_bdt > 0 &&
             Number.isInteger(v.stock_count) && v.stock_count >= 0);
           if (usable.length === 0) continue;
           for (const variant of usable) variants[variant.sku] = variant;
           const stock = usable.reduce((sum, v) => sum + v.stock_count, 0);
-          next[product.id] = {
-            id: product.id,
+          const canonicalId = matchedHoodie ? matchedHoodie.id : product.id;
+          next[canonicalId] = {
+            id: canonicalId,
             sourceCatalog: isThreePiece ? 'three-piece' : 'graphic-archive',
             brand: isThreePiece ? "Fariza's Territory" : 'StarKiT',
             nameEn: product.nameEn,
@@ -430,29 +432,32 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
 
     const graphicRows: LiveProduct[] = GRAPHIC_ARCHIVE_PRODUCTS.map((ga) => {
-      const ov = catalogOverrides[ga.id];
+      const ov = catalogOverrides[ga.stkCode] || catalogOverrides[ga.id];
+      const isReleased = Boolean(ov && ov.status === 'active' && ov.stockCount > 0);
       return {
         id: ga.id,
-        slug: ga.id.toLowerCase(),
+        stkCode: ga.stkCode,
+        slug: ga.slug || ga.stkCode.toLowerCase(),
         brand: ov?.brand || ga.brand || 'StarKiT',
-        nameEn: ov?.nameEn || `${ga.name} Hoodie`,
-        nameBn: ov?.nameBn || `${ga.name} হুডি`,
+        nameEn: ov?.nameEn || `${ga.designName} Hoodie`,
+        nameBn: ov?.nameBn || ga.nameBn,
         category: ov?.category || 'Streetwear',
-        collection: ov?.collection || `Graphic Archive · ${ga.category}`,
+        collection: ov?.collection || `Drop 01 · ${ga.category}`,
         priceBDT: ov ? ov.priceBDT : ga.basePrice,
         compareAtPriceBDT: ov?.compareAtPriceBDT,
-        image: ov?.image || ga.variants[0].previewImage,
-        colors: ga.variants.map((v) => ({ name: v.color, hex: v.colorHex })),
+        image: ov?.image || ga.variants[0]?.previewImage || '/media/products/STK-H001-BLK/STK-H001-BLK__91_studio_preview.webp',
+        colors: ga.allColorSlots.map((slot) => ({ name: slot.color, hex: slot.colorHex })),
         sizes: ['M', 'L', 'XL', 'XXL'],
-        fabricEn: ov?.fabricEn || ga.variants[0].fabric,
-        fabricBn: ov?.fabricBn || `${ga.variants[0].gsm} ব্রাশড ফ্লিস`,
-        fitEn: ov?.fitEn || ga.variants[0].fit,
-        fitBn: ov?.fitBn || 'রিল্যাক্সড ড্রপ-শোল্ডার ফিট',
+        fabricEn: ov?.fabricEn || ga.variants[0]?.fabric || 'One-side brushed cotton fleece (330–350 GSM claim)',
+        fabricBn: ov?.fabricBn || '৩৩০–৩৫০ জিএসএম ব্রাশড ফ্লিস (নমুনা যাচাই বাকি)',
+        fitEn: ov?.fitEn || ga.variants[0]?.fit || 'Drop-shoulder silhouette (measurements unverified)',
+        fitBn: ov?.fitBn || 'রিল্যাক্সড ড্রপ-শোল্ডার ফিট (মাপ যাচাই বাকি)',
         isNew: ov?.isNew,
         isBestseller: ov?.isBestseller,
         styleTag: resolveGraphicStyleTag(ga.category),
-        stockCount: ov ? ov.stockCount : USE_SUPABASE_COMMERCE ? 0 : 24,
-        status: ov ? ov.status : USE_SUPABASE_COMMERCE ? 'hidden' : 'active',
+        stockCount: ov ? ov.stockCount : 0,
+        status: ov ? ov.status : 'out_of_stock',
+        publicationStatus: isReleased ? 'APPROVED' : 'HOLD / NOT FOR PUBLIC SALES',
         sourceCatalog: 'graphic-archive',
         hasOverride: Boolean(ov),
       };
@@ -476,7 +481,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         collection: ov.collection,
         priceBDT: ov.priceBDT,
         compareAtPriceBDT: ov.compareAtPriceBDT,
-        image: ov.image || '/assets/aistudio/hoodie_preview_FAB-H001-CRM.png',
+        image: ov.image || '/media/products/STK-H001-CRM/STK-H001-CRM__91_studio_preview.webp',
         colors: [{ name: 'Obsidian', hex: '#09090B' }],
         sizes: ov.category === 'Women' ? ['Unstitched Set', 'S', 'M', 'L'] : ['M', 'L', 'XL', 'XXL'],
         fabricEn: ov.fabricEn || 'Signature Atelier Textile',
@@ -518,8 +523,7 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         (p) =>
           (p.sourceCatalog === 'custom' || CURATED_SIGNATURE_IDS.has(p.id)) &&
           p.status !== 'hidden' &&
-          (p.sourceCatalog !== 'graphic-archive' || GRAPHIC_ARCHIVE_PRODUCTS.some(g =>
-            g.id === p.id && g.status === 'APPROVED' && !g.isLicensingRequired))
+          (p.sourceCatalog !== 'graphic-archive' || p.publicationStatus === 'APPROVED')
       ),
     [unifiedCatalog]
   );
@@ -546,26 +550,58 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const liveGraphicArchiveProducts = useMemo<LiveGraphicArchiveProduct[]>(
     () =>
       GRAPHIC_ARCHIVE_PRODUCTS.map((ga) => {
-        const ov = catalogOverrides[ga.id];
+        const ov = catalogOverrides[ga.stkCode] || catalogOverrides[ga.id];
+        const isReleased = Boolean(ov && ov.status === 'active' && ov.stockCount > 0);
+        const publicationStatus: 'APPROVED' | 'HOLD / NOT FOR PUBLIC SALES' = isReleased
+          ? 'APPROVED'
+          : 'HOLD / NOT FOR PUBLIC SALES';
         return {
           ...ga,
           brand: ov?.brand || ga.brand || 'StarKiT',
-          name: ov?.nameEn ? ov.nameEn.replace(/\s+Hoodie$/i, '') : ga.name,
+          name: ov?.nameEn ? ov.nameEn.replace(/\s+Hoodie$/i, '') : ga.designName,
           basePrice: ov ? ov.priceBDT : ga.basePrice,
-          variants: ga.variants.filter(v => !USE_SUPABASE_COMMERCE ||
-            ['M', 'L', 'XL'].some(size => Boolean(supabaseVariants[`${v.sku}-${size}`]))
-          ).map((v, idx) => ({
-            ...v,
-            priceBdt: USE_SUPABASE_COMMERCE
-              ? (['M', 'L', 'XL'].map(size => supabaseVariants[`${v.sku}-${size}`])
-                  .find(Boolean)?.price_bdt ?? v.priceBdt)
-              : ov ? ov.priceBDT : v.priceBdt,
-            previewImage: idx === 0 && ov?.image ? ov.image : v.previewImage,
-          })),
-          stockCount: ov ? ov.stockCount : USE_SUPABASE_COMMERCE ? 0 : 24,
-          catalogStatus: ov ? ov.status : USE_SUPABASE_COMMERCE ? 'hidden' : 'active',
+          status: publicationStatus,
+          publicationStatus,
+          variants: ga.variants.map((v, idx) => {
+            const matchedSupabase = ['M', 'L', 'XL', 'XXL']
+              .map((size) => supabaseVariants[`${v.stkSku}-${size}`] || supabaseVariants[`${v.sku}-${size}`])
+              .find(Boolean);
+            return {
+              ...v,
+              priceBdt: USE_SUPABASE_COMMERCE
+                ? matchedSupabase?.price_bdt ?? v.priceBdt
+                : ov
+                ? ov.priceBDT
+                : v.priceBdt,
+              previewImage: idx === 0 && ov?.image ? ov.image : v.previewImage,
+              gates: {
+                ...v.gates,
+                publicationStatus,
+              },
+            };
+          }),
+          allColorSlots: ga.allColorSlots.map((slot) => {
+            const slotOv = catalogOverrides[slot.sku] || catalogOverrides[slot.legacySku];
+            const slotReleased =
+              !slot.isProvisional &&
+              ((slotOv && slotOv.status === 'active' && slotOv.stockCount > 0) || isReleased);
+            const slotPublicationStatus: 'APPROVED' | 'HOLD / NOT FOR PUBLIC SALES' = slotReleased
+              ? 'APPROVED'
+              : 'HOLD / NOT FOR PUBLIC SALES';
+            return {
+              ...slot,
+              priceBdtProposed: slotOv ? slotOv.priceBDT : ov ? ov.priceBDT : slot.priceBdtProposed,
+              inventoryQty: slotOv ? slotOv.stockCount : ov ? ov.stockCount : null,
+              gates: {
+                ...slot.gates,
+                publicationStatus: slotPublicationStatus,
+              },
+            };
+          }),
+          stockCount: ov ? ov.stockCount : 0,
+          catalogStatus: ov ? ov.status : 'out_of_stock',
         };
-      }).filter((item) => item.catalogStatus !== 'hidden' && item.status === 'APPROVED' && !item.isLicensingRequired),
+      }).filter((item) => item.catalogStatus !== 'hidden'),
     [catalogOverrides, supabaseVariants]
   );
 

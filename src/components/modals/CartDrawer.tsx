@@ -51,6 +51,8 @@ interface SavedCheckoutProfile {
   fullName: string;
   phone: string;
   address: string;
+  upazilaArea: string;
+  deliveryNotes: string;
   division: string;
   districtId: string;
 }
@@ -71,6 +73,8 @@ function readSavedProfile(): SavedCheckoutProfile {
         fullName: '',
         phone: '',
         address: '',
+        upazilaArea: '',
+        deliveryNotes: '',
         division: 'Dhaka Division',
         districtId: 'dhaka',
       };
@@ -89,6 +93,8 @@ function readSavedProfile(): SavedCheckoutProfile {
       fullName: typeof parsed.fullName === 'string' ? parsed.fullName : '',
       phone: typeof parsed.phone === 'string' ? parsed.phone : '',
       address: typeof parsed.address === 'string' ? parsed.address : '',
+      upazilaArea: typeof parsed.upazilaArea === 'string' ? parsed.upazilaArea : '',
+      deliveryNotes: typeof parsed.deliveryNotes === 'string' ? parsed.deliveryNotes : '',
       division: district.division,
       districtId: district.id,
     };
@@ -97,6 +103,8 @@ function readSavedProfile(): SavedCheckoutProfile {
       fullName: '',
       phone: '',
       address: '',
+      upazilaArea: '',
+      deliveryNotes: '',
       division: 'Dhaka Division',
       districtId: 'dhaka',
     };
@@ -142,11 +150,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [fullName, setFullName] = useState(() => readSavedProfile().fullName);
   const [phone, setPhone] = useState(() => readSavedProfile().phone);
   const [address, setAddress] = useState(() => readSavedProfile().address);
+  const [upazilaArea, setUpazilaArea] = useState(() => readSavedProfile().upazilaArea);
+  const [deliveryNotes, setDeliveryNotes] = useState(() => readSavedProfile().deliveryNotes);
   const [districtId, setDistrictId] = useState(() => readSavedProfile().districtId);
   const [division, setDivision] = useState(() => readSavedProfile().division);
   const [districtSearch, setDistrictSearch] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'mfs' | 'cod'>('cod');
-  const [mfsReference, setMfsReference] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedOrder, setConfirmedOrder] = useState<ConfirmedOrderInfo | null>(null);
@@ -177,7 +186,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   const t = translations[language];
-  useEffect(() => { checkoutRequestRef.current = null; }, [items, fullName, phone, address, districtId, division, appliedPromo]);
+  useEffect(() => { checkoutRequestRef.current = null; }, [items, fullName, phone, address, upazilaArea, deliveryNotes, districtId, division, appliedPromo]);
 
   useEffect(() => {
     if (isOpen && checkoutStep !== 'success') {
@@ -233,12 +242,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     try {
       localStorage.setItem(
         CHECKOUT_PROFILE_KEY,
-        JSON.stringify({ fullName, phone, address, division, districtId })
+        JSON.stringify({ fullName, phone, address, upazilaArea, deliveryNotes, division, districtId })
       );
     } catch {
       // ignore storage errors
     }
-  }, [fullName, phone, address, division, districtId]);
+  }, [fullName, phone, address, upazilaArea, deliveryNotes, division, districtId]);
 
   const upsellRecommendations = useMemo(() => {
     const inCartIds = new Set(items.map((i) => i.productId));
@@ -406,11 +415,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       );
       return;
     }
-    if (trimmedAddress.length < 5) {
+    if (trimmedAddress.length < 8) {
       setFormError(
         language === 'en'
-          ? 'Please provide a complete delivery street address.'
-          : 'অনুগ্রহ করে সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন।'
+          ? 'Please provide a complete delivery street address (at least 8 characters).'
+          : 'অনুগ্রহ করে সম্পূর্ণ ডেলিভারি ঠিকানা লিখুন (কমপক্ষে ৮ অক্ষর)।'
       );
       return;
     }
@@ -491,6 +500,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         recipientName: trimmedName,
         recipientPhone: phone.trim(),
         recipientAddress: combinedAddress,
+        upazilaArea: upazilaArea.trim() || undefined,
+        deliveryNotes: deliveryNotes.trim() || undefined,
         division: dispatchDestinationLabel,
         paymentMethod,
         subtotalBDT: subtotal,
@@ -546,7 +557,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         totalBDT: result.totalBDT ?? orderTotal,
       });
       onClearCart();
-      setMfsReference('');
       setCheckoutStep('success');
     } catch {
       setFormError(
@@ -1062,6 +1072,42 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   />
                 </div>
 
+                <div>
+                  <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
+                    {language === 'en' ? 'Area / Upazila / Thana' : 'এলাকা / উপজেলা / থানা'}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={120}
+                    value={upazilaArea}
+                    onChange={(e) => setUpazilaArea(e.target.value)}
+                    placeholder={
+                      language === 'en'
+                        ? 'e.g. Banani, Uttara Sector 10, Agrabad...'
+                        : 'যেমন: বনানী, উত্তরা সেক্টর ১০, আগ্রাবাদ...'
+                    }
+                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
+                    {language === 'en' ? 'Delivery Notes (Optional)' : 'ডেলিভারি নোট (ঐচ্ছিক)'}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={240}
+                    value={deliveryNotes}
+                    onChange={(e) => setDeliveryNotes(e.target.value)}
+                    placeholder={
+                      language === 'en'
+                        ? 'Call before arrival / Landmark note...'
+                        : 'পৌঁছানোর আগে কল দিন / ল্যান্ডমার্ক...'
+                    }
+                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
@@ -1117,60 +1163,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
                     {language === 'en' ? 'Payment Method' : 'পেমেন্ট মাধ্যম'}
                   </label>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <label
-                      className={`p-2 rounded flex items-center gap-2 cursor-pointer border ${
-                        paymentMethod === 'cod'
-                          ? 'border-[#B69A60] bg-[#B69A60]/10 text-[#F5F2EB]'
-                          : 'border-white/10 bg-black/40 text-[#D8D3C9]'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="pay"
-                        checked={paymentMethod === 'cod'}
-                        onChange={() => setPaymentMethod('cod')}
-                      />
-                      <span>{language === 'en' ? 'Cash on Delivery' : 'ক্যাশ অন ডেলিভারি'}</span>
-                    </label>
-                    <label
-                      className={`p-2 rounded flex items-center gap-2 cursor-pointer border ${
-                        paymentMethod === 'mfs'
-                          ? 'border-[#B69A60] bg-[#B69A60]/10 text-[#F5F2EB]'
-                          : 'border-white/10 bg-black/40 text-[#D8D3C9]'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="pay"
-                        checked={paymentMethod === 'mfs'}
-                        disabled
-                        onChange={() => setPaymentMethod('mfs')}
-                      />
-                      <span>bKash / Nagad (Coming soon)</span>
-                    </label>
-                  </div>
-                  {paymentMethod === 'mfs' && (
-                    <div className="mt-2.5 p-3 rounded-lg bg-black/60 border border-[#B69A60]/30 space-y-2">
-                      <p className="text-[11px] text-[#D5BA80] leading-relaxed">
-                        {language === 'en'
-                          ? `Send ৳ ${orderTotal.toLocaleString()} via bKash or Nagad (Personal/Send Money) to ${storeSettings.hotlineDisplay} using your Name as reference, or share your TrxID below for priority dispatch.`
-                          : `অগ্রাধিকার ডেলিভারির জন্য ${storeSettings.hotlineDisplay} নম্বরে বিকাশ/নগদ সেন্ড মানি (৳ ${orderTotal.toLocaleString()}) করে নিচে TrxID দিন।`}
-                      </p>
-                      <input
-                        type="text"
-                        maxLength={48}
-                        value={mfsReference}
-                        onChange={(e) => setMfsReference(e.target.value)}
-                        placeholder={
-                          language === 'en'
-                            ? 'Optional: bKash / Nagad TrxID or sender number'
-                            : 'ঐচ্ছিক: বিকাশ / নগদ TrxID বা সেন্ডার নম্বর'
-                        }
-                        className="w-full bg-black/50 border border-white/15 rounded px-3 py-1.5 text-[11px] font-mono text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
-                      />
+                  <div className="p-3 rounded-lg border border-[#B69A60]/50 bg-[#B69A60]/10 text-[#F5F2EB] space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="inline-flex items-center gap-2 font-medium cursor-pointer">
+                        <input
+                          type="radio"
+                          name="pay"
+                          checked={paymentMethod === 'cod'}
+                          onChange={() => setPaymentMethod('cod')}
+                        />
+                        <span>{language === 'en' ? 'Cash on Delivery (COD)' : 'ক্যাশ অন ডেলিভারি (COD)'}</span>
+                      </label>
+                      <span className="text-[10px] font-mono uppercase text-[#D5BA80]">
+                        {language === 'en' ? 'Active' : 'সক্রিয়'}
+                      </span>
                     </div>
-                  )}
+                    <p className="text-[11px] text-[#D8D3C9] leading-relaxed">
+                      {language === 'en'
+                        ? 'Pay on doorstep via Pathao Courier after dispatch confirmation. bKash/Nagad gateway remains offline until merchant onboarding completes.'
+                        : 'পাঠাও কুরিয়ারে ডেলিভারির সময় পরিশোধ করুন। বিকাশ/নগদ গেটওয়ে মার্চেন্ট অনবোর্ডিং শেষে চালু হবে।'}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="p-3 rounded-lg bg-black/40 border border-white/10 space-y-2.5">

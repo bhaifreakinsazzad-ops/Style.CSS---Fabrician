@@ -27,14 +27,18 @@ import {
   StarKiTSize,
 } from '../starkit/StarKiTCatalogGrid';
 import { StarKiTInteractiveTools } from '../starkit/StarKiTInteractiveTools';
+import { StarKiTProductDetail } from '../starkit/StarKiTProductDetail';
 import { CustomerVoicesSection } from '../testimonials/CustomerVoicesSection';
 import {
   buildStarKiTWhatsAppHref,
   STARKIT_BRAND_BOOK,
   STARKIT_BRAND_BOOK_PDF,
+  STARKIT_FABRIC_SPEC,
   STARKIT_LOOKBOOK_PDF,
+  STARKIT_PRIMARY_HOTLINE_DISPLAY,
   STARKIT_WHATSAPP_DISPLAY,
 } from '../../data/starkitBrandData';
+import { STARKIT_ARCHIVE_SUMMARY } from '../../data/starkit44Catalog';
 import {
   trackStarKiTContact,
   trackStarKiTPageView,
@@ -46,6 +50,8 @@ const StarKiT3DStudio = React.lazy(() =>
 
 interface StarKiTBrandPageProps {
   language: Language;
+  selectedDesignId?: string | null;
+  onSelectProductPage?: (designId: string | null) => void;
   onBackHome: () => void;
   onSwitchBrand: (brand: 'farizas-territory') => void;
   onAddToCart: (item: Omit<CartItem, 'id'>) => void;
@@ -58,6 +64,8 @@ interface StarKiTBrandPageProps {
 
 export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
   language,
+  selectedDesignId,
+  onSelectProductPage,
   onBackHome,
   onSwitchBrand,
   onAddToCart,
@@ -110,6 +118,13 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
 
   const handleLaunch3D = (product: GraphicArchiveProduct) => {
     setStudioProduct(product);
+    if (selectedDesignId && onSelectProductPage) {
+      onSelectProductPage(null);
+      setTimeout(() => {
+        document.getElementById('starkit-3d-studio')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+      return;
+    }
     document.getElementById('starkit-3d-studio')?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -139,7 +154,37 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
     }
   };
 
-  const totalDropsCount = starKiTHoodies.length + starKiTEssentials.length;
+  const totalColorwaySlots = starKiTHoodies.reduce(
+    (sum, h) => sum + (h.allColorSlots?.length || 4),
+    0
+  );
+  const documentedSlotsCount = starKiTHoodies.reduce(
+    (sum, h) => sum + h.variants.length,
+    0
+  );
+  const releasedDesignsCount = starKiTHoodies.filter(
+    (h) => h.publicationStatus === 'APPROVED' && h.stockCount > 0
+  ).length;
+
+  if (selectedDesignId) {
+    return (
+      <div className="pt-[64px] sm:pt-[68px] bg-[#ECEAEA] text-[#170000]">
+        <StarKiTProductDetail
+          designId={selectedDesignId}
+          products={starKiTHoodies}
+          language={language}
+          onBackToCatalog={() => onSelectProductPage?.(null)}
+          onSelectDesign={(nextId) => onSelectProductPage?.(nextId)}
+          onLaunch3D={handleLaunch3D}
+          onAddToCart={onAddToCart}
+          onBuyNow={onBuyNow}
+          onToggleWishlist={onToggleWishlist}
+          isWishlisted={isWishlisted}
+          onOpenSizeGuide={onOpenSizeGuide}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="pt-[64px] sm:pt-[68px] bg-[#ECEAEA] text-[#170000]">
@@ -237,30 +282,32 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                 : STARKIT_BRAND_BOOK.overviewBn}
             </p>
 
-            {/* Brand Book Metrics */}
+            {/* Brand Book & 44-Slot Readiness Metrics */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/15 max-w-lg">
               <div>
                 <div className="font-mono text-2xl sm:text-3xl font-black text-white tabular-nums">
-                  {String(totalDropsCount).padStart(2, '0')}
+                  {String(totalColorwaySlots || STARKIT_ARCHIVE_SUMMARY.totalVariantSlots).padStart(2, '0')}
                 </div>
                 <div className="text-[11px] font-mono uppercase text-[#C7C1BF]">
-                  {language === 'en' ? 'Active Drops' : 'সক্রিয় ডিজাইন'}
+                  {language === 'en'
+                    ? `${starKiTHoodies.length} Designs · ${documentedSlotsCount} Docs`
+                    : `${starKiTHoodies.length} ডিজাইন · ${documentedSlotsCount} ডক`}
                 </div>
               </div>
               <div>
                 <div className="font-mono text-2xl sm:text-3xl font-black text-white tabular-nums">
-                  330–480
+                  330–350
                 </div>
                 <div className="text-[11px] font-mono uppercase text-[#C7C1BF]">
-                  {language === 'en' ? 'GSM Fleece' : 'জিএসএম ফ্লিস'}
+                  {language === 'en' ? 'GSM Fleece (Claim)' : 'জিএসএম ফ্লিস (দাবি)'}
                 </div>
               </div>
               <div>
                 <div className="font-mono text-2xl sm:text-3xl font-black text-white tabular-nums">
-                  ৳1,290+
+                  ৳1,290–1,490
                 </div>
                 <div className="text-[11px] font-mono uppercase text-[#C7C1BF]">
-                  {language === 'en' ? 'Direct BDT' : 'শুরুর মূল্য'}
+                  {language === 'en' ? 'Proposed BDT Est.' : 'প্রস্তাবিত মূল্য'}
                 </div>
               </div>
             </div>
@@ -333,7 +380,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/45 bg-[#170000] translate-y-4">
               {!brokenImages['hero-flagship'] ? (
                 <img
-                  src="/assets/aistudio/hoodie_preview_FAB-H003-BLK.png"
+                  src="/media/products/STK-H003-BLK/STK-H003-BLK__91_studio_preview.webp"
                   alt="StarkiT Folk Art Bus Heavyweight Hoodie"
                   referrerPolicy="no-referrer"
                   onError={() =>
@@ -352,10 +399,28 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                   STK-H003 Flagship
                 </div>
                 <div className="font-starkit text-lg font-bold text-white uppercase">
-                  330–350 GSM Brushed Fleece
+                  {STARKIT_FABRIC_SPEC.gsmShort}
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* State A Technical Preview & Release Gate Strip */}
+        <div className="border-t border-white/15 bg-black/45">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-white/85">
+            <span>
+              {releasedDesignsCount === 0
+                ? language === 'en'
+                  ? `DROP 01 TECHNICAL ARCHIVE: ${starKiTHoodies.length} Designs · 44 Colorways (15 Documented / 29 In Development) · Ordering opens upon owner gate sign-off.`
+                  : `ড্রপ ০১ টেকনিক্যাল আর্কাইভ: ১১টি ডিজাইন · ৪৪টি কালারওয়ে (১৫টি ডকুমেন্টেড / ২৯টি ডেভেলপমেন্টে) · অনুমোদনের পর বিক্রয় শুরু।`
+                : language === 'en'
+                ? `${releasedDesignsCount} of ${starKiTHoodies.length} Drop 01 designs released for public ordering · Order Hotline: ${STARKIT_PRIMARY_HOTLINE_DISPLAY}`
+                : `${starKiTHoodies.length}টির মধ্যে ${releasedDesignsCount}টি ডিজাইন অর্ডারের জন্য উন্মুক্ত · হটলাইন: ${STARKIT_PRIMARY_HOTLINE_DISPLAY}`}
+            </span>
+            <span className="text-[#C7C1BF]">
+              Hotline {STARKIT_PRIMARY_HOTLINE_DISPLAY} · WhatsApp {STARKIT_WHATSAPP_DISPLAY}
+            </span>
           </div>
         </div>
       </section>
@@ -511,6 +576,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
               onToggleWishlist={onToggleWishlist}
               isWishlisted={isWishlisted}
               onOpenQuickView={onQuickView}
+              onOpenProductPage={(dId) => onSelectProductPage?.(dId)}
               onLaunch3D={handleLaunch3D}
               recommendedSize={recommendedSize}
               surfaceTheme="light"
@@ -693,6 +759,14 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                     0,
                     look.totalPriceBDT - storeSettings.bundle2DiscountBDT
                   );
+                  const lookReady = look.garments.every((g) => {
+                    const liveMatch = starKiTHoodies.find((h) => h.id === g.id);
+                    return (
+                      liveMatch &&
+                      liveMatch.publicationStatus === 'APPROVED' &&
+                      liveMatch.stockCount > 0
+                    );
+                  });
                   return (
                     <div
                       key={look.id}
@@ -743,7 +817,9 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                           </div>
                           <button
                             type="button"
+                            disabled={!lookReady}
                             onClick={() => {
+                              if (!lookReady) return;
                               look.garments.forEach((g) => {
                                 const liveMatch = starKiTHoodies.find((h) => h.id === g.id);
                                 const liveVar = liveMatch?.variants[0];
@@ -763,11 +839,15 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                               setAddedLookId(look.id);
                               setTimeout(() => setAddedLookId(null), 1800);
                             }}
-                            className="px-4 py-2 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
+                            className="px-4 py-2 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider cursor-pointer transition-colors disabled:opacity-45 disabled:cursor-not-allowed inline-flex items-center gap-1.5 whitespace-nowrap shrink-0"
                           >
                             {isLookAdded && <Check className="w-3.5 h-3.5" />}
                             <span>
-                              {isLookAdded
+                              {!lookReady
+                                ? language === 'en'
+                                  ? 'Pre-Launch Hold'
+                                  : 'প্রি-লঞ্চ হোল্ড'
+                                : isLookAdded
                                 ? language === 'en'
                                   ? 'Added Duo'
                                   : 'সেট যোগ হয়েছে'

@@ -30,16 +30,22 @@ export default async function handler(req: Request, res: ServerResponse) {
   try {
     const payload = await readJson(req) as {
       requestId?: string; lookupToken?: string; items?: Item[];
-      customer?: { name?: string; phone?: string; address?: string; division?: string };
+      customer?: { name?: string; phone?: string; address?: string; division?: string; areaUpazila?: string; deliveryNotes?: string };
     };
+    const customerRecord = payload?.customer as Record<string, unknown> | undefined;
+    const validOptionalArea = !customerRecord || customerRecord.areaUpazila === undefined ||
+      (typeof customerRecord.areaUpazila === 'string' && customerRecord.areaUpazila.length <= 120);
+    const validOptionalNotes = !customerRecord || customerRecord.deliveryNotes === undefined ||
+      (typeof customerRecord.deliveryNotes === 'string' && customerRecord.deliveryNotes.length <= 240);
     if (!payload || typeof payload.requestId !== 'string' ||
         typeof payload.lookupToken !== 'string' ||
         !Array.isArray(payload.items) || payload.items.length < 1 || payload.items.length > 25 ||
         !payload.items.every(x => /^[A-Za-z0-9_-]{3,100}$/.test(x.sku) &&
           Number.isInteger(x.quantity) && x.quantity >= 1 && x.quantity <= 20) ||
         !Number.isSafeInteger((payload as { expectedTotalBDT?: number }).expectedTotalBDT) ||
-        !payload.customer || !['name','phone','address','division'].every(k =>
-          typeof (payload.customer as Record<string,unknown>)[k] === 'string')) {
+        !customerRecord || !['name','phone','address','division'].every(k =>
+          typeof customerRecord[k] === 'string') ||
+        !validOptionalArea || !validOptionalNotes) {
       return send(res, 400, { error: 'INVALID_CHECKOUT' });
     }
     const response = await fetch(`${url.replace(/\/$/,'')}/rest/v1/rpc/fabrician_checkout`, {

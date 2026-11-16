@@ -5,9 +5,28 @@
 
 export const STARKIT_WHATSAPP_NUMBER = '8801931803462';
 export const STARKIT_WHATSAPP_DISPLAY = '+880 1931-803462';
+export const STARKIT_PRIMARY_HOTLINE_DISPLAY = '+880 1778 307704';
+export const STARKIT_PRIMARY_HOTLINE_TEL = 'tel:+8801778307704';
 export const STARKIT_PROMO_CODE = 'STARKIT10';
-export const STARKIT_LOOKBOOK_PDF = '/assets/aistudio/Fabrician_Premium_Master_Catalog_2026_57366f45.pdf';
+export const STARKIT_LOOKBOOK_PDF = '/assets/aistudio/StarkiT_Premium_Product_Catalog_2026_46a43cbd.pdf';
 export const STARKIT_BRAND_BOOK_PDF = '/assets/aistudio/starkit_brand_book_by_pomelli_f114d27f.pdf';
+
+export const STARKIT_FABRIC_SPEC = {
+  fabricEn: 'One-side brushed cotton fleece (330–350 GSM — seller specification; physical sample verification pending)',
+  fabricBn: 'ওয়ান-সাইড ব্রাশড কটন ফ্লিস (৩৩০–৩৫০ জিএসএম — বিক্রেতা প্রদত্ত তথ্য; ফিজিক্যাল নমুনা যাচাই বাকি)',
+  gsmShort: '330–350 GSM (Claim)',
+  sampleVerified: false,
+};
+
+export const STARKIT_SIZE_CHART_META = {
+  isPhysicalVerified: false,
+  badgeEn: 'Reference Estimate · Pending Physical Verification',
+  badgeBn: 'আনুমানিক রেফারেন্স · ফিজিক্যাল মাপ যাচাই বাকি',
+  noticeEn:
+    'Inches shown below are working drop-shoulder reference estimates and have not yet been audited against finished physical Drop 01 garments.',
+  noticeBn:
+    'নিচের মাপগুলো প্রাথমিক রেফারেন্স হিসেবে দেওয়া হয়েছে; চূড়ান্ত প্রোডাকশন স্যাম্পল থেকে ফিজিক্যাল মাপ এখনো যাচাই বাকি রয়েছে।',
+};
 
 export function buildStarKiTWhatsAppHref(message: string): string {
   return `https://wa.me/${STARKIT_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -66,13 +85,15 @@ export const STARKIT_BRAND_BOOK = {
   brandName: 'StarkiT',
   spacedWordmark: 'S T Λ R K I T',
   arabicName: 'ستاركيت',
+  taglinePrimary: 'WEAR YOUR WORLD.',
+  collectionName: 'DROP 01 / THE GRAPHIC ARCHIVE',
   founder: 'Nafe Munawer',
   city: 'Dhaka, Bangladesh',
   quoteEn: '"Dhaka-based clothing brand by Nafe Munawer."',
   overviewEn:
-    'StarkiT is a Dhaka-based clothing brand created by Nafe Munawer, operating primarily through its Facebook presence.',
+    'StarkiT is a Dhaka-based urban streetwear brand founded by Nafe Munawer, built on Community, Style, and Authenticity.',
   overviewBn:
-    'স্টারকিট হলো নাফে মুনাওয়ার কর্তৃক প্রতিষ্ঠিত একটি ঢাকা-ভিত্তিক পোশাক ব্র্যান্ড।',
+    'স্টারকিট হলো নাফে মুনাওয়ার কর্তৃক প্রতিষ্ঠিত ঢাকা-ভিত্তিক আরবান স্ট্রিটওয়্যার ব্র্যান্ড।',
   tagline: 'Community · Style · Authenticity',
   taglineBn: 'কমিউনিটি · স্টাইল · স্বকীয়তা',
   primaryTypeface: 'Afacad Flux',
@@ -97,49 +118,49 @@ export const STARKIT_BRAND_BOOK = {
       code: '01',
       titleEn: 'Community',
       titleBn: 'কমিউনিটি',
-      descEn: 'Rooted in Dhaka youth culture, local illustrators, and Facebook community drops.',
+      descEn: 'Rooted in Dhaka youth culture, local illustrators, and community-driven archive drops.',
       descBn: 'ঢাকার তরুণ সমাজ, শিল্পী ও কমিউনিটি ড্রপের অনুপ্রেরণায় গড়া।',
     },
     {
       code: '02',
       titleEn: 'Style',
       titleBn: 'স্টাইল',
-      descEn: 'Unapologetic Pure White #FFFFFF and Jet Black #170000 minimalist garment discipline.',
+      descEn: 'Unapologetic Pure White #FFFFFF and Jet Black #170000 monochrome visual discipline.',
       descBn: 'পিওর হোয়াইট (#FFFFFF) ও জেট ব্ল্যাক (#170000) মনোক্রোম মিনিমালিজম।',
     },
     {
       code: '03',
       titleEn: 'Authenticity',
       titleBn: 'স্বকীয়তা',
-      descEn: 'Dense 330–350 GSM brushed cotton fleece built with Afacad Flux graphic precision.',
-      descBn: '৩৩০–৩৫০ জিএসএম প্রিমিয়াম কটন ফ্লিসে দীর্ঘস্থায়ী নিখুঁত গ্রাফিক।',
+      descEn: 'Transparent pre-launch standards: verified rights, honest colorways, and real 330–350 GSM fleece samples.',
+      descBn: 'স্বচ্ছ প্রি-লঞ্চ মানদণ্ড: যাচাইকৃত স্যাম্পল, সঠিক কালারওয়ে ও ৩৩০–৩৫০ জিএসএম ফ্লিস স্পেসিফিকেশন।',
     },
   ],
 };
 
 export const STARKIT_FAQS = [
   {
-    qEn: 'How heavy is the StarkiT Drop 01 fleece fabric?',
-    qBn: 'স্টারকিট ড্রপ ০১ হুডির কাপড় কেমন এবং কত জিএসএম?',
-    aEn: 'Every StarkiT Graphic Archive hoodie is stitched from 330–350 GSM one-side brushed cotton fleece—warm yet breathable for Dhaka evenings and highway rides.',
-    aBn: 'প্রতিটি হুডি ৩৩০–৩৫০ জিএসএম ওয়ান-সাইড ব্রাশড কটন ফ্লিসে তৈরি, যা আরামদায়ক উষ্ণতা ও দীর্ঘস্থায়ী গঠন ধরে রাখে।',
+    qEn: 'What fabric specification is planned for StarkiT Drop 01 hoodies?',
+    qBn: 'স্টারকিট ড্রপ ০১ হুডির কাপড়ের স্পেসিফিকেশন কী?',
+    aEn: 'Drop 01 garments are specified as 330–350 GSM one-side brushed cotton fleece (seller-provided target specification; physical sample audit pending before commercial launch).',
+    aBn: 'ড্রপ ০১ হুডিগুলো ৩৩০–৩৫০ জিএসএম ওয়ান-সাইড ব্রাশড কটন ফ্লিস স্পেসিফিকেশনে পরিকল্পিত (বাণিজ্যিক বিক্রির আগে ফিজিক্যাল নমুনা যাচাই প্রক্রিয়াধীন)।',
   },
   {
-    qEn: 'How does the 48-Hour Size & Defect Exchange guarantee work?',
-    qBn: '৪৮ ঘণ্টার সাইজ ও ডিফেক্ট এক্সচেঞ্জ কীভাবে কাজ করে?',
-    aEn: 'If your fit feels snug or loose—or any print defect is spotted upon delivery—message our WhatsApp Concierge (+880 1931-803462) within 48 hours with unworn tags intact for swift replacement.',
-    aBn: 'ডেলিভারির ৪৮ ঘণ্টার মধ্যে সাইজ বা প্রিন্টে কোনো সমস্যা থাকলে আন-ওয়্যারড ও ট্যাগসহ আমাদের হোয়াটসঅ্যাপ ডেস্কে (+880 1931-803462) জানালেই দ্রুত এক্সচেঞ্জ করে দেওয়া হয়।',
+    qEn: 'Why are some colorways marked "Colorway in Development / Awaiting Approval"?',
+    qBn: 'কিছু কালারওয়ে কেন "ইন ডেভেলপমেন্ট / অনুমোদনের অপেক্ষায়" দেখানো হয়েছে?',
+    aEn: 'Drop 01 organizes 11 graphic designs across 4 standard hues (Black, Cream, Maroon, Chocolate Brown = 44 slots). Only the 15 source-documented colorways have preview artwork; the 29 new slots await real mockups, sample checks, and owner sign-off before ordering.',
+    aBn: 'ড্রপ ০১-এর ১১টি ডিজাইন ৪টি রঙে (ব্ল্যাক, ক্রিম, মেরুন, চকোলেট ব্রাউন = ৪৪টি স্লট) সাজানো হয়েছে। ১৫টি স্লটে প্রাথমিক মকআপ রয়েছে; বাকি ২৯টি নতুন কালারওয়ে স্যাম্পল ও ছবির অনুমোদনের আগে অর্ডারযোগ্য নয়।',
   },
   {
-    qEn: 'How do StarkiT bundle discounts stack with promo STARKIT10?',
-    qBn: 'বান্ডেল ডিসকাউন্ট ও STARKIT10 প্রোমো কোড কি একসাথে পাওয়া যাবে?',
-    aEn: 'Yes! Buying 2 pieces automatically deducts ৳150 and 3+ pieces deducts ৳300 plus unlocks complimentary Pathao delivery—and you can apply code STARKIT10 at checkout for an extra 10% off.',
-    aBn: 'হ্যাঁ! ২টি নিলে ৳১৫০ ছাড় এবং ৩টি+ নিলে ৳৩০০ ছাড় ও ফ্রি ডেলিভারি স্বয়ংক্রিয়ভাবে যুক্ত হবে, সাথে চেকআউটে STARKIT10 কোডে আরও ১০% ছাড় পাবেন।',
+    qEn: 'Which payment methods are currently supported?',
+    qBn: 'বর্তমানে কোন কোন পেমেন্ট মাধ্যম চালু রয়েছে?',
+    aEn: 'Orders run on Cash on Delivery (COD) across Bangladesh via Pathao Courier, subject to pre-dispatch confirmation. Digital MFS gateways (bKash/Nagad) remain offline until merchant onboarding completes.',
+    aBn: 'সারা বাংলাদেশে পাঠাও কুরিয়ারের মাধ্যমে ক্যাশ অন ডেলিভারি (COD) সমর্থিত (অর্ডার কনফার্মেশনের পর ডিসপ্যাচ করা হয়)। বিকাশ/নগদ গেটওয়ে মার্চেন্ট অনবোর্ডিং শেষে চালু হবে।',
   },
   {
-    qEn: 'How fast is Pathao Courier delivery across Bangladesh?',
-    qBn: 'বাংলাদেশের সব জেলায় ডেলিভারি পেতে কতদিন লাগে?',
-    aEn: 'Inside Dhaka delivery arrives in 24–48 hours (Cash on Delivery available). Outside Dhaka across all 64 districts takes 2–4 business days via Pathao Courier.',
-    aBn: 'ঢাকার ভেতরে ২৪–৪৮ ঘণ্টায় এবং সারাদেশের ৬৪ জেলায় ২–৪ কর্মদিবসের মধ্যে পাঠাও কুরিয়ারে ক্যাশ অন ডেলিভারি পৌঁছায়।',
+    qEn: 'How can I reach StarkiT & Graphic Archive support?',
+    qBn: 'স্টারকিট সাপোর্টে কীভাবে যোগাযোগ করব?',
+    aEn: 'Direct Order Hotline: +880 1778 307704 · WhatsApp Style Desk: +880 1931-803462 (Sat–Thu, 11:00 AM – 8:30 PM BDT).',
+    aBn: 'অর্ডার হটলাইন: +880 1778 307704 · হোয়াটসঅ্যাপ ডেস্ক: +880 1931-803462 (শনি–বৃহস্পতি, সকাল ১১টা – রাত ৮:৩০)।',
   },
 ];

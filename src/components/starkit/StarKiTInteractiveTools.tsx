@@ -18,8 +18,10 @@ import {
   buildStarKiTWhatsAppHref,
   STARKIT_BRAND_BOOK,
   STARKIT_BRAND_BOOK_PDF,
+  STARKIT_FABRIC_SPEC,
   STARKIT_FAQS,
   STARKIT_SIZE_CHART,
+  STARKIT_SIZE_CHART_META,
   STARKIT_WHATSAPP_DISPLAY,
 } from '../../data/starkitBrandData';
 import { StarKiTSize } from './StarKiTCatalogGrid';
@@ -71,7 +73,13 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
 
   // 3-Piece Smart Kit Builder state
   const availableKitProducts = useMemo(
-    () => products.filter((p) => p.catalogStatus !== 'out_of_stock' && p.stockCount > 0),
+    () =>
+      products.filter(
+        (p) =>
+          p.publicationStatus === 'APPROVED' &&
+          p.catalogStatus !== 'out_of_stock' &&
+          p.stockCount > 0
+      ),
     [products]
   );
 
@@ -313,7 +321,10 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                 <span className="font-bold uppercase tracking-wider">
                   {language === 'en' ? 'Drop 01 Spec Sheet (Inches)' : 'ড্রপ ০১ সাইজ চার্ট (ইঞ্চি)'}
                 </span>
-                <span className="text-white font-semibold">330–350 GSM</span>
+                <span className="text-amber-300 font-semibold">{STARKIT_FABRIC_SPEC.gsmShort}</span>
+              </div>
+              <div className="px-4 py-2 bg-amber-500/10 border-b border-white/10 text-[10px] font-mono text-amber-200 leading-relaxed">
+                {language === 'en' ? STARKIT_SIZE_CHART_META.noticeEn : STARKIT_SIZE_CHART_META.noticeBn}
               </div>
               <table className="w-full text-left text-xs font-mono">
                 <thead className="bg-white/5 text-[#C7C1BF] text-[10px] uppercase">
@@ -510,13 +521,17 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                 ৳{kitRawTotal.toLocaleString()}
               </span>
               <span className="px-2.5 py-0.5 rounded bg-[#170000] text-white text-[11px] font-mono font-bold tabular-nums">
-                -৳{storeSettings.bundle3DiscountBDT} + Free Delivery
+                -৳{storeSettings.bundle3DiscountBDT} Est. Bundle
               </span>
             </div>
             <p className="text-xs text-[#474040] mt-1">
-              {language === 'en'
-                ? 'Unlock another 10% off at checkout with code STARKIT10.'
-                : 'চেকআউটে STARKIT10 কোডে আরও ১০% ছাড় পান।'}
+              {kitHasStock
+                ? language === 'en'
+                  ? 'Unlock another 10% off at checkout with code STARKIT10.'
+                  : 'চেকআউটে STARKIT10 কোডে আরও ১০% ছাড় পান।'
+                : language === 'en'
+                ? 'Interactive Kit Preview — Ordering unlocks once Drop 01 items are cleared & released in Admin.'
+                : 'কিট প্রিভিউ — অ্যাডমিন থেকে রিলিজ ও স্টক অনুমোদনের পর অর্ডার চালু হবে।'}
             </p>
           </div>
 
@@ -525,11 +540,15 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
               type="button"
               disabled={!kitHasStock}
               onClick={() => addFullKit(false)}
-              className="px-5 py-3 rounded-xl border-2 border-[#170000] bg-white hover:bg-[#ECEAEA] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shrink-0"
+              className="px-5 py-3 rounded-xl border-2 border-[#170000] bg-white hover:bg-[#ECEAEA] text-[#170000] text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-45 disabled:cursor-not-allowed whitespace-nowrap shrink-0"
             >
               {kitAdded ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
               <span>
-                {kitAdded
+                {!kitHasStock
+                  ? language === 'en'
+                    ? 'Awaiting Commercial Release'
+                    : 'লঞ্চ অনুমোদনের অপেক্ষায়'
+                  : kitAdded
                   ? language === 'en'
                     ? 'Added 3-Piece Kit'
                     : 'কিট ব্যাগে যোগ হয়েছে'
@@ -538,12 +557,11 @@ export const StarKiTInteractiveTools: React.FC<StarKiTInteractiveToolsProps> = (
                   : '৩টি হুডি ব্যাগে যোগ করুন'}
               </span>
             </button>
-            {onBuyNow && (
+            {onBuyNow && kitHasStock && (
               <button
                 type="button"
-                disabled={!kitHasStock}
                 onClick={() => addFullKit(true)}
-                className="px-5 py-3 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap shrink-0"
+                className="px-5 py-3 rounded-xl bg-[#170000] hover:bg-neutral-800 text-white text-xs font-mono font-bold uppercase tracking-wider inline-flex items-center gap-2 cursor-pointer transition-colors whitespace-nowrap shrink-0"
               >
                 <Zap className="w-4 h-4" />
                 <span>{language === 'en' ? 'Express Checkout Kit' : 'সরাসরি কিট অর্ডার করুন'}</span>

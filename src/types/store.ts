@@ -30,6 +30,8 @@ export interface StoreOrder {
   riderPhone?: string;
   estimatedDelivery: string;
   trackingNote: string;
+  upazilaArea?: string;
+  deliveryNotes?: string;
   createdAtMs: number;
   updatedAtMs: number;
 }
@@ -97,8 +99,8 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   bundle2DiscountBDT: 150,
   bundle3DiscountBDT: 300,
   announcementEnabled: false,
-  announcementTextEn: 'Complimentary Pathao Courier delivery on orders over ৳5,000 across Bangladesh',
-  announcementTextBn: 'সারা বাংলাদেশে ৳৫,০০০+ অর্ডারে সম্পূর্ণ ফ্রি পাঠাও কুরিয়ার ডেলিভারি',
+  announcementTextEn: 'Pre-launch Drop 01 Technical Preview · COD subject to confirmation on live SKUs',
+  announcementTextBn: 'ড্রপ ০১ প্রি-লঞ্চ টেকনিক্যাল প্রিভিউ · অনুমোদিত আইটেমে ক্যাশ অন ডেলিভারি',
 };
 
 export interface StoreSubscriber {
@@ -129,6 +131,8 @@ export interface LiveProduct extends Product {
   status: CatalogStatus;
   sourceCatalog: CatalogSource;
   hasOverride?: boolean;
+  stkCode?: string;
+  publicationStatus?: 'HOLD / NOT FOR PUBLIC SALES' | 'APPROVED';
 }
 
 export interface LiveThreePieceItem extends ThreePieceItem {
@@ -141,4 +145,5 @@ export interface LiveGraphicArchiveProduct extends GraphicArchiveProduct {
   brand: BrandPartner;
   stockCount: number;
   catalogStatus: CatalogStatus;
+  publicationStatus: 'HOLD / NOT FOR PUBLIC SALES' | 'APPROVED';
 }

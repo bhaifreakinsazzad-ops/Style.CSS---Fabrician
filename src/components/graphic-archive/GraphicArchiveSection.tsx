@@ -24,6 +24,7 @@ interface GraphicArchiveSectionProps {
   isWishlisted?: (productId: string) => boolean;
   onOpenQuickView?: (product: Product) => void;
   onOpenBrandPage?: () => void;
+  onOpenProductPage?: (designId: string) => void;
 }
 
 export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
@@ -34,6 +35,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   isWishlisted,
   onOpenQuickView,
   onOpenBrandPage,
+  onOpenProductPage,
 }) => {
   const { liveGraphicArchiveProducts } = useStoreData();
   const [studioProduct, setStudioProduct] = useState<GraphicArchiveProduct | null>(null);
@@ -41,7 +43,11 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
   const [copiedStarKiTLink, setCopiedStarKiTLink] = useState(false);
 
   const starKiTProducts = liveGraphicArchiveProducts.filter((p) => p.brand === 'StarKiT');
-  const totalVariantsCount = starKiTProducts.reduce((sum, p) => sum + p.variants.length, 0);
+  const totalSlotsCount = starKiTProducts.reduce(
+    (sum, p) => sum + (p.allColorSlots?.length || 4),
+    0
+  );
+  const totalDocumentedCount = starKiTProducts.reduce((sum, p) => sum + p.variants.length, 0);
 
   const handleCopyLink = () => {
     const url = typeof window !== 'undefined' ? `${window.location.origin}/starkit` : '/starkit';
@@ -81,7 +87,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
             <div className="max-w-2xl space-y-5">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#C7C1BF] tabular-nums">
-                  Drop 01 · {starKiTProducts.length} Designs · {totalVariantsCount} Colorways
+                  Drop 01 · {starKiTProducts.length} Designs · {totalSlotsCount} Colorway Slots ({totalDocumentedCount} Previewed)
                 </span>
                 <span aria-hidden="true" className="text-white/25">/</span>
                 <a
@@ -133,8 +139,8 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
                 <span className="inline-flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-white" />
                   {language === 'en'
-                    ? '330–350 GSM One-Side Brushed Fleece'
-                    : '৩৩০–৩৫০ জিএসএম প্রিমিয়াম ফ্লিস'}
+                    ? '330–350 GSM Fleece (Claim · Pending Audit)'
+                    : '৩৩০–৩৫০ জিএসএম ফ্লিস (নমুনা যাচাই বাকি)'}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Truck className="w-3.5 h-3.5 text-[#C7C1BF]" />
@@ -191,6 +197,7 @@ export const GraphicArchiveSection: React.FC<GraphicArchiveSectionProps> = ({
           onToggleWishlist={onToggleWishlist}
           isWishlisted={isWishlisted}
           onOpenQuickView={onOpenQuickView}
+          onOpenProductPage={onOpenProductPage}
           onLaunch3D={handleLaunch3D}
           surfaceTheme="light"
         />

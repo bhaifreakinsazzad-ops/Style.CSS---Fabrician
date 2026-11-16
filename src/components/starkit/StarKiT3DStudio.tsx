@@ -6,25 +6,28 @@ import {
   ChevronDown,
   ChevronUp,
   Image as ImageIcon,
+  Lock,
   Pause,
   Play,
   RotateCcw,
   ShoppingBag,
   Zap,
 } from 'lucide-react';
-import {
-  GraphicArchiveProduct,
-  GraphicArchiveVariant,
-} from '../../data/graphicArchiveCatalog';
+import { GraphicArchiveProduct } from '../../data/graphicArchiveCatalog';
+import { StarKiT44Variant } from '../../data/starkit44Catalog';
+import { STARKIT_FABRIC_SPEC } from '../../data/starkitBrandData';
+import { LiveGraphicArchiveProduct } from '../../types/store';
 import { CartItem, Language } from '../../types';
 import {
   trackStarKiTCustomizeProduct,
   trackStarKiTViewContent,
 } from '../../services/metaPixel';
 
+type StudioProductInput = GraphicArchiveProduct | LiveGraphicArchiveProduct;
+
 interface StarKiT3DStudioProps {
-  products: GraphicArchiveProduct[];
-  initialProduct?: GraphicArchiveProduct;
+  products: StudioProductInput[];
+  initialProduct?: StudioProductInput;
   language: Language;
   onAddToCart: (item: Omit<CartItem, 'id'>) => void;
   onBuyNow?: (item: Omit<CartItem, 'id'>) => void;
@@ -60,8 +63,8 @@ function createFleeceBumpMap(maxAniso: number): THREE.CanvasTexture {
 }
 
 function createFrontCrestTexture(
-  product: GraphicArchiveProduct,
-  variant: GraphicArchiveVariant,
+  product: StudioProductInput,
+  variant: StarKiT44Variant,
   maxAniso: number
 ): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -91,7 +94,7 @@ function createFrontCrestTexture(
   // Drop & SKU stamp
   ctx.fillStyle = subFg;
   ctx.font = '600 18px monospace';
-  ctx.fillText(`${product.stkCode || product.id} · ${product.name.toUpperCase()}`, 256, 355);
+  ctx.fillText(`${variant.sku} · ${product.name.toUpperCase()}`, 256, 355);
 
   ctx.font = '500 14px monospace';
   ctx.fillText('COMMUNITY · STYLE · AUTHENTICITY', 256, 390);
@@ -103,8 +106,8 @@ function createFrontCrestTexture(
 }
 
 function createBackArtworkTexture(
-  product: GraphicArchiveProduct,
-  variant: GraphicArchiveVariant,
+  product: StudioProductInput,
+  variant: StarKiT44Variant,
   maxAniso: number
 ): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -134,9 +137,9 @@ function createBackArtworkTexture(
   ctx.fillStyle = cardBg;
   ctx.font = 'bold 18px monospace';
   ctx.textAlign = 'left';
-  ctx.fillText(`STΛRKIT ARCHIVE · ${product.stkCode || product.id}`, 78, 84);
+  ctx.fillText(`STΛRKIT ARCHIVE · ${variant.sku}`, 78, 84);
   ctx.textAlign = 'right';
-  ctx.fillText(`${variant.gsm}`, 690, 84);
+  ctx.fillText(STARKIT_FABRIC_SPEC.gsmShort, 690, 84);
 
   // Center Motif Art Geometry driven by Product Category
   const cx = 384;
@@ -272,17 +275,25 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
   const activeProduct =
     products.find((p) => p.id === selectedProductId) || products[0];
 
-  const [selectedVariantSku, setSelectedVariantSku] = useState<string>(
-    () => (initialProduct || products[0])?.variants[0]?.sku || ''
-  );
-  const activeVariant =
-    activeProduct?.variants.find((v) => v.sku === selectedVariantSku) ||
-    activeProduct?.variants[0];
+  const colorSlots: StarKiT44Variant[] = activeProduct?.allColorSlots || [];
+  const getInitialSlotSku = (prod?: StudioProductInput) => {
+    const slots = prod?.allColorSlots || [];
+    return (slots.find((s) => s.isDocumented) || slots[0])?.sku || '';
+  };
 
-  const [gsmValue, setGsmValue] = useState<number>(350);
+  const [selectedVariantSku, setSelectedVariantSku] = useState<string>(() =>
+    getInitialSlotSku(initialProduct || products[0])
+  );
+  const activeVariant: StarKiT44Variant | undefined =
+    colorSlots.find((v) => v.sku === selectedVariantSku || v.legacySku === selectedVariantSku) ||
+    colorSlots[0];
+
   const [selectedSize, setSelectedSize] = useState<'M' | 'L' | 'XL' | 'XXL'>('L');
   const [preset, setPreset] = useState<StudioPreset>('front');
-  const [autoOrbit, setAutoOrbit] = useState<boolean>(true);
+  const [autoOrbit, setAutoOrbit] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    return !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  });
   const [hudExpanded, setHudExpanded] = useState<boolean>(true);
   const [contextLost, setContextLost] = useState<boolean>(false);
   const [webglUnavailable, setWebglUnavailable] = useState<boolean>(false);
@@ -293,20 +304,23 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
   useEffect(() => {
     if (initialProduct) {
       setSelectedProductId(initialProduct.id);
-      setSelectedVariantSku(initialProduct.variants[0]?.sku || '');
+      setSelectedVariantSku(getInitialSlotSku(initialProduct));
     }
   }, [initialProduct]);
 
   // Keep variant valid when product switches
   useEffect(() => {
     if (!activeProduct) return;
-    if (!activeProduct.variants.some((v) => v.sku === selectedVariantSku)) {
-      setSelectedVariantSku(activeProduct.variants[0]?.sku || '');
+    if (
+      !colorSlots.some(
+        (v) => v.sku === selectedVariantSku || v.legacySku === selectedVariantSku
+      )
+    ) {
+      setSelectedVariantSku(getInitialSlotSku(activeProduct));
     }
-  }, [activeProduct, selectedVariantSku]);
+  }, [activeProduct, colorSlots, selectedVariantSku]);
 
   const autoOrbitRef = useRef(autoOrbit);
-  const gsmRef = useRef(gsmValue);
   const targetCameraPos = useRef(new THREE.Vector3(0, 0.25, 2.75));
   const targetGroupRotY = useRef(0);
   const hoodieGroupRef = useRef<THREE.Group | null>(null);
@@ -321,16 +335,6 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
   useEffect(() => {
     autoOrbitRef.current = autoOrbit;
   }, [autoOrbit]);
-
-  useEffect(() => {
-    gsmRef.current = gsmValue;
-    if (fabricMaterialRef.current) {
-      const normalized = (gsmValue - 280) / 200; // 0..1
-      fabricMaterialRef.current.bumpScale = 0.008 + normalized * 0.022;
-      fabricMaterialRef.current.roughness = 0.88 - normalized * 0.14;
-      fabricMaterialRef.current.sheen = 0.35 + normalized * 0.4;
-    }
-  }, [gsmValue]);
 
   // Initialize Three.js Studio Scene once
   useEffect(() => {
@@ -815,18 +819,27 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
     );
   }
 
+  const previewPhoto =
+    activeVariant.studioPreviewWebp || activeVariant.referenceCompositeWebp || null;
+  const pubStatus =
+    'publicationStatus' in activeProduct ? activeProduct.publicationStatus : activeProduct.status;
+  const liveStock = 'stockCount' in activeProduct ? activeProduct.stockCount : 0;
+  const isOrderingLocked =
+    activeVariant.isProvisional || pubStatus !== 'APPROVED' || liveStock <= 0;
+
   const buildCartPayload = (): Omit<CartItem, 'id'> => ({
     productId: activeProduct.id,
-    nameEn: `StarkiT ${activeProduct.name} Hoodie (${activeProduct.stkCode || activeVariant.sku})`,
-    nameBn: `স্টারকিট ${activeProduct.name} হুডি (${activeProduct.stkCode || activeVariant.sku})`,
-    priceBDT: activeVariant.priceBdt,
-    image: activeVariant.previewImage,
+    nameEn: `StarkiT ${activeProduct.name} Hoodie (${activeVariant.sku})`,
+    nameBn: `স্টারকিট ${activeProduct.name} হুডি (${activeVariant.sku})`,
+    priceBDT: activeVariant.priceBdtProposed,
+    image: previewPhoto || '/media/products/STK-H001-BLK/STK-H001-BLK__91_studio_preview.webp',
     color: activeVariant.color,
     size: selectedSize,
     quantity: 1,
   });
 
   const handleStudioAddToCart = () => {
+    if (isOrderingLocked) return;
     onAddToCart(buildCartPayload());
     setAddedToBag(true);
     setTimeout(() => setAddedToBag(false), 1800);
@@ -839,14 +852,36 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
 
       {/* Graceful 2D Garment Studio Fallback / Photo Reference View */}
       {(webglUnavailable || contextLost || showPhotoRef) && (
-        <div className="absolute inset-0 bg-[#170000] flex items-center justify-center p-6 pb-36 z-10">
+        <div className="absolute inset-0 bg-[#170000] flex items-center justify-center p-6 pb-40 z-10">
           <div className="flex flex-col sm:flex-row items-center gap-6 max-w-2xl">
-            <img
-              src={activeVariant.previewImage}
-              alt={`${activeProduct.name} (${activeVariant.color})`}
-              referrerPolicy="no-referrer"
-              className="w-52 sm:w-64 aspect-[4/5] object-cover rounded-xl border border-white/20 shadow-2xl"
-            />
+            {previewPhoto && !activeVariant.isProvisional ? (
+              <img
+                src={previewPhoto}
+                alt={`${activeProduct.name} (${activeVariant.color})`}
+                referrerPolicy="no-referrer"
+                className="w-52 sm:w-64 aspect-[4/5] object-cover rounded-xl border border-white/20 shadow-2xl"
+              />
+            ) : (
+              <div className="w-52 sm:w-64 aspect-[4/5] rounded-xl border-2 border-dashed border-white/30 bg-black flex flex-col items-center justify-center p-5 text-center space-y-2">
+                <span
+                  className="w-8 h-8 rounded-full border-2 border-white/60"
+                  style={{ backgroundColor: activeVariant.colorHex }}
+                />
+                <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-300">
+                  {activeVariant.color} Slot
+                </div>
+                <div className="font-starkit text-sm font-bold uppercase text-white">
+                  {language === 'en'
+                    ? 'Colorway In Development'
+                    : 'কালারওয়ে ডেভেলপমেন্টে'}
+                </div>
+                <div className="text-[10px] font-mono text-white/60">
+                  {language === 'en'
+                    ? '3D Concept Preview Only · Awaiting Photo & Sample Approval'
+                    : 'শুধুমাত্র ৩ডি কনসেপ্ট প্রিভিউ · ছবি ও স্যাম্পল অনুমোদন বাকি'}
+                </div>
+              </div>
+            )}
             <div className="text-center sm:text-left space-y-2 max-w-xs">
               <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-[#C7C1BF]">
                 {webglUnavailable
@@ -859,7 +894,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                 {activeProduct.name}
               </h4>
               <p className="text-xs font-mono text-white/75">
-                {activeVariant.color} · {gsmValue} GSM Brushed Fleece · ৳{activeVariant.priceBdt.toLocaleString()}
+                {activeVariant.color} · {STARKIT_FABRIC_SPEC.gsmShort} · ৳{activeVariant.priceBdtProposed.toLocaleString()} (Ref. Est.)
               </p>
               <p className="text-xs text-white/65 leading-relaxed">
                 {language === 'en' ? activeProduct.descriptionEn : activeProduct.descriptionBn}
@@ -870,15 +905,22 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
       )}
 
       {/* Top Minimal Corner Telemetry (High-Contrast Solid Surface, No Backdrop-Blur over WebGL) */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
-        <div className="px-3 py-1.5 rounded-lg bg-[#170000] border border-white/25 text-[11px] font-mono text-white flex items-center gap-2">
-          <span className="font-bold">{activeProduct.stkCode || activeProduct.id}</span>
+      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20 gap-2">
+        <div className="px-3 py-1.5 rounded-lg bg-[#170000] border border-white/25 text-[11px] font-mono text-white flex items-center gap-2 min-w-0">
+          <span className="font-bold shrink-0">{activeVariant.sku}</span>
           <span className="text-white/30">·</span>
-          <span>{activeProduct.name}</span>
-          <span className="hidden sm:inline text-white/60 tabular-nums">· {gsmValue} GSM</span>
+          <span className="truncate">{activeProduct.name}</span>
+          <span className="hidden md:inline text-white/60 tabular-nums shrink-0">
+            · {STARKIT_FABRIC_SPEC.gsmShort}
+          </span>
+          {activeVariant.isProvisional && (
+            <span className="hidden sm:inline px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-200 text-[9px] uppercase shrink-0">
+              3D Concept Slot
+            </span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2 pointer-events-auto">
+        <div className="flex items-center gap-2 pointer-events-auto shrink-0">
           {!webglUnavailable && (
             <button
               type="button"
@@ -968,7 +1010,7 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                       });
                     }
                   }}
-                  className="bg-black border border-white/25 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white cursor-pointer max-w-[230px]"
+                  className="bg-black border border-white/25 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-white cursor-pointer max-w-[235px]"
                 >
                   {products.map((p) => (
                     <option key={p.id} value={p.id} className="bg-[#170000] text-white">
@@ -1003,44 +1045,39 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
               </div>
             </div>
 
-            {/* Row 2: Color Swatches + GSM Density + Size + Direct Checkout */}
+            {/* Row 2: 4-Colorway Swatches + Honest Fabric Spec + Size + Release-Gated Checkout */}
             <div className="pt-2.5 border-t border-white/15 flex flex-wrap items-center justify-between gap-3">
-              {/* Swatches & GSM */}
+              {/* Swatches & Fabric Spec */}
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1.5">
-                  {activeProduct.variants.map((v) => (
+                  {colorSlots.map((v) => (
                     <button
                       key={v.sku}
                       type="button"
                       onClick={() => {
                         setSelectedVariantSku(v.sku);
-                        trackStarKiTCustomizeProduct(`3D Colorway: ${v.color}`, activeProduct.id);
+                        trackStarKiTCustomizeProduct(
+                          `3D Colorway: ${v.color} (${v.isProvisional ? 'Concept' : 'Documented'})`,
+                          activeProduct.id
+                        );
                       }}
-                      title={v.color}
+                      title={`${v.color}${v.isProvisional ? ' — Concept Preview (In Development)' : ' — Source Documented'}`}
                       aria-label={`Select colorway ${v.color}`}
                       className={`w-5 h-5 rounded-full border-2 cursor-pointer transition-transform ${
                         v.sku === activeVariant.sku
                           ? 'border-white scale-115 ring-2 ring-white/40'
-                          : 'border-white/35 hover:border-white'
+                          : v.isProvisional
+                          ? 'border-dashed border-white/45 opacity-80 hover:opacity-100'
+                          : 'border-white/55 hover:border-white'
                       }`}
                       style={{ backgroundColor: v.colorHex }}
                     />
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2 text-[10px] font-mono text-white/80">
-                  <span>{gsmValue} GSM</span>
-                  <input
-                    type="range"
-                    min={280}
-                    max={480}
-                    step={10}
-                    value={gsmValue}
-                    onChange={(e) => setGsmValue(Number(e.target.value))}
-                    aria-label="Fleece GSM fabric density"
-                    className="w-20 h-1 bg-white/25 rounded appearance-none cursor-pointer accent-white"
-                  />
-                </div>
+                <span className="px-2 py-0.5 rounded bg-white/10 text-[10px] font-mono text-white/85 tabular-nums">
+                  {STARKIT_FABRIC_SPEC.gsmShort}
+                </span>
 
                 <div className="flex items-center gap-1">
                   {(['M', 'L', 'XL', 'XXL'] as const).map((sz) => (
@@ -1060,18 +1097,34 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                 </div>
               </div>
 
-              {/* Express Actions */}
+              {/* Express Actions (Locked while provisional or Hold / Unapproved) */}
               <div className="flex items-center gap-2 ml-auto">
                 <button
                   type="button"
+                  disabled={isOrderingLocked}
                   onClick={handleStudioAddToCart}
-                  className={`px-3 py-1.5 rounded-lg border text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 cursor-pointer transition-colors ${
-                    addedToBag
-                      ? 'bg-white text-[#170000] border-white'
-                      : 'bg-white/10 hover:bg-white/20 border-white/30 text-white'
+                  className={`px-3 py-1.5 rounded-lg border text-[11px] font-mono font-bold uppercase tracking-wider inline-flex items-center gap-1.5 transition-colors ${
+                    isOrderingLocked
+                      ? 'bg-white/5 border-white/15 text-white/50 cursor-not-allowed'
+                      : addedToBag
+                      ? 'bg-white text-[#170000] border-white cursor-pointer'
+                      : 'bg-white/10 hover:bg-white/20 border-white/30 text-white cursor-pointer'
                   }`}
                 >
-                  {addedToBag ? (
+                  {isOrderingLocked ? (
+                    <>
+                      <Lock className="w-3.5 h-3.5" />
+                      <span className="tabular-nums">
+                        {activeVariant.isProvisional
+                          ? language === 'en'
+                            ? 'Concept Locked'
+                            : 'প্রিভিউ লক'
+                          : language === 'en'
+                          ? 'Pre-Launch Hold'
+                          : 'প্রি-লঞ্চ হোল্ড'}
+                      </span>
+                    </>
+                  ) : addedToBag ? (
                     <>
                       <Check className="w-3.5 h-3.5" />
                       <span>{language === 'en' ? 'Added' : 'যুক্ত'}</span>
@@ -1080,12 +1133,12 @@ export const StarKiT3DStudio: React.FC<StarKiT3DStudioProps> = ({
                     <>
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span className="tabular-nums">
-                        {language === 'en' ? 'Add' : 'যোগ'} · ৳{activeVariant.priceBdt.toLocaleString()}
+                        {language === 'en' ? 'Add' : 'যোগ'} · ৳{activeVariant.priceBdtProposed.toLocaleString()}
                       </span>
                     </>
                   )}
                 </button>
-                {onBuyNow && (
+                {onBuyNow && !isOrderingLocked && (
                   <button
                     type="button"
                     onClick={() => onBuyNow(buildCartPayload())}

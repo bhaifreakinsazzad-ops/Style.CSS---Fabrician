@@ -1,0 +1,137 @@
+[
+  {
+    "sku": "STK-H001-BLK",
+    "preview_source": "hoodie_preview_FAB-H001-BLK.png",
+    "preview_sha256": "3dc705ab0fc0b3c2e63ea76ca91e0d8ec83694853052755b6b0b9ffdc226a360",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H001-BLK/STK-H001-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H001-BLK/STK-H001-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H001-CRM",
+    "preview_source": "hoodie_preview_FAB-H001-CRM.png",
+    "preview_sha256": "3559c91cbe23de580267e95c3548c18cf8dbfb14b2548f33734338a8cc05d656",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H001-CRM/STK-H001-CRM__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H001-CRM/STK-H001-CRM__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H002-BLK",
+    "preview_source": "hoodie_preview_FAB-H002-BLK.png",
+    "preview_sha256": "bbd457fd365d11fb6b6c8ae377d0604e49b1907ac8535d1a40d4eeed0e567237",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H002-BLK/STK-H002-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H002-BLK/STK-H002-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H003-BLK",
+    "preview_source": "hoodie_preview_FAB-H003-BLK.png",
+    "preview_sha256": "bfdda07e39021bd8b5d6eb920722ef7916fe840ced5fa8b59d4be6b6deaa311e",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H003-BLK/STK-H003-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H003-BLK/STK-H003-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H004-MRN",
+    "preview_source": "hoodie_preview_FAB-H004-MRN.png",
+    "preview_sha256": "127bb35210fda33d0536bbc40b1544db7b15ce28b6d5016c3126de9dba554574",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H004-MRN/STK-H004-MRN__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H004-MRN/STK-H004-MRN__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H005-BLK",
+    "preview_source": "hoodie_preview_FAB-H005-BLK.png",
+    "preview_sha256": "0006cad8880599d2602f08b4eec3bbe34e24bc62711c0a22c16aac0e863d86e8",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H005-BLK/STK-H005-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H005-BLK/STK-H005-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H006-BLK",
+    "preview_source": "hoodie_preview_FAB-H006-BLK.png",
+    "preview_sha256": "d79f198d9752d390104339b83569250ee819ce96254e404745e199b3cae4df74",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H006-BLK/STK-H006-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H006-BLK/STK-H006-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H007-BRN",
+    "preview_source": "hoodie_preview_FAB-H007-BRN.png",
+    "preview_sha256": "90b4ae28c15e69c1db4c818fc3e7adb7792352c1f9ed800ac8fa543cad37ba1b",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H007-BRN/STK-H007-BRN__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H007-BRN/STK-H007-BRN__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H008-BLK",
+    "preview_source": "hoodie_preview_FAB-H008-BLK.png",
+    "preview_sha256": "f88005c8f06d370087f5f07acbbf44d1df6eccafb64649117478147c533561c2",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H008-BLK/STK-H008-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H008-BLK/STK-H008-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H008-BRN",
+    "preview_source": "hoodie_preview_FAB-H008-BRN.png",
+    "preview_sha256": "f88005c8f06d370087f5f07acbbf44d1df6eccafb64649117478147c533561c2",
+    "duplicate_of_sku": "STK-H008-BLK",
+    "studio_preview_webp": null,
+    "reference_composite_webp": "/media/products/STK-H008-BRN/STK-H008-BRN__90_reference_composite.webp",
+    "integrity_status": "DUPLICATE_OF_STK-H008-BLK_NEEDS_COLOR_PHOTO"
+  },
+  {
+    "sku": "STK-H008-CRM",
+    "preview_source": "hoodie_preview_FAB-H008-CRM.png",
+    "preview_sha256": "d28961569c98d7d6dc5067c5b9f055f8f2a364d3baf9b66705d3b062ee1658c1",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H008-CRM/STK-H008-CRM__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H008-CRM/STK-H008-CRM__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H008-MRN",
+    "preview_source": "hoodie_preview_FAB-H008-MRN.png",
+    "preview_sha256": "f88005c8f06d370087f5f07acbbf44d1df6eccafb64649117478147c533561c2",
+    "duplicate_of_sku": "STK-H008-BLK",
+    "studio_preview_webp": null,
+    "reference_composite_webp": "/media/products/STK-H008-MRN/STK-H008-MRN__90_reference_composite.webp",
+    "integrity_status": "DUPLICATE_OF_STK-H008-BLK_NEEDS_COLOR_PHOTO"
+  },
+  {
+    "sku": "STK-H009-BLK",
+    "preview_source": "hoodie_preview_FAB-H009-BLK.png",
+    "preview_sha256": "6f14f5a504ffcb8200028e426b9f1a6308ea6e90540796f2a872aeca2b5c4bd4",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H009-BLK/STK-H009-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H009-BLK/STK-H009-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H010-BLK",
+    "preview_source": "hoodie_preview_FAB-H010-BLK.png",
+    "preview_sha256": "f326ec4b9d9ac5ec82bdf9b227a14bf85deca0937599cac3ae6bdc24bf541e7f",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H010-BLK/STK-H010-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H010-BLK/STK-H010-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  },
+  {
+    "sku": "STK-H011-BLK",
+    "preview_source": "hoodie_preview_FAB-H011-BLK.png",
+    "preview_sha256": "ce711988583e976fd4651904c4d6cb7dc6fd850a3bee50e44297cc69fadd61e4",
+    "duplicate_of_sku": null,
+    "studio_preview_webp": "/media/products/STK-H011-BLK/STK-H011-BLK__91_studio_preview.webp",
+    "reference_composite_webp": "/media/products/STK-H011-BLK/STK-H011-BLK__90_reference_composite.webp",
+    "integrity_status": "VERIFIED_LOCAL_PREVIEW"
+  }
+]
