@@ -190,7 +190,7 @@ export const ThreePieceSection: React.FC<ThreePieceSectionProps> = ({
               <span className="inline-flex items-center gap-1.5 font-semibold text-[#050505]">
                 <Truck className="w-3.5 h-3.5 text-[#0866FF]" />
                 {language === 'en'
-                  ? '64-District Pathao COD & bKash/Nagad'
+                  ? '64-District Pathao Cash on Delivery'
                   : '৬৪ জেলায় পাঠাও ক্যাশ অন ডেলিভারি'}
               </span>
             </div>

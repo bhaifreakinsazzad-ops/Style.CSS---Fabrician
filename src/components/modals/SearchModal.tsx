@@ -3,6 +3,7 @@ import { Search, X, ArrowRight, ShoppingBag, Check } from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
 import { useStoreData } from '../../context/StoreDataContext';
 import { translations } from '../../data/translations';
+import { trackFabricianSearch } from '../../services/metaPixel';
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -46,6 +47,16 @@ export const SearchModal: React.FC<SearchModalProps> = ({
       setQuery('');
     }
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const trimmed = query.trim();
+    if (trimmed.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackFabricianSearch(trimmed, 'Global Archive Search');
+    }, 550);
+    return () => window.clearTimeout(timer);
+  }, [isOpen, query]);
 
   if (!isOpen) return null;
 

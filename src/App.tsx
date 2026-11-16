@@ -25,6 +25,7 @@ import { QuickViewModal } from './components/modals/QuickViewModal';
 import { SizeGuideModal } from './components/modals/SizeGuideModal';
 import { StyleQuizModal } from './components/style-intelligence/StyleQuizModal';
 import { TrackOrderModal } from './components/modals/TrackOrderModal';
+import { ReturnsExchangesModal } from './components/modals/ReturnsExchangesModal';
 import { StarKiTBrandPage } from './components/brands/StarKiTBrandPage';
 import { FarizasTerritoryBrandPage } from './components/brands/FarizasTerritoryBrandPage';
 import {
@@ -33,6 +34,9 @@ import {
   isStarKiTItem,
   isStarKiTProduct,
   syncInitialPageViewCapi,
+  trackFabricianAddToCart,
+  trackFabricianAddToWishlist,
+  trackFabricianPageView,
   trackFarizaAddToCart,
   trackFarizaAddToWishlist,
   trackStarKiTAddToCart,
@@ -105,7 +109,8 @@ export default function App() {
   const [isGlobalSizeGuideOpen, setIsGlobalSizeGuideOpen] = useState(false);
   const [isStyleQuizOpen, setIsStyleQuizOpen] = useState(false);
   const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
-  const [trackOrderId, setTrackOrderId] = useState('FAB-2026');
+  const [isReturnsModalOpen, setIsReturnsModalOpen] = useState(false);
+  const [trackOrderId, setTrackOrderId] = useState('');
   const [external3DItem, setExternal3DItem] = useState<ThreePieceItem | null>(null);
 
   useEffect(() => {
@@ -120,6 +125,12 @@ export default function App() {
       window.removeEventListener('popstate', syncFromLocation);
     };
   }, []);
+
+  useEffect(() => {
+    if (viewMode !== 'admin') {
+      trackFabricianPageView();
+    }
+  }, [viewMode]);
 
   const navigateToAdmin = () => {
     window.location.hash = 'admin';
@@ -182,12 +193,18 @@ export default function App() {
   }, [wishlist]);
 
   const handleOpenTrackOrder = (orderId?: string) => {
-    if (orderId) setTrackOrderId(orderId);
+    setTrackOrderId(orderId || '');
     setIsTrackOrderOpen(true);
   };
 
   // Cart Handlers
   const upsertCartItem = (item: Omit<CartItem, 'id'>) => {
+    trackFabricianAddToCart({
+      id: item.productId,
+      name: item.nameEn,
+      priceBDT: item.priceBDT,
+      quantity: item.quantity,
+    });
     if (isStarKiTItem(item.productId, item.nameEn, unifiedCatalog)) {
       trackStarKiTAddToCart({
         id: item.productId,
@@ -261,6 +278,14 @@ export default function App() {
   // Wishlist Handlers
   const handleToggleWishlist = (product: Product) => {
     const exists = wishlist.some((p) => p.id === product.id);
+    if (!exists) {
+      trackFabricianAddToWishlist({
+        id: product.id,
+        name: product.nameEn,
+        category: product.collection,
+        valueBDT: product.priceBDT,
+      });
+    }
     if (!exists && isStarKiTProduct(product, unifiedCatalog)) {
       trackStarKiTAddToWishlist({
         id: product.id,
@@ -479,6 +504,7 @@ export default function App() {
             onBuyNow={handleBuyNow}
             onToggleWishlist={handleToggleWishlist}
             isWishlisted={isWishlisted}
+            onQuickView={(p) => setQuickViewProduct(p)}
             onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
           />
 
@@ -553,6 +579,7 @@ export default function App() {
         onNavigate={handleNavigateSection}
         onSelectBrand={navigateToBrand}
         onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
+        onOpenReturnsExchanges={() => setIsReturnsModalOpen(true)}
         onOpenTrackOrder={() => handleOpenTrackOrder()}
         onOpenAdmin={navigateToAdmin}
       />
@@ -625,6 +652,14 @@ export default function App() {
         onClose={() => setIsTrackOrderOpen(false)}
         language={language}
         initialOrderId={trackOrderId}
+      />
+
+      {/* Returns & Exchanges Policy Modal */}
+      <ReturnsExchangesModal
+        isOpen={isReturnsModalOpen}
+        onClose={() => setIsReturnsModalOpen(false)}
+        language={language}
+        onOpenTrackOrder={() => handleOpenTrackOrder()}
       />
       </div>
     </MotionConfig>

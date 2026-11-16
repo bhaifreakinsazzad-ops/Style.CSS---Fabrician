@@ -10,6 +10,7 @@ interface FooterProps {
   onNavigate: (sectionId: string) => void;
   onSelectBrand?: (brand: 'store' | 'starkit' | 'farizas-territory') => void;
   onOpenSizeGuide?: () => void;
+  onOpenReturnsExchanges?: () => void;
   onOpenTrackOrder?: () => void;
   onOpenAdmin?: () => void;
 }
@@ -19,6 +20,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigate,
   onSelectBrand,
   onOpenSizeGuide,
+  onOpenReturnsExchanges,
   onOpenTrackOrder,
   onOpenAdmin,
 }) => {
@@ -218,6 +220,18 @@ export const Footer: React.FC<FooterProps> = ({
                   <span className="text-[10px] text-[#B69A60] font-mono">(Track)</span>
                 </button>
               </li>
+              {onOpenReturnsExchanges && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={onOpenReturnsExchanges}
+                    className="hover:text-[#F5F2EB] transition-colors cursor-pointer text-left flex items-center gap-1.5"
+                  >
+                    <span>{t.footer.returnsExchanges}</span>
+                    <span className="text-[10px] text-emerald-400 font-mono">7-Day</span>
+                  </button>
+                </li>
+              )}
               <li>
                 <button
                   type="button"

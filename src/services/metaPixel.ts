@@ -1,6 +1,7 @@
 import { Product } from '../types';
 import { LiveProduct } from '../types/store';
 
+export const FABRICIAN_META_PIXEL_ID = '1564623565315873';
 export const STARKIT_META_PIXEL_ID = '1390081606323661';
 export const FARIZA_META_PIXEL_ID = '1657670575734647';
 
@@ -16,6 +17,10 @@ declare global {
   interface Window {
     fbq?: FbqFn;
     _fbq?: FbqFn;
+    __FABRICIAN_PIXEL_INITIALIZED__?: boolean;
+    __FABRICIAN_INITIAL_PAGEVIEW__?: boolean;
+    __FABRICIAN_INITIAL_PAGEVIEW_ID__?: string;
+    __FABRICIAN_INITIAL_URL__?: string;
     __STARKIT_PIXEL_INITIALIZED__?: boolean;
     __STARKIT_INITIAL_PAGEVIEW__?: boolean;
     __STARKIT_INITIAL_PAGEVIEW_ID__?: string;
@@ -229,6 +234,18 @@ function loadFbqStubAndScript(): FbqFn | null {
   return window.fbq || null;
 }
 
+export function ensureFabricianMetaPixel(): FbqFn | null {
+  const fbq = loadFbqStubAndScript();
+  if (!fbq) return null;
+
+  if (!window.__FABRICIAN_PIXEL_INITIALIZED__) {
+    window.__FABRICIAN_PIXEL_INITIALIZED__ = true;
+    fbq('init', FABRICIAN_META_PIXEL_ID);
+  }
+
+  return fbq;
+}
+
 export function ensureStarKiTMetaPixel(): FbqFn | null {
   const fbq = loadFbqStubAndScript();
   if (!fbq) return null;
@@ -253,6 +270,7 @@ export function ensureFarizaMetaPixel(): FbqFn | null {
   return fbq;
 }
 
+let lastTrackedFabricianRoute: string | null = null;
 let lastTrackedStarKiTRoute: string | null = null;
 let lastTrackedFarizaRoute: string | null = null;
 
@@ -263,6 +281,18 @@ function getCurrentRouteKey(): string {
 
 export function syncInitialPageViewCapi(): void {
   if (typeof window === 'undefined') return;
+
+  if (window.__FABRICIAN_INITIAL_PAGEVIEW__) {
+    window.__FABRICIAN_INITIAL_PAGEVIEW__ = false;
+    const initialMainId = window.__FABRICIAN_INITIAL_PAGEVIEW_ID__ || generateEventId('mpv');
+    window.__FABRICIAN_INITIAL_PAGEVIEW_ID__ = undefined;
+    lastTrackedFabricianRoute = window.__FABRICIAN_INITIAL_URL__ || getCurrentRouteKey();
+    dispatchCapiEvent({
+      pixelId: FABRICIAN_META_PIXEL_ID,
+      eventName: 'PageView',
+      eventId: initialMainId,
+    });
+  }
 
   if (window.__STARKIT_INITIAL_PAGEVIEW__) {
     window.__STARKIT_INITIAL_PAGEVIEW__ = false;
@@ -288,6 +318,31 @@ export function syncInitialPageViewCapi(): void {
       eventId: initialFarizaId,
     });
   }
+}
+
+export function trackFabricianPageView(routeKeyOverride?: string): void {
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const routeKey = routeKeyOverride || getCurrentRouteKey();
+
+  if (window.__FABRICIAN_INITIAL_PAGEVIEW__) {
+    syncInitialPageViewCapi();
+    return;
+  }
+
+  if (lastTrackedFabricianRoute === routeKey) {
+    return;
+  }
+
+  lastTrackedFabricianRoute = routeKey;
+  const eventId = generateEventId('mpv');
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'PageView', {}, { eventID: eventId });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'PageView',
+    eventId,
+  });
 }
 
 export function trackStarKiTPageView(): void {
@@ -406,6 +461,7 @@ export function trackFarizaViewContent(params: {
 export function trackStarKiTSearch(searchString: string): void {
   const q = searchString.trim();
   if (q.length < 2) return;
+  trackFabricianSearch(q, 'StarKiT');
   const fbq = ensureStarKiTMetaPixel();
   if (!fbq) return;
 
@@ -429,6 +485,7 @@ export function trackStarKiTSearch(searchString: string): void {
 export function trackFarizaSearch(searchString: string): void {
   const q = searchString.trim();
   if (q.length < 2) return;
+  trackFabricianSearch(q, "Fariza's Territory");
   const fbq = ensureFarizaMetaPixel();
   if (!fbq) return;
 
@@ -800,6 +857,7 @@ export function trackFarizaPurchase(params: {
 }
 
 export function trackStarKiTContact(channel: string, detail?: string): void {
+  trackFabricianContact(channel, detail || 'StarKiT WhatsApp Desk');
   const fbq = ensureStarKiTMetaPixel();
   if (!fbq) return;
 
@@ -821,6 +879,7 @@ export function trackStarKiTContact(channel: string, detail?: string): void {
 }
 
 export function trackFarizaContact(channel: string, detail?: string): void {
+  trackFabricianContact(channel, detail || "Fariza's Territory Concierge");
   const fbq = ensureFarizaMetaPixel();
   if (!fbq) return;
 
@@ -841,7 +900,284 @@ export function trackFarizaContact(channel: string, detail?: string): void {
   });
 }
 
+export function trackFabricianViewContent(params: {
+  id: string;
+  name: string;
+  category?: string;
+  valueBDT: number;
+}): void {
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('mvc');
+  const customData = {
+    content_ids: [params.id],
+    content_name: params.name,
+    content_type: 'product',
+    content_category: params.category || 'FABRICIAN Store',
+    contents: [{ id: params.id, quantity: 1, item_price: params.valueBDT }],
+    value: params.valueBDT,
+    currency: 'BDT',
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'ViewContent', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'ViewContent',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianSearch(searchString: string, category = 'FABRICIAN Store'): void {
+  const q = searchString.trim();
+  if (q.length < 2) return;
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('msrch');
+  const customData = {
+    search_string: q,
+    content_category: category,
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'Search', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'Search',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianAddToWishlist(params: {
+  id: string;
+  name: string;
+  category?: string;
+  valueBDT: number;
+}): void {
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('mwl');
+  const customData = {
+    content_ids: [params.id],
+    content_name: params.name,
+    content_type: 'product',
+    content_category: params.category || 'FABRICIAN Store',
+    contents: [{ id: params.id, quantity: 1, item_price: params.valueBDT }],
+    value: params.valueBDT,
+    currency: 'BDT',
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'AddToWishlist', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'AddToWishlist',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianAddToCart(item: MetaPixelContentItem): void {
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('matc');
+  const customData = {
+    content_ids: [item.id],
+    content_name: item.name,
+    content_type: 'product',
+    content_category: item.category || 'FABRICIAN Store',
+    contents: [
+      {
+        id: item.id,
+        quantity: item.quantity,
+        item_price: item.priceBDT,
+      },
+    ],
+    num_items: item.quantity,
+    value: item.priceBDT * item.quantity,
+    currency: 'BDT',
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'AddToCart', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'AddToCart',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianInitiateCheckout(
+  items: MetaPixelContentItem[],
+  totalValueBDT: number
+): void {
+  if (items.length === 0) return;
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('mic');
+  const numItems = items.reduce((sum, i) => sum + i.quantity, 0);
+  const customData = {
+    content_ids: items.map((i) => i.id),
+    content_name: items.map((i) => i.name).join(', '),
+    content_type: 'product',
+    content_category: 'FABRICIAN Store',
+    contents: items.map((i) => ({
+      id: i.id,
+      quantity: i.quantity,
+      item_price: i.priceBDT,
+    })),
+    num_items: numItems,
+    value: Math.max(0, Math.round(totalValueBDT)),
+    currency: 'BDT',
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'InitiateCheckout', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'InitiateCheckout',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianAddPaymentInfo(
+  paymentMethod: 'cod' | 'mfs',
+  items: MetaPixelContentItem[],
+  totalValueBDT: number
+): void {
+  if (items.length === 0) return;
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('mapi');
+  const customData = {
+    content_ids: items.map((i) => i.id),
+    content_name: items.map((i) => i.name).join(', '),
+    content_type: 'product',
+    contents: items.map((i) => ({
+      id: i.id,
+      quantity: i.quantity,
+      item_price: i.priceBDT,
+    })),
+    payment_type: paymentMethod === 'cod' ? 'Cash on Delivery' : 'bKash / Nagad MFS',
+    value: Math.max(0, Math.round(totalValueBDT)),
+    currency: 'BDT',
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'AddPaymentInfo', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'AddPaymentInfo',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianPurchase(params: {
+  orderId: string;
+  items: MetaPixelContentItem[];
+  totalValueBDT: number;
+  customer?: MetaCapiCustomer;
+}): void {
+  if (params.items.length === 0) return;
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = `mpurchase_${params.orderId}`;
+  const numItems = params.items.reduce((sum, i) => sum + i.quantity, 0);
+  const customData = {
+    order_id: params.orderId,
+    content_ids: params.items.map((i) => i.id),
+    content_name: params.items.map((i) => i.name).join(', '),
+    content_type: 'product',
+    content_category: 'FABRICIAN Store',
+    contents: params.items.map((i) => ({
+      id: i.id,
+      quantity: i.quantity,
+      item_price: i.priceBDT,
+    })),
+    num_items: numItems,
+    value: Math.max(0, Math.round(params.totalValueBDT)),
+    currency: 'BDT',
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'Purchase', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'Purchase',
+    eventId,
+    customData,
+    customer: params.customer,
+  });
+}
+
+export function trackFabricianContact(channel: string, detail?: string): void {
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('mcnt');
+  const customData = {
+    content_name: detail || 'FABRICIAN Concierge',
+    content_category: channel,
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'Contact', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'Contact',
+    eventId,
+    customData,
+  });
+}
+
+export function trackFabricianCustomizeProduct(
+  detail: string,
+  productId?: string,
+  category = 'FABRICIAN Atelier'
+): void {
+  const fbq = ensureFabricianMetaPixel();
+  if (!fbq) return;
+
+  const eventId = generateEventId('mcust');
+  const customData = {
+    ...(productId ? { content_ids: [productId] } : {}),
+    content_name: detail,
+    content_category: category,
+  };
+
+  fbq('trackSingle', FABRICIAN_META_PIXEL_ID, 'CustomizeProduct', customData, {
+    eventID: eventId,
+  });
+  dispatchCapiEvent({
+    pixelId: FABRICIAN_META_PIXEL_ID,
+    eventName: 'CustomizeProduct',
+    eventId,
+    customData,
+  });
+}
+
 export function trackStarKiTCustomizeProduct(detail: string, productId?: string): void {
+  trackFabricianCustomizeProduct(detail, productId, 'StarKiT Studio');
   const fbq = ensureStarKiTMetaPixel();
   if (!fbq) return;
 
@@ -864,6 +1200,7 @@ export function trackStarKiTCustomizeProduct(detail: string, productId?: string)
 }
 
 export function trackFarizaCustomizeProduct(detail: string, productId?: string): void {
+  trackFabricianCustomizeProduct(detail, productId, "Fariza's Territory Studio");
   const fbq = ensureFarizaMetaPixel();
   if (!fbq) return;
 

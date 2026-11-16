@@ -258,35 +258,37 @@ export async function trackPathaoOrder(
     };
   }
 
-  // If a live token is set, attempt live Hermes Pathao API call
-  if (token) {
-    try {
-      const response = await fetch(
-        `${pathaoConfig.baseUrl}/orders/${encodeURIComponent(cleanId)}/info`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-        }
-      );
-      if (response.ok) {
-        const liveJson = await response.json();
-        // Transform live Pathao response to our typed model
+  // Query the server-side Pathao Merchant proxy first (keeps OAuth secrets off client bundles)
+  try {
+    const response = await fetch('/api/pathao', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        ...(token ? { 'X-Pathao-Token': token } : {}),
+      },
+      body: JSON.stringify({ action: 'track', consignmentId: cleanId }),
+    });
+    if (response.ok) {
+      const proxyJson = await response.json().catch(() => null);
+      const liveData = proxyJson?.ok ? proxyJson.data : null;
+      if (liveData) {
         return {
-          consignmentId: liveJson.data?.consignment_id || cleanId,
-          orderId: liveJson.data?.merchant_order_id || cleanId,
-          recipientName: liveJson.data?.recipient_name || 'Customer',
-          recipientPhone: liveJson.data?.recipient_phone || '',
-          recipientAddress: liveJson.data?.recipient_address || 'Dhaka, Bangladesh',
-          hubLocation: liveJson.data?.current_hub || 'Pathao Central Hub',
+          consignmentId: liveData.consignment_id || cleanId,
+          orderId: liveData.merchant_order_id || cleanId,
+          recipientName: liveData.recipient_name || 'Customer',
+          recipientPhone: liveData.recipient_phone || '',
+          recipientAddress: liveData.recipient_address || 'Dhaka, Bangladesh',
+          hubLocation: liveData.current_hub || 'Pathao Central Hub',
           courierPartner: 'Pathao Courier',
-          paymentType: liveJson.data?.amount_to_collect > 0 ? 'Cash on Delivery (COD)' : 'Prepaid via MFS (bKash/Nagad)',
-          amountToCollectBDT: liveJson.data?.amount_to_collect || 0,
-          currentStatus: liveJson.data?.order_status || 'In_Transit',
-          estimatedDelivery: liveJson.data?.estimated_delivery_time || 'Within 24-48 Hours',
-          timeline: (liveJson.data?.order_status_history || []).map((h: any) => ({
+          paymentType:
+            Number(liveData.amount_to_collect || 0) > 0
+              ? 'Cash on Delivery (COD)'
+              : 'Prepaid via MFS (bKash/Nagad)',
+          amountToCollectBDT: Number(liveData.amount_to_collect || 0),
+          currentStatus: liveData.order_status || 'In_Transit',
+          estimatedDelivery: liveData.estimated_delivery_time || 'Within 24-48 Hours',
+          timeline: (liveData.order_status_history || []).map((h: any) => ({
             time: h.created_at,
             status: h.status,
             location: h.location || 'Dhaka',
@@ -294,9 +296,9 @@ export async function trackPathaoOrder(
           })),
         };
       }
-    } catch {
-      // Graceful fallback to mock data if network or sandbox is offline
     }
+  } catch {
+    // Graceful fallback to Firestore / saved orders if Pathao endpoint is unreachable
   }
 
   // Check live Firestore orderTracking first (admin-updated status across devices)

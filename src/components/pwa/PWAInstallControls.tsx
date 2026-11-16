@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Smartphone, Share, PlusSquare, WifiOff, X, CheckCircle2 } from 'lucide-react';
+import { Download, Share, PlusSquare, WifiOff, X, CheckCircle2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { usePWAInstall } from '../../hooks/usePWAInstall';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
@@ -89,9 +89,12 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
           className={`w-full p-3.5 rounded-xl bg-gradient-to-r from-[#B69A60]/18 to-[#171719] border border-[#B69A60]/45 hover:border-[#B69A60] text-left flex items-center justify-between gap-3 transition-colors cursor-pointer ${className}`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-[#09090B] border border-[#B69A60]/40 flex items-center justify-center shrink-0">
-              <Smartphone className="w-4 h-4 text-[#D5BA80]" />
-            </div>
+            <img
+              src="/pwa-192x192.png"
+              alt="FABRICIAN App Icon"
+              className="w-10 h-10 rounded-xl border border-[#B69A60]/40 object-cover shrink-0 shadow-md"
+              referrerPolicy="no-referrer"
+            />
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-[#F5F2EB]">
                 {buttonLabel}

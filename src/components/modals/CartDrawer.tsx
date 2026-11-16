@@ -13,17 +13,30 @@ import {
   Tag,
   Copy,
   Check,
+  MapPin,
+  Clock,
+  Search,
 } from 'lucide-react';
 import { CartItem, Language } from '../../types';
 import { translations } from '../../data/translations';
 import { useStoreData } from '../../context/StoreDataContext';
 import { placeStoreOrder } from '../../services/storeService';
 import {
+  BANGLADESH_DISTRICTS,
+  BANGLADESH_DIVISIONS,
+  POPULAR_DISTRICT_IDS,
+  calculateDistrictShipping,
+  findDistrictById,
+} from '../../data/bangladeshDistricts';
+import {
   isFarizaItem,
   isFarizaRoute,
   isStarKiTItem,
   isStarKiTRoute,
   MetaPixelContentItem,
+  trackFabricianAddPaymentInfo,
+  trackFabricianInitiateCheckout,
+  trackFabricianPurchase,
   trackFarizaAddPaymentInfo,
   trackFarizaInitiateCheckout,
   trackFarizaPurchase,
@@ -39,23 +52,54 @@ interface SavedCheckoutProfile {
   phone: string;
   address: string;
   division: string;
+  districtId: string;
+}
+
+function resolveDefaultDistrictFromDivision(div?: string): string {
+  if (!div) return 'dhaka';
+  const match = BANGLADESH_DISTRICTS.find(
+    (d) => d.division.toLowerCase() === div.toLowerCase()
+  );
+  return match ? match.id : 'dhaka';
 }
 
 function readSavedProfile(): SavedCheckoutProfile {
   try {
     const raw = localStorage.getItem(CHECKOUT_PROFILE_KEY);
     if (!raw) {
-      return { fullName: '', phone: '', address: '', division: 'Dhaka Division' };
+      return {
+        fullName: '',
+        phone: '',
+        address: '',
+        division: 'Dhaka Division',
+        districtId: 'dhaka',
+      };
     }
     const parsed = JSON.parse(raw) as Partial<SavedCheckoutProfile>;
+    const savedDivision =
+      typeof parsed.division === 'string' && parsed.division
+        ? parsed.division
+        : 'Dhaka Division';
+    const district = findDistrictById(
+      typeof parsed.districtId === 'string' && parsed.districtId
+        ? parsed.districtId
+        : resolveDefaultDistrictFromDivision(savedDivision)
+    );
     return {
       fullName: typeof parsed.fullName === 'string' ? parsed.fullName : '',
       phone: typeof parsed.phone === 'string' ? parsed.phone : '',
       address: typeof parsed.address === 'string' ? parsed.address : '',
-      division: typeof parsed.division === 'string' ? parsed.division : 'Dhaka Division',
+      division: district.division,
+      districtId: district.id,
     };
   } catch {
-    return { fullName: '', phone: '', address: '', division: 'Dhaka Division' };
+    return {
+      fullName: '',
+      phone: '',
+      address: '',
+      division: 'Dhaka Division',
+      districtId: 'dhaka',
+    };
   }
 }
 
@@ -98,7 +142,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const [fullName, setFullName] = useState(() => readSavedProfile().fullName);
   const [phone, setPhone] = useState(() => readSavedProfile().phone);
   const [address, setAddress] = useState(() => readSavedProfile().address);
+  const [districtId, setDistrictId] = useState(() => readSavedProfile().districtId);
   const [division, setDivision] = useState(() => readSavedProfile().division);
+  const [districtSearch, setDistrictSearch] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'mfs' | 'cod'>('cod');
   const [mfsReference, setMfsReference] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -111,8 +157,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const checkoutRequestRef = useRef<{requestId: string; lookupToken: string} | null>(null);
   const checkoutTrackedRef = React.useRef(false);
 
+  const selectedDistrict = useMemo(() => findDistrictById(districtId), [districtId]);
+  const filteredDistricts = useMemo(() => {
+    const q = districtSearch.trim().toLowerCase();
+    if (!q) return BANGLADESH_DISTRICTS;
+    return BANGLADESH_DISTRICTS.filter(
+      (d) =>
+        d.nameEn.toLowerCase().includes(q) ||
+        d.nameBn.includes(q) ||
+        d.division.toLowerCase().includes(q) ||
+        d.divisionBn.includes(q)
+    );
+  }, [districtSearch]);
+
+  const handleSelectDistrict = (nextDistrictId: string) => {
+    const resolved = findDistrictById(nextDistrictId);
+    setDistrictId(resolved.id);
+    setDivision(resolved.division);
+  };
+
   const t = translations[language];
-  useEffect(() => { checkoutRequestRef.current = null; }, [items, fullName, phone, address, division, appliedPromo]);
+  useEffect(() => { checkoutRequestRef.current = null; }, [items, fullName, phone, address, districtId, division, appliedPromo]);
 
   useEffect(() => {
     if (isOpen && checkoutStep !== 'success') {
@@ -141,6 +206,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       quantity: i.quantity,
     }));
 
+    const allValue = allMappedItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
+    trackFabricianInitiateCheckout(allMappedItems, allValue);
+    checkoutTrackedRef.current = true;
+
     const starKiTItems = allMappedItems.filter((i) =>
       isStarKiTItem(i.id, i.name, unifiedCatalog)
     );
@@ -148,21 +217,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       isFarizaItem(i.id, i.name, unifiedCatalog)
     );
 
-    let tracked = false;
     if (starKiTItems.length > 0 || isStarKiTRoute()) {
-      tracked = true;
       const targetItems = starKiTItems.length > 0 ? starKiTItems : allMappedItems;
       const value = targetItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
       trackStarKiTInitiateCheckout(targetItems, value);
     }
     if (farizaItems.length > 0 || isFarizaRoute()) {
-      tracked = true;
       const targetItems = farizaItems.length > 0 ? farizaItems : allMappedItems;
       const value = targetItems.reduce((sum, i) => sum + i.priceBDT * i.quantity, 0);
       trackFarizaInitiateCheckout(targetItems, value);
-    }
-    if (tracked) {
-      checkoutTrackedRef.current = true;
     }
   }, [isOpen, checkoutStep, items, unifiedCatalog]);
 
@@ -170,12 +233,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     try {
       localStorage.setItem(
         CHECKOUT_PROFILE_KEY,
-        JSON.stringify({ fullName, phone, address, division })
+        JSON.stringify({ fullName, phone, address, division, districtId })
       );
     } catch {
       // ignore storage errors
     }
-  }, [fullName, phone, address, division]);
+  }, [fullName, phone, address, division, districtId]);
 
   const upsellRecommendations = useMemo(() => {
     const inCartIds = new Set(items.map((i) => i.productId));
@@ -262,13 +325,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   const discountedSubtotal = Math.max(0, subtotal - totalDiscount);
   const freeShippingThreshold = storeSettings.freeShippingThresholdBDT;
   const freeShippingUnlocked = discountedSubtotal >= freeShippingThreshold && items.length > 0;
-  const deliveryFee =
-    items.length === 0 || freeShippingUnlocked
-      ? 0
-      : division === 'Dhaka Division'
-      ? storeSettings.dhakaShippingFeeBDT
-      : storeSettings.outsideDhakaShippingFeeBDT;
+  const shippingEstimate = calculateDistrictShipping(
+    selectedDistrict.id,
+    discountedSubtotal,
+    items.length,
+    storeSettings
+  );
+  const deliveryFee = shippingEstimate.feeBDT;
   const orderTotal = discountedSubtotal + deliveryFee;
+  const dispatchDestinationLabel = `${selectedDistrict.nameEn}, ${selectedDistrict.division}`;
 
   const handleApplyPromo = (codeOverride?: string) => {
     const code = (codeOverride ?? promoInput).trim().toUpperCase();
@@ -403,6 +468,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         ? orderTotal
         : Math.max(0, Math.round(discountedSubtotal * farizaShareRatio));
 
+    trackFabricianAddPaymentInfo(paymentMethod, allMappedConversionItems, orderTotal);
     if (shouldTrackStarKiT) {
       trackStarKiTAddPaymentInfo(paymentMethod, starKiTConversionItems, starKiTTotalBDT);
     }
@@ -425,7 +491,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         recipientName: trimmedName,
         recipientPhone: phone.trim(),
         recipientAddress: combinedAddress,
-        division,
+        division: dispatchDestinationLabel,
         paymentMethod,
         subtotalBDT: subtotal,
         discountBDT: totalDiscount,
@@ -436,6 +502,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       });
 
       checkoutRequestRef.current = null;
+      trackFabricianPurchase({
+        orderId: result.orderId,
+        items: allMappedConversionItems,
+        totalValueBDT: result.totalBDT ?? orderTotal,
+        customer: {
+          fullName: trimmedName,
+          phone: phone.trim(),
+          division: dispatchDestinationLabel,
+        },
+      });
       if (shouldTrackStarKiT) {
         trackStarKiTPurchase({
           orderId: result.orderId,
@@ -444,7 +520,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           customer: {
             fullName: trimmedName,
             phone: phone.trim(),
-            division,
+            division: dispatchDestinationLabel,
           },
         });
       }
@@ -456,7 +532,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
           customer: {
             fullName: trimmedName,
             phone: phone.trim(),
-            division,
+            division: dispatchDestinationLabel,
           },
         });
       }
@@ -466,7 +542,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         consignmentId: result.consignmentId,
         recipientName: trimmedName,
         recipientAddress: combinedAddress,
-        division,
+        division: dispatchDestinationLabel,
         totalBDT: result.totalBDT ?? orderTotal,
       });
       onClearCart();
@@ -706,6 +782,186 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         </div>
                       </div>
                     )}
+                    {/* 64-District Shipping Cost Calculator */}
+                    <div className="pt-4 mt-4 border-t border-white/10">
+                      <div className="p-3.5 rounded-xl bg-black/45 border border-white/10 space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-[#D5BA80]">
+                            <Truck className="w-3.5 h-3.5 text-[#B69A60] shrink-0" />
+                            <span>
+                              {language === 'en'
+                                ? 'Shipping Cost Calculator · 64 Districts'
+                                : 'ডেলিভারি খরচ ক্যালকুলেটর · ৬৪ জেলা'}
+                            </span>
+                          </div>
+                          <span
+                            className={`text-[11px] font-mono font-semibold tabular-nums ${
+                              freeShippingUnlocked ? 'text-emerald-400' : 'text-[#D5BA80]'
+                            }`}
+                          >
+                            {freeShippingUnlocked
+                              ? language === 'en'
+                                ? 'Complimentary'
+                                : 'ফ্রি'
+                              : `৳ ${deliveryFee.toLocaleString()}`}
+                          </span>
+                        </div>
+
+                        {/* Quick-pick Major District Hubs */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {POPULAR_DISTRICT_IDS.map((id) => {
+                            const d = findDistrictById(id);
+                            const active = selectedDistrict.id === d.id;
+                            return (
+                              <button
+                                key={d.id}
+                                type="button"
+                                onClick={() => handleSelectDistrict(d.id)}
+                                className={`px-2 py-1 rounded text-[10px] font-mono transition-colors cursor-pointer whitespace-nowrap ${
+                                  active
+                                    ? 'bg-[#B69A60] text-[#09090B] font-bold'
+                                    : 'bg-white/5 text-[#D8D3C9] hover:bg-white/10 border border-white/10'
+                                }`}
+                              >
+                                {language === 'en' ? d.nameEn : d.nameBn}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Search + Full 64-District Selector */}
+                        <div className="space-y-2">
+                          <div className="relative">
+                            <Search className="w-3.5 h-3.5 text-[#77777D] absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <input
+                              type="text"
+                              value={districtSearch}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setDistrictSearch(val);
+                                const q = val.trim().toLowerCase();
+                                if (q) {
+                                  const exact = BANGLADESH_DISTRICTS.find(
+                                    (d) =>
+                                      d.nameEn.toLowerCase().startsWith(q) ||
+                                      d.nameBn.startsWith(q)
+                                  );
+                                  if (exact) {
+                                    handleSelectDistrict(exact.id);
+                                  }
+                                }
+                              }}
+                              placeholder={
+                                language === 'en'
+                                  ? 'Search any of 64 districts (e.g. Cox’s Bazar, Bogura)...'
+                                  : 'যেকোনো জেলা খুঁজুন (যেমন: কক্সবাজার, বগুড়া)...'
+                              }
+                              className="w-full bg-black/60 border border-white/15 rounded-lg pl-8 pr-7 py-1.5 text-[11px] text-[#F5F2EB] placeholder:text-[#77777D] focus:outline-none focus:border-[#B69A60]"
+                            />
+                            {districtSearch && (
+                              <button
+                                type="button"
+                                onClick={() => setDistrictSearch('')}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-[#77777D] hover:text-white cursor-pointer"
+                                aria-label="Clear district search"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+
+                          <div>
+                            <label
+                              htmlFor="cart-district-select"
+                              className="sr-only"
+                            >
+                              {language === 'en' ? 'Select Delivery District' : 'ডেলিভারি জেলা নির্বাচন'}
+                            </label>
+                            <select
+                              id="cart-district-select"
+                              value={selectedDistrict.id}
+                              onChange={(e) => handleSelectDistrict(e.target.value)}
+                              className="w-full bg-black/60 border border-white/15 rounded-lg px-2.5 py-2 text-xs text-[#F5F2EB] focus:outline-none focus:border-[#B69A60] cursor-pointer"
+                            >
+                              {BANGLADESH_DIVISIONS.map((div) => {
+                                const divDistricts = filteredDistricts.filter(
+                                  (d) => d.division === div.id
+                                );
+                                if (divDistricts.length === 0) return null;
+                                return (
+                                  <optgroup
+                                    key={div.id}
+                                    label={language === 'en' ? div.id : div.nameBn}
+                                    className="bg-[#171719] text-[#D5BA80]"
+                                  >
+                                    {divDistricts.map((d) => (
+                                      <option
+                                        key={d.id}
+                                        value={d.id}
+                                        className="bg-[#171719] text-[#F5F2EB]"
+                                      >
+                                        {language === 'en'
+                                          ? `${d.nameEn} (${d.etaEn})`
+                                          : `${d.nameBn} (${d.etaBn})`}
+                                      </option>
+                                    ))}
+                                  </optgroup>
+                                );
+                              })}
+                            </select>
+                            {districtSearch && filteredDistricts.length === 0 && (
+                              <p className="text-[10px] text-amber-300 mt-1">
+                                {language === 'en'
+                                  ? 'No matching district found across 64 districts.'
+                                  : '৬৪ জেলার মধ্যে মিল পাওয়া যায়নি।'}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Live Zone & Courier Summary */}
+                        <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 space-y-1.5 text-[11px]">
+                          <div className="flex items-center justify-between gap-2 text-[#D8D3C9]">
+                            <span className="inline-flex items-center gap-1.5 truncate">
+                              <MapPin className="w-3 h-3 text-[#B69A60] shrink-0" />
+                              <span className="truncate">
+                                {language === 'en'
+                                  ? `${selectedDistrict.nameEn}, ${selectedDistrict.division}`
+                                  : `${selectedDistrict.nameBn}, ${selectedDistrict.divisionBn}`}
+                              </span>
+                            </span>
+                            <span className="text-[10px] font-mono text-[#B69A60] shrink-0">
+                              {language === 'en'
+                                ? shippingEstimate.zoneLabelEn
+                                : shippingEstimate.zoneLabelBn}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 text-[10px] font-mono text-[#9A9892]">
+                            <span className="inline-flex items-center gap-1 truncate">
+                              <Clock className="w-3 h-3 text-[#B69A60] shrink-0" />
+                              <span>
+                                {language === 'en'
+                                  ? `${selectedDistrict.hubEn} · ETA ${selectedDistrict.etaEn}`
+                                  : `${selectedDistrict.hubBn} · সময় ${selectedDistrict.etaBn}`}
+                              </span>
+                            </span>
+                            <span className="tabular-nums shrink-0 text-[#D5BA80]">
+                              {freeShippingUnlocked ? (
+                                <>
+                                  <span className="line-through text-[#77777D] mr-1.5">
+                                    ৳ {shippingEstimate.baseFeeBDT}
+                                  </span>
+                                  <span className="text-emerald-400">৳ 0</span>
+                                </>
+                              ) : (
+                                `৳ ${shippingEstimate.feeBDT}`
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
@@ -806,24 +1062,55 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
-                    {language === 'en' ? 'Division' : 'বিভাগ'}
-                  </label>
-                  <select
-                    value={division}
-                    onChange={(e) => setDivision(e.target.value)}
-                    className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60]"
-                  >
-                    <option value="Dhaka Division">Dhaka Division</option>
-                    <option value="Chattogram Division">Chattogram Division</option>
-                    <option value="Sylhet Division">Sylhet Division</option>
-                    <option value="Rajshahi Division">Rajshahi Division</option>
-                    <option value="Khulna Division">Khulna Division</option>
-                    <option value="Barishal Division">Barishal Division</option>
-                    <option value="Rangpur Division">Rangpur Division</option>
-                    <option value="Mymensingh Division">Mymensingh Division</option>
-                  </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
+                      {language === 'en' ? 'District (64 Districts)' : 'জেলা (৬৪ জেলা)'}
+                    </label>
+                    <select
+                      value={selectedDistrict.id}
+                      onChange={(e) => handleSelectDistrict(e.target.value)}
+                      className="w-full bg-black/50 border border-white/15 rounded px-3 py-2 text-[#F5F2EB] focus:outline-none focus:border-[#B69A60] cursor-pointer"
+                    >
+                      {BANGLADESH_DIVISIONS.map((div) => (
+                        <optgroup
+                          key={div.id}
+                          label={language === 'en' ? div.id : div.nameBn}
+                          className="bg-[#171719] text-[#D5BA80]"
+                        >
+                          {BANGLADESH_DISTRICTS.filter((d) => d.division === div.id).map(
+                            (d) => (
+                              <option
+                                key={d.id}
+                                value={d.id}
+                                className="bg-[#171719] text-[#F5F2EB]"
+                              >
+                                {language === 'en' ? d.nameEn : d.nameBn}
+                              </option>
+                            )
+                          )}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-[#D8D3C9] uppercase tracking-wider mb-1">
+                      {language === 'en' ? 'Division & ETA' : 'বিভাগ ও সময়'}
+                    </label>
+                    <div className="w-full bg-black/35 border border-white/10 rounded px-3 py-2 text-[#D5BA80] font-mono text-[11px] flex items-center justify-between gap-2">
+                      <span className="truncate">
+                        {language === 'en'
+                          ? selectedDistrict.division
+                          : selectedDistrict.divisionBn}
+                      </span>
+                      <span className="text-[#9A9892] shrink-0">
+                        {language === 'en'
+                          ? selectedDistrict.etaEn
+                          : selectedDistrict.etaBn}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -956,7 +1243,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
                   )}
                   <div className="flex justify-between text-[#D8D3C9]">
-                    <span>{language === 'en' ? 'Pathao Courier' : 'পাঠাও ডেলিভারি'}</span>
+                    <span>
+                      {language === 'en'
+                        ? `Pathao Courier (${selectedDistrict.nameEn})`
+                        : `পাঠাও ডেলিভারি (${selectedDistrict.nameBn})`}
+                    </span>
                     <span className="tabular-nums">
                       {deliveryFee === 0 ? 'Complimentary' : `৳ ${deliveryFee}`}
                     </span>
@@ -1115,17 +1406,43 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   <span className="tabular-nums">-৳ {totalDiscount.toLocaleString()}</span>
                 </div>
               )}
-              <div className="flex justify-between items-baseline mb-2">
-                <span className="text-xs uppercase tracking-[0.2em] text-[#77777D]">
-                  {t.cart.subtotal}
+              <div className="flex justify-between items-baseline text-xs font-mono text-[#D8D3C9] mb-1">
+                <span>{t.cart.subtotal}</span>
+                <span className="tabular-nums">৳ {discountedSubtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-baseline text-xs font-mono text-[#D8D3C9] mb-2">
+                <span>
+                  {language === 'en'
+                    ? `Estimated Delivery (${selectedDistrict.nameEn})`
+                    : `আনুমানিক ডেলিভারি (${selectedDistrict.nameBn})`}
+                </span>
+                <span
+                  className={`tabular-nums ${
+                    freeShippingUnlocked ? 'text-emerald-400' : 'text-[#D5BA80]'
+                  }`}
+                >
+                  {freeShippingUnlocked
+                    ? language === 'en'
+                      ? 'Complimentary'
+                      : 'ফ্রি'
+                    : `৳ ${deliveryFee.toLocaleString()}`}
+                </span>
+              </div>
+              <div className="flex justify-between items-baseline pt-2 border-t border-white/10 mb-2">
+                <span className="text-xs uppercase tracking-[0.18em] text-[#D8D3C9] font-medium">
+                  {language === 'en' ? 'Estimated Total' : 'আনুমানিক সর্বমোট'}
                 </span>
                 <span className="font-mono text-xl text-[#F5F2EB] font-bold tabular-nums">
-                  ৳ {discountedSubtotal.toLocaleString()}
+                  ৳ {orderTotal.toLocaleString()}
                 </span>
               </div>
               <p className="text-[11px] text-[#77777D] mb-4">
-                {language === 'en'
-                  ? `Complimentary nationwide delivery on orders ৳ ${freeShippingThreshold.toLocaleString()}+.`
+                {freeShippingUnlocked
+                  ? language === 'en'
+                    ? `Complimentary courier unlocked for ${selectedDistrict.nameEn} (${selectedDistrict.etaEn}).`
+                    : `${selectedDistrict.nameBn}-এ ফ্রি ডেলিভারি আনলক হয়েছে (${selectedDistrict.etaBn})।`
+                  : language === 'en'
+                  ? `Free nationwide delivery on orders ৳ ${freeShippingThreshold.toLocaleString()}+.`
                   : `৳ ${freeShippingThreshold.toLocaleString()}+ অর্ডারে সারাদেশে ফ্রি ডেলিভারি।`}
               </p>
 
@@ -1139,7 +1456,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <div className="flex items-center justify-center gap-2 mt-3 text-[10px] text-[#77777D]">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#B69A60]" />
-                <span>Cash on Delivery available · Prepaid payments require verification</span>
+                <span>Nationwide Cash on Delivery via Pathao Courier · 7-Day Exchange</span>
               </div>
             </div>
           )}

@@ -31,7 +31,7 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
   isOpen,
   onClose,
   language,
-  initialOrderId = 'FAB-2026',
+  initialOrderId = '',
 }) => {
   const { storeSettings } = useStoreData();
   const [orderQuery, setOrderQuery] = useState(initialOrderId);
@@ -69,9 +69,18 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      const targetId = initialOrderId || 'FAB-2026';
+      const savedOrders = Object.values(getSavedCustomerOrders()).reverse();
+      const targetId =
+        initialOrderId ||
+        savedOrders[0]?.orderId ||
+        (import.meta.env.DEV ? 'FAB-2026' : '');
       setOrderQuery(targetId);
-      handleTrack(targetId);
+      setErrorMessage(null);
+      if (targetId) {
+        void handleTrack(targetId);
+      } else {
+        setTrackingData(null);
+      }
 
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') onClose();
@@ -187,8 +196,8 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
                   onChange={(e) => setOrderQuery(e.target.value)}
                   placeholder={
                     language === 'en'
-                      ? 'Enter Order ID (e.g. FAB-2026, CAT-001)'
-                      : 'অর্ডার আইডি দিন (যেমন: FAB-2026)'
+                      ? 'Enter your Order ID (e.g. FAB-XXXX) or Consignment ID'
+                      : 'আপনার অর্ডার আইডি লিখুন (যেমন: FAB-XXXX)'
                   }
                   className="w-full bg-black/60 border border-white/15 focus:border-[#B69A60] rounded-xl px-4 py-3 text-sm text-[#F5F2EB] font-mono placeholder:text-[#77777D] focus:outline-none transition-colors"
                 />
@@ -223,28 +232,42 @@ export const TrackOrderModal: React.FC<TrackOrderModalProps> = ({
               </button>
             </form>
 
-            {/* Recent Local Orders & Sample Demo Quick Lookup */}
+            {/* Recent Local Orders (and Dev Sample Lookup) */}
             {(() => {
               const localOrders = Object.values(getSavedCustomerOrders()).slice(-3).reverse();
+              const demoChips = import.meta.env.DEV
+                ? [
+                    { id: 'FAB-2026', label: 'Demo: FAB-2026' },
+                    { id: 'CAT-001', label: 'Demo: CAT-001' },
+                    { id: 'FAB-8921', label: 'Demo: FAB-8921' },
+                  ]
+                : [];
               const chips = [
                 ...localOrders.map((o) => ({
                   id: o.orderId,
                   label: `${o.orderId} (${language === 'en' ? 'Your Order' : 'আপনার অর্ডার'})`,
                 })),
-                { id: 'FAB-2026', label: 'Demo: FAB-2026' },
-                { id: 'CAT-001', label: 'Demo: CAT-001' },
-                { id: 'FAB-8921', label: 'Demo: FAB-8921' },
+                ...demoChips,
               ];
+              if (chips.length === 0) {
+                return (
+                  <p className="mt-2.5 text-[11px] font-mono text-[#77777D]">
+                    {language === 'en'
+                      ? 'Enter the FABRICIAN Order ID from your checkout confirmation to inspect live dispatch checkpoints.'
+                      : 'লাইভ কুরিয়ার আপডেট দেখতে আপনার অর্ডার কনফার্মেশন থেকে প্রাপ্ত অর্ডার আইডি দিন।'}
+                  </p>
+                );
+              }
               return (
                 <div className="flex flex-wrap items-center gap-2 mt-2.5 text-xs">
                   <span className="text-[#77777D] font-mono text-[11px]">
                     {localOrders.length > 0
                       ? language === 'en'
-                        ? 'Your orders / Demos:'
-                        : 'আপনার অর্ডার / ডেমো:'
+                        ? 'Your recent orders:'
+                        : 'আপনার সাম্প্রতিক অর্ডার:'
                       : language === 'en'
-                      ? 'Sample demo IDs:'
-                      : 'নমুনা ডেমো আইডি:'}
+                      ? 'Dev sample IDs:'
+                      : 'স্যাম্পল আইডি:'}
                   </span>
                   {chips.map((chip) => (
                     <button

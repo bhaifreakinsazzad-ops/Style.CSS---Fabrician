@@ -1,9 +1,12 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+dotenv.config();
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
 import metaCapiHandler from './api/meta-capi.ts';
+import pathaoHandler from './api/pathao.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +38,10 @@ async function startServer() {
 
   app.all('/api/meta-capi', (req, res) => {
     void metaCapiHandler(req, res);
+  });
+
+  app.all('/api/pathao', (req, res) => {
+    void pathaoHandler(req, res);
   });
 
   if (!isProd) {

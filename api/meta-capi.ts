@@ -116,7 +116,11 @@ function resolveClientIp(req: CapiRequest): string | undefined {
   return req.socket?.remoteAddress;
 }
 
-const ALLOWED_PIXEL_IDS = new Set(['1390081606323661', '1657670575734647']);
+const ALLOWED_PIXEL_IDS = new Set([
+  '1564623565315873',
+  '1390081606323661',
+  '1657670575734647',
+]);
 
 function resolveAccessToken(pixelId: string): string {
   if (pixelId === '1657670575734647') {
@@ -132,7 +136,21 @@ function resolveAccessToken(pixelId: string): string {
       ''
     ).trim();
   }
+  if (pixelId === '1390081606323661') {
+    return (
+      process.env.STARKIT_META_CAPI_ACCESS_TOKEN ||
+      process.env.STARKIT_META_PIXEL_ACCESS_TOKEN ||
+      process.env.META_CAPI_ACCESS_TOKEN ||
+      process.env.META_PIXEL_ACCESS_TOKEN ||
+      process.env.META_ACCESS_TOKEN ||
+      process.env.FB_CAPI_ACCESS_TOKEN ||
+      process.env.FACEBOOK_CAPI_ACCESS_TOKEN ||
+      process.env.FACEBOOK_ACCESS_TOKEN ||
+      ''
+    ).trim();
+  }
   return (
+    process.env.FABRICIAN_META_CAPI_ACCESS_TOKEN ||
     process.env.META_CAPI_ACCESS_TOKEN ||
     process.env.META_PIXEL_ACCESS_TOKEN ||
     process.env.META_ACCESS_TOKEN ||
@@ -143,20 +161,51 @@ function resolveAccessToken(pixelId: string): string {
   ).trim();
 }
 
+const REJECTED_TOKEN_TTL_MS = 15 * 60 * 1000;
+const rejectedTokenCache = new Map<string, number>();
+
+function getTokenCacheKey(pixelId: string, token: string): string {
+  return `${pixelId}:${sha256(token).slice(0, 12)}`;
+}
+
+function isTokenRejected(pixelId: string, token: string): boolean {
+  if (!token) return false;
+  const key = getTokenCacheKey(pixelId, token);
+  const untilMs = rejectedTokenCache.get(key);
+  if (!untilMs) return false;
+  if (Date.now() >= untilMs) {
+    rejectedTokenCache.delete(key);
+    return false;
+  }
+  return true;
+}
+
+function markTokenRejected(pixelId: string, token: string): void {
+  if (!token) return;
+  rejectedTokenCache.set(getTokenCacheKey(pixelId, token), Date.now() + REJECTED_TOKEN_TTL_MS);
+}
+
 export default async function handler(req: CapiRequest, res: CapiResponse): Promise<void> {
   res.setHeader('Cache-Control', 'no-store');
 
-  const defaultPixelId = (process.env.META_PIXEL_ID || '1390081606323661').trim();
+  const defaultPixelId = (process.env.META_PIXEL_ID || '1564623565315873').trim();
   const testEventCode = (process.env.META_TEST_EVENT_CODE || '').trim();
 
   if (req.method === 'GET') {
-    const accessToken = resolveAccessToken(defaultPixelId);
+    const defaultToken = resolveAccessToken(defaultPixelId);
+    const starKiTToken = resolveAccessToken('1390081606323661');
+    const farizaToken = resolveAccessToken('1657670575734647');
     res.status(200).json({
       ok: true,
       pixelId: defaultPixelId,
       supportedPixelIds: Array.from(ALLOWED_PIXEL_IDS),
-      capiConfigured: Boolean(accessToken),
-      farizaCapiConfigured: Boolean(resolveAccessToken('1657670575734647')),
+      capiConfigured: Boolean(defaultToken && !isTokenRejected(defaultPixelId, defaultToken)),
+      starkitCapiConfigured: Boolean(
+        starKiTToken && !isTokenRejected('1390081606323661', starKiTToken)
+      ),
+      farizaCapiConfigured: Boolean(
+        farizaToken && !isTokenRejected('1657670575734647', farizaToken)
+      ),
       testMode: Boolean(testEventCode),
     });
     return;
@@ -191,12 +240,14 @@ export default async function handler(req: CapiRequest, res: CapiResponse): Prom
     return;
   }
 
-  if (!accessToken) {
+  if (!accessToken || isTokenRejected(pixelId, accessToken)) {
     res.status(202).json({
       ok: false,
       pixelId,
       skipped: true,
-      reason: 'META_CAPI_ACCESS_TOKEN is not configured in environment',
+      reason: accessToken
+        ? 'Meta CAPI token unavailable or not authorized for this pixel'
+        : 'META_CAPI_ACCESS_TOKEN is not configured in environment',
     });
     return;
   }
@@ -248,16 +299,33 @@ export default async function handler(req: CapiRequest, res: CapiResponse): Prom
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(graphPayload),
+      signal: AbortSignal.timeout(8000),
     });
 
     const metaJson = (await metaResponse.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!metaResponse.ok) {
-      console.error('Meta CAPI request rejected:', metaResponse.status, metaJson);
-      res.status(502).json({
+      const metaErr =
+        metaJson.error && typeof metaJson.error === 'object'
+          ? (metaJson.error as { type?: string; code?: number })
+          : null;
+      const isAuthRejection =
+        metaResponse.status === 400 ||
+        metaResponse.status === 401 ||
+        metaResponse.status === 403 ||
+        metaErr?.type === 'OAuthException';
+
+      if (isAuthRejection) {
+        markTokenRejected(pixelId, accessToken);
+      }
+
+      res.status(202).json({
         ok: false,
-        status: metaResponse.status,
-        error: metaJson,
+        pixelId,
+        skipped: true,
+        reason: isAuthRejection
+          ? 'Meta CAPI token expired, invalid, or lacks permission for this pixel'
+          : 'Meta CAPI telemetry temporarily unavailable',
       });
       return;
     }
@@ -269,8 +337,12 @@ export default async function handler(req: CapiRequest, res: CapiResponse): Prom
       eventsReceived: metaJson.events_received ?? 1,
       fbtraceId: metaJson.fbtrace_id ?? null,
     });
-  } catch (err) {
-    console.error('Meta CAPI dispatch failed:', err);
-    res.status(500).json({ ok: false, error: 'Failed to reach Meta Conversions API' });
+  } catch {
+    res.status(202).json({
+      ok: false,
+      pixelId,
+      skipped: true,
+      reason: 'Meta CAPI endpoint unreachable',
+    });
   }
 }

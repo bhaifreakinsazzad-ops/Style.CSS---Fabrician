@@ -6,6 +6,7 @@ import {
   Maximize2,
   Ruler,
   ShoppingBag,
+  Star,
   User,
   X,
   Zap,
@@ -28,6 +29,7 @@ interface VirtualShowroomSectionProps {
   onBuyNow: (item: Omit<CartItem, 'id'>) => void;
   onToggleWishlist: (product: Product) => void;
   isWishlisted: (productId: string) => boolean;
+  onQuickView?: (product: Product) => void;
   onOpenSizeGuide: () => void;
 }
 
@@ -37,6 +39,7 @@ export const VirtualShowroomSection: React.FC<VirtualShowroomSectionProps> = ({
   onBuyNow,
   onToggleWishlist,
   isWishlisted,
+  onQuickView,
   onOpenSizeGuide,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -387,6 +390,21 @@ export const VirtualShowroomSection: React.FC<VirtualShowroomSectionProps> = ({
                   <span>{language === 'en' ? 'Buy Now' : 'এখনই কিনুন'}</span>
                 </button>
               </div>
+
+              {onQuickView && (
+                <button
+                  type="button"
+                  onClick={() => onQuickView(activeProduct)}
+                  className="w-full py-2 px-3 rounded-xl border border-slate-200 hover:border-slate-400 bg-white text-slate-700 hover:text-slate-950 text-[11px] font-mono inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Star className="w-3.5 h-3.5 text-[#B69A60] fill-[#B69A60]" />
+                  <span>
+                    {language === 'en'
+                      ? 'Inspect Specs & Customer Reviews'
+                      : 'বিস্তারিত ও ক্রেতাদের রিভিউ দেখুন'}
+                  </span>
+                </button>
+              )}
             </div>
           </aside>
         </div>
@@ -414,7 +432,7 @@ export const VirtualShowroomSection: React.FC<VirtualShowroomSectionProps> = ({
             />
 
             {/* Quick Close + Add to Bag Strip in Top Center of Fullscreen */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+            <div className="absolute top-16 sm:top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleAdd}
