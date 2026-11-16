@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ATELIER — 3D Interactive Flagship Showroom</title>
+  
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+          },
+          colors: {
+            studio: {
+              bg: '#E2E4E9',
+              card: 'rgba(255, 255, 255, 0.78)',
+              dark: '#14171A',
+              accent: '#1E2D36',
+              muted: '#7B828C'
+            }
+          },
+          boxShadow: {
+            'glass': '0 20px 50px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.04)',
+            'pill': '0 8px 24px rgba(15, 23, 42, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Three.js & Tone.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #DCDFE4;
+      font-family: 'Inter', sans-serif;
+    }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      cursor: grab;
+    }
+
+    #canvas-container:active {
+      cursor: grabbing;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Glassmorphic UI Elements */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 20px 45px rgba(20, 25, 35, 0.08);
+    }
+
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 24px rgba(20, 25, 35, 0.08);
+    }
+
+    /* Custom Scrollbar for Cart & Modal */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 99px;
+    }
+
+    /* Subtle pulse for 360 drag hint */
+    @keyframes floatHint {
+      0%, 100% { transform: translate(-50%, 0px); }
+      50% { transform: translate(-50%, -4px); }
+    }
+    .drag-hint-anim {
+      animation: floatHint 3s ease-in-out infinite;
+    }
+
+    /* Smooth drawer transitions */
+    .drawer-transition {
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+    }
+
+    /* Loading screen fade */
+    #loader {
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+  </style>
+</head>
+<body class="text-slate-900 antialiased selection:bg-slate-900 selection:text-white">
+
+  <!-- Studio Initializer Loader -->
+  <div id="loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#E4E6EB]">
+    <div class="w-10 h-10 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin mb-4"></div>
+    <p class="text-xs font-semibold tracking-[0.22em] uppercase text-slate-600">Entering Virtual Showroom</p>
+  </div>
+
+  <!-- 3D WebGL Showroom Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- Top Navigation Overlay -->
+  <header class="fixed top-0 left-0 right-0 z-20 flex items-start justify-between p-4 sm:p-6 pointer-events-none">
+    
+    <!-- Top Left: Brand / Menu & Cart -->
+    <div class="flex flex-col gap-2.5 pointer-events-auto">
+      <!-- Brand / Catalog Trigger -->
+      <button id="btn-catalog" onclick="toggleCatalogModal()" class="glass-pill group flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wider text-slate-800 hover:bg-white transition-all active:scale-95">
+        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+        </svg>
+        <span class="hidden sm:inline">ATELIER / FW26</span>
+      </button>
+
+      <!-- Bag / Cart Trigger -->
+      <button id="btn-cart" onclick="toggleCartDrawer(true)" class="glass-pill relative flex items-center justify-center sm:justify-start gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-800 hover:bg-white transition-all active:scale-95">
+        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+        </svg>
+        <span class="hidden sm:inline">Bag</span>
+        <span id="cart-badge" class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold bg-[#1E2D36] text-white rounded-full">1</span>
+      </button>
+    </div>
+
+    <!-- Top Center: Floating View Mode Switcher (Rack vs On-Model Fitting) -->
+    <div class="pointer-events-auto flex items-center glass-pill p-1 rounded-full">
+      <button id="mode-rack" onclick="setViewMode('rack')" class="px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold transition-all bg-[#1E2D36] text-white shadow-sm">
+        Showroom Rack
+      </button>
+      <button id="mode-model" onclick="setViewMode('model')" class="px-3.5 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+        Try On Model
+      </button>
+    </div>
+
+    <!-- Top Right: Audio & Studio Lighting Toggle -->
+    <div class="pointer-events-auto flex items-center gap-2">
+      <!-- Ambient Sound Toggle -->
+      <button id="btn-sound" onclick="toggleAudio()" title="Toggle Studio Sound" class="glass-pill p-2.5 rounded-full text-slate-700 hover:bg-white transition-all active:scale-95">
+        <svg id="icon-sound-off" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 9.75 19.5 12m0 0 2.25 2.25M19.5 12l2.25-2.25M19.5 12l-2.25 2.25m-10.5-6 4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
+        </svg>
+        <svg id="icon-sound-on" class="w-4 h-4 hidden text-slate-900" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
+        </svg>
+      </button>
+
+      <!-- Studio Lighting / Mood Toggle -->
+      <button id="btn-lighting" onclick="toggleStudioMood()" title="Toggle Daylight / Cool Studio" class="glass-pill flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-medium text-slate-700 hover:bg-white transition-all active:scale-95">
+        <span id="mood-dot" class="w-2.5 h-2.5 rounded-full bg-amber-300 border border-amber-500/40"></span>
+        <span class="hidden md:inline" id="mood-label">Warm</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Floating 3D Drag & Rotate Pill Badge -->
+  <div id="drag-hint-pill" class="fixed top-[18%] sm:top-[20%] left-1/2 -translate-x-1/2 z-10 pointer-events-none drag-hint-anim">
+    <div class="glass-pill px-3.5 py-1.5 rounded-full flex items-center gap-2 text-[11px] font-medium text-slate-600">
+      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      <span>Drag 360°</span>
+    </div>
+  </div>
+
+  <!-- Bottom Left Quick Garment Selector Dots (Matches reference rack switcher) -->
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-20 flex items-center gap-2 glass-pill px-3 py-2 rounded-full pointer-events-auto">
+    <button onclick="selectGarment(0)" id="dot-0" class="group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all bg-slate-900 text-white">
+      <span class="w-2 h-2 rounded-full bg-[#EFE7DC]"></span>
+      <span>Cream</span>
+    </button>
+    <button onclick="selectGarment(1)" id="dot-1" class="group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all text-slate-600 hover:text-slate-900">
+      <span class="w-2 h-2 rounded-full bg-[#8D97A5]"></span>
+      <span>Slate</span>
+    </button>
+    <button onclick="selectGarment(2)" id="dot-2" class="group flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all text-slate-600 hover:text-slate-900">
+      <span class="w-2 h-2 rounded-full bg-[#9BB0C1]"></span>
+      <span>Celestial</span>
+    </button>
+  </div>
+
+  <!-- Right Floating Glassmorphic Product Card (Exact match to reference right card) -->
+  <aside id="product-card" class="fixed z-20 bottom-20 left-4 right-4 md:bottom-auto md:left-auto md:right-8 md:top-1/2 md:-translate-y-1/2 md:w-[270px] glass-panel rounded-2xl p-4 sm:p-5 transition-all duration-300">
+    
+    <!-- Header: Product Name & Price -->
+    <div class="flex items-start justify-between gap-2 mb-3">
+      <div>
+        <span id="product-subtitle" class="block text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400 mb-0.5">AW26 Outer</span>
+        <h1 id="product-title" class="text-sm sm:text-[15px] font-semibold text-slate-900 leading-tight">Aurelia Blouson</h1>
+      </div>
+      <div class="text-right">
+        <span id="product-price" class="text-sm font-semibold text-slate-900">$480</span>
+      </div>
+    </div>
+
+    <!-- Subtle Divider -->
+    <div class="h-px bg-slate-900/5 my-3"></div>
+
+    <!-- Color Swatches Row -->
+    <div class="mb-3.5">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-medium text-slate-500">Colorway</span>
+        <span id="product-color-name" class="text-[11px] font-semibold text-slate-800">Alabaster Wool</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="selectGarment(0)" id="swatch-0" aria-label="Alabaster Wool" class="w-7 h-7 rounded-lg bg-[#EFE7DC] border-2 border-slate-900 shadow-sm transition-transform hover:scale-105"></button>
+        <button onclick="selectGarment(1)" id="swatch-1" aria-label="Ash Slate" class="w-7 h-7 rounded-lg bg-[#8D97A5] border border-slate-300 transition-transform hover:scale-105"></button>
+        <button onclick="selectGarment(2)" id="swatch-2" aria-label="Celestial Jacquard" class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#A6BBCB] to-[#7D96AA] border border-slate-300 transition-transform hover:scale-105"></button>
+      </div>
+    </div>
+
+    <!-- Size Selector Row -->
+    <div class="mb-4">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[11px] font-medium text-slate-500">Size</span>
+        <button onclick="toggleSizeGuide(true)" class="text-[10px] font-medium text-slate-500 underline hover:text-slate-900">Size Guide</button>
+      </div>
+      <div class="grid grid-cols-4 gap-1.5" id="size-grid">
+        <button onclick="selectSize('S')" data-size="S" class="size-btn py-1.5 rounded-lg text-[11px] font-semibold border border-slate-200/80 bg-white/60 text-slate-700 hover:border-slate-400 transition-all">S</button>
+        <button onclick="selectSize('M')" data-size="M" class="size-btn py-1.5 rounded-lg text-[11px] font-semibold border border-slate-900 bg-slate-900 text-white transition-all">M</button>
+        <button onclick="selectSize('L')" data-size="L" class="size-btn py-1.5 rounded-lg text-[11px] font-semibold border border-slate-200/80 bg-white/60 text-slate-700 hover:border-slate-400 transition-all">L</button>
+        <button onclick="selectSize('XL')" data-size="XL" class="size-btn py-1.5 rounded-lg text-[11px] font-semibold border border-slate-200/80 bg-white/60 text-slate-700 hover:border-slate-400 transition-all">XL</button>
+      </div>
+    </div>
+
+    <!-- Action Buttons: Add to Bag & Quick Fit Toggle -->
+    <div class="flex flex-col gap-2">
+      <button id="btn-add-to-bag" onclick="addToCart()" class="w-full py-2.5 px-4 rounded-xl bg-[#1E2D36] hover:bg-[#131D24] text-white text-xs font-semibold tracking-wide shadow-md shadow-slate-900/10 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+        <span>Add to Bag</span>
+        <span class="text-white/50">•</span>
+        <span id="btn-price-label">$480</span>
+      </button>
+
+      <button onclick="toggleViewMode()" id="card-fit-btn" class="w-full py-2 px-3 rounded-xl bg-white/70 hover:bg-white border border-slate-200/80 text-slate-700 text-[11px] font-semibold transition-all flex items-center justify-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        <span id="card-fit-text">View on 3D Model</span>
+      </button>
+    </div>
+
+    <!-- Expandable Fabric Details Accordion -->
+    <div class="mt-3 pt-2.5 border-t border-slate-900/5">
+      <button onclick="toggleDetails()" class="w-full flex items-center justify-between text-[11px] font-medium text-slate-500 hover:text-slate-800">
+        <span>Composition & Fit</span>
+        <svg id="details-chevron" class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      <div id="product-details-body" class="hidden mt-2 text-[11px] leading-relaxed text-slate-600 space-y-1">
+        <p id="product-fabric">82% Virgin Italian Wool, 18% Silk Jacquard. Boxy cropped silhouette with two-way brushed silver riri zipper.</p>
+        <p class="text-slate-400">Model is 187cm / 6'1" wearing size M.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Slide-Over Shopping Bag Drawer -->
+  <div id="cart-backdrop" onclick="toggleCartDrawer(false)" class="fixed inset-0 z-40 bg-slate-900/25 backdrop-blur-xs opacity-0 pointer-events-none transition-opacity duration-300"></div>
+  <aside id="cart-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md bg-white/95 backdrop-blur-2xl shadow-2xl border-l border-slate-200/80 translate-x-full drawer-transition flex flex-col">
+    <!-- Cart Header -->
+    <div class="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+      <div>
+        <h2 class="text-base font-semibold text-slate-900">Shopping Bag</h2>
+        <p id="cart-count-subtitle" class="text-xs text-slate-500">1 item ready for dispatch</p>
+      </div>
+      <button onclick="toggleCartDrawer(false)" class="p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Free Express Shipping Progress -->
+    <div class="px-6 py-3 bg-slate-50/90 border-b border-slate-100">
+      <div class="flex items-center justify-between text-[11px] font-medium text-slate-600 mb-1.5">
+        <span>Complimentary Global Courier</span>
+        <span class="text-emerald-700 font-semibold">Unlocked</span>
+      </div>
+      <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+        <div class="w-full h-full bg-[#1E2D36] rounded-full"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items List -->
+    <div id="cart-items-container" class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+      <!-- Populated dynamically via JS -->
+    </div>
+
+    <!-- Cart Footer / Checkout -->
+    <div class="p-6 border-t border-slate-100 bg-white space-y-4">
+      <div class="space-y-1.5 text-xs">
+        <div class="flex justify-between text-slate-500">
+          <span>Shipping (DHL Express)</span>
+          <span class="text-slate-800 font-medium">Complimentary</span>
+        </div>
+        <div class="flex justify-between text-sm font-semibold text-slate-900 pt-1">
+          <span>Subtotal</span>
+          <span id="cart-subtotal">$480.00</span>
+        </div>
+      </div>
+
+      <button onclick="openCheckoutModal()" id="btn-checkout" class="w-full py-3.5 px-6 rounded-xl bg-[#1E2D36] hover:bg-[#11191F] text-white text-xs font-semibold uppercase tracking-wider shadow-lg shadow-slate-900/15 transition-all active:scale-[0.99]">
+        Proceed to Checkout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Full Catalog / Lookbook Overlay Modal -->
+  <div id="catalog-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/35 backdrop-blur-md">
+    <div class="bg-white/95 backdrop-blur-2xl border border-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative animate-fadeIn">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">ATELIER ARCHIVE</span>
+          <h2 class="text-xl font-semibold text-slate-900">Autumn / Winter 2026 Capsule</h2>
+        </div>
+        <button onclick="toggleCatalogModal()" class="p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Item 0 -->
+        <div onclick="selectGarment(0); toggleCatalogModal();" class="group cursor-pointer rounded-2xl border border-slate-200/80 p-3.5 hover:border-slate-900 transition-all bg-slate-50/50">
+          <div class="h-32 rounded-xl bg-gradient-to-b from-[#F5EFE6] to-[#E5DDD0] mb-3 flex items-center justify-center">
+            <div class="w-14 h-16 rounded-lg bg-[#EFE7DC] shadow-md border border-white/60"></div>
+          </div>
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Look 01</p>
+          <h3 class="text-xs font-semibold text-slate-900">Aurelia Blouson</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Alabaster Wool — $480</p>
+        </div>
+
+        <!-- Item 1 -->
+        <div onclick="selectGarment(1); toggleCatalogModal();" class="group cursor-pointer rounded-2xl border border-slate-200/80 p-3.5 hover:border-slate-900 transition-all bg-slate-50/50">
+          <div class="h-32 rounded-xl bg-gradient-to-b from-[#DFE3E8] to-[#C8CFD8] mb-3 flex items-center justify-center">
+            <div class="w-14 h-16 rounded-lg bg-[#8D97A5] shadow-md border border-white/40"></div>
+          </div>
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Look 02</p>
+          <h3 class="text-xs font-semibold text-slate-900">Verona Zip Jacket</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Ash Slate — $510</p>
+        </div>
+
+        <!-- Item 2 -->
+        <div onclick="selectGarment(2); toggleCatalogModal();" class="group cursor-pointer rounded-2xl border border-slate-200/80 p-3.5 hover:border-slate-900 transition-all bg-slate-50/50">
+          <div class="h-32 rounded-xl bg-gradient-to-b from-[#DCE5ED] to-[#BCCBD9] mb-3 flex items-center justify-center">
+            <div class="w-14 h-16 rounded-lg bg-gradient-to-br from-[#A9BECD] to-[#7D95A8] shadow-md border border-white/50"></div>
+          </div>
+          <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Look 03</p>
+          <h3 class="text-xs font-semibold text-slate-900">Celestial Jacquard</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Eclipse Blue — $640</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Size Guide Modal -->
+  <div id="size-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/35 backdrop-blur-md">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-semibold text-slate-900">Garment Measurements (cm)</h3>
+        <button onclick="toggleSizeGuide(false)" class="p-1.5 rounded-full hover:bg-slate-100 text-slate-500">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <table class="w-full text-xs text-left border-collapse">
+        <thead>
+          <tr class="border-b border-slate-200 text-slate-400">
+            <th class="py-2 font-medium">Size</th>
+            <th class="py-2 font-medium">Chest</th>
+            <th class="py-2 font-medium">Shoulder</th>
+            <th class="py-2 font-medium">Length</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          <tr><td class="py-2.5 font-semibold">S</td><td>114</td><td>48</td><td>64</td></tr>
+          <tr><td class="py-2.5 font-semibold">M</td><td>118</td><td>50</td><td>66</td></tr>
+          <tr><td class="py-2.5 font-semibold">L</td><td>122</td><td>52</td><td>68</td></tr>
+          <tr><td class="py-2.5 font-semibold">XL</td><td>126</td><td>54</td><td>70</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Seamless Checkout Modal -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl">
+      <div id="checkout-form-view">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Express Order</span>
+            <h3 class="text-lg font-semibold text-slate-900">Complete Acquisition</h3>
+          </div>
+          <button onclick="closeCheckoutModal()" class="p-2 rounded-full hover:bg-slate-100 text-slate-500">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onsubmit="submitOrder(event)" class="space-y-3.5">
+          <div>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1">Full Name</label>
+            <input type="text" required placeholder="Alex Mercer" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-slate-900" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1">Email for Digital Receipt</label>
+            <input type="email" required placeholder="alex@studio.com" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-slate-900" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-slate-600 mb-1">Shipping Destination</label>
+            <input type="text" required placeholder="42 Mercer St, New York, NY" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-slate-900" />
+          </div>
+          <div class="pt-2">
+            <button type="submit" class="w-full py-3 rounded-xl bg-[#1E2D36] hover:bg-slate-950 text-white text-xs font-semibold uppercase tracking-wider shadow-lg transition-all">
+              Confirm Order • <span id="checkout-total-btn">$480.00</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Order Confirmation State -->
+      <div id="checkout-success-view" class="hidden text-center py-6 space-y-3">
+        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-slate-900">Order Confirmed</h3>
+        <p class="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">Your Atelier piece is being prepared in Milan. Tracking details have been dispatched to your inbox.</p>
+        <button onclick="closeCheckoutModal()" class="mt-4 px-6 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold">Return to Showroom</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Pill -->
+  <div id="toast" class="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-2">
+    <div class="bg-[#1E2D36] text-white px-4 py-2.5 rounded-full shadow-xl text-xs font-medium flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="toast-message">Added to bag</span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- THREE.JS PROCEDURAL 3D SHOWROOM, GARMENTS & MANNEQUIN ENGINE          -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // 1. PRODUCT CATALOG DATA
+    // -----------------------------------------------------------------------
+    const PRODUCTS = [
+      {
+        id: 'aurelia-cream',
+        subtitle: 'AW26 Outer',
+        title: 'Aurelia Blouson',
+        colorName: 'Alabaster Wool',
+        price: 480,
+        hex: '#EFE7DC',
+        ribHex: '#E5DCCF',
+        patternType: 'ribbed',
+        fabric: '88% Virgin Italian Wool, 12% Cashmere. Rib-knit texture with brushed silver zip and tonal collar.'
+      },
+      {
+        id: 'verona-slate',
+        subtitle: 'AW26 Outer',
+        title: 'Verona Zip Jacket',
+        colorName: 'Ash Slate',
+        price: 510,
+        hex: '#8C96A4',
+        ribHex: '#7A8492',
+        patternType: 'twill',
+        fabric: '100% Brushed Technical Wool Gabardine. Structured tailored drape with concealed horn button cuffs.'
+      },
+      {
+        id: 'celestial-jacquard',
+        subtitle: 'Limited Edition',
+        title: 'Celestial Jacquard',
+        colorName: 'Eclipse Blue',
+        price: 640,
+        hex: '#9EB3C4',
+        ribHex: '#849BB0',
+        patternType: 'celestial',
+        fabric: '64% Mulberry Silk, 36% Cotton Tapestry Jacquard woven with signature crescent moon & sun motifs.'
+      }
+    ];
+
+    // -----------------------------------------------------------------------
+    // 2. APPLICATION STATE
+    // -----------------------------------------------------------------------
+    let state = {
+      selectedIndex: 0,
+      selectedSize: 'M',
+      viewMode: 'rack', // 'rack' | 'model'
+      studioMood: 'warm', // 'warm' | 'cool'
+      soundEnabled: false,
+      cart: [
+        {
+          productIndex: 0,
+          size: 'M',
+          qty: 1
+        }
+      ],
+      // 3D Interaction States
+      isDragging: false,
+      previousPointerX: 0,
+      previousPointerY: 0,
+      garmentRotY: 0.22,
+      targetGarmentRotY: 0.22,
+      modelRotY: 0,
+      targetModelRotY: 0,
+      cameraPos: new THREE.Vector3(0, 1.52, 2.35),
+      targetCameraPos: new THREE.Vector3(0, 1.52, 2.35),
+      cameraLookAt: new THREE.Vector3(0, 1.48, 0),
+      targetCameraLookAt: new THREE.Vector3(0, 1.48, 0)
+    };
+
+    // -----------------------------------------------------------------------
+    // 3. PROCEDURAL HIGH-RES FABRIC TEXTURES (CANVAS 2D -> THREE.TEXTURE)
+    // -----------------------------------------------------------------------
+    function createFabricTextures(type, baseHex, secondaryHex) {
+      const size = 1024;
+      const colorCanvas = document.createElement('canvas');
+      colorCanvas.width = size;
+      colorCanvas.height = size;
+      const ctx = colorCanvas.getContext('2d');
+
+      const bumpCanvas = document.createElement('canvas');
+      bumpCanvas.width = size;
+      bumpCanvas.height = size;
+      const bCtx = bumpCanvas.getContext('2d');
+
+      // Base fill
+      ctx.fillStyle = baseHex;
+      ctx.fillRect(0, 0, size, size);
+
+      bCtx.fillStyle = '#808080';
+      bCtx.fillRect(0, 0, size, size);
+
+      if (type === 'ribbed') {
+        // Fine luxury ribbed knit texture (Cream jacket in video)
+        for (let x = 0; x < size; x += 6) {
+          ctx.fillStyle = x % 12 === 0 ? 'rgba(255,255,255,0.22)' : 'rgba(120,105,90,0.08)';
+          ctx.fillRect(x, 0, 3, size);
+
+          bCtx.fillStyle = x % 12 === 0 ? '#B8B8B8' : '#585858';
+          bCtx.fillRect(x, 0, 3, size);
+        }
+        // Subtle horizontal knit loops
+        ctx.fillStyle = 'rgba(0,0,0,0.025)';
+        for (let y = 0; y < size; y += 4) {
+          ctx.fillRect(0, y, size, 1);
+        }
+      } else if (type === 'twill') {
+        // Fine diagonal wool gabardine twill (Slate jacket in video)
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.lineWidth = 1.5;
+        bCtx.strokeStyle = '#9A9A9A';
+        bCtx.lineWidth = 1.5;
+        for (let i = -size; i < size * 2; i += 5) {
+          ctx.beginPath();
+          ctx.moveTo(i, 0);
+          ctx.lineTo(i + size, size);
+          ctx.stroke();
+
+          bCtx.beginPath();
+          bCtx.moveTo(i, 0);
+          bCtx.lineTo(i + size, size);
+          bCtx.stroke();
+        }
+      } else if (type === 'celestial') {
+        // Signature Celestial Sun & Crescent Moon Jacquard (Blue jacket in video)
+        // Subtle woven background
+        ctx.fillStyle = '#96ACC0';
+        ctx.fillRect(0, 0, size, size);
+
+        // Woven micro-threads
+        for (let y = 0; y < size; y += 3) {
+          ctx.fillStyle = y % 6 === 0 ? 'rgba(255,255,255,0.09)' : 'rgba(30,50,70,0.06)';
+          ctx.fillRect(0, y, size, 1.5);
+        }
+
+        const drawCelestialMotif = (cx, cy, scale) => {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+
+          bCtx.save();
+          bCtx.translate(cx, cy);
+          bCtx.scale(scale, scale);
+
+          // Cream/Silver Jacquard Thread Color
+          const threadLight = '#EAE6DF';
+          const threadShadow = '#6D859B';
+
+          // 1. Crescent Moon on left
+          ctx.fillStyle = threadLight;
+          ctx.beginPath();
+          ctx.arc(-28, 0, 36, 0.35 * Math.PI, 1.65 * Math.PI, false);
+          ctx.arc(-12, 0, 29, 1.55 * Math.PI, 0.45 * Math.PI, true);
+          ctx.closePath();
+          ctx.fill();
+
+          bCtx.fillStyle = '#D5D5D5';
+          bCtx.beginPath();
+          bCtx.arc(-28, 0, 36, 0.35 * Math.PI, 1.65 * Math.PI, false);
+          bCtx.arc(-12, 0, 29, 1.55 * Math.PI, 0.45 * Math.PI, true);
+          bCtx.closePath();
+          bCtx.fill();
+
+          // 2. Radiant Sunburst on right
+          ctx.strokeStyle = threadLight;
+          ctx.lineWidth = 3.2;
+          bCtx.strokeStyle = '#CFCFCF';
+          bCtx.lineWidth = 3.5;
+
+          const sunX = 28;
+          const sunY = 0;
+          ctx.beginPath();
+          ctx.arc(sunX, sunY, 13, 0, Math.PI * 2);
+          ctx.stroke();
+
+          bCtx.beginPath();
+          bCtx.arc(sunX, sunY, 13, 0, Math.PI * 2);
+          bCtx.stroke();
+
+          // Sun Rays (alternating wavy & straight)
+          for (let r = 0; r < 12; r++) {
+            const angle = (r / 12) * Math.PI * 2;
+            const x1 = sunX + Math.cos(angle) * 18;
+            const y1 = sunY + Math.sin(angle) * 18;
+            const x2 = sunX + Math.cos(angle) * 38;
+            const y2 = sunY + Math.sin(angle) * 38;
+
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+
+            bCtx.beginPath();
+            bCtx.moveTo(x1, y1);
+            bCtx.lineTo(x2, y2);
+            bCtx.stroke();
+          }
+
+          // Subtle jacquard outline shadow
+          ctx.strokeStyle = threadShadow;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(sunX, sunY, 9, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.restore();
+          bCtx.restore();
+        };
+
+        // Tile motifs across fabric
+        const step = 170;
+        for (let row = 0; row < 7; row++) {
+          for (let col = 0; col < 7; col++) {
+            const offsetX = (row % 2) * (step * 0.5);
+            drawCelestialMotif(col * step + offsetX, row * step, 1.05);
+          }
+        }
+      }
+
+      const map = new THREE.CanvasTexture(colorCanvas);
+      map.wrapS = THREE.RepeatWrapping;
+      map.wrapT = THREE.RepeatWrapping;
+      map.anisotropy = 8;
+
+      const bumpMap = new THREE.CanvasTexture(bumpCanvas);
+      bumpMap.wrapS = THREE.RepeatWrapping;
+      bumpMap.wrapT = THREE.RepeatWrapping;
+      bumpMap.anisotropy = 8;
+
+      return { map, bumpMap };
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. THREE.JS SCENE SETUP & ARCHITECTURAL STUDIO ENVIRONMENT
+    // -----------------------------------------------------------------------
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#DCE0E6');
+    scene.fog = new THREE.FogExp2('#DCE0E6', 0.055);
+
+    const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 60);
+    camera.position.copy(state.cameraPos);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    container.appendChild(renderer.domElement);
+
+    // Studio Lighting Rig
+    const hemiLight = new THREE.HemisphereLight('#FFFFFF', '#C6CBD4', 0.85);
+    scene.add(hemiLight);
+
+    const keyLight = new THREE.DirectionalLight('#FFF8EE', 1.15);
+    keyLight.position.set(2.8, 4.2, 3.4);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.width = 2048;
+    keyLight.shadow.mapSize.height = 2048;
+    keyLight.shadow.camera.near = 0.5;
+    keyLight.shadow.camera.far = 15;
+    keyLight.shadow.camera.left = -3.5;
+    keyLight.shadow.camera.right = 3.5;
+    keyLight.shadow.camera.top = 3.5;
+    keyLight.shadow.camera.bottom = -1;
+    keyLight.shadow.bias = -0.0005;
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight('#DCE8F7', 0.55);
+    fillLight.position.set(-3.2, 2.4, 2.2);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight('#FFFFFF', 0.45);
+    rimLight.position.set(0, 3.0, -3.5);
+    scene.add(rimLight);
+
+    // Build Minimalist Curved Cyclorama Gallery Room (Matches video background)
+    function buildStudioArchitecture() {
+      const studioGroup = new THREE.Group();
+
+      // Floor with subtle concrete/plaster micro-grain
+      const floorGeo = new THREE.PlaneGeometry(24, 24);
+      const floorMat = new THREE.MeshStandardMaterial({
+        color: '#D5D9E0',
+        roughness: 0.88,
+        metalness: 0.04
+      });
+      const floor = new THREE.Mesh(floorGeo, floorMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.receiveShadow = true;
+      studioGroup.add(floor);
+
+      // Curved Cyclorama Wall behind garments & model
+      const wallCurve = new THREE.CylinderGeometry(6.5, 6.5, 6.5, 64, 1, true, Math.PI * 0.65, Math.PI * 0.7);
+      const wallMat = new THREE.MeshStandardMaterial({
+        color: '#E3E6EC',
+        roughness: 0.92,
+        metalness: 0.02,
+        side: THREE.BackSide
+      });
+      const backWall = new THREE.Mesh(wallCurve, wallMat);
+      backWall.position.set(0, 3.2, 1.8);
+      backWall.receiveShadow = true;
+      studioGroup.add(backWall);
+
+      // Wall-mounted Brushed Chrome Garment Rail (visible in both Rack & Model views)
+      const chromeMat = new THREE.MeshStandardMaterial({
+        color: '#D4D8DF',
+        roughness: 0.22,
+        metalness: 0.88
+      });
+
+      // Main Horizontal Rail Bar
+      const railBar = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 3.6, 24), chromeMat);
+      railBar.rotation.z = Math.PI / 2;
+      railBar.position.set(-0.2, 2.02, -0.35);
+      railBar.castShadow = true;
+      studioGroup.add(railBar);
+
+      // Curved Wall Return Brackets
+      const bracketGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.95, 16);
+      const leftBracket = new THREE.Mesh(bracketGeo, chromeMat);
+      leftBracket.rotation.x = Math.PI / 2;
+      leftBracket.position.set(-1.95, 2.02, -0.82);
+      studioGroup.add(leftBracket);
+
+      const rightBracket = new THREE.Mesh(bracketGeo, chromeMat);
+      rightBracket.rotation.x = Math.PI / 2;
+      rightBracket.position.set(1.55, 2.02, -0.82);
+      studioGroup.add(rightBracket);
+
+      scene.add(studioGroup);
+    }
+    buildStudioArchitecture();
+
+    // -----------------------------------------------------------------------
+    // 5. PROCEDURAL 3D TAILORED HARRINGTON BLOUSON JACKET BUILDER
+    // -----------------------------------------------------------------------
+    const garmentTextures = PRODUCTS.map(p => createFabricTextures(p.patternType, p.hex, p.ribHex));
+
+    function createBlousonJacketMesh(productIndex, isWornOnModel = false) {
+      const prod = PRODUCTS[productIndex];
+      const tex = garmentTextures[productIndex];
+
+      const jacketGroup = new THREE.Group();
+
+      const fabricMat = new THREE.MeshStandardMaterial({
+        map: tex.map,
+        bumpMap: tex.bumpMap,
+        bumpScale: prod.patternType === 'celestial' ? 0.014 : 0.008,
+        roughness: prod.patternType === 'celestial' ? 0.68 : 0.82,
+        metalness: 0.04
+      });
+
+      const ribMat = new THREE.MeshStandardMaterial({
+        color: prod.ribHex,
+        bumpMap: tex.bumpMap,
+        bumpScale: 0.012,
+        roughness: 0.88,
+        metalness: 0.02
+      });
+
+      const zipperMat = new THREE.MeshStandardMaterial({
+        color: '#C8CED6',
+        roughness: 0.25,
+        metalness: 0.85
+      });
+
+      // 1. Torso Sculpted Body (Lathe / Tapered Cylinder with realistic chest/back volume)
+      const torsoPoints = [
+        new THREE.Vector2(0.01, -0.34),
+        new THREE.Vector2(0.185, -0.34), // Ribbed hem bottom
+        new THREE.Vector2(0.195, -0.28), // Above ribbed hem
+        new THREE.Vector2(0.225, -0.10), // Mid torso
+        new THREE.Vector2(0.238, 0.12),  // Chest / Upper back
+        new THREE.Vector2(0.205, 0.23),  // Shoulder slope
+        new THREE.Vector2(0.095, 0.26),  // Neckline
+        new THREE.Vector2(0.01, 0.26)
+      ];
+      const torsoGeo = new THREE.LatheGeometry(torsoPoints, 40);
+      // Flatten slightly front-to-back for natural human torso cross-section
+      torsoGeo.scale(1.06, 1.0, 0.64);
+      const torsoMesh = new THREE.Mesh(torsoGeo, fabricMat);
+      torsoMesh.castShadow = true;
+      torsoMesh.receiveShadow = true;
+      jacketGroup.add(torsoMesh);
+
+      // 2. Elasticated Rib-Knit Waistband Hem
+      const hemGeo = new THREE.CylinderGeometry(0.196, 0.184, 0.065, 36);
+      hemGeo.scale(1.06, 1.0, 0.64);
+      const hemMesh = new THREE.Mesh(hemGeo, ribMat);
+      hemMesh.position.y = -0.31;
+      hemMesh.castShadow = true;
+      jacketGroup.add(hemMesh);
+
+      // 3. Center Front Brushed Silver Zipper Placket
+      const zipTrack = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.58, 0.016), zipperMat);
+      zipTrack.position.set(0, -0.04, 0.148);
+      jacketGroup.add(zipTrack);
+
+      const zipPull = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.032, 0.022), zipperMat);
+      zipPull.position.set(0, 0.18, 0.154);
+      jacketGroup.add(zipPull);
+
+      // 4. Tailored Fold-Down Shirt Collar
+      const collarCurve = new THREE.CylinderGeometry(0.105, 0.118, 0.068, 32, 1, true, Math.PI * 0.16, Math.PI * 1.68);
+      collarCurve.scale(1.02, 1.0, 0.85);
+      const collarMat = fabricMat.clone();
+      collarMat.side = THREE.DoubleSide;
+      const collarMesh = new THREE.Mesh(collarCurve, collarMat);
+      collarMesh.position.set(0, 0.265, -0.005);
+      collarMesh.rotation.x = 0.14;
+      collarMesh.castShadow = true;
+      jacketGroup.add(collarMesh);
+
+      // 5. Left & Right Raglan Sleeves + Ribbed Cuffs
+      const buildSleeve = (side) => {
+        const sleeveGroup = new THREE.Group();
+        const s = side; // -1 for left, +1 for right
+
+        // Upper & Lower Sleeve Path
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(s * 0.185, 0.185, -0.01),
+          new THREE.Vector3(s * 0.255, 0.02, 0.005),
+          new THREE.Vector3(s * 0.285, -0.17, 0.025),
+          new THREE.Vector3(s * 0.295, -0.30, 0.04)
+        ]);
+
+        const sleeveGeo = new THREE.TubeGeometry(curve, 24, 0.068, 20, false);
+        // Slightly taper wrist radius
+        const pos = sleeveGeo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+          const y = pos.getY(i);
+          if (y < -0.1) {
+            const factor = 1.0 - Math.min(0.24, (-0.1 - y) * 1.1);
+            const cx = s * 0.288;
+            const cz = 0.032;
+            pos.setX(i, cx + (pos.getX(i) - cx) * factor);
+            pos.setZ(i, cz + (pos.getZ(i) - cz) * factor);
+          }
+        }
+        sleeveGeo.computeVertexNormals();
+
+        const sleeveMesh = new THREE.Mesh(sleeveGeo, fabricMat);
+        sleeveMesh.castShadow = true;
+        sleeveMesh.receiveShadow = true;
+        sleeveGroup.add(sleeveMesh);
+
+        // Ribbed Wrist Cuff
+        const cuffGeo = new THREE.CylinderGeometry(0.051, 0.046, 0.055, 20);
+        const cuffMesh = new THREE.Mesh(cuffGeo, ribMat);
+        cuffMesh.position.set(s * 0.296, -0.315, 0.042);
+        cuffMesh.rotation.z = s * 0.12;
+        cuffMesh.rotation.x = 0.12;
+        cuffMesh.castShadow = true;
+        sleeveGroup.add(cuffMesh);
+
+        return sleeveGroup;
+      };
+
+      jacketGroup.add(buildSleeve(-1));
+      jacketGroup.add(buildSleeve(1));
+
+      // 6. Slanted Welt Side Pockets
+      [-1, 1].forEach(side => {
+        const welt = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.12, 0.022), ribMat);
+        welt.position.set(side * 0.145, -0.16, 0.128);
+        welt.rotation.z = side * 0.24;
+        welt.rotation.y = side * 0.35;
+        jacketGroup.add(welt);
+      });
+
+      // 7. Wooden Hanger & Chrome Hook (only in Rack mode)
+      if (!isWornOnModel) {
+        const woodMat = new THREE.MeshStandardMaterial({
+          color: '#C49A6C',
+          roughness: 0.45,
+          metalness: 0.05
+        });
+        const hookMat = new THREE.MeshStandardMaterial({
+          color: '#D0D5DD',
+          roughness: 0.2,
+          metalness: 0.9
+        });
+
+        // Curved Wooden Shoulder Bar
+        const hangerCurve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(-0.19, 0.21, 0),
+          new THREE.Vector3(-0.09, 0.275, 0),
+          new THREE.Vector3(0, 0.295, 0),
+          new THREE.Vector3(0.09, 0.275, 0),
+          new THREE.Vector3(0.19, 0.21, 0)
+        ]);
+        const hangerBar = new THREE.Mesh(new THREE.TubeGeometry(hangerCurve, 20, 0.011, 12, false), woodMat);
+        jacketGroup.add(hangerBar);
+
+        // Chrome Hanger Neck & Hook reaching up to y = 2.02 rail
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.14, 12), hookMat);
+        stem.position.set(0, 0.36, 0);
+        jacketGroup.add(stem);
+
+        const hookArc = new THREE.Mesh(new THREE.TorusGeometry(0.024, 0.004, 10, 20, Math.PI * 1.35), hookMat);
+        hookArc.position.set(0, 0.435, 0);
+        jacketGroup.add(hookArc);
+      }
+
+      return jacketGroup;
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. RACK SHOWROOM GROUP & ON-MODEL MANNEQUIN GROUP
+    // -----------------------------------------------------------------------
+    const rackGroup = new THREE.Group();
+    scene.add(rackGroup);
+
+    const rackGarments = [];
+    PRODUCTS.forEach((_, idx) => {
+      const g = createBlousonJacketMesh(idx, false);
+      rackGroup.add(g);
+      rackGarments.push(g);
+    });
+
+    // Build Editorial 3D Model Group ("Try On Model" view from second half of video)
+    const modelGroup = new THREE.Group();
+    modelGroup.visible = false;
+    scene.add(modelGroup);
+
+    const modelJackets = [];
+    function buildEditorialModel() {
+      // Sculpted Minimalist Editorial Mannequin / Model Figure
+      const skinMat = new THREE.MeshStandardMaterial({
+        color: '#E5BFA8',
+        roughness: 0.62,
+        metalness: 0.02
+      });
+      const hairMat = new THREE.MeshStandardMaterial({
+        color: '#9C7352',
+        roughness: 0.78
+      });
+      const trouserMat = new THREE.MeshStandardMaterial({
+        color: '#EAE3D9',
+        roughness: 0.85
+      });
+
+      // Head & Neck
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.064, 0.14, 24), skinMat);
+      neck.position.set(0, 1.62, 0.01);
+      neck.castShadow = true;
+      modelGroup.add(neck);
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.105, 32, 32), skinMat);
+      head.scale.set(0.88, 1.14, 0.96);
+      head.position.set(0, 1.76, 0.018);
+      head.castShadow = true;
+      modelGroup.add(head);
+
+      // Sculpted Hair Cap
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.109, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.58), hairMat);
+      hair.scale.set(0.9, 1.12, 0.98);
+      hair.position.set(0, 1.775, 0.012);
+      hair.rotation.x = -0.18;
+      modelGroup.add(hair);
+
+      // Hands emerging from jacket cuffs
+      [-1, 1].forEach(side => {
+        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.036, 16, 16), skinMat);
+        hand.scale.set(0.85, 1.4, 0.65);
+        hand.position.set(side * 0.30, 0.99, 0.045);
+        hand.castShadow = true;
+        modelGroup.add(hand);
+      });
+
+      // Tailored Cream Trousers (Legs)
+      [-1, 1].forEach(side => {
+        const legGeo = new THREE.CylinderGeometry(0.088, 0.068, 0.96, 24);
+        const leg = new THREE.Mesh(legGeo, trouserMat);
+        leg.position.set(side * 0.095, 0.52, 0.01);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        modelGroup.add(leg);
+      });
+
+      // Pelvis / Waist Join
+      const pelvis = new THREE.Mesh(new THREE.CylinderGeometry(0.175, 0.165, 0.16, 28), trouserMat);
+      pelvis.scale.set(1.05, 1, 0.68);
+      pelvis.position.set(0, 1.02, 0.005);
+      modelGroup.add(pelvis);
+
+      // Background Mini Rack in Model Scene (matches reference wide-angle room)
+      const bgRackGroup = new THREE.Group();
+      bgRackGroup.position.set(-1.15, 0.05, -1.35);
+      bgRackGroup.scale.set(0.78, 0.78, 0.78);
+      PRODUCTS.forEach((_, i) => {
+        const miniJacket = createBlousonJacketMesh(i, false);
+        miniJacket.position.set(i * 0.16, 1.56, 0);
+        miniJacket.rotation.y = 0.35;
+        bgRackGroup.add(miniJacket);
+      });
+      modelGroup.add(bgRackGroup);
+
+      // Worn Jackets on the Model (one per colorway, toggled smoothly)
+      PRODUCTS.forEach((_, idx) => {
+        const worn = createBlousonJacketMesh(idx, true);
+        worn.position.set(0, 1.35, 0.005);
+        worn.scale.set(1.02, 1.02, 1.04);
+        worn.visible = idx === state.selectedIndex;
+        modelGroup.add(worn);
+        modelJackets.push(worn);
+      });
+    }
+    buildEditorialModel();
+
+    // Position garments on the rack so the selected garment sits hero center-front
+    function updateRackTargets() {
+      rackGarments.forEach((g, idx) => {
+        const isSelected = idx === state.selectedIndex;
+        if (isSelected) {
+          g.userData.targetPos = new THREE.Vector3(0.12, 1.56, 0.18);
+          g.userData.targetScale = 1.04;
+        } else {
+          // Arrange remaining garments neatly to the left along the rail
+          const offsetOrder = idx < state.selectedIndex ? idx : idx - 1;
+          g.userData.targetPos = new THREE.Vector3(-0.46 - offsetOrder * 0.24, 1.56, -0.18 - offsetOrder * 0.14);
+          g.userData.targetScale = 0.94;
+        }
+      });
+
+      // Update worn jacket visibility on model
+      modelJackets.forEach((wj, idx) => {
+        wj.visible = idx === state.selectedIndex;
+      });
+    }
+    updateRackTargets();
+
+    // Initialize immediate positions on first load
+    rackGarments.forEach(g => {
+      g.position.copy(g.userData.targetPos);
+      g.scale.setScalar(g.userData.targetScale);
+      g.rotation.y = state.garmentRotY;
+    });
+
+    // -----------------------------------------------------------------------
+    // 7. INTERACTIVE POINTER / TOUCH 360° ROTATION CONTROLS
+    // -----------------------------------------------------------------------
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let pointerDownTime = 0;
+    let pointerDownPos = { x: 0, y: 0 };
+
+    function onPointerDown(e) {
+      if (e.target !== renderer.domElement) return;
+      state.isDragging = true;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      state.previousPointerX = clientX;
+      state.previousPointerY = clientY;
+      pointerDownPos = { x: clientX, y: clientY };
+      pointerDownTime = performance.now();
+    }
+
+    function onPointerMove(e) {
+      if (!state.isDragging) return;
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const deltaX = clientX - state.previousPointerX;
+      state.previousPointerX = clientX;
+
+      if (state.viewMode === 'rack') {
+        state.targetGarmentRotY += deltaX * 0.012;
+      } else {
+        state.targetModelRotY += deltaX * 0.012;
+      }
+    }
+
+    function onPointerUp(e) {
+      if (!state.isDragging) return;
+      state.isDragging = false;
+
+      // Detect quick tap on background garments on rack to switch garments directly!
+      const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+      const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+      const dist = Math.hypot(clientX - pointerDownPos.x, clientY - pointerDownPos.y);
+      const elapsed = performance.now() - pointerDownTime;
+
+      if (dist < 8 && elapsed < 280 && state.viewMode === 'rack') {
+        pointer.x = (clientX / window.innerWidth) * 2 - 1;
+        pointer.y = -(clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+
+        for (let i = 0; i < rackGarments.length; i++) {
+          const hits = raycaster.intersectObjects(rackGarments[i].children, true);
+          if (hits.length > 0 && i !== state.selectedIndex) {
+            selectGarment(i);
+            break;
+          }
+        }
+      }
+    }
+
+    renderer.domElement.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    renderer.domElement.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp);
+
+    // -----------------------------------------------------------------------
+    // 8. UI ACTIONS, AUDIO FEEDBACK (TONE.JS) & CART MANAGEMENT
+    // -----------------------------------------------------------------------
+    let synth = null;
+    function playClickTone(freq = 520) {
+      if (!state.soundEnabled) return;
+      try {
+        if (!synth) {
+          synth = new Tone.Synth({
+            oscillator: { type: 'sine' },
+            envelope: { attack: 0.005, decay: 0.08, sustain: 0, release: 0.08 }
+          }).toDestination();
+          synth.volume.value = -16;
+        }
+        synth.triggerAttackRelease(freq, '32n');
+      } catch (err) {
+        // Ignore audio context restriction if uninitiated
+      }
+    }
+
+    function toggleAudio() {
+      state.soundEnabled = !state.soundEnabled;
+      if (state.soundEnabled && typeof Tone !== 'undefined') {
+        Tone.start();
+        playClickTone(660);
+      }
+      document.getElementById('icon-sound-off').classList.toggle('hidden', state.soundEnabled);
+      document.getElementById('icon-sound-on').classList.toggle('hidden', !state.soundEnabled);
+      showToast(state.soundEnabled ? 'Studio audio enabled' : 'Studio audio muted');
+    }
+
+    function selectGarment(index) {
+      state.selectedIndex = index;
+      const prod = PRODUCTS[index];
+      playClickTone(440 + index * 90);
+
+      // Update Card Text & Price
+      document.getElementById('product-subtitle').textContent = prod.subtitle;
+      document.getElementById('product-title').textContent = prod.title;
+      document.getElementById('product-price').textContent = `$${prod.price}`;
+      document.getElementById('btn-price-label').textContent = `$${prod.price}`;
+      document.getElementById('product-color-name').textContent = prod.colorName;
+      document.getElementById('product-fabric').textContent = prod.fabric;
+
+      // Update Swatch Borders
+      PRODUCTS.forEach((_, i) => {
+        const swatch = document.getElementById(`swatch-${i}`);
+        const dot = document.getElementById(`dot-${i}`);
+        if (i === index) {
+          swatch.classList.add('border-2', 'border-slate-900', 'scale-105');
+          swatch.classList.remove('border', 'border-slate-300');
+          dot.classList.add('bg-slate-900', 'text-white', 'font-semibold');
+          dot.classList.remove('text-slate-600', 'font-medium');
+        } else {
+          swatch.classList.remove('border-2', 'border-slate-900', 'scale-105');
+          swatch.classList.add('border', 'border-slate-300');
+          dot.classList.remove('bg-slate-900', 'text-white', 'font-semibold');
+          dot.classList.add('text-slate-600', 'font-medium');
+        }
+      });
+
+      // Reset rotation smoothly toward front-three-quarter angle
+      state.targetGarmentRotY = 0.16;
+      updateRackTargets();
+    }
+
+    function selectSize(size) {
+      state.selectedSize = size;
+      playClickTone(580);
+      document.querySelectorAll('.size-btn').forEach(btn => {
+        if (btn.dataset.size === size) {
+          btn.classList.add('border-slate-900', 'bg-slate-900', 'text-white');
+          btn.classList.remove('border-slate-200/80', 'bg-white/60', 'text-slate-700');
+        } else {
+          btn.classList.remove('border-slate-900', 'bg-slate-900', 'text-white');
+          btn.classList.add('border-slate-200/80', 'bg-white/60', 'text-slate-700');
+        }
+      });
+    }
+
+    function setViewMode(mode) {
+      state.viewMode = mode;
+      playClickTone(mode === 'model' ? 680 : 480);
+
+      const rackBtn = document.getElementById('mode-rack');
+      const modelBtn = document.getElementById('mode-model');
+      const cardFitText = document.getElementById('card-fit-text');
+
+      if (mode === 'rack') {
+        rackGroup.visible = true;
+        modelGroup.visible = false;
+        state.targetCameraPos.set(0, 1.52, 2.35);
+        state.targetCameraLookAt.set(0, 1.48, 0);
+
+        rackBtn.classList.add('bg-[#1E2D36]', 'text-white', 'shadow-sm');
+        rackBtn.classList.remove('text-slate-600');
+        modelBtn.classList.remove('bg-[#1E2D36]', 'text-white', 'shadow-sm');
+        modelBtn.classList.add('text-slate-600');
+        cardFitText.textContent = 'View on 3D Model';
+      } else {
+        rackGroup.visible = false;
+        modelGroup.visible = true;
+        state.targetModelRotY = 0;
+        state.targetCameraPos.set(0, 1.38, 2.55);
+        state.targetCameraLookAt.set(0, 1.32, 0);
+
+        modelBtn.classList.add('bg-[#1E2D36]', 'text-white', 'shadow-sm');
+        modelBtn.classList.remove('text-slate-600');
+        rackBtn.classList.remove('bg-[#1E2D36]', 'text-white', 'shadow-sm');
+        rackBtn.classList.add('text-slate-600');
+        cardFitText.textContent = 'Return to Rack';
+      }
+    }
+
+    function toggleViewMode() {
+      setViewMode(state.viewMode === 'rack' ? 'model' : 'rack');
+    }
+
+    function toggleStudioMood() {
+      state.studioMood = state.studioMood === 'warm' ? 'cool' : 'warm';
+      playClickTone(610);
+
+      const dot = document.getElementById('mood-dot');
+      const label = document.getElementById('mood-label');
+
+      if (state.studioMood === 'warm') {
+        keyLight.color.set('#FFF8EE');
+        scene.background.set('#DCE0E6');
+        scene.fog.color.set('#DCE0E6');
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-300 border border-amber-500/40';
+        label.textContent = 'Warm';
+      } else {
+        keyLight.color.set('#EBF4FF');
+        scene.background.set('#D2DAE4');
+        scene.fog.color.set('#D2DAE4');
+        dot.className = 'w-2.5 h-2.5 rounded-full bg-sky-300 border border-sky-500/40';
+        label.textContent = 'Cool';
+      }
+    }
+
+    function toggleDetails() {
+      const body = document.getElementById('product-details-body');
+      const chev = document.getElementById('details-chevron');
+      body.classList.toggle('hidden');
+      chev.classList.toggle('rotate-180');
+    }
+
+    // Shopping Bag Logic
+    function addToCart() {
+      playClickTone(740);
+      const existing = state.cart.find(
+        item => item.productIndex === state.selectedIndex && item.size === state.selectedSize
+      );
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        state.cart.push({
+          productIndex: state.selectedIndex,
+          size: state.selectedSize,
+          qty: 1
+        });
+      }
+      renderCart();
+      const prod = PRODUCTS[state.selectedIndex];
+      showToast(`${prod.title} (${state.selectedSize}) added to bag`);
+    }
+
+    function updateCartQty(idx, delta) {
+      playClickTone(500);
+      state.cart[idx].qty += delta;
+      if (state.cart[idx].qty <= 0) {
+        state.cart.splice(idx, 1);
+      }
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cart-items-container');
+      const badge = document.getElementById('cart-badge');
+      const subtitle = document.getElementById('cart-count-subtitle');
+      const subtotalEl = document.getElementById('cart-subtotal');
+      const checkoutBtnTotal = document.getElementById('checkout-total-btn');
+
+      const totalItems = state.cart.reduce((acc, item) => acc + item.qty, 0);
+      badge.textContent = totalItems;
+      subtitle.textContent = `${totalItems} ${totalItems === 1 ? 'item' : 'items'} ready for dispatch`;
+
+      if (state.cart.length === 0) {
+        container.innerHTML = `
+          <div class="h-full flex flex-col items-center justify-center text-center py-12">
+            <p class="text-sm font-medium text-slate-700 mb-1">Your bag is empty</p>
+            <p class="text-xs text-slate-400">Select a garment in the 3D showroom to begin.</p>
+          </div>
+        `;
+        subtotalEl.textContent = '$0.00';
+        checkoutBtnTotal.textContent = '$0.00';
+        return;
+      }
+
+      let subtotal = 0;
+      container.innerHTML = state.cart.map((item, i) => {
+        const prod = PRODUCTS[item.productIndex];
+        const lineTotal = prod.price * item.qty;
+        subtotal += lineTotal;
+
+        return `
+          <div class="flex items-center gap-4 p-3 rounded-2xl bg-slate-50/90 border border-slate-100">
+            <div class="w-16 h-20 rounded-xl flex items-center justify-center shrink-0 border border-white shadow-xs" style="background:${prod.hex}">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-slate-700/70">${item.size}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-xs font-semibold text-slate-900 truncate">${prod.title}</h4>
+              <p class="text-[11px] text-slate-500">${prod.colorName} • Size ${item.size}</p>
+              <div class="flex items-center justify-between mt-2.5">
+                <div class="inline-flex items-center border border-slate-200 rounded-lg bg-white">
+                  <button onclick="updateCartQty(${i}, -1)" class="px-2 py-0.5 text-xs text-slate-600 hover:text-slate-900">−</button>
+                  <span class="px-2 text-[11px] font-semibold text-slate-800">${item.qty}</span>
+                  <button onclick="updateCartQty(${i}, 1)" class="px-2 py-0.5 text-xs text-slate-600 hover:text-slate-900">+</button>
+                </div>
+                <span class="text-xs font-semibold text-slate-900">$${lineTotal}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+      checkoutBtnTotal.textContent = `$${subtotal.toFixed(2)}`;
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cart-drawer');
+      const backdrop = document.getElementById('cart-backdrop');
+      if (open) {
+        renderCart();
+        drawer.classList.remove('translate-x-full');
+        backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      } else {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('opacity-0', 'pointer-events-none');
+      }
+    }
+
+    function toggleCatalogModal() {
+      const modal = document.getElementById('catalog-modal');
+      modal.classList.toggle('hidden');
+      modal.classList.toggle('flex');
+    }
+
+    function toggleSizeGuide(open) {
+      const modal = document.getElementById('size-modal');
+      if (open) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } else {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function openCheckoutModal() {
+      if (state.cart.length === 0) {
+        showToast('Add a garment to your bag first');
+        return;
+      }
+      toggleCartDrawer(false);
+      document.getElementById('checkout-form-view').classList.remove('hidden');
+      document.getElementById('checkout-success-view').classList.add('hidden');
+      const modal = document.getElementById('checkout-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCheckoutModal() {
+      const modal = document.getElementById('checkout-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function submitOrder(e) {
+      e.preventDefault();
+      playClickTone(880);
+      document.getElementById('checkout-form-view').classList.add('hidden');
+      document.getElementById('checkout-success-view').classList.remove('hidden');
+      state.cart = [];
+      renderCart();
+    }
+
+    let toastTimeout;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = msg;
+      toast.classList.remove('opacity-0', 'translate-y-2');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+      }, 2400);
+    }
+
+    // -----------------------------------------------------------------------
+    // 9. ANIMATION LOOP & RESIZE HANDLER
+    // -----------------------------------------------------------------------
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const t = clock.getElapsedTime();
+
+      // Smoothly interpolate camera position & lookAt
+      state.cameraPos.lerp(state.targetCameraPos, 0.08);
+      state.cameraLookAt.lerp(state.targetCameraLookAt, 0.08);
+      camera.position.copy(state.cameraPos);
+      camera.lookAt(state.cameraLookAt);
+
+      // Gentle ambient sway when not actively dragging
+      if (!state.isDragging) {
+        if (state.viewMode === 'rack') {
+          state.targetGarmentRotY += Math.sin(t * 0.75) * 0.0008;
+        } else {
+          state.targetModelRotY += Math.sin(t * 0.65) * 0.0012;
+        }
+      }
+
+      // Smooth rotational damping
+      state.garmentRotY += (state.targetGarmentRotY - state.garmentRotY) * 0.1;
+      state.modelRotY += (state.targetModelRotY - state.modelRotY) * 0.1;
+
+      // Update Rack Garment Positions & Rotations
+      rackGarments.forEach((g, idx) => {
+        g.position.lerp(g.userData.targetPos, 0.1);
+        const currentScale = g.scale.x;
+        const nextScale = currentScale + (g.userData.targetScale - currentScale) * 0.1;
+        g.scale.setScalar(nextScale);
+
+        if (idx === state.selectedIndex) {
+          g.rotation.y = state.garmentRotY;
+        } else {
+          // Secondary garments hang subtly angled on rail
+          g.rotation.y += (0.28 - g.rotation.y) * 0.08;
+        }
+      });
+
+      // Update Model Rotation
+      modelGroup.rotation.y = state.modelRotY;
+
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    window.onload = function () {
+      renderCart();
+      animate();
+      // Fade out studio loader
+      setTimeout(() => {
+        const loader = document.getElementById('loader');
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+      }, 450);
+    };
+  </script>
+</body>
+</html>

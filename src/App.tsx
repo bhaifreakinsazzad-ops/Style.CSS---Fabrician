@@ -8,6 +8,7 @@ import { OfflineIndicator, MobilePWAInstallPrompt } from './components/pwa/PWAIn
 import { Navbar } from './components/navigation/Navbar';
 import { CinematicHero } from './components/hero/CinematicHero';
 import { InteractiveLookbook } from './components/lookbook/InteractiveLookbook';
+import { VirtualShowroomSection } from './components/showroom/VirtualShowroomSection';
 import { ThreePieceSection } from './components/three-piece/ThreePieceSection';
 import { GraphicArchiveSection } from './components/graphic-archive/GraphicArchiveSection';
 import { CollectionDiscovery } from './components/collections/CollectionDiscovery';
@@ -469,6 +470,16 @@ export default function App() {
             language={language}
             onAddToCart={handleAddToCart}
             onQuickView={(p) => setQuickViewProduct(p)}
+          />
+
+          {/* Interactive 3D Virtual Flagship Showroom */}
+          <VirtualShowroomSection
+            language={language}
+            onAddToCart={handleAddToCart}
+            onBuyNow={handleBuyNow}
+            onToggleWishlist={handleToggleWishlist}
+            isWishlisted={isWishlisted}
+            onOpenSizeGuide={() => setIsGlobalSizeGuideOpen(true)}
           />
 
           {/* The Three-Piece Edit: 18 Curated Designs with 3D Studio (Fariza's Territory) */}

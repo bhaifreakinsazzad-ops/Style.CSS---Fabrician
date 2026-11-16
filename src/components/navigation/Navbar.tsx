@@ -136,6 +136,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.nav.lookbook}
             </button>
             <button
+              onClick={() => handleLinkClick('virtual-showroom')}
+              className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
+            >
+              {t.nav.showroom}
+            </button>
+            <button
               onClick={() => handleLinkClick('three-piece-edit')}
               className="hover:text-[#F5F2EB] transition-colors cursor-pointer whitespace-nowrap focus:outline-none focus-visible:text-[#D5BA80]"
             >
@@ -369,40 +375,46 @@ export const Navbar: React.FC<NavbarProps> = ({
               01. {t.nav.lookbook}
             </button>
             <button
+              onClick={() => handleLinkClick('virtual-showroom')}
+              className="text-left py-2 text-[#D5BA80] hover:text-white transition-colors cursor-pointer"
+            >
+              02. {t.nav.showroom}
+            </button>
+            <button
               onClick={() => handleLinkClick('three-piece-edit')}
               className="text-left py-2 text-[#D5BA80] font-medium cursor-pointer"
             >
-              02. {t.nav.threePiece} {language === 'en' ? '(18 Designs)' : '(১৮টি ডিজাইন)'}
+              03. {t.nav.threePiece} {language === 'en' ? '(18 Designs)' : '(১৮টি ডিজাইন)'}
             </button>
             <button
               onClick={() => handleLinkClick('graphic-archive')}
               className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              03. {t.nav.graphicArchive} {language === 'en' ? '(11 Drops)' : '(১১টি ডিজাইন)'}
+              04. {t.nav.graphicArchive} {language === 'en' ? '(11 Drops)' : '(১১টি ডিজাইন)'}
             </button>
             <button
               onClick={() => handleLinkClick('collections')}
               className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              04. {t.nav.collections}
+              05. {t.nav.collections}
             </button>
             <button
               onClick={() => handleLinkClick('essentials')}
               className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              05. {t.nav.men} &amp; {t.nav.women}
+              06. {t.nav.men} &amp; {t.nav.women}
             </button>
             <button
               onClick={() => handleLinkClick('craft')}
               className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              06. {t.nav.craft}
+              07. {t.nav.craft}
             </button>
             <button
               onClick={() => handleLinkClick('style-intelligence')}
               className="text-left py-2 hover:text-[#D5BA80] transition-colors cursor-pointer"
             >
-              07. {t.nav.styleIntelligence}
+              08. {t.nav.styleIntelligence}
             </button>
             <button
               onClick={() => {
@@ -412,7 +424,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="text-left py-2 text-[#D5BA80] flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
             >
               <Truck className="w-5 h-5 text-[#B69A60]" />
-              <span>{language === 'en' ? '08. Track Delivery (Pathao)' : '০৮. অর্ডার ডেলিভারি ট্র্যাক'}</span>
+              <span>{language === 'en' ? '09. Track Delivery (Pathao)' : '০৯. অর্ডার ডেলিভারি ট্র্যাক'}</span>
             </button>
             {onOpenAdmin && (
               <button
@@ -423,7 +435,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className="text-left py-2 text-[#D5BA80] flex items-center gap-2 hover:text-white transition-colors cursor-pointer"
               >
                 <LayoutDashboard className="w-5 h-5 text-[#B69A60]" />
-                <span>{language === 'en' ? '09. Store Admin' : '০৯. স্টোর অ্যাডমিন'}</span>
+                <span>{language === 'en' ? '10. Store Admin' : '১০. স্টোর অ্যাডমিন'}</span>
               </button>
             )}
           </div>

@@ -26,6 +26,7 @@ import {
 } from '../firebase';
 import { THREE_PIECE_CATALOG, ThreePieceItem } from '../data/threePieceCatalog';
 import { GRAPHIC_ARCHIVE_PRODUCTS, GraphicArchiveProduct } from '../data/graphicArchiveCatalog';
+import { SHOWROOM_GARMENTS, showroomGarmentToProduct } from '../data/showroomCatalog';
 import {
   CatalogOverride,
   DEFAULT_STORE_SETTINGS,
@@ -491,7 +492,24 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         hasOverride: true,
       }));
 
-    return [...customRows, ...threePieceRows, ...graphicRows];
+    const showroomRows: LiveProduct[] = SHOWROOM_GARMENTS.map((sg) => {
+      const base = showroomGarmentToProduct(sg);
+      const ov = catalogOverrides[sg.id];
+      return {
+        ...base,
+        brand: ov?.brand || base.brand || 'FABRICIAN',
+        nameEn: ov?.nameEn || base.nameEn,
+        nameBn: ov?.nameBn || base.nameBn,
+        priceBDT: ov ? ov.priceBDT : base.priceBDT,
+        compareAtPriceBDT: ov?.compareAtPriceBDT,
+        stockCount: ov ? ov.stockCount : 12,
+        status: ov ? ov.status : 'active',
+        sourceCatalog: 'custom',
+        hasOverride: Boolean(ov),
+      };
+    });
+
+    return [...customRows, ...showroomRows, ...threePieceRows, ...graphicRows];
   }, [catalogOverrides]);
 
   const liveEssentialsProducts = useMemo(
