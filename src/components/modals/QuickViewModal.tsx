@@ -27,6 +27,9 @@ import {
   trackFarizaViewContent,
   trackStarKiTViewContent,
 } from '../../services/metaPixel';
+import { HoverZoomImage } from '../common/HoverZoomImage';
+import { SocialShareBar } from '../common/SocialShareBar';
+import { buildProductShareUrl } from '../../utils/shareUrl';
 
 const GarmentTryOn3DModal = React.lazy(() =>
   import('./GarmentTryOn3DModal').then((m) => ({ default: m.GarmentTryOn3DModal }))
@@ -259,22 +262,27 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
         {/* Product Media Stage */}
         <div className="relative aspect-[3/4] md:aspect-auto md:h-full bg-black/40 overflow-hidden flex flex-col justify-between">
-          <img
+          <HoverZoomImage
             src={displayedImage}
             alt={resolvedProduct.nameEn}
+            zoomScale={1.9}
+            containerClassName="w-full h-full"
+            imgClassName="w-full h-full object-cover object-top"
+            referrerPolicy="no-referrer"
+            showHint
+            hintPosition="top-right"
+            language={language}
             onError={(e) => {
               const img = e.currentTarget;
               if (img.src !== primaryImage) {
                 img.src = primaryImage;
               }
             }}
-            className="w-full h-full object-cover object-top transition-all duration-500"
-            referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#171719] via-transparent to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#171719] via-transparent to-transparent opacity-50 pointer-events-none z-10" />
 
           {/* Top Left SKU / Stock Pill */}
-          <div className="absolute top-4 left-4 z-10 flex flex-wrap items-center gap-2">
+          <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 pointer-events-none">
             {matchedVariant && (
               <span className="px-2.5 py-1 rounded bg-black/80 backdrop-blur-md border border-[#B69A60]/40 text-[10px] font-mono text-[#D5BA80] uppercase">
                 SKU: {matchedVariant.sku}
@@ -289,7 +297,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
           {/* Bottom Media Switcher (Flat-lay vs Model or Studio vs Spec Sheet) */}
           {secondaryImage && (
-            <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-center">
+            <div className="absolute bottom-4 left-4 right-4 z-20 flex items-center justify-center">
               <div className="p-1 rounded-xl bg-black/80 backdrop-blur-md border border-white/15 flex items-center gap-1 text-[11px] font-mono">
                 <button
                   type="button"
@@ -761,6 +769,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 <Heart className="w-4 h-4 fill-current" />
               </button>
             </div>
+
+            <SocialShareBar
+              url={buildProductShareUrl(
+                resolvedProduct,
+                matchedVariant?.sku || matchedGraphicHoodie?.stkCode
+              )}
+              title={`${resolvedProduct.brand ? `${resolvedProduct.brand} — ` : ''}${
+                language === 'en' ? resolvedProduct.nameEn : resolvedProduct.nameBn
+              }`}
+              description={`৳${effectiveUnitPriceBDT.toLocaleString()} · ${resolvedProduct.collection}`}
+              language={language}
+              theme="dark-gold"
+              compact
+            />
 
             <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-[#77777D]">
               <span className="inline-flex items-center gap-1">

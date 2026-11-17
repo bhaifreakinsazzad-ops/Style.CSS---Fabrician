@@ -39,6 +39,7 @@ import {
   trackFarizaCustomizeProduct,
   trackFarizaPageView,
 } from '../../services/metaPixel';
+import { HoverZoomImage } from '../common/HoverZoomImage';
 
 const ThreePiece3DViewer = React.lazy(() =>
   import('../three-piece/ThreePiece3DViewer').then((m) => ({ default: m.ThreePiece3DViewer }))
@@ -355,18 +356,23 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
                   CAT-001 Signature Set
                 </div>
               ) : (
-                <img
+                <HoverZoomImage
                   src="/assets/fariza/CAT-001_model.jpg"
                   alt="Fariza's Territory CAT-001 Model Preview"
+                  zoomScale={1.7}
+                  containerClassName="w-full h-full"
+                  imgClassName="w-full h-full object-cover object-top"
                   referrerPolicy="no-referrer"
+                  showHint
+                  hintPosition="top-right"
+                  language={language}
                   onError={() =>
                     setBrokenImages((prev) => ({ ...prev, 'hero-1': true }))
                   }
-                  className="w-full h-full object-cover object-top"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-transparent to-transparent pointer-events-none z-10" />
+              <div className="absolute bottom-4 left-4 right-4 text-white z-10 pointer-events-none">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-white/80">
                   Style 01 · Signature Lawn
                 </div>
@@ -382,18 +388,23 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
                   Handmade &amp; Crafts Heritage Textile
                 </div>
               ) : (
-                <img
+                <HoverZoomImage
                   src={FARIZA_BRAND_ASSETS.coverHero}
                   alt="Fariza's Territory Embroidered Heritage Textile Campaign"
+                  zoomScale={1.75}
+                  containerClassName="w-full h-full"
+                  imgClassName="w-full h-full object-cover object-center"
                   referrerPolicy="no-referrer"
+                  showHint
+                  hintPosition="top-right"
+                  language={language}
                   onError={() =>
                     setBrokenImages((prev) => ({ ...prev, 'hero-2': true }))
                   }
-                  className="w-full h-full object-cover object-center"
                 />
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 text-white">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050505]/90 via-transparent to-transparent pointer-events-none z-10" />
+              <div className="absolute bottom-4 left-4 right-4 text-white z-10 pointer-events-none">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#31A24C] font-bold">
                   Brand Book Edition
                 </div>
@@ -467,12 +478,14 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
                     className="group bg-[#F0F2F5] border border-[#050505]/12 hover:border-[#0866FF] rounded-2xl overflow-hidden flex flex-col justify-between cursor-pointer transition-all shadow-sm hover:shadow-xl"
                   >
                     <div className="relative aspect-[4/5] bg-white overflow-hidden">
-                      <img
+                      <HoverZoomImage
                         src={product.image}
                         alt={product.nameEn}
+                        zoomScale={1.65}
                         loading="lazy"
                         referrerPolicy="no-referrer"
-                        className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ${
+                        containerClassName="w-full h-full"
+                        imgClassName={`w-full h-full object-cover object-top ${
                           isOutOfStock ? 'opacity-65 grayscale-[30%]' : ''
                         }`}
                       />
@@ -483,7 +496,7 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
                           e.stopPropagation();
                           onToggleWishlist(product);
                         }}
-                        className={`absolute top-3 right-3 p-2 rounded-full shadow-md transition-colors cursor-pointer ${
+                        className={`absolute top-3 right-3 z-20 p-2 rounded-full shadow-md transition-colors cursor-pointer ${
                           wish
                             ? 'bg-[#0866FF] text-white'
                             : 'bg-white/95 text-[#374151] hover:text-[#0866FF]'
@@ -651,15 +664,17 @@ export const FarizasTerritoryBrandPage: React.FC<FarizasTerritoryBrandPageProps>
                             {look.titleEn}
                           </div>
                         ) : (
-                          <img
+                          <HoverZoomImage
                             src={look.modelImage}
                             alt={look.titleEn}
+                            zoomScale={1.65}
                             loading="lazy"
                             referrerPolicy="no-referrer"
                             onError={() =>
                               setBrokenImages((prev) => ({ ...prev, [look.id]: true }))
                             }
-                            className="w-24 aspect-[3/4] object-cover object-top rounded-xl shrink-0 bg-[#F0F2F5]"
+                            containerClassName="w-24 aspect-[3/4] rounded-xl shrink-0 bg-[#F0F2F5]"
+                            imgClassName="w-full h-full object-cover object-top"
                           />
                         )}
                         <div className="min-w-0">

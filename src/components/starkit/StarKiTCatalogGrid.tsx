@@ -43,6 +43,7 @@ import {
   trackStarKiTSearch,
   trackStarKiTViewContent,
 } from '../../services/metaPixel';
+import { HoverZoomImage } from '../common/HoverZoomImage';
 
 export const STARKIT_SIZES = ['M', 'L', 'XL', 'XXL'] as const;
 export type StarKiTSize = (typeof STARKIT_SIZES)[number];
@@ -656,9 +657,10 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       );
                     }
                     return (
-                      <img
+                      <HoverZoomImage
                         src={imgSrc}
                         alt={`${product.designName} (${currentSlot.color})`}
+                        zoomScale={1.65}
                         loading="lazy"
                         referrerPolicy="no-referrer"
                         onClick={() =>
@@ -669,17 +671,18 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                         onError={() =>
                           setBrokenImages((prev) => ({ ...prev, [imgKey]: true }))
                         }
-                        className={`w-full h-full cursor-pointer ${
+                        containerClassName="w-full h-full cursor-pointer"
+                        imgClassName={`w-full h-full ${
                           showSheet || isDuplicatePlaceholder
                             ? 'object-contain bg-[#170000] p-2'
                             : 'object-cover object-center'
-                        } transition-transform duration-700 group-hover:scale-105`}
+                        }`}
                       />
                     );
                   })()}
 
                   {/* Top Identity & Status (max 2 badges) */}
-                  <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+                  <div className="absolute top-3 left-3 right-3 z-20 flex items-start justify-between gap-2 pointer-events-none">
                     <div className="flex flex-wrap items-center gap-1.5">
                       <span className="px-2.5 py-1 rounded bg-[#170000] border border-white/25 text-[10px] font-mono font-bold tracking-wider text-white uppercase">
                         {currentSlot.sku}
@@ -693,7 +696,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 pointer-events-auto">
                       {onLaunch3D && (
                         <button
                           type="button"
@@ -735,7 +738,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
 
                   {/* Bottom Photo ↔ Spec Sheet Toggle Bar */}
                   {!isProvisionalSlot && (
-                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                    <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
                       <span className="px-2.5 py-1 rounded bg-[#170000]/90 border border-white/20 text-[10px] font-mono text-white/90 truncate flex items-center gap-1">
                         {isDuplicatePlaceholder && (
                           <AlertTriangle className="w-3 h-3 text-white shrink-0" />
@@ -747,7 +750,7 @@ export const StarKiTCatalogGrid: React.FC<StarKiTCatalogGridProps> = ({
                         </span>
                       </span>
 
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1 shrink-0 pointer-events-auto">
                         <button
                           type="button"
                           onClick={() =>

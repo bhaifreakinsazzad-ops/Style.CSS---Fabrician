@@ -43,6 +43,7 @@ import {
   trackStarKiTContact,
   trackStarKiTPageView,
 } from '../../services/metaPixel';
+import { HoverZoomImage } from '../common/HoverZoomImage';
 
 const StarKiT3DStudio = React.lazy(() =>
   import('../starkit/StarKiT3DStudio').then((m) => ({ default: m.StarKiT3DStudio }))
@@ -352,22 +353,27 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
           <div className="lg:col-span-6 grid grid-cols-2 gap-4">
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/25 bg-[#170000]">
               {!brokenImages['hero-ambassador'] ? (
-                <img
+                <HoverZoomImage
                   src={AMBASSADOR_PORTRAIT}
                   alt="StarkiT Official Brand Ambassador"
+                  zoomScale={1.7}
+                  containerClassName="w-full h-full"
+                  imgClassName="w-full h-full object-cover object-top"
                   referrerPolicy="no-referrer"
+                  showHint
+                  hintPosition="top-right"
+                  language={language}
                   onError={() =>
                     setBrokenImages((prev) => ({ ...prev, 'hero-ambassador': true }))
                   }
-                  className="w-full h-full object-cover object-top"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center p-6 text-center font-starkit text-2xl font-bold uppercase text-white/80">
                   STΛRKIT 2026
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#170000] via-transparent to-transparent opacity-85" />
-              <div className="absolute bottom-4 left-4 right-4">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#170000] via-transparent to-transparent opacity-85 pointer-events-none z-10" />
+              <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#C7C1BF] font-bold">
                   Brand Ambassador
                 </div>
@@ -379,22 +385,27 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
 
             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden border-2 border-white/45 bg-[#170000] translate-y-4">
               {!brokenImages['hero-flagship'] ? (
-                <img
+                <HoverZoomImage
                   src="/media/products/STK-H003-BLK/STK-H003-BLK__91_studio_preview.webp"
                   alt="StarkiT Folk Art Bus Heavyweight Hoodie"
+                  zoomScale={1.75}
+                  containerClassName="w-full h-full"
+                  imgClassName="w-full h-full object-cover object-center"
                   referrerPolicy="no-referrer"
+                  showHint
+                  hintPosition="top-right"
+                  language={language}
                   onError={() =>
                     setBrokenImages((prev) => ({ ...prev, 'hero-flagship': true }))
                   }
-                  className="w-full h-full object-cover object-center"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center p-6 text-center font-starkit text-2xl font-bold uppercase text-white/80">
                   STK-H003
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#170000] via-transparent to-transparent opacity-85" />
-              <div className="absolute bottom-4 left-4 right-4">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#170000] via-transparent to-transparent opacity-85 pointer-events-none z-10" />
+              <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
                 <div className="text-[10px] font-mono uppercase tracking-widest text-[#C7C1BF] font-bold">
                   STK-H003 Flagship
                 </div>
@@ -615,18 +626,20 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                     >
                       <div className="relative aspect-[4/5] bg-neutral-100 overflow-hidden">
                         {!isBroken ? (
-                          <img
+                          <HoverZoomImage
                             src={product.image}
                             alt={product.nameEn}
+                            zoomScale={1.65}
                             loading="lazy"
                             referrerPolicy="no-referrer"
+                            containerClassName="w-full h-full"
                             onError={() =>
                               setBrokenImages((prev) => ({
                                 ...prev,
                                 [`essential-${product.id}`]: true,
                               }))
                             }
-                            className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ${
+                            imgClassName={`w-full h-full object-cover object-top ${
                               isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
                             }`}
                           />
@@ -642,7 +655,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                         )}
                         {(isOutOfStock || isLowStock) && (
                           <span
-                            className={`absolute top-3 left-3 px-2.5 py-1 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+                            className={`absolute top-3 left-3 z-20 px-2.5 py-1 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
                               isOutOfStock
                                 ? 'bg-[#170000] text-white'
                                 : 'bg-white text-[#170000] border border-[#170000]'
@@ -664,7 +677,7 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                             onToggleWishlist(product);
                           }}
                           aria-label="Wishlist toggle"
-                          className={`absolute top-3 right-3 p-2 rounded-full border transition-colors cursor-pointer ${
+                          className={`absolute top-3 right-3 z-20 p-2 rounded-full border transition-colors cursor-pointer ${
                             wish
                               ? 'bg-white border-[#170000] text-[#170000]'
                               : 'bg-[#170000]/80 border-white/25 text-white hover:bg-[#170000]'
@@ -773,9 +786,10 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                       className="p-5 rounded-2xl bg-white border-2 border-[#170000]/15 hover:border-[#170000] flex flex-col sm:flex-row gap-5 items-center shadow-sm transition-colors"
                     >
                       {!isLookBroken ? (
-                        <img
+                        <HoverZoomImage
                           src={look.modelImage}
                           alt={look.titleEn}
+                          zoomScale={1.65}
                           loading="lazy"
                           referrerPolicy="no-referrer"
                           onError={() =>
@@ -784,7 +798,8 @@ export const StarKiTBrandPage: React.FC<StarKiTBrandPageProps> = ({
                               [`look-${look.id}`]: true,
                             }))
                           }
-                          className="w-full sm:w-40 aspect-[3/4] object-cover object-top rounded-xl shrink-0 bg-[#170000]"
+                          containerClassName="w-full sm:w-40 aspect-[3/4] rounded-xl shrink-0 bg-[#170000]"
+                          imgClassName="w-full h-full object-cover object-top"
                         />
                       ) : (
                         <div className="w-full sm:w-40 aspect-[3/4] rounded-xl shrink-0 bg-[#170000] text-white flex flex-col items-center justify-center p-4 text-center">

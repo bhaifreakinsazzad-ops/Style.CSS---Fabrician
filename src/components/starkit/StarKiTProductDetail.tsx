@@ -45,6 +45,9 @@ import {
 } from '../../data/starkitBrandData';
 import { STARKIT_SIZES, StarKiTSize } from './StarKiTCatalogGrid';
 import { trackStarKiTContact, trackStarKiTViewContent } from '../../services/metaPixel';
+import { HoverZoomImage } from '../common/HoverZoomImage';
+import { SocialShareBar } from '../common/SocialShareBar';
+import { buildStarKiTDesignShareUrl } from '../../utils/shareUrl';
 
 interface StarKiTProductDetailProps {
   designId: string;
@@ -334,15 +337,20 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
                 </div>
               ) : gallerySlides[activeMediaIndex] ? (
                 <>
-                  <img
+                  <HoverZoomImage
                     src={gallerySlides[activeMediaIndex].src}
                     alt={`${designMeta.designName} (${activeSlot.color}) — ${gallerySlides[activeMediaIndex].labelEn}`}
+                    zoomScale={2.0}
                     onClick={() => setIsLightboxOpen(true)}
-                    className={`w-full h-full cursor-zoom-in ${
+                    containerClassName="w-full h-full"
+                    imgClassName={`w-full h-full ${
                       gallerySlides[activeMediaIndex].isSheet
                         ? 'object-contain p-4 bg-[#170000]'
                         : 'object-cover object-center'
                     }`}
+                    showHint
+                    hintPosition="bottom-right"
+                    language={language}
                   />
 
                   {gallerySlides.length > 1 && (
@@ -355,7 +363,7 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
                           )
                         }
                         aria-label="Previous media view"
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#170000]/85 hover:bg-white text-white hover:text-[#170000] border border-white/30 flex items-center justify-center cursor-pointer transition-colors"
+                        className="absolute z-20 left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#170000]/85 hover:bg-white text-white hover:text-[#170000] border border-white/30 flex items-center justify-center cursor-pointer transition-colors"
                       >
                         <ChevronLeft className="w-5 h-5" />
                       </button>
@@ -365,14 +373,14 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
                           setActiveMediaIndex((i) => (i + 1) % gallerySlides.length)
                         }
                         aria-label="Next media view"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#170000]/85 hover:bg-white text-white hover:text-[#170000] border border-white/30 flex items-center justify-center cursor-pointer transition-colors"
+                        className="absolute z-20 right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#170000]/85 hover:bg-white text-white hover:text-[#170000] border border-white/30 flex items-center justify-center cursor-pointer transition-colors"
                       >
                         <ChevronRight className="w-5 h-5" />
                       </button>
                     </>
                   )}
 
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 pointer-events-none">
+                  <div className="absolute z-20 top-4 left-4 right-4 flex items-center justify-between gap-2 pointer-events-none">
                     <span className="px-3 py-1 rounded bg-[#170000]/90 border border-white/25 text-[11px] font-mono font-bold uppercase text-white">
                       {activeSlot.sku} · {gallerySlides[activeMediaIndex].labelEn}
                     </span>
@@ -381,7 +389,7 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
                       onClick={() => setIsLightboxOpen(true)}
                       className="pointer-events-auto px-3 py-1 rounded bg-white text-[#170000] text-[10px] font-mono font-bold uppercase cursor-pointer hover:bg-[#ECEAEA]"
                     >
-                      Zoom
+                      Lightbox
                     </button>
                   </div>
                 </>
@@ -727,6 +735,14 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
                       : `প্রি-লঞ্চ জিজ্ঞাসা · হোয়াটসঅ্যাপ (${STARKIT_WHATSAPP_DISPLAY})`}
                   </span>
                 </a>
+
+                <SocialShareBar
+                  url={buildStarKiTDesignShareUrl(designMeta.designId)}
+                  title={`StarkiT ${designMeta.designName} Hoodie (${designMeta.designId})`}
+                  description={`${activeSlot.color} · Proposed ৳${activeSlot.priceBdtProposed.toLocaleString()} · Drop 01 Graphic Archive`}
+                  language={language}
+                  theme="starkit-light"
+                />
               </div>
             </div>
 

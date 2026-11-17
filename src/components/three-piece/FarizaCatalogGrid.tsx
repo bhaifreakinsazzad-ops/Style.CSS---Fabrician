@@ -25,6 +25,7 @@ import {
   trackFarizaSearch,
   trackFarizaViewContent,
 } from '../../services/metaPixel';
+import { HoverZoomImage } from '../common/HoverZoomImage';
 
 const TAILORING_SURCHARGE_BDT = 450;
 const CHEST_SIZES: readonly FarizaChestSize[] = ['34"', '36"', '38"', '40"', '42"', '44"'];
@@ -561,11 +562,13 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                       <span className="text-xs font-semibold">{item.nameEn}</span>
                     </div>
                   ) : (
-                    <img
+                    <HoverZoomImage
                       src={displayImage}
                       alt={`${item.code} ${item.nameEn}`}
+                      zoomScale={1.65}
                       loading="lazy"
                       referrerPolicy="no-referrer"
+                      containerClassName="w-full h-full"
                       onError={(e) => {
                         const img = e.currentTarget;
                         if (img.src !== item.flatLayImage && !img.src.endsWith(item.flatLayImage)) {
@@ -574,14 +577,14 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                           setBrokenImages((prev) => ({ ...prev, [item.id]: true }));
                         }
                       }}
-                      className={`w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out ${
+                      imgClassName={`w-full h-full object-cover object-top ${
                         isOutOfStock ? 'opacity-60 grayscale-[35%]' : ''
                       }`}
                     />
                   )}
 
                   {/* Top SKU & Action Buttons */}
-                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between gap-2">
+                  <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
                     <div className="flex items-center gap-1.5">
                       <span className="font-mono text-[11px] font-bold text-white bg-[#050505]/90 px-2.5 py-1 rounded-md shadow">
                         {item.styleNo ? `${item.styleNo} · ` : ''}
@@ -594,7 +597,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                       )}
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 pointer-events-auto">
                       {onQuickView && (
                         <button
                           type="button"
@@ -648,7 +651,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                   </div>
 
                   {/* Bottom Per-Card Photo Angle Flipper */}
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                  <div className="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between gap-2 pointer-events-none">
                     <button
                       type="button"
                       onClick={(e) => {
@@ -658,7 +661,7 @@ export const FarizaCatalogGrid: React.FC<FarizaCatalogGridProps> = ({
                           [item.id]: cardMode === 'flatlay' ? 'model' : 'flatlay',
                         }));
                       }}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#050505]/85 hover:bg-[#0866FF] text-white text-[10px] font-mono backdrop-blur-sm transition-colors cursor-pointer shadow"
+                      className="pointer-events-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#050505]/85 hover:bg-[#0866FF] text-white text-[10px] font-mono backdrop-blur-sm transition-colors cursor-pointer shadow"
                     >
                       <RefreshCw className="w-3 h-3" />
                       <span>

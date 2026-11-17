@@ -156,6 +156,29 @@ export default function App() {
     };
   }, []);
 
+  const handledSharedProductRef = React.useRef(false);
+
+  useEffect(() => {
+    if (handledSharedProductRef.current || typeof window === 'undefined') return;
+    if (unifiedCatalog.length === 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const sharedProductParam = params.get('product');
+    if (!sharedProductParam) {
+      handledSharedProductRef.current = true;
+      return;
+    }
+    const targetLower = sharedProductParam.toLowerCase();
+    const matched = unifiedCatalog.find(
+      (item) =>
+        item.id.toLowerCase() === targetLower ||
+        item.slug.toLowerCase() === targetLower
+    );
+    handledSharedProductRef.current = true;
+    if (matched) {
+      setQuickViewProduct(matched);
+    }
+  }, [unifiedCatalog]);
+
   useEffect(() => {
     if (viewMode !== 'admin') {
       trackFabricianPageView();
