@@ -201,7 +201,7 @@ service cloud.firestore {
         && data.keys().hasOnly([
           'id', 'productId', 'author', 'location', 'rating',
           'sizePurchased', 'fitFeedback', 'title', 'comment',
-          'status', 'helpfulCount', 'createdAt'
+          'status', 'helpfulCount', 'verifiedBuyer', 'orderReference', 'createdAt'
         ])
         && data.id == reviewId
         && isValidId(data.id)
@@ -215,6 +215,8 @@ service cloud.firestore {
         && isNonEmptyString(data.comment, 2, 1000)
         && data.status in ['approved', 'hidden']
         && data.helpfulCount is number && data.helpfulCount >= 0 && data.helpfulCount <= 100000
+        && (!('verifiedBuyer' in data) || data.verifiedBuyer is bool)
+        && (!('orderReference' in data) || (isValidId(data.orderReference) && data.orderReference.size() <= 64))
         && data.createdAt is timestamp;
     }
 
@@ -313,7 +315,15 @@ service cloud.firestore {
         && isValidReview(incoming(), reviewId)
         && incoming().status == 'approved'
         && incoming().helpfulCount == 1
-        && incoming().createdAt == request.time;
+        && incoming().createdAt == request.time
+        && (
+          !('verifiedBuyer' in incoming())
+          || incoming().verifiedBuyer == false
+          || (
+            'orderReference' in incoming()
+            && exists(/databases/$(database)/documents/orderTracking/$(incoming().orderReference))
+          )
+        );
       allow update: if isValidId(reviewId)
         && isValidReview(incoming(), reviewId)
         && incoming().id == existing().id

@@ -17,6 +17,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   ShoppingBag,
+  Star,
   Truck,
   X,
   Zap,
@@ -48,6 +49,8 @@ import { trackStarKiTContact, trackStarKiTViewContent } from '../../services/met
 import { HoverZoomImage } from '../common/HoverZoomImage';
 import { SocialShareBar } from '../common/SocialShareBar';
 import { buildStarKiTDesignShareUrl } from '../../utils/shareUrl';
+import { VerifiedBuyerReviews } from '../reviews/VerifiedBuyerReviews';
+import { useStoreData } from '../../context/StoreDataContext';
 
 interface StarKiTProductDetailProps {
   designId: string;
@@ -76,6 +79,7 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
   isWishlisted,
   onOpenSizeGuide,
 }) => {
+  const { approvedReviews } = useStoreData();
   const designMeta = findStarKiTDesign(designId) || STARKIT_44_DESIGNS_META[0];
   const liveProduct =
     products.find((p) => p.stkCode === designMeta.designId || p.id === designMeta.legacyId) ||
@@ -228,6 +232,21 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
     fitBn: 'রিল্যাক্সড ড্রপ-শোল্ডার ফিট',
     styleTag: 'urban',
   };
+
+  const designReviewStats = useMemo(() => {
+    const idSet = new Set(
+      [wishProductPayload.id, designMeta.designId, designMeta.legacyId]
+        .filter(Boolean)
+        .map((id) => id.toLowerCase())
+    );
+    const matching = approvedReviews.filter((r) => idSet.has(r.productId.toLowerCase()));
+    const count = matching.length;
+    const avg =
+      count > 0
+        ? (matching.reduce((sum, r) => sum + r.rating, 0) / count).toFixed(1)
+        : '0.0';
+    return { count, avg, numericAvg: Number(avg) };
+  }, [approvedReviews, wishProductPayload.id, designMeta.designId, designMeta.legacyId]);
 
   const handleBagAction = (instant: boolean) => {
     if (!isPublishedOrderable || !activeSlot) return;
@@ -497,10 +516,42 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
                 <h1 className="font-starkit text-3xl sm:text-4xl font-bold uppercase tracking-tight text-[#170000] leading-none">
                   {designMeta.designName}
                 </h1>
-                <div className="text-xs font-mono text-[#524B4B]">
-                  {language === 'en'
-                    ? `Source Edition: "${designMeta.sourceDesignName}"`
-                    : designMeta.nameBn}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                  <div className="text-xs font-mono text-[#524B4B]">
+                    {language === 'en'
+                      ? `Source Edition: "${designMeta.sourceDesignName}"`
+                      : designMeta.nameBn}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document
+                        .getElementById('pdp-verified-reviews')
+                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }
+                    className="inline-flex items-center gap-1.5 text-[11px] font-mono font-bold text-[#170000] hover:underline cursor-pointer"
+                  >
+                    <span className="inline-flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
+                          className={`w-3 h-3 ${
+                            designReviewStats.count > 0 &&
+                            s <= Math.round(designReviewStats.numericAvg)
+                              ? 'fill-[#170000] text-[#170000]'
+                              : 'text-[#170000]/20'
+                          }`}
+                        />
+                      ))}
+                    </span>
+                    <span className="tabular-nums">
+                      {designReviewStats.count > 0
+                        ? `${designReviewStats.avg} (${designReviewStats.count})`
+                        : language === 'en'
+                        ? 'Be the first to review'
+                        : 'প্রথম রিভিউ লিখুন'}
+                    </span>
+                  </button>
                 </div>
               </div>
 
@@ -808,6 +859,37 @@ export const StarKiTProductDetail: React.FC<StarKiTProductDetailProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Verified Buyer's Reviews Section */}
+        <section
+          id="pdp-verified-reviews"
+          className="mt-14 pt-10 border-t-2 border-[#170000]/15"
+        >
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
+            <div>
+              <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#524B4B] font-bold">
+                {language === 'en'
+                  ? 'Community Feedback · Drop 01'
+                  : 'ক্রেতাদের অভিজ্ঞতা · ড্রপ ০১'}
+              </div>
+              <h2 className="font-starkit text-2xl sm:text-3xl font-bold uppercase text-[#170000]">
+                {language === 'en'
+                  ? "Verified Buyer's Reviews"
+                  : 'ভেরিফায়েড ক্রেতাদের রিভিউ'}
+              </h2>
+            </div>
+            <span className="text-[11px] font-mono text-[#524B4B]">
+              {designMeta.designId} · {designMeta.designName}
+            </span>
+          </div>
+
+          <VerifiedBuyerReviews
+            product={wishProductPayload}
+            alternateProductIds={[designMeta.designId, designMeta.legacyId]}
+            language={language}
+            theme="starkit-light"
+          />
+        </section>
 
         {/* Related Drop 01 Archive Designs */}
         <section className="mt-14 pt-10 border-t-2 border-[#170000]/15">

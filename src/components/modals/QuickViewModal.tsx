@@ -13,11 +13,12 @@ import {
   ShieldCheck,
   Layers,
   PenLine,
+  CheckCircle2,
 } from 'lucide-react';
 import { Product, Language, CartItem } from '../../types';
 import { translations } from '../../data/translations';
 import { SizeGuideModal } from './SizeGuideModal';
-import { ProductReviewsModule } from '../reviews/ProductReviewsModule';
+import { VerifiedBuyerReviews } from '../reviews/VerifiedBuyerReviews';
 import { useStoreData } from '../../context/StoreDataContext';
 import { StoreReview } from '../../types/store';
 import {
@@ -47,17 +48,19 @@ interface QuickViewModalProps {
 }
 
 function getReviewSummary(
-  productId: string,
+  productIds: string[],
   approvedReviews: StoreReview[]
 ): { avg: string; count: number } {
+  const normalizedIds = new Set(
+    productIds.filter(Boolean).map((id) => id.toLowerCase())
+  );
   const firestoreRatings = approvedReviews
-    .filter((r) => r.productId === productId)
+    .filter((r) => normalizedIds.has(r.productId.toLowerCase()))
     .map((r) => r.rating);
-  const allRatings = firestoreRatings;
-  const count = allRatings.length;
+  const count = firestoreRatings.length;
   const avg =
     count > 0
-      ? (allRatings.reduce((acc, r) => acc + r, 0) / count).toFixed(1)
+      ? (firestoreRatings.reduce((acc, r) => acc + r, 0) / count).toFixed(1)
       : '0.0';
   return { avg, count };
 }
@@ -201,13 +204,22 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const displayedImage =
     mediaView === 'secondary' && secondaryImage ? secondaryImage : primaryImage;
 
+  const alternateReviewIds = matchedGraphicHoodie
+    ? [matchedGraphicHoodie.stkCode, matchedGraphicHoodie.id]
+    : [];
+  const reviewMatchSet = new Set(
+    [resolvedProduct.id, ...alternateReviewIds]
+      .filter(Boolean)
+      .map((id) => id.toLowerCase())
+  );
+
   const { avg: averageRating, count: reviewCount } = getReviewSummary(
-    resolvedProduct.id,
+    [resolvedProduct.id, ...alternateReviewIds],
     approvedReviews
   );
   const numericRating = Number(averageRating);
-  const latestProductReview = approvedReviews.find(
-    (r) => r.productId === resolvedProduct.id
+  const latestProductReview = approvedReviews.find((r) =>
+    reviewMatchSet.has(r.productId.toLowerCase())
   );
 
   const isThreePieceStitched =
@@ -689,9 +701,19 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
                   {latestProductReview && (
                     <div className="pt-2 border-t border-white/5 text-[11px] text-[#D8D3C9]">
-                      <div className="flex items-center justify-between gap-2 text-[10px] font-mono text-[#9A9892] mb-0.5">
-                        <span className="truncate text-[#D5BA80]">
-                          {latestProductReview.author} · {latestProductReview.location}
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono text-[#9A9892] mb-0.5">
+                        <span className="truncate text-[#D5BA80] inline-flex items-center gap-1.5">
+                          <span>
+                            {latestProductReview.author} · {latestProductReview.location}
+                          </span>
+                          {latestProductReview.verifiedBuyer && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded bg-[#B69A60]/15 border border-[#B69A60]/35 text-[#D5BA80] text-[9px]">
+                              <CheckCircle2 className="w-2.5 h-2.5" />
+                              <span>
+                                {language === 'en' ? 'Verified Buyer' : 'ভেরিফায়েড ক্রেতা'}
+                              </span>
+                            </span>
+                          )}
                         </span>
                         <span className="shrink-0">{latestProductReview.fitFeedback}</span>
                       </div>
@@ -704,11 +726,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               </div>
             )}
 
-            {/* Tab 2: Reviews & Ratings Module */}
+            {/* Tab 2: Verified Buyer's Reviews Module */}
             {activeTab === 'reviews' && (
-              <ProductReviewsModule
+              <VerifiedBuyerReviews
                 product={resolvedProduct}
+                alternateProductIds={alternateReviewIds}
                 language={language}
+                theme="dark-gold"
+                compact
                 initialOpenForm={openReviewForm}
                 onFormOpenHandled={() => setOpenReviewForm(false)}
               />

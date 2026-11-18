@@ -334,6 +334,8 @@ export const StoreDataProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             comment: String(d.comment || ''),
             status: d.status || 'approved',
             helpfulCount: Number(d.helpfulCount || 1),
+            verifiedBuyer: Boolean(d.verifiedBuyer),
+            orderReference: d.orderReference ? String(d.orderReference) : undefined,
             createdAtMs:
               d.createdAt instanceof Timestamp ? d.createdAt.toMillis() : Date.now(),
           });

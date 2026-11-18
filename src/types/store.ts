@@ -122,6 +122,8 @@ export interface StoreReview {
   comment: string;
   status: 'approved' | 'hidden';
   helpfulCount: number;
+  verifiedBuyer?: boolean;
+  orderReference?: string;
   createdAtMs: number;
 }
 

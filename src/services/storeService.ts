@@ -365,6 +365,27 @@ export async function deleteSubscriber(subscriberId: string): Promise<void> {
   }
 }
 
+export async function verifyOrderReferenceForReview(
+  rawOrderId: string
+): Promise<{ verified: boolean; orderId?: string; division?: string }> {
+  if (!db) return { verified: false };
+  const trimmed = rawOrderId.trim().toUpperCase();
+  if (!trimmed) return { verified: false };
+  const cleanId = sanitizeId(trimmed).slice(0, 64);
+  try {
+    const snap = await getDoc(doc(db, 'orderTracking', cleanId));
+    if (!snap.exists()) return { verified: false };
+    const data = snap.data();
+    return {
+      verified: true,
+      orderId: cleanId,
+      division: data?.division ? String(data.division) : undefined,
+    };
+  } catch {
+    return { verified: false };
+  }
+}
+
 export async function submitStoreReview(input: {
   productId: string;
   author: string;
@@ -374,9 +395,25 @@ export async function submitStoreReview(input: {
   fitFeedback: 'Runs True to Size' | 'Slightly Relaxed' | 'Tailored & Snug';
   title: string;
   comment: string;
+  orderReference?: string;
 }): Promise<StoreReview> {
+  if (!db) {
+    throw new Error('Reviews cloud sync requires VITE_FIREBASE_API_KEY.');
+  }
+
   const reviewId = sanitizeId(`rev-${Date.now()}-${Math.floor(Math.random() * 1000)}`);
-  const docPayload = {
+  let verifiedBuyer = false;
+  let verifiedOrderRef: string | undefined;
+
+  if (input.orderReference && input.orderReference.trim()) {
+    const verification = await verifyOrderReferenceForReview(input.orderReference);
+    if (verification.verified && verification.orderId) {
+      verifiedBuyer = true;
+      verifiedOrderRef = verification.orderId;
+    }
+  }
+
+  const docPayload: Record<string, unknown> = {
     id: reviewId,
     productId: truncateStr(input.productId, 80),
     author: truncateStr(input.author, 100),
@@ -388,11 +425,12 @@ export async function submitStoreReview(input: {
     comment: truncateStr(input.comment, 1000),
     status: 'approved' as const,
     helpfulCount: 1,
+    verifiedBuyer,
     createdAt: serverTimestamp(),
   };
 
-  if (!db) {
-    throw new Error('Reviews cloud sync requires VITE_FIREBASE_API_KEY.');
+  if (verifiedBuyer && verifiedOrderRef) {
+    docPayload.orderReference = verifiedOrderRef;
   }
 
   try {
@@ -403,16 +441,18 @@ export async function submitStoreReview(input: {
 
   return {
     id: reviewId,
-    productId: docPayload.productId,
-    author: docPayload.author,
-    location: docPayload.location,
-    rating: docPayload.rating,
-    sizePurchased: docPayload.sizePurchased,
-    fitFeedback: docPayload.fitFeedback,
-    title: docPayload.title,
-    comment: docPayload.comment,
+    productId: String(docPayload.productId),
+    author: String(docPayload.author),
+    location: String(docPayload.location),
+    rating: Number(docPayload.rating),
+    sizePurchased: String(docPayload.sizePurchased),
+    fitFeedback: input.fitFeedback,
+    title: String(docPayload.title),
+    comment: String(docPayload.comment),
     status: 'approved',
     helpfulCount: 1,
+    verifiedBuyer,
+    orderReference: verifiedOrderRef,
     createdAtMs: Date.now(),
   };
 }
